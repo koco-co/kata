@@ -8,1955 +8,1504 @@ meta:
   - 数据同步支持ob for oracle.xmind
 cases:
 - case_id: C0001
-  title: 验证支持引入OBOracle数据源完成目标操作且状态更新
+  title: 验证【数据源】-【引入数据源】选择OBOracle类型并勾选引入，列表新增数据源且类型显示OBOracle
   priority: P1
-  precondition: '1. 成功进入测试项目
-
-    2. 数据源中心存在授权给离线计算的OBOracle数据源'
+  precondition: |-
+    1) 数据源中心存在类型为「OceanBaseOracle」的数据源「${DataSourceA}」
+    2) 「${DataSourceA}」已授权给离线项目「${ProjectA}」
   steps:
-  - action: 进入【离线开发 → 数据源 ❯】页面
-    expected: 已进入【离线开发 → 数据源 ❯】页面，显示页面标题与主要操作区域
-  - action: 点击数据源--引入数据源
-    expected: 当前页面弹窗引入数据源列表
-  - action: 点击数据源类型下拉框
-    expected: 展示OBOracle选项
-  - action: 选择OBOracle类型的数据源
-    expected: OBOracle的对应信息在离线项目页面中正确回显
-  - action: 选中OBOracle数据源，点击确定
-    expected: 引入OBOracle数据源成功，当前弹窗关闭
+  - action: 进入【离线开发 → 数据源】页面
+    expected: 进入成功
+  - action: 点击「引入数据源」并打开数据源类型下拉框
+    expected: 下拉选项包含「OBOracle」
+  - action: 选择「OBOracle」并勾选「${DataSourceA}」后点击「确定」
+    expected: Toast提示:「引入成功」,列表新增「${DataSourceA}」且类型显示「OBOracle」
   tags:
-  - 数据源 ❯
+  - 离线开发
+  - 数据源
+  - 引入数据源
 - case_id: C0002
-  title: 验证数据源中心修改OBOracle配置（e.g. jdbcUrl、描述等）同步至离线
+  title: 验证【数据源中心】-【编辑数据源】修改OBOracle配置并保存，离线数据源详情同步显示新配置
   priority: P0
-  precondition: 离线测试项目中已经成功引入OBOracle数据源
+  precondition: |-
+    1) 离线项目「${ProjectA}」已引入「${DataSourceA}」
+    2) 数据源中心中「${DataSourceA}」的 JDBC 地址为 `jdbc:oceanbase://ob-15077:2883`，描述为「OBOracle-15077」
   steps:
-  - action: 进入【离线开发 → 数据源中心】页面
-    expected: 已进入【离线开发 → 数据源中心】页面，显示页面标题与主要操作区域
-  - action: 进入数据源中心，编辑已经引入到离线项目中的OBOracle数据源，如修改描述、jdbc、高可用配置等，查看离线中对应的OBOracle数据源信息
-    expected: 离线中的OBOracle数据源信息同步修改
-  - action: 查看离线数据同步任务中对应的OBOracle信息
-    expected: 离线数据同步任务中的OBOracle数据源信息、高可用配置同步修改
+  - action: 进入【平台管理 → 数据源中心】页面
+    expected: 进入成功
+  - action: 编辑「${DataSourceA}」，将 JDBC 地址改为 `jdbc:oceanbase://ob-15077-new:2883`、描述改为「OBOracle-15077-new」并点击「保存」
+    expected: Toast提示:「保存成功」,数据源列表显示新 JDBC 地址和新描述
+  - action: 进入【离线开发 → 数据源】页面
+    expected: 进入成功
+  - action: 查看「${DataSourceA}」详情
+    expected: JDBC 地址为 `jdbc:oceanbase://ob-15077-new:2883`,描述为「OBOracle-15077-new」
   tags:
-  - 数据源 ❯
+  - 平台管理
+  - 数据源中心
+  - 编辑数据源
 - case_id: C0003
-  title: 验证已经在任务中使用的OBOracle数据源取消引入(取消失败)
+  title: 验证【数据源】-【取消引入】取消被任务引用的数据源，提示无法取消且列表保留该数据源(被任务引用)
   priority: P1
-  precondition: 数据源中心存在授权给离线计算的OBOracle数据源，且该数据源已在离线任务中使用
+  precondition: |-
+    1) 离线项目「${ProjectA}」已引入「${DataSourceA}」
+    2) 任务「${TaskA}」使用「${DataSourceA}」作为来源数据源
   steps:
-  - action: 进入【离线开发 → 数据源 ❯】页面
-    expected: 已进入【离线开发 → 数据源 ❯】页面，显示页面标题与主要操作区域
-  - action: 点击已经被任务使用的OBOracle数据源后的操作，点击取消引入
-    expected: 弹出二次确认弹窗
-  - action: 点击确定
-    expected: 取消引入失败，页面弹出对应的提示信息
+  - action: 进入【离线开发 → 数据源】页面
+    expected: 进入成功
+  - action: 点击「${DataSourceA}」操作列的「取消引入」
+    expected: 打开二次确认弹窗
+  - action: 点击确认弹窗中的「确定」
+    expected: Toast提示:「数据源正在被任务使用，无法取消引入」,「${DataSourceA}」仍在列表中
   tags:
-  - 数据源 ❯
+  - 离线开发
+  - 数据源
+  - 取消引入
 - case_id: C0004
-  title: 验证未在任务中使用的OBOracle数据源取消引入(取消成功)
+  title: 验证【数据源】-【取消引入】取消未被任务引用的数据源，提示取消成功且列表不再显示该数据源(未被任务引用)
   priority: P1
-  precondition: 数据源中心存在授权给离线计算的OBOracle数据源，且该数据源未在离线任务中使用
+  precondition: |-
+    1) 离线项目「${ProjectA}」已引入「${DataSourceA}」
+    2) 离线项目中不存在引用「${DataSourceA}」的任务
   steps:
-  - action: 进入【离线开发 → 未在任务中使用的OBOracle数据源取消引入】页面
-    expected: 已进入【离线开发 → 未在任务中使用的OBOracle数据源取消引入】页面，显示页面标题与主要操作区域
-  - action: 点击未被使用的OBOracle数据源后的操作，点击取消引入
-    expected: 弹出二次确认弹窗
-  - action: 点击确定
-    expected: 取消引入成功
+  - action: 进入【离线开发 → 数据源】页面
+    expected: 进入成功
+  - action: 点击「${DataSourceA}」操作列的「取消引入」并点击「确定」
+    expected: Toast提示:「取消引入成功」,列表不再显示「${DataSourceA}」
   tags:
-  - 数据源 ❯
+  - 离线开发
+  - 数据源
+  - 取消引入
 - case_id: C0005
-  title: 验证OBOracle数据源筛选完成目标操作且状态更新
+  title: 验证【数据源】-【筛选】按类型筛选并搜索OBOracle数据源，列表仅展示匹配的数据源
   priority: P2
-  precondition: 离线测试项目中已经成功引入OBOracle数据源
+  precondition: |-
+    1) 离线项目「${ProjectA}」已引入「${DataSourceA}」和「${DataSourceC}」
   steps:
-  - action: 进入【离线开发 → OBOracle数据源筛选完成目标操作且状态更新】页面
-    expected: 已进入【离线开发 → OBOracle数据源筛选完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-  - action: 点击数据源页面筛选按钮
-    expected: 显示数据源类型列表，新增OBOracle数据源类型，顺序与数据源中心一致
-  - action: 选中OBOracle，点击确定
-    expected: OBOracle类型的数据源被成功筛选出来，对应信息正确回显，类型正确展示OBOracle
-  - action: 在搜索框中输入OBOracle名称
-    expected: 满足条件的OBOracle数据源被筛选出来
+  - action: 进入【离线开发 → 数据源】页面
+    expected: 进入成功
+  - action: 打开筛选下拉框并选择数据源类型「OBOracle」
+    expected: 下拉框显示「OBOracle」已选
+  - action: 点击「确定」
+    expected: 列表仅显示「${DataSourceA}」,类型列显示「OBOracle」
+  - action: 在搜索框输入 `${DataSourceA}`
+    expected: 列表保留 1 条名称为「${DataSourceA}」的记录
   tags:
-  - 数据源 ❯
+  - 离线开发
+  - 数据源
+  - 筛选
 - case_id: C0006
-  title: 验证OBOracle数据源映射配置完成目标操作且状态更新
+  title: 验证【数据源】-【映射配置】配置项目间数据源映射，映射状态显示已配置且生产项目仅展示取消引入
   priority: P0
-  precondition: 离线测试项目与生产项目中已经成功引入OBOracle数据源
+  precondition: |-
+    1) 测试项目「${ProjectA}」和生产项目「${ProjectB}」均已引入「${DataSourceA}」
+    2) 测试项目已绑定发布目标「${ProjectB}」
   steps:
-  - action: 进入【离线开发 → 测试项目】页面
-    expected: 已进入【离线开发 → 测试项目】页面，显示页面标题与主要操作区域
-  - action: 进入测试项目, 点击OBOracle数据源后的操作
-    expected: 操作支持取消引入和映射配置
-  - action: 点击OBOracle数据源后的操作--映射配置
-    expected: 当前页面弹出OBOracle数据源映射配置弹窗，在本项目文本框下显示的为用户名
-  - action: 点击发布目标
-    expected: 下拉弹窗中显示出生产项目中成功引入的OBOracle数据源
-  - action: 选择其中一个，点击确定
-    expected: 映射配置弹窗关闭，OBOracle数据源映射配置关系设置成功，OBOracle映射关系变更为“已配置”
-  - action: 进入生产项目，点击OBOracle数据源后的操作
-    expected: 操作支持取消引入，无映射配置选项
+  - action: 进入【离线开发 → 数据源】页面
+    expected: 进入成功
+  - action: 点击测试项目中「${DataSourceA}」操作列的「映射配置」
+    expected: 打开映射配置弹窗，本项目数据源名称显示「${DataSourceA}」
+  - action: 在发布目标下拉框选择「${ProjectB}」中的「${DataSourceA}」并点击「确定」
+    expected: 弹窗关闭,测试项目中的映射状态显示「已配置」
+  - action: 切换至生产项目查看「${DataSourceA}」操作列
+    expected: 生产项目仅显示「取消引入」,不显示「映射配置」
   tags:
-  - 数据源 ❯
+  - 离线开发
+  - 数据源
+  - 数据源映射
 - case_id: C0007
-  title: 验证控制台配置OBOracle计算组件后，创建项目正常产生对应Meta数据源
+  title: 验证【计算组件】-【项目管理】新建OBOracle组件项目，项目数据源列表新增关联组件的Meta数据源
   priority: P1
-  precondition: 1. 控制台已经配置对应组件
+  precondition: |-
+    1) 平台组件配置中存在名称为「ob-oracle-component-15077」的 OBOracle 计算组件
+    2) 组件状态为「启用」
   steps:
-  - action: 进入【离线开发 → 离线】页面
-    expected: 已进入【离线开发 → 离线】页面，显示页面标题与主要操作区域
-  - action: 进入离线-点击创建项目
-    expected: 进入创建项目界面
-  - action: 勾选OBOracle数据源，其余必填项默认填写，点击确定
-    expected: 项目创建完成
-  - action: 点击项目名称进入项目-进入数据源
-    expected: OBOracle数据源正常展示为meta数据源
+  - action: 进入【平台管理 → 计算组件】页面
+    expected: 进入成功
+  - action: 查看「ob-oracle-component-15077」
+    expected: 组件类型显示「OBOracle」,状态显示「启用」
+  - action: 进入【离线开发 → 项目管理】页面
+    expected: 进入成功
+  - action: 点击「新建项目」，填写项目名称「${ProjectC}」并选择 OBOracle 组件后点击「确定」
+    expected: Toast提示:「创建成功」,项目列表新增「${ProjectC}」
+  - action: 打开项目「${ProjectC}」的数据源列表
+    expected: 列表新增类型为「Meta」且关联组件为「ob-oracle-component-15077」的数据源
   tags:
-  - 数据源 ❯
+  - 平台管理
+  - 计算组件
+  - 项目管理
 - case_id: C0008
-  title: 验证不包含任何schema的OBOracle数据源引入后无法选择schema
+  title: 验证【数据源】-【Schema选择】引入无可用schema的数据源并新建任务，schema下拉框无可选项
   priority: P2
-  precondition: '1. 离线测试项目与生产项目中已经成功引入OBOracle数据源
-
-    2. 当前项目（测试项目）已经成功绑定发布目标项目'
+  precondition: |-
+    1) 数据源中心存在名称为「${DataSourceE}」、类型为「OceanBaseOracle」的数据源
+    2) 「${DataSourceE}」的可用 schema 列表为空
   steps:
-  - action: 进入【离线开发 → 数据源 ❯】页面
-    expected: 已进入【离线开发 → 数据源 ❯】页面，显示页面标题与主要操作区域
-  - action: 引入一个没有任何schema的OBOracle数据源
-    expected: 引入成功
-  - action: 创建数据同步任务，选择上述所引入数据源，点击schema下拉框
-    expected: 数据源选择成功，schema下拉框为空
+  - action: 进入【离线开发 → 数据源】页面
+    expected: 进入成功
+  - action: 引入「${DataSourceE}」并点击「确定」
+    expected: Toast提示:「引入成功」,列表新增「${DataSourceE}」
+  - action: 进入【离线开发 → 任务开发】页面并新建数据同步任务
+    expected: 进入成功
+  - action: 在来源数据源选择「${DataSourceE}」并打开 schema 下拉框
+    expected: schema 下拉框无可选项
   tags:
-  - 数据源 ❯
+  - 离线开发
+  - 数据源
+  - OceanBaseOracle
 - case_id: C0009
-  title: 验证整库同步完成目标操作且状态更新(OBOracle > Hive)
+  title: 验证【数据同步任务】-【整库同步】配置OBOracle到Hive整库同步并临时运行，任务运行成功且目标表记录数为2
   priority: P0
-  precondition: 1. 控制台已经配置对应组件
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}
+    4) 在 ${SchemaA} 创建源表并插入 2 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0009_source_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0009_source_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0009_source_01 VALUES (1, 'A001');
+       INSERT INTO ${SchemaA}.test_table_15077_c0009_source_01 VALUES (2, 'A002');
+       COMMIT;
+    5) 授权数据源 B：${DataSourceB}
+    6) 数据源 B 类型：Hive
+    7) 数据源 B 存在数据库：${SchemaB}
+    8) 在 ${SchemaB} 预建目标表结构，该表为空表：
+       DROP TABLE IF EXISTS ${SchemaB}.test_table_15077_c0009_target_01;
+       CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15077_c0009_target_01 (
+         id BIGINT,
+         code STRING
+       );
   steps:
-  - action: 进入【离线开发 → 整库同步完成目标操作且状态更新】页面
-    expected: 已进入【离线开发 → 整库同步完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-  - action: 进入数据源-点击OBOracle操作列整库同步按钮
-    expected: 进入整库同步界面
-  - action: '勾选需要整库同步的表
-
-      选择数据同步目标（hive 3.x CDP）、schema
-
-      同步方式：全量
-
-      并发配置：整批上传
-
-      保存目录：默认
-
-      点击发布任务'
-    expected: 任务发布完成
-  - action: 进入数据开发界面查看对应目录下内容
-    expected: 包含整库同步所创建的数据同步任务，表名为所配置表表名，目标库新建对应表
-  - action: 数据同步任务点击临时运行
-    expected: 任务运行成功
-  - action: 查看目标表数据
-    expected: 成功从{OBOracle}中表同步过来，包括各类型字段值
+  - action: 进入【离线开发 → 数据源】页面
+    expected: 进入成功
+  - action: 点击「${DataSourceA}」操作列的「整库同步」
+    expected: 打开整库同步配置页
+  - action: 选择 schema「${SchemaA}」、表「test_table_15077_c0009_source_01」、目标数据源「${DataSourceB}」并点击「发布任务」
+    expected: Toast提示:「发布成功」,任务列表新增 1 条同步任务
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 点击该任务的「临时运行」
+    expected: 运行状态：「成功」
+  - action: 查看目标表「${SchemaB}.test_table_15077_c0009_target_01」记录
+    expected: 目标表记录数为 2，字段 id 的值为 1、2
   tags:
-  - 数据源 ❯
+  - 离线开发
+  - 数据源
+  - 整库同步
 - case_id: C0010
-  title: 验证整库同步完成目标操作且状态更新(Other > OBOracle(非Meta))
+  title: 验证【数据同步任务】-【整库同步】配置MySQL到OBOracle整库同步并临时运行，任务运行成功且目标表记录数为2(非Meta目标)
   priority: P1
-  precondition: 数据源中心已经配置对应组件
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 授权数据源 C：${DataSourceC}
+    4) 数据源 C 类型：MySQL
+    5) 数据源 C 存在数据库：${SchemaC}
+    6) 在 ${SchemaC} 创建源表并插入 2 行数据：
+       DROP TABLE IF EXISTS ${SchemaC}.test_table_15077_c0010;
+       CREATE TABLE IF NOT EXISTS ${SchemaC}.test_table_15077_c0010 (
+         id BIGINT,
+         code VARCHAR(20)
+       );
+       INSERT INTO ${SchemaC}.test_table_15077_c0010 VALUES (1, 'A001'), (2, 'A002');
   steps:
-  - action: 进入【离线开发 → 整库同步完成目标操作且状态更新】页面
-    expected: 已进入【离线开发 → 整库同步完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-  - action: 进入数据源-点击mysql操作列整库同步按钮
-    expected: 进入整库同步界面
-  - action: '勾选需要整库同步的表
-
-      选择数据同步目标为OBOracle（引入数据源）、schema
-
-      同步方式：全量
-
-      并发配置：整批上传
-
-      保存目录：默认
-
-      点击发布任务'
-    expected: 任务发布完成
-  - action: 进入数据开发界面查看对应目录下内容
-    expected: 包含整库同步所创建的数据同步任务，表名为所配置表表名，目标库新建对应表
-  - action: 数据同步任务点击临时运行
-    expected: 任务运行成功
-  - action: 查看目标表数据
-    expected: 成功从mysql中表同步过来，包括各类型字段值
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建数据同步任务，来源选择「${DataSourceC}.${SchemaC}.test_table_15077_c0010」，目标选择非 Meta 数据源「${DataSourceA}」
+    expected: 来源表和目标数据源显示在任务配置中
+  - action: 点击「保存」并「发布任务」
+    expected: Toast提示:「发布成功」,任务状态显示「未运行」
+  - action: 点击「临时运行」
+    expected: 运行状态：「成功」,目标表记录数为 2
   tags:
-  - 数据源 ❯
+  - 离线开发
+  - 任务开发
+  - 整库同步
 - case_id: C0011
-  title: 验证整库同步完成目标操作且状态更新(Other > OBOracle(Meta))
+  title: 验证【数据同步任务】-【整库同步】配置Hive到OBOracle整库同步并临时运行，任务运行成功且目标表记录数为2(Meta目标)
   priority: P1
-  precondition: 1. 控制台已经配置对应组件
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 授权数据源 B：${DataSourceB}
+    4) 数据源 B 类型：Hive
+    5) 数据源 B 存在数据库：${SchemaB}
+    6) 在 ${SchemaB} 创建源表并插入 2 行数据：
+       DROP TABLE IF EXISTS ${SchemaB}.test_table_15077_c0011;
+       CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15077_c0011 (
+         id BIGINT,
+         code STRING
+       );
+       INSERT INTO ${SchemaB}.test_table_15077_c0011 VALUES (1, 'A001');
+       INSERT INTO ${SchemaB}.test_table_15077_c0011 VALUES (2, 'A002');
+    7) 授权数据源 D：${DataSourceD}
   steps:
-  - action: 进入【离线开发 → 整库同步完成目标操作且状态更新】页面
-    expected: 已进入【离线开发 → 整库同步完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-  - action: 进入数据源-点击mysql操作列整库同步按钮
-    expected: 进入整库同步界面
-  - action: '勾选需要整库同步的表
-
-      选择数据同步目标为OBOracle（meta数据源）、schema
-
-      同步方式：全量
-
-      并发配置：整批上传
-
-      保存目录：默认
-
-      点击发布任务'
-    expected: 任务发布完成
-  - action: 进入数据开发界面查看对应目录下内容
-    expected: 包含整库同步所创建的数据同步任务，表名为所配置表表名，目标库新建对应表
-  - action: 进入资产-元数据-数据表查看
-    expected: 目标库所建表被正常同步至资产，表信息与预期值一致结果
-  - action: 进入离线-数据地图查看
-    expected: 目标库所建表语句正常进入数据地图，表信息与预期值一致结果
-  - action: 数据同步任务点击临时运行
-    expected: 任务运行成功
-  - action: 查看目标表数据
-    expected: 成功从mysql中表同步过来，包括各类型字段值
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建数据同步任务，来源选择「${DataSourceB}.${SchemaB}.test_table_15077_c0011」，目标选择 Meta 数据源「${DataSourceD}」
+    expected: 来源表和目标数据源显示在任务配置中
+  - action: 点击「保存」并「发布任务」
+    expected: Toast提示:「发布成功」,任务状态显示「未运行」
+  - action: 点击「临时运行」
+    expected: 运行状态：「成功」,目标表记录数为 2
   tags:
-  - 数据源 ❯
+  - 离线开发
+  - 任务开发
+  - 整库同步
 - case_id: C0012
-  title: 验证「数据来源-数据预览」完成目标操作且状态更新
-  priority: P0
-  precondition: "1. 当前项目中已经成功引入OBOracle数据源\n\n2. OBOracle中存在含有2 个字段的表, 建表语句如下:\n\nBEGIN\n    EXECUTE IMMEDIATE 'DROP TABLE\
-    \ PORT_VESSEL_OPERATION_RECORD';\nEXCEPTION\n    WHEN OTHERS THEN\n        IF SQLCODE != -942 THEN\n            RAISE;\n\
-    \        END IF;\nEND;\n\nCREATE TABLE PORT_VESSEL_OPERATION_RECORD (\n    VESSEL_CODE SMALLINT,\n    CARGO_DENSITY BINARY_DOUBLE,\n\
-    \    BERTH_CODE CHAR(3),\n    VESSEL_NAME VARCHAR(100),\n    VOYAGE_NO VARCHAR2(50),\n    NATIONALITY_CODE NCHAR(2),\n\
-    \    SHIPPING_COMPANY NVARCHAR2(120),\n    CONTAINER_COUNT INT,\n    CREW_GROUP_ID INTEGER,\n    TOTAL_WEIGHT_TON NUMBER(12,3),\n\
-    \    CARGO_VOLUME_M3 DECIMAL(10,2),\n    FUEL_CONSUMPTION_RATE FLOAT,\n    SCHEDULED_BERTHING_DATE DATE,\n    AIS_DEVICE_MAC\
-    \ RAW(6),\n    LOG_SNAPSHOT BLOB,\n    DRAFT_DEPTH_M BINARY_FLOAT,\n    ACTUAL_BERTHING_TS TIMESTAMP,\n    RECORD_CREATED_TSLTZ\
-    \ TIMESTAMP WITH LOCAL TIME ZONE,\n    ESTIMATED_DEPARTURE_TSTZ TIMESTAMP WITH TIME ZONE,\n    CONTRACT_VALIDITY INTERVAL\
-    \ YEAR TO MONTH,\n    MAX_BERTHING_DELAY INTERVAL DAY TO SECOND\n)\nPARTITION BY RANGE (SCHEDULED_BERTHING_DATE) (\n \
-    \   PARTITION p_2025_q1 VALUES LESS THAN (DATE '2025-04-01'),\n    PARTITION p_2025_q2 VALUES LESS THAN (DATE '2025-07-01'),\n\
-    \    PARTITION p_2025_q3 VALUES LESS THAN (DATE '2025-10-01'),\n    PARTITION p_2025_q4 VALUES LESS THAN (DATE '2026-01-01'),\n\
-    \    PARTITION p_max VALUES LESS THAN (MAXVALUE)\n);\n\nCOMMENT ON TABLE PORT_VESSEL_OPERATION_RECORD IS '宁波港船舶靠泊与货物装卸作业记录表';\n\
-    COMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.VESSEL_CODE IS '船舶内部编号';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.CARGO_DENSITY\
-    \ IS '货物密度（吨/立方米）';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.BERTH_CODE IS '靠泊码头代码';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.VESSEL_NAME\
-    \ IS '船名';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.VOYAGE_NO IS '航次号';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.NATIONALITY_CODE\
-    \ IS '船舶国籍代码';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.SHIPPING_COMPANY IS '船公司名称';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.CONTAINER_COUNT\
-    \ IS '集装箱数量';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.CREW_GROUP_ID IS '装卸工人班组ID';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.TOTAL_WEIGHT_TON\
-    \ IS '货物总重量（吨）';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.CARGO_VOLUME_M3 IS '货物体积（立方米）';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.FUEL_CONSUMPTION_RATE\
-    \ IS '燃油消耗率估算';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.SCHEDULED_BERTHING_DATE IS '计划靠泊日期';\nCOMMENT ON COLUMN\
-    \ PORT_VESSEL_OPERATION_RECORD.AIS_DEVICE_MAC IS 'AIS设备MAC地址';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.LOG_SNAPSHOT\
-    \ IS '船舶电子日志快照';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.DRAFT_DEPTH_M IS '实时吃水深度（米）';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.ACTUAL_BERTHING_TS\
-    \ IS '实际靠泊时间戳';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.RECORD_CREATED_TSLTZ IS '操作记录创建时间（本地时区）';\nCOMMENT ON\
-    \ COLUMN PORT_VESSEL_OPERATION_RECORD.ESTIMATED_DEPARTURE_TSTZ IS '预期离港时间（带时区）';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.CONTRACT_VALIDITY\
-    \ IS '合同有效期（年-月间隔）';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.MAX_BERTHING_DELAY IS '最大允许靠泊延迟时间（天-秒间隔）';\n\nALTER\
-    \ SESSION SET TIME_ZONE = '+08:00';\n\nINSERT INTO PORT_VESSEL_OPERATION_RECORD VALUES (\n    101,\n    1. 842375642389,\n\
-    \    'NCT',\n    'COSCO SHIPPING AQUARIUS',\n    '2508E',\n    N'CN',\n    N'中远海运集团',\n    2845,\n    7,\n    32567. 890,\n\
-    \    41250. 75,\n    12. 5,\n    DATE '2025-12-10',\n    HEXTORAW('A1B2C3D4E5F6'),\n    NULL,\n    14. 25,\n    TIMESTAMP\
-    \ '2025-12-10 14:30:22.123',\n    TIMESTAMP '2025-12-10 14:35:00.000',\n    TIMESTAMP '2025-12-12 09:00:00.000 +08:00',\n\
-    \    INTERVAL '2' YEAR,\n    INTERVAL '1 06:30:00' DAY TO SECOND\n);\n\nINSERT INTO PORT_VESSEL_OPERATION_RECORD VALUES\
-    \ (\n    205,\n    0. 921456789012,\n    'MXT',\n    'MAERSK HANGZHOU',\n    '345W',\n    N'DK',\n    N'Maersk Line',\n\
-    \    4120,\n    3,\n    45890. 123,\n    58760. 50,\n    18. 7,\n    DATE '2025-12-11',\n    HEXTORAW('112233445566'),\n\
-    \    NULL,\n    15. 8,\n    TIMESTAMP '2025-12-11 08:15:45.678',\n    TIMESTAMP '2025-12-11 08:20:00.000',\n    TIMESTAMP\
-    \ '2025-12-13 18:00:00.000 +08:00',\n    INTERVAL '1-6' YEAR TO MONTH,\n    INTERVAL '2 12:00:00' DAY TO SECOND\n);\n\n\
-    INSERT INTO PORT_VESSEL_OPERATION_RECORD VALUES (\n    99,\n    2. 310987654321,\n    'ZGT',\n    'OOCL NINGBO',\n   \
-    \ '888N',\n    N'HG',\n    N'东方海外',\n    3560,\n    12,\n    39876. 456,\n    49820. 25,\n    15. 2,\n    DATE '2025-12-09',\n\
-    \    HEXTORAW('AAABBBCCCDDD'),\n    NULL,\n    13. 95,\n    TIMESTAMP '2025-12-09 22:45:10.999',\n    TIMESTAMP '2025-12-09\
-    \ 22:50:00.000',\n    TIMESTAMP '2025-12-11 06:00:00.000 +08:00',\n    INTERVAL '3' YEAR,\n    INTERVAL '0 04:15:30' DAY\
-    \ TO SECOND\n);\n\nSELECT * FROM PORT_VESSEL_OPERATION_RECORD;"
+  title: 验证【数据同步任务】-【数据预览】预览OBOracle来源表，预览结果包含2行且字段值与来源一致
+  priority: P1
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}
+    4) 在 ${SchemaA} 创建源表并插入 2 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0012';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0012 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0012 VALUES (1, 'A001');
+       INSERT INTO ${SchemaA}.test_table_15077_c0012 VALUES (2, 'A002');
+       COMMIT;
   steps:
-  - action: 进入【离线开发 → 数据预览】页面
-    expected: 已进入【离线开发 → 数据预览】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: 配置数据来源为{OBOracle}数据源(非meta)，选择表PORT_VESSEL_OPERATION_RECORD
-    expected: 表配置成功
-  - action: 点击数据预览按钮
-    expected: 下拉展示当前所选表前三条数据
-  - action: 数据过滤输入VESSEL_CODE > 100，点击数据预览按钮
-    expected: 下拉展示当前所选表VESSEL_CODE > 100的前三条数据
-  - action: 选择自定义sql, 输入SELECT * FROM PORT_VESSEL_OPERATION_RECORD WHERE VESSEL_CODE > 100;，点击数据预览按钮
-    expected: 下拉展示当前所选表VESSEL_CODE > 100的前三条数据
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建数据同步任务，来源选择「${DataSourceA}.${SchemaA}.test_table_15077_c0012」
+    expected: 来源表字段列表显示 id、code
+  - action: 点击「数据预览」
+    expected: 预览结果包含 2 行，第一行 id=1、code=A001，第二行 id=2、code=A002
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 数据预览
 - case_id: C0013
-  title: 验证「数据来源&选择目标」Schema下拉框展示数据正常
+  title: 验证【数据同步任务】-【Schema下拉框】打开OBOracle来源schema下拉框，选项展示全部可用schema且无重复项
   priority: P2
-  precondition: "1. 当前项目中已经成功引入oboracle数据源\n\n2. oboracle中存在含有2 个字段的表\n\nBEGIN\n    EXECUTE IMMEDIATE 'DROP TABLE test_duoziduan_001';\n\
-    EXCEPTION\n    WHEN OTHERS THEN\n        IF SQLCODE != -942 THEN\n            RAISE;\n        END IF;\nEND;\n\nCREATE\
-    \ TABLE test_duoziduan_001 (\n    order_header_id VARCHAR2(4000),\n    order_date      NUMBER,\n    shop_id         VARCHAR2(4000),\n\
-    \    customer_id     VARCHAR2(4000),\n    order_status    NUMBER,\n    pay_date        DATE,\n    pay_boolen      NUMBER(1,0),\n\
-    \    pay_decli       NUMBER(10,2)\n);\n\nCOMMENT ON TABLE test_duoziduan_001 IS '销售订单明细表';\nCOMMENT ON COLUMN test_duoziduan_001.order_header_id\
-    \ IS '订单头id';\nCOMMENT ON COLUMN test_duoziduan_001.order_date IS '订单日期';\nCOMMENT ON COLUMN test_duoziduan_001.shop_id\
-    \ IS '店铺id';\nCOMMENT ON COLUMN test_duoziduan_001.customer_id IS '客户id';\nCOMMENT ON COLUMN test_duoziduan_001.order_status\
-    \ IS '订单状态';\nCOMMENT ON COLUMN test_duoziduan_001.pay_date IS '支付日期';\nCOMMENT ON COLUMN test_duoziduan_001.pay_boolen\
-    \ IS '是否支付';\nCOMMENT ON COLUMN test_duoziduan_001.pay_decli IS '支付金额';\n\nBEGIN\n    EXECUTE IMMEDIATE 'DROP TABLE test_duoziduan_002';\n\
-    EXCEPTION\n    WHEN OTHERS THEN\n        IF SQLCODE != -942 THEN\n            RAISE;\n        END IF;\nEND;\n\nCREATE\
-    \ TABLE test_duoziduan_002 (\n    order_header_id VARCHAR2(4000),\n    order_date      NUMBER,\n    shop_id         VARCHAR2(4000),\n\
-    \    customer_id     VARCHAR2(4000),\n    order_status    NUMBER,\n    pay_date        DATE,\n    pay_boolen      NUMBER(1,0),\n\
-    \    pay_decli       NUMBER(10,2)\n);\n\nCOMMENT ON TABLE test_duoziduan_002 IS '销售订单明细表';\nCOMMENT ON COLUMN test_duoziduan_002.order_header_id\
-    \ IS '订单头id';\nCOMMENT ON COLUMN test_duoziduan_002.order_date IS '订单日期';\nCOMMENT ON COLUMN test_duoziduan_002.shop_id\
-    \ IS '店铺id';\nCOMMENT ON COLUMN test_duoziduan_002.customer_id IS '客户id';\nCOMMENT ON COLUMN test_duoziduan_002.order_status\
-    \ IS '订单状态';\nCOMMENT ON COLUMN test_duoziduan_002.pay_date IS '支付日期';\nCOMMENT ON COLUMN test_duoziduan_002.pay_boolen\
-    \ IS '是否支付';\nCOMMENT ON COLUMN test_duoziduan_002.pay_decli IS '支付金额';\n\nINSERT INTO test_duoziduan_001 VALUES ('OH001',\
-    \ 20250101, 'S001', 'C001', 1, DATE '2025-01-02', 1, 199.99);\nINSERT INTO test_duoziduan_001 VALUES ('OH002', 20250102,\
-    \ 'S002', 'C002', 1, DATE '2025-01-03', 1, 59.50);\nINSERT INTO test_duoziduan_001 VALUES ('OH003', 20250103, 'S001',\
-    \ 'C003', 0, NULL, 0, 0.00);\nINSERT INTO test_duoziduan_001 VALUES ('OH004', 20250104, 'S003', 'C004', 2, DATE '2025-01-05',\
-    \ 1, 350.75);\nINSERT INTO test_duoziduan_001 VALUES ('OH005', 20250105, 'S002', 'C005', 1, DATE '2025-01-06', 1, 120.00);\n\
-    INSERT INTO test_duoziduan_001 VALUES ('OH006', 20250106, 'S004', 'C006', 3, NULL, 0, 0.00);\nINSERT INTO test_duoziduan_001\
-    \ VALUES ('OH007', 20250107, 'S003', 'C007', 1, DATE '2025-01-08', 1, 499.00);\nINSERT INTO test_duoziduan_001 VALUES\
-    \ ('OH008', 20250108, 'S002', 'C008', 0, NULL, 0, 0.00);\nINSERT INTO test_duoziduan_001 VALUES ('OH009', 20250109, 'S005',\
-    \ 'C009', 2, DATE '2025-01-10', 1, 80.20);\nINSERT INTO test_duoziduan_001 VALUES ('OH010', 20250110, 'S001', 'C010',\
-    \ 1, DATE '2025-01-11', 1, 260.45);"
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 在 ${SchemaA} 创建数据表并插入 1 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0013';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0013 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0013 VALUES (1, 'A001');
+       COMMIT;
   steps:
-  - action: 进入【离线开发 → 数据开发模块】页面
-    expected: 已进入【离线开发 → 数据开发模块】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: 选择数据来源(OceanBase 4.3.x(Oracle)), 点击schema
-    expected: 只展示已对接的schema
-  - action: 选择来源表后, 点击下一步
-    expected: 进入选择目标界面
-  - action: 选择数据同步目标(OceanBase 4.3.x(Oracle)), 点击schema
-    expected: 同样仅展示已对接的schema
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建数据同步任务并选择来源「${DataSourceA}」
+    expected: 显示 schema 下拉框
+  - action: 打开 schema 下拉框
+    expected: 下拉选项包含「${SchemaA}」「${SchemaA2}」且无重复项
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - Schema下拉框
 - case_id: C0014
-  title: 验证「数据来源&选择目标」Schema下拉框模糊搜索正常
+  title: 验证【数据同步任务】-【Schema下拉框】模糊搜索schema，下拉列表仅保留匹配项
   priority: P2
-  precondition: "1. 当前项目中已经成功引入oboracle数据源\n\n2. oboracle中存在含有2 个字段的表\n\nBEGIN\n    EXECUTE IMMEDIATE 'DROP TABLE test_duoziduan_001';\n\
-    EXCEPTION\n    WHEN OTHERS THEN\n        IF SQLCODE != -942 THEN\n            RAISE;\n        END IF;\nEND;\n\nCREATE\
-    \ TABLE test_duoziduan_001 (\n    order_header_id VARCHAR2(4000),\n    order_date      NUMBER,\n    shop_id         VARCHAR2(4000),\n\
-    \    customer_id     VARCHAR2(4000),\n    order_status    NUMBER,\n    pay_date        DATE,\n    pay_boolen      NUMBER(1,0),\n\
-    \    pay_decli       NUMBER(10,2)\n);\n\nCOMMENT ON TABLE test_duoziduan_001 IS '销售订单明细表';\nCOMMENT ON COLUMN test_duoziduan_001.order_header_id\
-    \ IS '订单头id';\nCOMMENT ON COLUMN test_duoziduan_001.order_date IS '订单日期';\nCOMMENT ON COLUMN test_duoziduan_001.shop_id\
-    \ IS '店铺id';\nCOMMENT ON COLUMN test_duoziduan_001.customer_id IS '客户id';\nCOMMENT ON COLUMN test_duoziduan_001.order_status\
-    \ IS '订单状态';\nCOMMENT ON COLUMN test_duoziduan_001.pay_date IS '支付日期';\nCOMMENT ON COLUMN test_duoziduan_001.pay_boolen\
-    \ IS '是否支付';\nCOMMENT ON COLUMN test_duoziduan_001.pay_decli IS '支付金额';\n\nBEGIN\n    EXECUTE IMMEDIATE 'DROP TABLE test_duoziduan_002';\n\
-    EXCEPTION\n    WHEN OTHERS THEN\n        IF SQLCODE != -942 THEN\n            RAISE;\n        END IF;\nEND;\n\nCREATE\
-    \ TABLE test_duoziduan_002 (\n    order_header_id VARCHAR2(4000),\n    order_date      NUMBER,\n    shop_id         VARCHAR2(4000),\n\
-    \    customer_id     VARCHAR2(4000),\n    order_status    NUMBER,\n    pay_date        DATE,\n    pay_boolen      NUMBER(1,0),\n\
-    \    pay_decli       NUMBER(10,2)\n);\n\nCOMMENT ON TABLE test_duoziduan_002 IS '销售订单明细表';\nCOMMENT ON COLUMN test_duoziduan_002.order_header_id\
-    \ IS '订单头id';\nCOMMENT ON COLUMN test_duoziduan_002.order_date IS '订单日期';\nCOMMENT ON COLUMN test_duoziduan_002.shop_id\
-    \ IS '店铺id';\nCOMMENT ON COLUMN test_duoziduan_002.customer_id IS '客户id';\nCOMMENT ON COLUMN test_duoziduan_002.order_status\
-    \ IS '订单状态';\nCOMMENT ON COLUMN test_duoziduan_002.pay_date IS '支付日期';\nCOMMENT ON COLUMN test_duoziduan_002.pay_boolen\
-    \ IS '是否支付';\nCOMMENT ON COLUMN test_duoziduan_002.pay_decli IS '支付金额';\n\nINSERT INTO test_duoziduan_001 VALUES ('OH001',\
-    \ 20250101, 'S001', 'C001', 1, DATE '2025-01-02', 1, 199.99);\nINSERT INTO test_duoziduan_001 VALUES ('OH002', 20250102,\
-    \ 'S002', 'C002', 1, DATE '2025-01-03', 1, 59.50);\nINSERT INTO test_duoziduan_001 VALUES ('OH003', 20250103, 'S001',\
-    \ 'C003', 0, NULL, 0, 0.00);\nINSERT INTO test_duoziduan_001 VALUES ('OH004', 20250104, 'S003', 'C004', 2, DATE '2025-01-05',\
-    \ 1, 350.75);\nINSERT INTO test_duoziduan_001 VALUES ('OH005', 20250105, 'S002', 'C005', 1, DATE '2025-01-06', 1, 120.00);\n\
-    INSERT INTO test_duoziduan_001 VALUES ('OH006', 20250106, 'S004', 'C006', 3, NULL, 0, 0.00);\nINSERT INTO test_duoziduan_001\
-    \ VALUES ('OH007', 20250107, 'S003', 'C007', 1, DATE '2025-01-08', 1, 499.00);\nINSERT INTO test_duoziduan_001 VALUES\
-    \ ('OH008', 20250108, 'S002', 'C008', 0, NULL, 0, 0.00);\nINSERT INTO test_duoziduan_001 VALUES ('OH009', 20250109, 'S005',\
-    \ 'C009', 2, DATE '2025-01-10', 1, 80.20);\nINSERT INTO test_duoziduan_001 VALUES ('OH010', 20250110, 'S001', 'C010',\
-    \ 1, DATE '2025-01-11', 1, 260.45);"
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}、${SchemaA3}
+    4) 在 ${SchemaA} 创建数据表并插入 1 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0014';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0014 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0014 VALUES (1, 'A001');
+       COMMIT;
   steps:
-  - action: 进入【离线开发 → 数据开发模块】页面
-    expected: 已进入【离线开发 → 数据开发模块】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源(OceanBase 4.3.x(Oracle)), 点击schema, 模糊搜索: test_'
-    expected: 展示所有包含test_字样的schema
-  - action: 选择Schema, 表名后, 点击下一步
-    expected: 进入选择目标界面
-  - action: '选择同步目标(OceanBase 4.3.x(Oracle)), 点击schema, 模糊搜索: test_'
-    expected: 展示所有包含test_字样的schema
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建数据同步任务并选择来源「${DataSourceA}」
+    expected: 显示 schema 下拉框
+  - action: 在 schema 搜索框输入 `${SchemaA}`
+    expected: 下拉列表仅保留「${SchemaA}」
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - Schema下拉框
 - case_id: C0015
-  title: 验证「数据来源&选择目标」表名下拉框展示数据正常
+  title: 验证【数据同步任务】-【表选择】打开OBOracle来源表名下拉框，选项展示全部来源表
   priority: P2
-  precondition: "1. 当前项目中已经成功引入OBOracle数据源\n\n2. OBOracle中存在含有2 个字段的表，如建表语句为\n\nCREATE TABLE test_qiefen_001 (\n    id   NUMBER,\n\
-    \    name VARCHAR2(255)\n);\n\nINSERT INTO test_qiefen_001 VALUES (1, 'mengfei');\nINSERT INTO test_qiefen_001 VALUES\
-    \ (2, 'kako');"
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}
+    4) 在 ${SchemaA} 创建两张源表并各插入 1 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0015_source_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0015_source_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0015_source_01 VALUES (1, 'A001');
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0015_source_02';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0015_source_02 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0015_source_02 VALUES (2, 'A002');
+       COMMIT;
   steps:
-  - action: 进入【离线开发 → 数据开发模块】页面
-    expected: 已进入【离线开发 → 数据开发模块】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: 选择数据来源(OceanBase 4.3.x(Oracle)), 不选择schema, 直接点击表名下拉框
-    expected: schema非必填, 展示OBOracle内的所有有权限的表
-  - action: 选择schema&表后, 切换schema
-    expected: 已选择的表被清空，表下拉框展示所选schema下的所有表
-  - action: 清空schema
-    expected: 表下拉框展示OBOracle内的所有有权限的表
-  - action: 选择来源表后, 点击下一步
-    expected: 进入选择目标界面
-  - action: 选择数据同步目标(OceanBase 4.3.x(Oracle)), 不选择schema, 直接点击表名下拉框
-    expected: schema非必填, 展示OBOracle内的所有有权限的表
-  - action: 选择schema&表后, 切换schema
-    expected: 已选择的表被清空，表下拉框展示所选schema下的所有表
-  - action: 清空schema
-    expected: 表下拉框展示OBOracle内的所有有权限的表
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建数据同步任务，来源选择「${DataSourceA}」和 schema「${SchemaA}」
+    expected: 表名下拉框可用
+  - action: 打开表名下拉框
+    expected: 下拉选项包含「test_table_15077_c0015_source_01」「test_table_15077_c0015_source_02」
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 表选择
 - case_id: C0016
-  title: 验证「数据来源&选择目标」选择Schema后建表，表数据正常更新
-  priority: P2
-  precondition: "1. 当前项目中已经成功引入oboracle数据源\n\n2. oboracle中存在含有2 个字段的表\n\nBEGIN\n    EXECUTE IMMEDIATE 'DROP TABLE test_duoziduan_001';\n\
-    EXCEPTION\n    WHEN OTHERS THEN\n        IF SQLCODE != -942 THEN\n            RAISE;\n        END IF;\nEND;\n\nCREATE\
-    \ TABLE test_duoziduan_001 (\n    order_header_id VARCHAR2(4000),\n    order_date      NUMBER,\n    shop_id         VARCHAR2(4000),\n\
-    \    customer_id     VARCHAR2(4000),\n    order_status    NUMBER,\n    pay_date        DATE,\n    pay_boolen      NUMBER(1,0),\n\
-    \    pay_decli       NUMBER(10,2)\n);\n\nCOMMENT ON TABLE test_duoziduan_001 IS '销售订单明细表';\nCOMMENT ON COLUMN test_duoziduan_001.order_header_id\
-    \ IS '订单头id';\nCOMMENT ON COLUMN test_duoziduan_001.order_date IS '订单日期';\nCOMMENT ON COLUMN test_duoziduan_001.shop_id\
-    \ IS '店铺id';\nCOMMENT ON COLUMN test_duoziduan_001.customer_id IS '客户id';\nCOMMENT ON COLUMN test_duoziduan_001.order_status\
-    \ IS '订单状态';\nCOMMENT ON COLUMN test_duoziduan_001.pay_date IS '支付日期';\nCOMMENT ON COLUMN test_duoziduan_001.pay_boolen\
-    \ IS '是否支付';\nCOMMENT ON COLUMN test_duoziduan_001.pay_decli IS '支付金额';\n\nBEGIN\n    EXECUTE IMMEDIATE 'DROP TABLE test_duoziduan_002';\n\
-    EXCEPTION\n    WHEN OTHERS THEN\n        IF SQLCODE != -942 THEN\n            RAISE;\n        END IF;\nEND;\n\nCREATE\
-    \ TABLE test_duoziduan_002 (\n    order_header_id VARCHAR2(4000),\n    order_date      NUMBER,\n    shop_id         VARCHAR2(4000),\n\
-    \    customer_id     VARCHAR2(4000),\n    order_status    NUMBER,\n    pay_date        DATE,\n    pay_boolen      NUMBER(1,0),\n\
-    \    pay_decli       NUMBER(10,2)\n);\n\nCOMMENT ON TABLE test_duoziduan_002 IS '销售订单明细表';\nCOMMENT ON COLUMN test_duoziduan_002.order_header_id\
-    \ IS '订单头id';\nCOMMENT ON COLUMN test_duoziduan_002.order_date IS '订单日期';\nCOMMENT ON COLUMN test_duoziduan_002.shop_id\
-    \ IS '店铺id';\nCOMMENT ON COLUMN test_duoziduan_002.customer_id IS '客户id';\nCOMMENT ON COLUMN test_duoziduan_002.order_status\
-    \ IS '订单状态';\nCOMMENT ON COLUMN test_duoziduan_002.pay_date IS '支付日期';\nCOMMENT ON COLUMN test_duoziduan_002.pay_boolen\
-    \ IS '是否支付';\nCOMMENT ON COLUMN test_duoziduan_002.pay_decli IS '支付金额';\n\nINSERT INTO test_duoziduan_001 VALUES ('OH001',\
-    \ 20250101, 'S001', 'C001', 1, DATE '2025-01-02', 1, 199.99);\nINSERT INTO test_duoziduan_001 VALUES ('OH002', 20250102,\
-    \ 'S002', 'C002', 1, DATE '2025-01-03', 1, 59.50);\nINSERT INTO test_duoziduan_001 VALUES ('OH003', 20250103, 'S001',\
-    \ 'C003', 0, NULL, 0, 0.00);\nINSERT INTO test_duoziduan_001 VALUES ('OH004', 20250104, 'S003', 'C004', 2, DATE '2025-01-05',\
-    \ 1, 350.75);\nINSERT INTO test_duoziduan_001 VALUES ('OH005', 20250105, 'S002', 'C005', 1, DATE '2025-01-06', 1, 120.00);\n\
-    INSERT INTO test_duoziduan_001 VALUES ('OH006', 20250106, 'S004', 'C006', 3, NULL, 0, 0.00);\nINSERT INTO test_duoziduan_001\
-    \ VALUES ('OH007', 20250107, 'S003', 'C007', 1, DATE '2025-01-08', 1, 499.00);\nINSERT INTO test_duoziduan_001 VALUES\
-    \ ('OH008', 20250108, 'S002', 'C008', 0, NULL, 0, 0.00);\nINSERT INTO test_duoziduan_001 VALUES ('OH009', 20250109, 'S005',\
-    \ 'C009', 2, DATE '2025-01-10', 1, 80.20);\nINSERT INTO test_duoziduan_001 VALUES ('OH010', 20250110, 'S001', 'C010',\
-    \ 1, DATE '2025-01-11', 1, 260.45);"
+  title: 验证【数据同步任务】-【建表】选择目标schema点击建表并临时运行，建表SQL包含来源字段且目标表记录数为2
+  priority: P1
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}
+    4) 在 ${SchemaA} 创建源表并插入 2 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0016_source_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0016_source_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0016_source_01 VALUES (1, 'A001');
+       INSERT INTO ${SchemaA}.test_table_15077_c0016_source_01 VALUES (2, 'A002');
+       COMMIT;
+    5) 授权数据源 B：${DataSourceB}
+    6) 数据源 B 类型：Hive
+    7) 数据源 B 存在数据库：${SchemaB2}
+    8) 在 ${SchemaB2} 预建目标表结构，该表为空表：
+       DROP TABLE IF EXISTS ${SchemaB2}.test_table_15077_c0016_target_01;
+       CREATE TABLE IF NOT EXISTS ${SchemaB2}.test_table_15077_c0016_target_01 (
+         id BIGINT,
+         code STRING
+       );
   steps:
-  - action: 进入【离线开发 → 数据开发模块】页面
-    expected: 已进入【离线开发 → 数据开发模块】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: 选择数据来源(OceanBase 4.3.x(Oracle)), Schema后, 点击表名下拉框
-    expected: 下拉框展示OBOracle内指定schema的所有表
-  - action: 选择表名后, 点击下一步
-    expected: 进入选择目标界面
-  - action: 选择同步目标(OceanBase 4.3.x(Oracle)), Schema后, 点击表名下拉框
-    expected: 下拉框展示OBOracle内指定schema的所有表
-  - action: 新建一张oboracle表 test_duoziduan_001
-    expected: 表新建成功
-  - action: 返回创建数据同步任务界面，分别点击数据来源和同步目标中的表名下拉框
-    expected: 下拉框展示新增表test_duoziduan_001
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建任务，来源选择「${DataSourceA}.${SchemaA}.test_table_15077_c0016_source_01」，目标 schema 选择「${SchemaB2}」并点击「建表」
+    expected: 目标建表 SQL 包含字段 id，目标 schema 显示「${SchemaB2}」
+  - action: 点击「保存」并「临时运行」
+    expected: 运行状态：「成功」,目标表记录数为 2
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 建表
 - case_id: C0017
-  title: 验证「数据来源-自定义SQL」数据同步完成目标操作且状态更新(OBOracle(非Meta) > Hive)
-  priority: P0
-  precondition: "1. 当前项目中已经成功引入OBOracle数据源(非meta)\n\n2. OBOracle中存在含有2 个字段的表，如建表语句为\nCREATE TABLE test_zidingyi_001 (\n  \
-    \  order_header_id VARCHAR2(4000),\n    order_date NUMBER,\n    shop_id VARCHAR2(4000),\n    customer_id VARCHAR2(4000),\n\
-    \    order_status NUMBER,\n    pay_date DATE,\n    pay_boolen NUMBER(1,0),\n    pay_decli NUMBER(10,2)\n);\n\nCOMMENT\
-    \ ON TABLE test_zidingyi_001 IS '销售订单明细表';\nCOMMENT ON COLUMN test_zidingyi_001.order_header_id IS '订单头id';\nCOMMENT ON\
-    \ COLUMN test_zidingyi_001.order_date IS '订单日期';\nCOMMENT ON COLUMN test_zidingyi_001.shop_id IS '店铺id';\nCOMMENT ON COLUMN\
-    \ test_zidingyi_001.customer_id IS '客户id';\nCOMMENT ON COLUMN test_zidingyi_001.order_status IS '订单状态';\nCOMMENT ON COLUMN\
-    \ test_zidingyi_001.pay_date IS '支付日期';\nCOMMENT ON COLUMN test_zidingyi_001.pay_boolen IS '是否支付';\nCOMMENT ON COLUMN\
-    \ test_zidingyi_001.pay_decli IS '支付金额';\n\nINSERT INTO test_zidingyi_001 VALUES\n('OH001', 20250101, 'S001', 'C001',\
-    \ 1, DATE '2025-01-02', 1, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, DATE '2025-01-03', 1, 59.50),\n('OH003', 20250103,\
-    \ 'S001', 'C003', 0, NULL, 0, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, DATE '2025-01-05', 1, 350.75),\n('OH005',\
-    \ 20250105, 'S002', 'C005', 1, DATE '2025-01-06', 1, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, 0, 0.00),\n\
-    ('OH007', 20250107, 'S003', 'C007', 1, DATE '2025-01-08', 1, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, 0,\
-    \ 0.00),\n('OH009', 20250109, 'S005', 'C009', 2, DATE '2025-01-10', 1, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1,\
-    \ DATE '2025-01-11', 1, 260.45);\n\n-- 查询sql\nSELECT *\nFROM test_zidingyi_001;\n\nSELECT order_header_id, customer_id,\
-    \ pay_decli\nFROM test_zidingyi_001\nWHERE pay_boolen = 1;\n\nSELECT shop_id, SUM(pay_decli) AS total_amount, COUNT(*)\
-    \ AS order_count\nFROM test_zidingyi_001\nWHERE pay_boolen = 1\nGROUP BY shop_id;\n\nSELECT order_header_id, customer_id,\
-    \ pay_decli\nFROM test_zidingyi_001\nORDER BY pay_decli DESC;\n\nSELECT order_header_id, customer_id, pay_decli\nFROM\
-    \ test_zidingyi_001\nWHERE pay_decli BETWEEN 100 AND 300;"
+  title: 验证【数据同步任务】-【自定义SQL】配置OBOracle到Hive自定义SQL并运行，目标表仅包含过滤后的记录
+  priority: P1
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}
+    4) 在 ${SchemaA} 创建源表并插入 2 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0017_source_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0017_source_01 (
+         id NUMBER,
+         amount NUMBER(10,2)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0017_source_01 VALUES (1, 10.00);
+       INSERT INTO ${SchemaA}.test_table_15077_c0017_source_01 VALUES (2, 20.00);
+       COMMIT;
+    5) 授权数据源 B：${DataSourceB}
+    6) 数据源 B 类型：Hive
+    7) 数据源 B 存在数据库：${SchemaB2}
+    8) 在 ${SchemaB2} 预建目标表结构，该表为空表：
+       DROP TABLE IF EXISTS ${SchemaB2}.test_table_15077_c0017_target_01;
+       CREATE TABLE IF NOT EXISTS ${SchemaB2}.test_table_15077_c0017_target_01 (
+         id BIGINT,
+         amount DECIMAL(10,2)
+       );
   steps:
-  - action: 进入【离线开发 → 自定义SQL】页面
-    expected: 已进入【离线开发 → 自定义SQL】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发-手动任务, 创建数据同步任务 OBOracle2Hive
-    expected: 创建成功
-  - action: '配置如下:
-
-      数据来源: OceanBase 4.3.x(Oracle), 自定义SQL, 前置条件查询sql依次校验
-
-      选择目标: Hive 3.x(CDP), 一键建表test_zidingyi_002
-
-      字段映射: 同名映射
-
-      其它选项保持默认后, 点击保存'
-    expected: 进入选择目标界面
-  - action: 临时运行
-    expected: 任务运行成功
-  - action: '查询Hive表数据: SELECT * FROM test_zidingyi_002;'
-    expected: 表数据同步成功
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建任务并选择「自定义SQL」，输入 `SELECT id, amount FROM ${SchemaA}.test_table_15077_c0017_source_01 WHERE amount >= 20`
+    expected: SQL 编辑器显示完整查询语句
+  - action: 选择目标「${DataSourceB}.${SchemaB2}」并点击「保存」
+    expected: Toast提示:「保存成功」,任务配置保存来源 SQL 和目标 schema
+  - action: 点击「临时运行」
+    expected: 运行状态：「成功」,目标表仅包含 id=2、amount=20.00
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 自定义SQL
 - case_id: C0018
-  title: 验证「存在NULL值」数据同步完成目标操作且状态更新(OBOracle > OBOracle)
+  title: 验证【数据同步任务】-【字段映射】同步含NULL值的来源数据，目标表首行code值为NULL(OBOracle到OBOracle)
   priority: P1
-  precondition: '1. 当前项目中已经成功引入OBOracle数据源
-
-
-    2. oboracle建表语句:
-
-
-    CREATE TABLE if NOT EXISTS test_null_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_null_002(id INT,name VARCHAR(255));
-
-
-    INSERT INTO test_null_001 VALUES (1,''mengfei''),(2,null);'
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 在 ${SchemaA} 创建源表并插入 2 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0018_source_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0018_source_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0018_source_01 VALUES (1, NULL);
+       INSERT INTO ${SchemaA}.test_table_15077_c0018_source_01 VALUES (2, 'A002');
+       COMMIT;
+    5) 在 ${SchemaA2} 预建目标表结构，该表为空表：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA2}.test_table_15077_c0018_target_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA2}.test_table_15077_c0018_target_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       COMMIT;
   steps:
-  - action: 进入【离线开发 → 存在NULL值数据同步完成目标操作且状态更新】页面
-    expected: 已进入【离线开发 → 存在NULL值数据同步完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-  - action: '进入数据开发-周期任务, 创建数据同步任务: oboracle2oboracle_空值校验'
-    expected: 创建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_null_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_null_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{OBOracle}中表同步过来，包括null值
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建来源「${DataSourceA}.${SchemaA}.test_table_15077_c0018_source_01」到目标 schema「${SchemaA2}」的同步任务
+    expected: 字段映射中 code 字段允许空值
+  - action: 发布任务并点击「临时运行」
+    expected: 运行状态：「成功」,目标表第 1 行 code 值为 NULL
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 字段映射
+  - NULL值
 - case_id: C0019
-  title: 验证「存在空串」数据同步完成目标操作且状态更新(OBOracle > OBOracle)
+  title: 验证【数据同步任务】-【字段映射】同步含空串的来源数据，目标表首行code值为空字符串(OBOracle到OBOracle)
   priority: P1
-  precondition: '1. 当前项目中已经成功引入OBOracle数据源
-
-
-    2. oboracle建表语句:
-
-
-    CREATE TABLE if NOT EXISTS test_kong_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_kong_002(id INT,name VARCHAR(255));
-
-
-    INSERT INTO test_kong_001 VALUES (1,''mengfei''),(2,'' '');'
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 在 ${SchemaA} 创建源表并插入 2 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0019_source_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0019_source_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0019_source_01 VALUES (1, '');
+       INSERT INTO ${SchemaA}.test_table_15077_c0019_source_01 VALUES (2, 'A002');
+       COMMIT;
+    5) 在 ${SchemaA2} 预建目标表结构，该表为空表：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA2}.test_table_15077_c0019_target_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA2}.test_table_15077_c0019_target_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       COMMIT;
   steps:
-  - action: 进入【离线开发 → 存在空串数据同步完成目标操作且状态更新】页面
-    expected: 已进入【离线开发 → 存在空串数据同步完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-  - action: '进入数据开发-周期任务, 创建数据同步任务: oboracle2oboracle_空串校验'
-    expected: 创建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_kong_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_kong_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{OBOracle}中表同步过来，包括空值
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建来源「${DataSourceA}.${SchemaA}.test_table_15077_c0019_source_01」到目标 schema「${SchemaA2}」的同步任务
+    expected: 字段映射显示 code 字段
+  - action: 发布任务并点击「临时运行」
+    expected: 运行状态：「成功」,目标表第 1 行 code 值为空字符串
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 字段映射
+  - 空字符串
 - case_id: C0020
-  title: 验证「数据来源-自定义SQL」源表切分键完成目标操作且状态更新(OBOracle > OBOracle)
-  priority: P2
-  precondition: "1. 当前项目中已经成功引入OBOracle数据源\n\n2. OBOracle中存在含有2 个字段的表，如建表语句为\n\nCREATE TABLE test_qiefen_001 (\n    id   NUMBER,\n\
-    \    name VARCHAR2(255)\n);\n\nINSERT INTO test_qiefen_001 VALUES (1, 'mengfei');\nINSERT INTO test_qiefen_001 VALUES\
-    \ (2, 'kako');"
+  title: 验证【数据同步任务】-【自定义SQL】配置切分键并运行任务，运行日志显示2个切分区间(OBOracle到OBOracle)
+  priority: P1
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 创建分区表并写入前一日和当日两个分区：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0020';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0020 (
+         id NUMBER,
+         code VARCHAR2(20),
+         dt DATE
+       ) PARTITION BY RANGE (dt) (
+         PARTITION p_prev VALUES LESS THAN (DATE '2026-01-01'),
+         PARTITION p_curr VALUES LESS THAN (DATE '2027-01-01'),
+         PARTITION p_future VALUES LESS THAN (MAXVALUE)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0020 (id, code, dt) VALUES (1, 'A001', current_date - interval '1 day');
+       INSERT INTO ${SchemaA}.test_table_15077_c0020 (id, code, dt) VALUES (2, 'A002', current_date);
+       COMMIT;
+    5) 任务并发配置为 2，目标 schema 为「${SchemaA2}」
   steps:
-  - action: 进入【离线开发 → 自定义SQL】页面
-    expected: 已进入【离线开发 → 自定义SQL】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发-周期任务, 创建数据同步任务 Hive2OBOracle
-    expected: 创建成功
-  - action: '选择数据来源(OceanBase 4.3.x(Oracle)), 自定义SQL
-
-      输入sql内容：select * from test_qiefen_01;
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择同步目标(OceanBase 4.3.x(Oracle)), Schema
-
-      表名：一键建表test_qiefen_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 正常配置映射，点击下一步
-    expected: 进入通道控制页面
-  - action: '点击勾选开启并发，源表切分键输入id
-
-      点击下一步，点击保存，进行临时运行'
-    expected: 配置以及环境无误的话，任务成功
-  - action: '查询OBOracle表数据: SELECT * FROM test_qiefen_002;'
-    expected: 表数据同步成功
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 在自定义 SQL 中选择源表字段 id 作为切分键并设置并发数 2
+    expected: 切分键显示 id,并发数显示 2
+  - action: 保存、发布并运行任务
+    expected: 运行状态：「成功」,任务运行日志显示 2 个切分区间
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 自定义SQL
+  - 切分键
 - case_id: C0021
-  title: 验证「选择目标-主键冲突」选择Insert正常生效(Hive > OBOracle)
+  title: 验证【数据同步任务】-【主键冲突】选择Insert策略并运行，任务状态为失败且日志提示主键已存在(Hive到OBOracle)
   priority: P1
-  precondition: "1. 当前项目中已经成功引入OBOracle数据源\n\n2. OBOracle中存在含有2 个字段的表\n\n3. 建表语句:\nhive表:\nCREATE TABLE IF NOT EXISTS hive_order_test\
-    \ (\n    order_id    STRING,\n    customer_id STRING,\n    amount      DECIMAL(10,2),\n    order_date  STRING\n)\nROW\
-    \ FORMAT DELIMITED\nFIELDS TERMINATED BY ','\nSTORED AS TEXTFILE;\n\n-- 含重复主键 order_id\nINSERT INTO hive_order_test VALUES\n\
-    ('O1001', 'CUST_A', 150.00, '2025-12-01'),\n('O1002', 'CUST_B', 200.50, '2025-12-02'),\n('O1003', 'CUST_C', 99.99,  '2025-12-03'),\n\
-    ('O1001', 'CUST_D', 300.00, '2025-12-04');\n\n\noboracle表:\n-- 创建带主键的表\nCREATE TABLE ob_order_sink (\n    order_id   \
-    \ VARCHAR2(50) PRIMARY KEY,\n    customer_id VARCHAR2(50),\n    amount      NUMBER(10,2),\n    order_date  DATE\n);\n\n\
-    COMMENT ON COLUMN ob_order_sink.order_id IS '订单ID（主键）';\n\n-- 配置一条与 Hive 冲突的数据\nINSERT INTO ob_order_sink VALUES ('O1001',\
-    \ 'EXISTING_CUST', 100.00, DATE '2025-11-30');"
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 在 ${SchemaA2} 创建目标表并插入 1 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA2}.test_table_15077_c0021_target_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA2}.test_table_15077_c0021_target_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA2}.test_table_15077_c0021_target_01 VALUES (1, 'OLD');
+       COMMIT;
+    5) 授权数据源 B：${DataSourceB}
+    6) 数据源 B 类型：Hive
+    7) 数据源 B 存在数据库：${SchemaB}
+    8) 在 ${SchemaB} 创建源表并插入 1 行数据：
+       DROP TABLE IF EXISTS ${SchemaB}.test_table_15077_c0021_source_01;
+       CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15077_c0021_source_01 (
+         id BIGINT,
+         code STRING
+       );
+       INSERT INTO ${SchemaB}.test_table_15077_c0021_source_01 VALUES (1, 'NEW');
   steps:
-  - action: 进入【离线开发 → 主键冲突】页面
-    expected: 已进入【离线开发 → 主键冲突】页面，显示页面标题与主要操作区域
-  - action: '进入数据开发-周期任务, 创建数据同步任务: hive2oboracle_Insert主键冲突校验'
-    expected: 创建成功
-  - action: '配置如下:
-
-      数据来源: Hive 3.x(CDP), hive_order_test
-
-      选择目标: OceanBase 4.3.x(Oracle), ob_order_sink
-
-      主键冲突：insert into
-
-      字段映射: 同名映射
-
-      其它选项保持默认后, 点击保存'
-    expected: 保存成功
-  - action: 临时运行
-    expected: 任务执行失败, 当主键/约束冲突，报脏数据
-  - action: '查询OBOracle表数据: SELECT * FROM ob_order_sink;'
-    expected: 表数据无变化
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建 Hive 到 OBOracle 任务，在「主键冲突」选择「Insert」
+    expected: 目标写入策略显示「Insert」
+  - action: 发布并运行任务
+    expected: 任务状态显示「失败」,日志包含主键 1 已存在
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 主键冲突
+  - Insert
 - case_id: C0022
-  title: 验证「选择目标-主键冲突」选择Update正常生效(Hive > OBOracle)
-  priority: P1
-  precondition: "1. 当前项目中已经成功引入OBOracle数据源\n\n2. OBOracle中存在含有2 个字段的表\n\n3. 建表语句:\nhive表:\nCREATE TABLE IF NOT EXISTS hive_order_test\
-    \ (\n    order_id    STRING,\n    customer_id STRING,\n    amount      DECIMAL(10,2),\n    order_date  STRING\n)\nROW\
-    \ FORMAT DELIMITED\nFIELDS TERMINATED BY ','\nSTORED AS TEXTFILE;\n\n-- 含重复主键 order_id\nINSERT INTO hive_order_test VALUES\n\
-    ('O1001', 'CUST_A', 150.00, '2025-12-01'),\n('O1002', 'CUST_B', 200.50, '2025-12-02'),\n('O1003', 'CUST_C', 99.99,  '2025-12-03'),\n\
-    ('O1001', 'CUST_D', 300.00, '2025-12-04');\n\n\noboracle表:\n-- 创建带主键的表\nCREATE TABLE ob_order_sink (\n    order_id   \
-    \ VARCHAR2(50) PRIMARY KEY,\n    customer_id VARCHAR2(50),\n    amount      NUMBER(10,2),\n    order_date  DATE\n);\n\n\
-    COMMENT ON COLUMN ob_order_sink.order_id IS '订单ID（主键）';\n\n-- 配置一条与 Hive 冲突的数据\nINSERT INTO ob_order_sink VALUES ('O1001',\
-    \ 'EXISTING_CUST', 100.00, DATE '2025-11-30');"
+  title: 验证【数据同步任务】-【主键冲突】选择Update策略并运行，目标表code更新为NEW(Hive到OBOracle)
+  priority: P0
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 在 ${SchemaA2} 创建目标表并插入 1 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA2}.test_table_15077_c0022_target_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA2}.test_table_15077_c0022_target_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA2}.test_table_15077_c0022_target_01 VALUES (1, 'OLD');
+       COMMIT;
+    5) 授权数据源 B：${DataSourceB}
+    6) 数据源 B 类型：Hive
+    7) 数据源 B 存在数据库：${SchemaB}
+    8) 在 ${SchemaB} 创建源表并插入 1 行数据：
+       DROP TABLE IF EXISTS ${SchemaB}.test_table_15077_c0022_source_01;
+       CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15077_c0022_source_01 (
+         id BIGINT,
+         code STRING
+       );
+       INSERT INTO ${SchemaB}.test_table_15077_c0022_source_01 VALUES (1, 'NEW');
   steps:
-  - action: 进入【离线开发 → 主键冲突】页面
-    expected: 已进入【离线开发 → 主键冲突】页面，显示页面标题与主要操作区域
-  - action: '进入数据开发-周期任务, 创建数据同步任务: hive2oboracle_Update主键冲突校验'
-    expected: 创建成功
-  - action: '配置如下:
-
-      数据来源: Hive 3.x(CDP), hive_order_test
-
-      选择目标: OceanBase 4.3.x(Oracle), ob_order_sink
-
-      主键冲突：insert into
-
-      字段映射: 同名映射
-
-      其它选项保持默认后, 点击保存'
-    expected: 保存成功
-  - action: 临时运行
-    expected: 任务执行成功, 当主键/约束冲突，update数据，未映射的字段值不变
-  - action: '查询OBOracle表数据: SELECT * FROM ob_order_sink;'
-    expected: 表数据同步成功, 且冲突主键的数据也更新成功
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建 Hive 到 OBOracle 任务，在「主键冲突」选择「Update」
+    expected: 目标写入策略显示「Update」
+  - action: 发布并运行任务
+    expected: 运行状态：「成功」,目标表 id=1 的 code 更新为 NEW
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 主键冲突
+  - Update
 - case_id: C0023
-  title: 验证「字段映射」添加常量字段后, 数据同步完成目标操作且状态更新(OBOracle > OBOracle)
+  title: 验证【数据同步任务】-【字段映射】添加常量字段并运行，目标表每条记录常量字段值为LZ-15077
   priority: P1
-  precondition: "1. 当前项目中已经成功引入OBOracle数据源\n\n2. OBOracle中存在含有2 个字段的表\n\n3. 建表语句:\nCREATE TABLE test_changliang_001 (\n  \
-    \  id   NUMBER,\n    name VARCHAR2(255)\n);\n\n\nCREATE TABLE test_changliang_002 (\n    id   NUMBER,\n    name VARCHAR2(255),\n\
-    \    bir  VARCHAR2(255)\n);\n\n-- 插入数据\nINSERT INTO test_changliang_001 VALUES (1, 'mengfei');\nINSERT INTO test_changliang_001\
-    \ VALUES (2, 'kako');"
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 在 ${SchemaA} 创建源表并插入 2 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0023_source_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0023_source_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0023_source_01 VALUES (1, 'A001');
+       INSERT INTO ${SchemaA}.test_table_15077_c0023_source_01 VALUES (2, 'A002');
+       COMMIT;
+    5) 在 ${SchemaA2} 预建目标表结构，该表为空表：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA2}.test_table_15077_c0023_target_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA2}.test_table_15077_c0023_target_01 (
+         id NUMBER,
+         code VARCHAR2(20),
+         source_tag VARCHAR2(20)
+       );
+       COMMIT;
   steps:
-  - action: 进入【离线开发 → 周期任务】页面
-    expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-  - action: '进入数据开发-周期任务, 创建数据同步任: oboracle2oboracle_常量映射校验'
-    expected: 创建成功
-  - action: '配置如下:
-
-      数据来源: OceanBase 4.3.x(Oracle), test_changliang_001
-
-      选择目标: OceanBase 4.3.x(Oracle), test_changliang_002
-
-      字段映射: 添加常量(字段: bir, 值: ${bdp.system.runtime}, 类型: STRING) , 同名映射
-
-      其它选项保持默认后, 点击保存'
-    expected: 保存成功
-  - action: 临时运行
-    expected: 任务执行成功
-  - action: '查询OBOracle表数据: SELECT * FROM test_changliang_002;'
-    expected: 表数据同步成功, bir字段列数据为全局参数值${bdp.system.currenttime}
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建 OBOracle 到 OBOracle 任务，在字段映射中新增常量字段 source_tag，值为 `LZ-15077`
+    expected: 映射列表新增 source_tag，常量值显示 `LZ-15077`
+  - action: 发布并运行任务
+    expected: 运行状态：「成功」,目标表每条记录 source_tag 值为 `LZ-15077`
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 字段映射
+  - 常量字段
 - case_id: C0024
-  title: 验证「字段映射」源表/目标表字段数量不一致, 数据同步完成目标操作且状态更新(OBOracle > Hive)
+  title: 验证【数据同步任务】-【字段映射】以常量补齐字段数量差异并运行，目标表amount值为0.00(OBOracle到Hive)
   priority: P1
-  precondition: "1. 当前项目中已经成功引入OBOracle数据源\n\n2. oboracle建表语句:\nCREATE TABLE test_changliang_001 (\n    id   NUMBER,\n   \
-    \ name VARCHAR2(255)\n);\n\n-- 插入数据\nINSERT INTO test_changliang_001 VALUES (1,'mengfei'),(2,'kako');\n\n\n\nhive建表语句:\n\
-    CREATE TABLE test_changliang_002 ( id BIGINT, name STRING, bir STRING ) STORED AS ORC;"
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}
+    4) 在 ${SchemaA} 创建源表并插入 2 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0024_source_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0024_source_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0024_source_01 VALUES (1, 'A001');
+       INSERT INTO ${SchemaA}.test_table_15077_c0024_source_01 VALUES (2, 'A002');
+       COMMIT;
+    5) 授权数据源 B：${DataSourceB}
+    6) 数据源 B 类型：Hive
+    7) 数据源 B 存在数据库：${SchemaB2}
+    8) 在 ${SchemaB2} 预建目标表结构，该表为空表：
+       DROP TABLE IF EXISTS ${SchemaB2}.test_table_15077_c0024_target_01;
+       CREATE TABLE IF NOT EXISTS ${SchemaB2}.test_table_15077_c0024_target_01 (
+         id BIGINT,
+         code STRING,
+         amount DECIMAL(10,2)
+       );
   steps:
-  - action: 进入【离线开发 → 周期任务】页面
-    expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-  - action: '进入数据开发-周期任务, 创建数据同步任务: oboracle2oboracle_字段映射数量不一致校验'
-    expected: 创建成功
-  - action: '配置如下:
-
-      数据来源: OceanBase 4.3.x(Oracle), test_changliang_001
-
-      选择目标: Hive 3.x(CDP), test_changliang_002
-
-      字段映射: 同名映射
-
-      其它选项保持默认后, 点击保存'
-    expected: 保存成功, 其中目标表中bir字段没有产生映射关系
-  - action: 临时运行
-    expected: 任务执行成功
-  - action: '查询Hive表数据: SELECT * FROM test_changliang_002;'
-    expected: 表数据同步成功, 其中bir字段值为null
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建 OBOracle 到 Hive 任务并打开字段映射
+    expected: 映射列表显示来源字段 id、code 和目标字段 id、code、amount
+  - action: 将 amount 映射为常量 `0.00`，保存并运行任务
+    expected: 运行状态：「成功」,目标表 amount 值为 `0.00`
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 字段映射
+  - 常量字段
 - case_id: C0025
-  title: 验证「字段映射」变更字段类型并刷新后, 数据同步完成目标操作且状态更新(Hive > OBOracle)
+  title: 验证【数据同步任务】-【字段映射】变更字段类型并刷新后运行，目标表amount值为10.50(Hive到OBOracle)
   priority: P1
-  precondition: "1. 当前项目中已经成功引入OBOracle数据源\n\n2. hive建表语句:\nCREATE TABLE test_shuaxin_001 (\n    id   BIGINT,\n    name STRING\n\
-    );\n-- 插入数据\nINSERT INTO test_shuaxin_001 VALUES (1,'mengfei'),(2,'kako');\n\n\noboracle建表语句:\nCREATE TABLE test_shuaxin_002\
-    \ (\n    id   NUMBER,\n    name VARCHAR2(255)\n);"
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 在 ${SchemaA2} 预建目标表结构，该表为空表：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA2}.test_table_15077_c0025_target_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA2}.test_table_15077_c0025_target_01 (
+         id NUMBER,
+         amount NUMBER(10,2)
+       );
+       COMMIT;
+    5) 授权数据源 B：${DataSourceB}
+    6) 数据源 B 类型：Hive
+    7) 数据源 B 存在数据库：${SchemaB}
+    8) 在 ${SchemaB} 创建源表并插入 1 行数据：
+       DROP TABLE IF EXISTS ${SchemaB}.test_table_15077_c0025_source_01;
+       CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15077_c0025_source_01 (
+         id BIGINT,
+         amount STRING
+       );
+       INSERT INTO ${SchemaB}.test_table_15077_c0025_source_01 VALUES (1, '10.50');
   steps:
-  - action: 进入【离线开发 → 周期任务】页面
-    expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-  - action: '进入数据开发-周期任务, 创建数据同步任务: hive2oboracle_字段刷新校验'
-    expected: 创建成功
-  - action: '配置如下:
-
-      数据来源: Hive 3.x(CDP), test_shuaxin_001
-
-      选择目标: OceanBase 4.3.x(Oracle), test_shuaxin_002
-
-      字段映射: 同名映射
-
-      其它选项保持默认后, 点击保存'
-    expected: 保存成功
-  - action: '修改目标表name字段的字段类型为INT后, 点击字段刷新:
-
-      ALTER TABLE test_shuaxin_002 MODIFY (id INT);'
-    expected: 目标表字段中name字段类型变成int，连线消失
-  - action: 选择同名映射, 其它配置项保持默认, 保存并临时运行
-    expected: 任务执行成功
-  - action: '查询OBOracle表数据: SELECT * FROM test_shuaxin_002;'
-    expected: 表数据同步成功
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建 Hive 到 OBOracle 任务，将来源 amount STRING 映射至目标 amount NUMBER(10,2)
+    expected: 映射关系显示 STRING → NUMBER(10,2)
+  - action: 刷新字段列表
+    expected: 映射关系仍显示 STRING → NUMBER(10,2)
+  - action: 发布并运行任务
+    expected: 运行状态：「成功」,目标表 amount 值为 `10.50`
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 字段映射
+  - 类型转换
 - case_id: C0026
-  title: 验证「字段映射-同名映射」完成目标操作且状态更新
-  priority: P2
-  precondition: '1. 当前项目中已经成功引入OBOracle数据源
-
-
-    2. oboracle建表语句:
-
-
-    CREATE TABLE if NOT EXISTS test_tonghang_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_tonghang_002(id INT,name VARCHAR(255) bir VARCHAR(255));
-
-
-    INSERT INTO test_tonghang_001 VALUES (1,''mengfei''),(2,''kako'');'
+  title: 验证【数据同步任务】-【字段映射】同名映射并运行，目标表记录数与来源表相同(OBOracle到OBOracle)
+  priority: P1
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 在 ${SchemaA} 创建源表并插入 2 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0026_source_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0026_source_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0026_source_01 VALUES (1, 'A001');
+       INSERT INTO ${SchemaA}.test_table_15077_c0026_source_01 VALUES (2, 'A002');
+       COMMIT;
+    5) 在 ${SchemaA2} 预建目标表结构，该表为空表：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA2}.test_table_15077_c0026_target_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA2}.test_table_15077_c0026_target_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       COMMIT;
   steps:
-  - action: 进入【离线开发 → 同名映射】页面
-    expected: 已进入【离线开发 → 同名映射】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发-周期任务, 创建数据同步任务 OBOracle2OBOracle
-    expected: 创建成功
-  - action: '配置如下:
-
-      数据来源: OceanBase 4.3.x(Oracle), test_tongming_001
-
-      选择目标: OceanBase 4.3.x(Oracle), test_tongming_002
-
-      字段映射: 同名映射'
-    expected: '字段映射成功
-
-      其中bir字段无映射关系
-
-      映射关系当为不同的数据类型，如int-varchar'
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建 OBOracle 到 OBOracle 任务并打开字段映射
+    expected: id 映射至 id,code 映射至 code
+  - action: 发布并运行任务
+    expected: 运行状态：「成功」,目标表记录数与来源表相同
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 字段映射
 - case_id: C0027
-  title: 验证「字段映射-同名映射」完成目标操作且状态更新
-  priority: P2
-  precondition: '1. 当前项目中已经成功引入OBOracle数据源
-
-
-    2. oboracle建表语句:
-
-
-    CREATE TABLE if NOT EXISTS test_paiban_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_paiban_002(id INT,name VARCHAR(255) bir VARCHAR(255));
-
-
-    INSERT INTO test_paiban_001 VALUES (1,''mengfei''),(2,''kako'');'
+  title: 验证【数据同步任务】-【字段映射】配置单字段转换并运行，目标字段codeUpper值为A001
+  priority: P1
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 在 ${SchemaA} 创建源表并插入 1 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0027_source_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0027_source_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0027_source_01 VALUES (1, 'A001');
+       COMMIT;
+    5) 在 ${SchemaA2} 预建目标表结构，该表为空表：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA2}.test_table_15077_c0027_target_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA2}.test_table_15077_c0027_target_01 (
+         id NUMBER,
+         code_upper VARCHAR2(20)
+       );
+       COMMIT;
   steps:
-  - action: 进入【离线开发 → 同名映射】页面
-    expected: 已进入【离线开发 → 同名映射】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发-周期任务, 创建数据同步任务 OBOracle2OBOracle
-    expected: 创建成功
-  - action: '配置如下:
-
-      数据来源: OceanBase 4.3.x(Oracle), test_paiban_001
-
-      选择目标: OceanBase 4.3.x(Oracle), test_paiban_002
-
-      字段映射: 配置同字段交叉映射，点击自动排版'
-    expected: '字段排版成功
-
-      其中bir字段无映射关系
-
-      映射关系当为不同的数据类型，如int-varchar
-
-      字段位置交叉关系变为同行关系'
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 在字段映射中对 code 配置转换函数 UPPER 并映射至 code_upper
+    expected: 映射表达式显示 UPPER(code) → code_upper
+  - action: 发布并运行任务
+    expected: 运行状态：「成功」,目标字段 code_upper 值为 A001
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 字段映射
+  - 字段转换
 - case_id: C0028
-  title: 验证「字段映射」单字段转换完成目标操作且状态更新
-  priority: P2
-  precondition: '1. 当前项目中已经成功引入OBOracle数据源
-
-
-    2. oboracle建表语句:
-
-
-    CREATE TABLE if NOT EXISTS test_zhuanhuan_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_zhuanhuan_002(id INT,name VARCHAR(255)，bir date);
-
-
-    INSERT INTO test_zhuanhuan_001 VALUES (1,''2025-01-01''),(2,''2025-02-02'');
-
-
-    资源管理已经上传转换包string-date'
+  title: 验证【数据同步任务】-【字段映射】批量配置字段转换并运行，目标表三个字段值均为大写
+  priority: P1
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 在 ${SchemaA} 创建源表并插入 1 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0028_source_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0028_source_01 (
+         id NUMBER,
+         code VARCHAR2(20),
+         name VARCHAR2(20),
+         city VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0028_source_01 VALUES (1, 'a001', 'alice', 'ningbo');
+       COMMIT;
+    5) 在 ${SchemaA2} 预建目标表结构，该表为空表：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA2}.test_table_15077_c0028_target_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA2}.test_table_15077_c0028_target_01 (
+         id NUMBER,
+         code VARCHAR2(20),
+         name VARCHAR2(20),
+         city VARCHAR2(20)
+       );
+       COMMIT;
   steps:
-  - action: 进入【离线开发 → 字段映射单字段转换完成目标操作且状态更新】页面
-    expected: 已进入【离线开发 → 字段映射单字段转换完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_zhuanhuan_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_zhuanhuan_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射name-bir，点击name字段操作列修改按钮
-    expected: 弹框显示修改字段
-  - action: '转换方式选择已上传的资源包，输入
-
-      类名
-
-      转换后类型：date
-
-      点击确定、下一步'
-    expected: '配置成功，字段转换显示包名称
-
-      进入通道控制页面'
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{OBOracle}中表同步过来，name字段转换为date类型，同步成功
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 在字段映射中同时选中 code、name、city 并配置转换函数 UPPER
+    expected: 3 条映射表达式均显示 UPPER(字段名)
+  - action: 发布并运行任务
+    expected: 运行状态：「成功」,目标表 3 个字段值分别为 A001、ALICE、NINGBO
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 字段映射
+  - 字段转换
 - case_id: C0029
-  title: 验证「字段映射」批量字段转换完成目标操作且状态更新
+  title: 验证【数据同步任务】-【字段映射】编辑映射后切换任务再切回，映射连线保持
   priority: P2
-  precondition: '1. 当前项目中已经成功引入OBOracle数据源
-
-
-    2. oboracle建表语句:
-
-
-    CREATE TABLE if NOT EXISTS test_piliangzhuanhuan_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_piliangzhuanhuan_002(id INT,name VARCHAR(255)，bir date);
-
-
-    INSERT INTO test_piliangzhuanhuan_001 VALUES (1,''2025-01-01''),(2,''2025-02-02'');
-
-
-    资源管理已经上传转换包string-date'
+  precondition: |-
+    1) 离线项目存在任务「${TaskA}」和「${TaskB}」
+    2) 「${TaskA}」字段 code 已映射至目标字段 target_code
   steps:
-  - action: 进入【离线开发 → 字段映射批量字段转换完成目标操作且状态更新】页面
-    expected: 已进入【离线开发 → 字段映射批量字段转换完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_piliangzhuanhuan_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_piliangzhuanhuan_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射name-bir，点击批量字段转换按钮
-    expected: 弹框显示修改字段
-  - action: '转换方式选择已上传的资源包，输入
-
-      字段选择：name
-
-      类名
-
-      点击确定、下一步'
-    expected: '配置成功，字段转换显示包名称
-
-      进入通道控制页面'
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{OBOracle}中表同步过来，name字段转换为date类型，同步成功
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 打开「${TaskA}」的字段映射，将 code 连线至 target_code
+    expected: 映射连线连接 code 和 target_code
+  - action: 切换到「${TaskB}」再切回「${TaskA}」
+    expected: 「${TaskA}」仍显示 code → target_code 连线
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 字段映射
+  - 任务切换
 - case_id: C0030
-  title: 验证「字段映射」编辑映射关系后切换到其它任务再切换回来连线依旧保持
-  priority: P2
-  precondition: '1. 当前项目中已经成功引入OBOracle数据源
-
-
-    2. oboracle建表语句:
-
-
-    CREATE TABLE if NOT EXISTS test_changliang_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_changliang_002(id INT,name VARCHAR(255)，bir VARCHAR(255));
-
-
-    INSERT INTO test_changliang_001 VALUES (1,''mengfei''),(2,''kako'');'
+  title: 验证【数据同步任务】-【通道控制】启用断点续传并在传输中停止后重新运行，目标表最终记录数为100(Hive到OBOracle)
+  priority: P1
+  precondition: |-
+    1) 来源数据源「${DataSourceB}」中表「test_table_15077_c0030_source_01」含 100 行记录，id=1..100
+    2) 目标数据源为「${DataSourceA}」，任务「${TaskA}」已配置断点续传
   steps:
-  - action: 进入【离线开发 → 数据开发模块】页面
-    expected: 已进入【离线开发 → 数据开发模块】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_changliang_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_changliang_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置正确的映射
-    expected: 映射配置完成
-  - action: 切换至其他任务界面，再次切换回来
-    expected: 连线依然存在
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 打开「${TaskA}」的通道控制并勾选「断点续传」
+    expected: 「断点续传」开关显示为开启
+  - action: 启动任务并在传输 50 行后停止任务
+    expected: 任务状态显示「已停止」,运行日志记录已传输 50 行
+  - action: 再次点击「运行」
+    expected: 运行状态：「成功」,目标表最终记录数为 100
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 通道控制
+  - 断点续传
 - case_id: C0031
-  title: 验证「通道控制-断点续传」完成目标操作且状态更新(Other > OBOracle)
-  priority: P2
-  precondition: '1. 当前项目中已经成功引入OBOracle数据源
-
-
-    2. oboracle建表语句:
-
-
-    CREATE TABLE if NOT EXISTS test_duandian_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_duandian_002(id INT,name VARCHAR(255)，bir VARCHAR(255));
-
-
-    INSERT INTO test_duandian_002 VALUES (1,''mengfei''),(2,''kako'');'
+  title: 验证【数据同步任务】-【通道控制】启用脏数据管理并运行，目标表仅写入合法记录且脏数据表保存异常记录(Hive到OBOracle)
+  priority: P1
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}
+    4) 在 ${SchemaA} 预建目标表结构，amount 字段为 NOT NULL，该表为空表：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0031_target_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0031_target_01 (
+         id NUMBER,
+         amount NUMBER(10,2) NOT NULL
+       );
+       COMMIT;
+    5) 授权数据源 B：${DataSourceB}
+    6) 数据源 B 类型：Hive
+    7) 数据源 B 存在数据库：${SchemaB}
+    8) 在 ${SchemaB} 创建源表并插入 2 行数据：
+       DROP TABLE IF EXISTS ${SchemaB}.test_table_15077_c0031_source_01;
+       CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15077_c0031_source_01 (
+         id BIGINT,
+         amount DOUBLE
+       );
+       INSERT INTO ${SchemaB}.test_table_15077_c0031_source_01 VALUES (1, NULL);
+       INSERT INTO ${SchemaB}.test_table_15077_c0031_source_01 VALUES (2, 10.00);
   steps:
-  - action: 进入【离线开发 → 断点续传】页面
-    expected: 已进入【离线开发 → 断点续传】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_duandian_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_duandian_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: '勾选断点续传功能
-
-      点击下一步，点击保存，进行临时运行'
-    expected: 任务运行失败后会从失败的点进行继续同步（需要询问开发制造异常中断场景）
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 打开任务通道控制并勾选「脏数据管理」和「记录保存」
+    expected: 「脏数据管理」和「记录保存」开关均为开启
+  - action: 发布并运行任务
+    expected: 运行状态：「成功」,目标表写入 id=2 记录
+  - action: 查看脏数据表
+    expected: 脏数据表包含 id=1 且 amount=NULL 的记录
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 通道控制
+  - 脏数据管理
 - case_id: C0032
-  title: 验证「通道控制-脏数据管理」完成目标操作且状态更新(Hive > OBOracle)
-  priority: P0
-  precondition: '1. 当前项目中已经成功引入OBOracle数据源
-
-
-    2. hive建表语句:
-
-    CREATE TABLE if NOT EXISTS test_zangshuju_001(id INT,name VARCHAR(255));
-
-
-    INSERT INTO test_zangshuju_001 VALUES (1,''mengfei''),(2,''kako'');
-
-
-    oboracle建表语句:
-
-    CREATE TABLE if NOT EXISTS test_zangshuju_002(id INT,name VARCHAR(255) bir VARCHAR(255));'
+  title: 验证【脚本模式】-【导入模板】打开来源类型下拉框，选项包含OBOracle
+  priority: P2
+  precondition: |-
+    1) 数据源中心存在类型为「OceanBaseOracle」的数据源「${DataSourceA}」
   steps:
-  - action: 进入【离线开发 → 脏数据管理】页面
-    expected: 已进入【离线开发 → 脏数据管理】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发-周期任务, 创建数据同步任务 Hive2OBOracle
-    expected: 创建成功
-  - action: '配置如下:
-
-      数据来源: Hive 3.x(CDP), test_zangshuju_001
-
-      选择目标: OceanBase 4.3.x(Oracle), test_zangshuju_002
-
-      字段映射: name > id
-
-      通道控制: 勾选脏数据管理，脏数据写入hive表填写dirty_01
-
-      其它配置项保持默认, 保存并临时运行'
-    expected: 任务运行成功
-  - action: '查询表数据: SELECT * FROM test_zangshuju_002;'
-    expected: 数据未从源表同步过来
-  - action: 进入运维中心-脏数据管理
-    expected: '存在脏数据表记录: dirty_01'
-  - action: 选择该记录, 查看详情
-    expected: 存在类型转换错误的脏数据：name字段内容
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建脚本模式任务并打开「导入模板」
+    expected: 打开模板导入弹窗
+  - action: 打开来源类型下拉框
+    expected: 下拉选项包含「OBOracle」
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 脚本模式
+  - 导入模板
 - case_id: C0033
-  title: 验证「脚本模式-导入模版」来源类型支持OBOracle数据源
+  title: 验证【脚本模式】-【导入模板】打开目标类型下拉框，选项包含OBOracle
   priority: P2
-  precondition: 当前项目中已经成功引入OBOracle数据源
+  precondition: |-
+    1) 数据源中心存在类型为「OceanBaseOracle」的数据源「${DataSourceA}」
   steps:
-  - action: 进入【离线开发 → 导入模版】页面
-    expected: 已进入【离线开发 → 导入模版】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建脚本模式的数据同步任务
-    expected: 新建成功
-  - action: 点击导入模版
-    expected: 当前页面弹窗导入模版弹窗
-  - action: 点击来源类型下拉框
-    expected: 来源数据下拉框中支持OBOracle数据源
-  - action: 目标类型选择已存在数据源后点击导入
-    expected: '脚本模版导入成功
-
-      通过修改部分内容后任务可直接运行'
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建脚本模式任务并打开「导入模板」
+    expected: 打开模板导入弹窗
+  - action: 打开目标类型下拉框
+    expected: 下拉选项包含「OBOracle」
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 脚本模式
+  - 导入模板
 - case_id: C0034
-  title: 验证「脚本模式-导入模版」目标类型支持OBOracle数据源
-  priority: P2
-  precondition: 当前项目中已经成功引入OBOracle数据源
+  title: 验证【脚本模式】-【运行用户】配置Hadoop用户名并临时运行，运行日志中的执行用户为新用户名
+  priority: P1
+  precondition: |-
+    1) 离线项目名称：「${ProjectA}」
+    2) 脚本模式任务「${TaskA}」运行配置中的 Hadoop 用户名为空
   steps:
-  - action: 进入【离线开发 → 导入模版】页面
-    expected: 已进入【离线开发 → 导入模版】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建脚本模式的数据同步任务
-    expected: 新建成功
-  - action: 点击导入模版
-    expected: 当前页面弹窗导入模版弹窗
-  - action: 点击目标类型下拉框
-    expected: 目标源数据下拉框中支持OBOracle数据源
-  - action: 来源类型选择已存在数据源后点击导入
-    expected: '脚本模版导入成功
-
-      通过修改部分内容后任务可直接运行'
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 打开「${TaskA}」运行配置并填写 Hadoop 用户名 `${UserA}`
+    expected: 配置表单显示 `${UserA}`
+  - action: 点击「保存」并「临时运行」
+    expected: 运行日志中的执行用户为 `${UserA}`
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 脚本模式
+  - 运行用户
 - case_id: C0035
-  title: 验证「脚本模式」添加hadoopUserName后任务运行用户正确切换
-  priority: P2
-  precondition: "1. 当前项目中已经成功引入OBOracle数据源\n\n2. oboracle建表语句:\n\nCREATE TABLE test_duoziduan_001 (\n    order_header_id VARCHAR2(4000),\n\
-    \    order_date NUMBER,\n    shop_id VARCHAR2(4000),\n    customer_id VARCHAR2(4000),\n    order_status NUMBER,\n    pay_date\
-    \ DATE,\n    pay_boolen NUMBER(1,0),\n    pay_decli NUMBER(10,2)\n);\n\nCOMMENT ON TABLE test_zidingyi_001 IS '销售订单明细表';\n\
-    COMMENT ON COLUMN test_duoziduan_001.order_header_id IS '订单头id';\nCOMMENT ON COLUMN test_duoziduan_001.order_date IS '订单日期';\n\
-    COMMENT ON COLUMN test_duoziduan_001.shop_id IS '店铺id';\nCOMMENT ON COLUMN test_duoziduan_001.customer_id IS '客户id';\n\
-    COMMENT ON COLUMN test_duoziduan_001.order_status IS '订单状态';\nCOMMENT ON COLUMN test_duoziduan_001.pay_date IS '支付日期';\n\
-    COMMENT ON COLUMN test_duoziduan_001.pay_boolen IS '是否支付';\nCOMMENT ON COLUMN test_duoziduan_001.pay_decli IS '支付金额';\n\
-    \nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, DATE '2025-01-02', 1, 199.99),\n('OH002',\
-    \ 20250102, 'S002', 'C002', 1, DATE '2025-01-03', 1, 59.50),\n('OH003', 20250103, 'S001', 'C003', 0, NULL, 0, 0.00),\n\
-    ('OH004', 20250104, 'S003', 'C004', 2, DATE '2025-01-05', 1, 350.75),\n('OH005', 20250105, 'S002', 'C005', 1, DATE '2025-01-06',\
-    \ 1, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, 0, 0.00),\n('OH007', 20250107, 'S003', 'C007', 1, DATE '2025-01-08',\
-    \ 1, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, 0, 0.00),\n('OH009', 20250109, 'S005', 'C009', 2, DATE '2025-01-10',\
-    \ 1, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, DATE '2025-01-11', 1, 260.45);"
+  title: 验证【任务管理】-【还原】删除已配置的OBOracle任务并还原，还原后来源目标与字段映射配置一致
+  priority: P1
+  precondition: |-
+    1) 离线项目已引入来源「${DataSourceA}」和目标「${DataSourceF}」
+    2) 任务「${TaskA}」来源、目标和字段映射均已保存
   steps:
-  - action: 进入【离线开发 → 数据开发模块】页面
-    expected: 已进入【离线开发 → 数据开发模块】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，点击转换为脚本
-    expected: 正常转为脚本模式
-  - action: 添加"hadoopConfig":root参数，点击保存
-    expected: 任务修改、保存成
-  - action: 进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{OBOracle}中表同步过来，包括各类型字段值，yarn上查看application用户为root
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 打开「${TaskA}」，记录来源、目标、schema 和字段映射后点击「删除」
+    expected: Toast提示:「删除成功」,任务列表不再显示「${TaskA}」
+  - action: 点击「还原」并选择「${TaskA}」
+    expected: 还原列表显示该任务
+  - action: 打开还原后的任务
+    expected: 来源、目标、schema 和字段映射与删除前一致
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 任务管理
+  - 还原
 - case_id: C0036
-  title: 验证配置OBOracle作为来源及目标数据源的任务，删除任务后还原配置依然存在
-  priority: P1
-  precondition: "1. 当前项目中已经成功引入OBOracle数据源\n\n2. oboracle建表语句:\n\nCREATE TABLE test_duoziduan_001 (\n    order_header_id VARCHAR2(4000),\n\
-    \    order_date NUMBER,\n    shop_id VARCHAR2(4000),\n    customer_id VARCHAR2(4000),\n    order_status NUMBER,\n    pay_date\
-    \ DATE,\n    pay_boolen NUMBER(1,0),\n    pay_decli NUMBER(10,2)\n);\n\nCOMMENT ON TABLE test_zidingyi_001 IS '销售订单明细表';\n\
-    COMMENT ON COLUMN test_duoziduan_001.order_header_id IS '订单头id';\nCOMMENT ON COLUMN test_duoziduan_001.order_date IS '订单日期';\n\
-    COMMENT ON COLUMN test_duoziduan_001.shop_id IS '店铺id';\nCOMMENT ON COLUMN test_duoziduan_001.customer_id IS '客户id';\n\
-    COMMENT ON COLUMN test_duoziduan_001.order_status IS '订单状态';\nCOMMENT ON COLUMN test_duoziduan_001.pay_date IS '支付日期';\n\
-    COMMENT ON COLUMN test_duoziduan_001.pay_boolen IS '是否支付';\nCOMMENT ON COLUMN test_duoziduan_001.pay_decli IS '支付金额';\n\
-    \nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, DATE '2025-01-02', 1, 199.99),\n('OH002',\
-    \ 20250102, 'S002', 'C002', 1, DATE '2025-01-03', 1, 59.50),\n('OH003', 20250103, 'S001', 'C003', 0, NULL, 0, 0.00),\n\
-    ('OH004', 20250104, 'S003', 'C004', 2, DATE '2025-01-05', 1, 350.75),\n('OH005', 20250105, 'S002', 'C005', 1, DATE '2025-01-06',\
-    \ 1, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, 0, 0.00),\n('OH007', 20250107, 'S003', 'C007', 1, DATE '2025-01-08',\
-    \ 1, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, 0, 0.00),\n('OH009', 20250109, 'S005', 'C009', 2, DATE '2025-01-10',\
-    \ 1, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, DATE '2025-01-11', 1, 260.45);"
+  title: 验证【版本管理】-【版本对比】修改映射配置保存新版本并对比，差异列表显示映射变更
+  priority: P2
+  precondition: |-
+    1) 任务「${TaskA}」已保存版本 V1，来源表为「test_table_15077_c0036_source_01」
+    2) V1 的目标字段映射为 code → code
   steps:
-  - action: 进入【离线开发 → 周期任务】页面
-    expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-  - action: '进入数据开发-周期任务, 创建数据同步任务: oboracle2oboracle_删除后还原校验'
-    expected: 创建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_huanyuan_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_huanyuan_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存
-    expected: 任务保存成功
-  - action: 删除任务-移至回收站
-    expected: 任务删除成功
-  - action: 进入回收站，还原该任务
-    expected: 任务还原至对应目录下，重新打开该任务，配置依然存在
-  - action: 进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{OBOracle}中表同步过来，包括各类型字段值
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 打开「${TaskA}」，将目标字段改为 target_code 并保存为 V2
+    expected: 版本列表新增 V2
+  - action: 点击「版本对比」并选择 V1、V2
+    expected: 差异列表显示 code → code 变更为 code → target_code
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 版本管理
+  - 版本对比
 - case_id: C0037
-  title: 验证修改数据同步任务配置后，版本对比正常显示对比区别
-  priority: P1
-  precondition: 存在已创建成功且包含OBOracle的数据同步任务test_banben_01
+  title: 验证【数据同步任务】-【增量模式】选择当日分区并发布运行，目标表仅新增当日分区记录(OBOracle到OBOracle)
+  priority: P0
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 创建分区表并写入前一日和当日两个分区：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0037';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0037 (
+         id NUMBER,
+         amount NUMBER(10,2),
+         dt DATE
+       ) PARTITION BY RANGE (dt) (
+         PARTITION p_prev VALUES LESS THAN (DATE '2026-01-01'),
+         PARTITION p_curr VALUES LESS THAN (DATE '2027-01-01'),
+         PARTITION p_future VALUES LESS THAN (MAXVALUE)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0037 (id, amount, dt) VALUES (1, 10.00, current_date - interval '1 day');
+       INSERT INTO ${SchemaA}.test_table_15077_c0037 (id, amount, dt) VALUES (2, 20.00, current_date);
+       COMMIT;
+    5) 目标 schema 为「${SchemaA2}」
   steps:
-  - action: 进入【离线开发 → 修改数据同步任务配置后，版本对比正常显示对比区别】页面
-    expected: 已进入【离线开发 → 修改数据同步任务配置后，版本对比正常显示对比区别】页面，显示页面标题与主要操作区域
-  - action: '进入数据开发-周期任务, 创建数据同步任务: oboracle2oboracle_版本对比校验'
-    expected: 创建成功
-  - action: 修改OBOracle schema、表信息，点击保存
-    expected: 修改、保存成功
-  - action: 点击基础属性-勾选当前版本与上一版本的数据，点击版本对比
-    expected: 弹窗展示两个版本的对比，高亮展示修改、删除内容，如schema、表数据
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建任务，选择来源库表并将同步模式切换为「增量」
+    expected: 显示分区字段 dt 和增量分区选择控件
+  - action: 选择当日分区并发布任务
+    expected: Toast提示:「发布成功」,任务配置显示同步模式「增量」
+  - action: 点击「临时运行」
+    expected: 运行状态：「成功」,目标表仅新增当日分区记录
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 增量模式
+  - 分区扫描
 - case_id: C0038
-  title: 验证「增量模式-选择库表」数据同步完成目标操作且状态更新(OBOracle > OBOracle)
-  priority: P1
-  precondition: "存在已创建成功且包含OBOracle的数据同步任务test_duoziduan_001\n\nCREATE TABLE test_duoziduan_001 (\n    order_header_id VARCHAR2(4000),\n\
-    \    order_date NUMBER,\n    shop_id VARCHAR2(4000),\n    customer_id VARCHAR2(4000),\n    order_status NUMBER,\n    pay_date\
-    \ DATE,\n    pay_boolen NUMBER(1,0),\n    pay_decli NUMBER(10,2)\n);\n\nCOMMENT ON TABLE test_zidingyi_001 IS '销售订单明细表';\n\
-    COMMENT ON COLUMN test_duoziduan_001.order_header_id IS '订单头id';\nCOMMENT ON COLUMN test_duoziduan_001.order_date IS '订单日期';\n\
-    COMMENT ON COLUMN test_duoziduan_001.shop_id IS '店铺id';\nCOMMENT ON COLUMN test_duoziduan_001.customer_id IS '客户id';\n\
-    COMMENT ON COLUMN test_duoziduan_001.order_status IS '订单状态';\nCOMMENT ON COLUMN test_duoziduan_001.pay_date IS '支付日期';\n\
-    COMMENT ON COLUMN test_duoziduan_001.pay_boolen IS '是否支付';\nCOMMENT ON COLUMN test_duoziduan_001.pay_decli IS '支付金额';\n\
-    \nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, DATE '2025-01-02', 1, 199.99),\n('OH002',\
-    \ 20250102, 'S002', 'C002', 1, DATE '2025-01-03', 1, 59.50),\n('OH003', 20250103, 'S001', 'C003', 0, NULL, 0, 0.00),\n\
-    ('OH004', 20250104, 'S003', 'C004', 2, DATE '2025-01-05', 1, 350.75),\n('OH005', 20250105, 'S002', 'C005', 1, DATE '2025-01-06',\
-    \ 1, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, 0, 0.00),\n('OH007', 20250107, 'S003', 'C007', 1, DATE '2025-01-08',\
-    \ 1, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, 0, 0.00),\n('OH009', 20250109, 'S005', 'C009', 2, DATE '2025-01-10',\
-    \ 1, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, DATE '2025-01-11', 1, 260.45);"
+  title: 验证【数据同步任务】-【增量模式】按当日分区过滤自定义SQL并运行，目标表记录仅来自当日分区(OBOracle到OBOracle)
+  priority: P0
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 创建分区表并写入前一日和当日两个分区：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0038';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0038 (
+         id NUMBER,
+         amount NUMBER(10,2),
+         dt DATE
+       ) PARTITION BY RANGE (dt) (
+         PARTITION p_prev VALUES LESS THAN (DATE '2026-01-01'),
+         PARTITION p_curr VALUES LESS THAN (DATE '2027-01-01'),
+         PARTITION p_future VALUES LESS THAN (MAXVALUE)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0038 (id, amount, dt) VALUES (1, 10.00, current_date - interval '1 day');
+       INSERT INTO ${SchemaA}.test_table_15077_c0038 (id, amount, dt) VALUES (2, 20.00, current_date);
+       COMMIT;
+    5) 目标 schema 为「${SchemaA2}」
   steps:
-  - action: 进入【离线开发 → 增量模式】页面
-    expected: 已进入【离线开发 → 增量模式】页面，显示页面标题与主要操作区域
-  - action: '进入数据开发-周期任务, 创建数据同步任务: oboracle2hive_增量_选择库表校验'
-    expected: 创建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_001
-
-      增量标识字段--下拉框（只支持数值/Timestamp类型）：pay_date
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{OBOracle}中表同步过来，包括各类型字段值
-  - action: 往源表继续插入数据，id值比原数值都大
-    expected: 数据插入成功
-  - action: 再次运行数据同步任务
-    expected: 任务运行成功，源表内新增数据成功增量同步至目标表
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建任务并选择「自定义SQL」，输入按 dt 过滤当日分区的查询
+    expected: SQL 编辑器显示 dt 过滤条件,同步模式显示「增量」
+  - action: 发布并运行任务
+    expected: 运行状态：「成功」,目标表记录仅来自当日分区
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 增量模式
+  - 自定义SQL
+  - 分区扫描
 - case_id: C0039
-  title: 验证「增量模式-自定义SQL」数据同步完成目标操作且状态更新(OBOracle > OBOracle)
+  title: 验证【数据同步任务】-【数据开发流程】配置来源目标映射与通道控制并发布运行，任务运行成功且目标表记录数为2(Hive到OBOracle)
   priority: P1
-  precondition: "1. 当前项目中已经成功引入OBOracle数据源\n\n2. oboracle建表语句:\n\nCREATE TABLE IF NOT EXISTS test_zidingyi_001 (\n    order_header_id\
-    \ STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n    customer_id\
-    \ STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN\
-    \ COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE IF NOT EXISTS test_zidingyi_002\
-    \ (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT\
-    \ INTO test_zidingyi_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),\n('OH002', 20250102,\
-    \ 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),\n('OH004',\
-    \ 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE,\
-    \ 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08',\
-    \ TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10',\
-    \ TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);\n\n查询sql内容：\nSELECT *\nFROM test_zidingyi_001;\n\
-    \nSELECT order_header_id, customer_id, pay_decli\nFROM test_zidingyi_001\nWHERE pay_boolen = TRUE;\n\nSELECT shop_id,\
-    \ SUM(pay_decli) AS total_amount, COUNT(*) AS order_count\nFROM test_zidingyi_001\nWHERE pay_boolen = TRUE\nGROUP BY shop_id;\n\
-    \nSELECT order_header_id, customer_id, pay_decli\nFROM test_zidingyi_001\nORDER BY pay_decli DESC;\n\nSELECT order_header_id,\
-    \ customer_id, pay_decli\nFROM test_zidingyi_001\nWHERE pay_decli BETWEEN 100 AND 300;"
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 在 ${SchemaA2} 预建目标表结构，该表为空表：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA2}.test_table_15077_c0039_target_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA2}.test_table_15077_c0039_target_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       COMMIT;
+    5) 授权数据源 B：${DataSourceB}
+    6) 数据源 B 类型：Hive
+    7) 数据源 B 存在数据库：${SchemaB}
+    8) 在 ${SchemaB} 创建源表并插入 2 行数据：
+       DROP TABLE IF EXISTS ${SchemaB}.test_table_15077_c0039_source_01;
+       CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15077_c0039_source_01 (
+         id BIGINT,
+         code STRING
+       );
+       INSERT INTO ${SchemaB}.test_table_15077_c0039_source_01 VALUES (1, 'A001');
+       INSERT INTO ${SchemaB}.test_table_15077_c0039_source_01 VALUES (2, 'A002');
   steps:
-  - action: 进入【离线开发 → 自定义SQL】页面
-    expected: 已进入【离线开发 → 自定义SQL】页面，显示页面标题与主要操作区域
-  - action: '进入数据开发-周期任务, 创建数据同步任务: oboracle2oboracle_增量_自定义SQL校验'
-    expected: 创建成功
-  - action: '选择数据来源
-
-      勾选自定义sql
-
-      输入sql内容：前置条件查询sql依次校验
-
-      增量标识--输入框：id
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{OBOracle}中表同步过来，包括各类型字段值
-  - action: 往源表继续插入数据，id值比原数值都大
-    expected: 数据插入成功
-  - action: 再次运行数据同步任务
-    expected: 任务运行成功，源表内新增数据成功增量同步至目标表
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建 Hive 到 OBOracle 任务，完成来源、目标、字段映射和通道控制配置
+    expected: 配置面板显示来源、目标、字段映射和通道控制均已填写
+  - action: 点击「保存」并「发布任务」
+    expected: Toast提示:「发布成功」,任务状态显示「未运行」
+  - action: 点击「临时运行」
+    expected: 运行状态：「成功」,目标表记录数为 2
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 数据开发流程
 - case_id: C0040
-  title: 验证数据同步任务数据开发流程组合（Hive > OBOracle）
+  title: 验证【数据同步任务】-【数据开发流程】完成全流程配置并发布运行，目标表记录数为2(OBOracle到OBOracle)
   priority: P1
-  precondition: '建表语句：
-
-    CREATE TABLE if NOT EXISTS test_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_002(id INT,name VARCHAR(255) );
-
-    INSERT INTO test_001 VALUES (1,''mengfei''),(2,''kako'');
-
-
-    写入前语句：
-
-    ALTER TABLE test_002 ADD (bir NUMBER DEFAULT 1);
-
-
-    写入后语句：
-
-    DELETE FROM test_002 WHERE id = 1;'
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+    4) 在 ${SchemaA} 创建源表并插入 2 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0040';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0040 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0040 VALUES (1, 'A001');
+       INSERT INTO ${SchemaA}.test_table_15077_c0040 VALUES (2, 'A002');
+       COMMIT;
+    5) 目标 schema 为「${SchemaA2}」且不存在同名目标表
   steps:
-  - action: 进入【离线开发 → 数据开发模块】页面
-    expected: 已进入【离线开发 → 数据开发模块】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，进入周期任务菜单页--新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源（hive-meta数据源）
-
-      数据库
-
-      schema
-
-      表名：test_001
-
-      分区：dt=${bdp.system.bizdate}
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: 点击一键生成目标表，表名修改为test_002
-    expected: 建表成功
-  - action: '选择数据目标（OBOracle-meta数据源）
-
-      数据库
-
-      schema
-
-      表名：test_002
-
-      presql、postsql：前置条件内的前后配置语句
-
-      主键冲突：replace into
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: '添加常量字段：bir-999-int
-
-      修改源字段name格式化：yyyy-MM-dd
-
-      修改源字段id字段转换：选择前置条件配置资源
-
-      点击字段刷新-同行映射，点击下一步'
-    expected: 进入通道控制页面
-  - action: '同步速率上限：5
-
-      开启并发：读2写2
-
-      开启脏数据管理：表-dirty_01，生命周期-1天，最大容忍数-10条，脏数记录比例-50%
-
-      点击下一步，点击保存，点击临时运行'
-    expected: 任务运行成功，数据成功从Hive表中同步过来，包括各类型字段值
-  - action: 点击转换为脚本
-    expected: 数据同步任务由向导模式转为脚本模式，各个配置对应字段值、状态和详情内容与保存输入一致显示，字段无缺失
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 新建 OBOracle 到 OBOracle 任务并完成来源、目标、字段映射配置
+    expected: 任务配置显示来源和目标均为 OBOracle
+  - action: 点击「保存」并「发布任务」
+    expected: Toast提示:「发布成功」,任务状态显示「未运行」
+  - action: 点击「临时运行」
+    expected: 运行状态：「成功」,目标表记录数为 2
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 数据开发流程
 - case_id: C0041
-  title: 验证数据同步任务数据开发全流程(OBOracle > OBOracle)
+  title: 验证【数据同步任务】-【任务发布】一键发布任务并临时运行，发布记录目标项目正确且目标表记录数为2(Hive到OBOracle)
   priority: P1
-  precondition: '建表语句：
-
-    CREATE TABLE if NOT EXISTS test_001(id INT,name VARCHAR(255));
-
-    INSERT INTO test_001 VALUES (1,''mengfei''),(2,''kako'');
-
-
-
-    CREATE TABLE if NOT EXISTS test_002(id INT,name VARCHAR(255) );'
+  precondition: |-
+    1) 已保存 Hive 到 OBOracle 任务「${TaskA}」，来源表含 id=1、id=2 两行
+    2) 发布目标项目为「${ProjectB}」
   steps:
-  - action: 进入【离线开发 → 创建项目（xiangmu_01）】页面
-    expected: 已进入【离线开发 → 创建项目（xiangmu_01）】页面，显示页面标题与主要操作区域
-  - action: 数据源中心新增OBOracle，新增时授权离线项目
-    expected: OBOracle新增完成
-  - action: 控制台配置OBOracle计算引擎，执行连通性测试
-    expected: 计算引擎配置完成，连通性通过
-  - action: 进入离线-创建项目（xiangmu_01）-勾选OBOracle，选择创建选项来创建schema，填写其余必填项，点击保存
-    expected: 项目创建完成，进入数据源查看-OBOracle为meta数据源，数据源内新增一个与项目名称同名的schema
-  - action: 再次创建项目（xiangmu_02）-勾选OBOracle，选择创建选项来创建schema，填写其余必填项，点击保存（注意：需要与xiangmu_01数据源选择一致，不可多或少）
-    expected: 项目创建完成，进入数据源查看-OBOracle为meta数据源，数据源内新增一个与项目名称同名的schema
-  - action: 进入上述所创建项目（xiangmu_01）-项目管理-项目设置-发布目标，点击立即绑定
-    expected: 弹窗展示绑定发布目标，选择xiangmu_02后点击确定绑定成功
-  - action: 进入上述所创建项目（xiangmu_01）-项目管理-项目设置-开发设置，点击资源组下方按钮配置映射
-    expected: 弹窗展示资源组映射目标，选择xiangmu_02后点击确定绑定成功
-  - action: 进入上述所创建项目（xiangmu_01）-数据源-点击所创建的meta数据源操作列映射配置，发布目标选择xiangmu_02对应meta数据源，点击确定
-    expected: 配置映射成功，映射状态为已配置
-  - action: 进入上述所创建项目（xiangmu_01）-数据源，点击引入数据源，勾选上述数据源中心所创建的数据源，点击确定
-    expected: 数据源引入成功
-  - action: 进入上述所创建项目（xiangmu_02）-数据源，点击引入数据源，勾选上述数据源中心所创建的数据源，点击确定
-    expected: 数据源引入成功
-  - action: 进入上述所创建的项目（xiangmu_01）-进入数据开发模块，进入周期任务菜单页--新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源（上述创建的meta数据源）
-
-      数据库
-
-      schema
-
-      表名：test_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标（上述引入的数据源）
-
-      数据库
-
-      schema
-
-      表名：test_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，点击临时运行
-    expected: 任务运行成功，数据成功从{OBOracle}中表同步过来，包括各类型字段值
-  - action: 点击转换为脚本
-    expected: 数据同步任务由向导模式转为脚本模式，数据源对应字段值、状态和详情内容与保存输入一致显示，字段无缺失
-  - action: '修改调度属性
-
-      实例生成方式：立即生成
-
-      具体时间：（当前时间的十七分钟后）
-
-      点击保存、点击右上角提交'
-    expected: 任务提交成功
-  - action: 进入运维中心-周期任务管理，选择该任务点击操作列补数据-当前任务
-    expected: 右侧弹窗展示补数据配置界面
-  - action: 全部默认点击确定
-    expected: 弹窗提示查看补数据结果框，点击查看后进入补数据实例界面，展示补数据实例，实例状态依次为等待提交、等待运行、运行中、成功
-  - action: 进入周期任务实例查看
-    expected: 展示上述任务周期运行实例，达到上述调度属性所修改时间后开始运行，最终状态为运行成功
-  - action: 进入数据开发当前任务界面，点击发布
-    expected: 进入发布管理界面-创建发布包
-  - action: 勾选当前任务，点击打包，输入发布描述，点击确定
-    expected: 自动跳转发布至目标项目
-  - action: 点击所创建发布包操作列导出按钮，选择保存目录点击确定
-    expected: 发布包导出到本地
-  - action: 点击所创建发布包操作列发布按钮
-    expected: 发布状态由待发布转为发布成功
-  - action: 进入项目xiangmu_02-数据开发-周期任务菜单页
-    expected: 上述数据同步任务发布至本项目，点击临时运行可正常运行
-  - action: 删除上述所同步过来的数据同步任务
-    expected: 任务删除成功
-  - action: 进入发布管理界面-发布至本项目，点击导入发布包，选择上文导出的发布包，点击确定
-    expected: 发布至本项目列表新增一条发布包
-  - action: 点击操作列发布按钮
-    expected: 发布状态由待发布转为发布成功
-  - action: 进入数据开发-周期任务菜单页
-    expected: 上述数据同步任务发布至本项目，点击临时运行可正常运行
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 选中「${TaskA}」并点击「一键发布」
+    expected: Toast提示:「发布成功」,发布记录目标项目为「${ProjectB}」
+  - action: 在目标项目打开任务并点击「临时运行」
+    expected: 运行状态：「成功」,目标表记录数为 2
   tags:
-  - 数据开发 ❯
+  - 离线开发
+  - 任务开发
+  - 任务发布
+  - 一键发布
 - case_id: C0042
-  title: 验证「数据同步任务」一键发布&导入导出发布完成目标操作且状态更新(Hive > OBOracle)
-  priority: P0
-  precondition: 存在两个项目projectA(测试项目), projectB(生产项目), 项目A, B均已对接oboracle数据源
+  title: 验证【数据同步任务】-【任务发布】发布自定义SQL任务并临时运行，任务运行成功且目标表包含SQL返回字段(OBOracle到Hive)
+  priority: P1
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}
+    4) 在 ${SchemaA} 创建源表并插入 2 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0042_source_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0042_source_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0042_source_01 VALUES (1, 'A001');
+       INSERT INTO ${SchemaA}.test_table_15077_c0042_source_01 VALUES (2, 'A002');
+       COMMIT;
+    5) 授权数据源 B：${DataSourceB}
+    6) 数据源 B 类型：Hive
+    7) 数据源 B 存在数据库：${SchemaB2}
+    8) 在 ${SchemaB2} 预建目标表结构，该表为空表：
+       DROP TABLE IF EXISTS ${SchemaB2}.test_table_15077_c0042_target_01;
+       CREATE TABLE IF NOT EXISTS ${SchemaB2}.test_table_15077_c0042_target_01 (
+         id BIGINT,
+         code STRING
+       );
+    9) 自定义 SQL 任务「${TaskA}」来源为「${DataSourceA}.${SchemaA}.test_table_15077_c0042_source_01」，目标为 Hive 数据源「${DataSourceB}」的 schema「${SchemaB2}」
   steps:
-  - action: 进入【离线开发 → 周期任务】页面
-    expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-  - action: 进入projectA(测试项目) -> 数据开发-周期任务
+  - action: 进入【离线开发 → 任务开发】页面
     expected: 进入成功
-  - action: 创建hive2oboracle数据同步任务taskA, 执行建表语句后, 保存并发布
-    expected: 发布成功, 跳转到「创建发布包」页面
-  - action: 打包任务taskA, 并「导出」文件
-    expected: zip文件${fileA}导出成功
-  - action: 点击「发布」按钮
-    expected: 发布状态由「待发布」 -> 「发布成功」
-  - action: 切换到projectB(生产项目) -> 数据开发-周期任务
-    expected: 新增周期任务taskA, 任务内容与projectA(测试项目)中的taskA保持一致
-  - action: 临时运行任务taskA后删除
-    expected: 运行/删除成功, hive2oboracle 任务一键发布完成目标操作且状态更新
-  - action: 进入projectB(生产项目) -> 任务发布 -> 发布至本项目
-    expected: 进入成功
-  - action: 点击「导入发布包」, 选择zip文件${fileA}后, 点击「发布」按钮
-    expected: 弹出「发布包校验」弹窗, 「数据源」需要手动配置, 其他配置均校验通过
-  - action: 「数据源 - 本项目数据源」中选择projectB(生产项目)中的oboracle数据源后, 点击「发布」
-    expected: 发布成功
-  - action: 检查 projectB(生产项目) -> 数据开发-周期任务
-    expected: 新增周期任务taskA, 任务内容与projectA(测试项目)中的taskA保持一致
-  - action: 临时运行任务taskA
-    expected: 运行成功, hive2oboracle 任务导入导出发布完成目标操作且状态更新
+  - action: 打开「${TaskA}」并点击「发布任务」
+    expected: Toast提示:「发布成功」,任务状态显示「未运行」
+  - action: 点击「临时运行」
+    expected: 运行状态：「成功」,目标表存在自定义 SQL 返回字段
   tags:
-  - 任务发布 ❯
+  - 离线开发
+  - 任务开发
+  - 任务发布
+  - 自定义SQL
 - case_id: C0043
-  title: 验证「数据同步任务」一键发布&导入导出发布完成目标操作且状态更新(OBOracle > Hive)
+  title: 验证【数据同步任务】-【批量发布】批量发布两条多表同步任务并运行，发布记录包含2条任务且每张目标表记录数为2(OBOracle到Hive)
   priority: P1
-  precondition: 存在两个项目projectA(测试项目), projectB(生产项目), 项目A, B均已对接oboracle数据源
+  precondition: |-
+    1) 授权数据源 A：${DataSourceA}
+    2) 数据源 A 类型：OceanBaseOracle
+    3) 数据源 A 存在数据库：${SchemaA}
+    4) 在 ${SchemaA} 创建两张源表并各插入 2 行数据：
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0043_source_01';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0043_source_01 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0043_source_01 VALUES (1, 'A001');
+       INSERT INTO ${SchemaA}.test_table_15077_c0043_source_01 VALUES (2, 'A002');
+       BEGIN
+         EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15077_c0043_source_02';
+       EXCEPTION
+         WHEN OTHERS THEN
+           IF SQLCODE != -942 THEN RAISE; END IF;
+       END;
+       /
+       CREATE TABLE ${SchemaA}.test_table_15077_c0043_source_02 (
+         id NUMBER,
+         code VARCHAR2(20)
+       );
+       INSERT INTO ${SchemaA}.test_table_15077_c0043_source_02 VALUES (1, 'A001');
+       INSERT INTO ${SchemaA}.test_table_15077_c0043_source_02 VALUES (2, 'A002');
+       COMMIT;
+    5) 授权数据源 B：${DataSourceB}
+    6) 数据源 B 类型：Hive
+    7) 数据源 B 存在数据库：${SchemaB2}
+    8) 在 ${SchemaB2} 预建目标表结构，该表为空表：
+       DROP TABLE IF EXISTS ${SchemaB2}.test_table_15077_c0043_target_01;
+       CREATE TABLE IF NOT EXISTS ${SchemaB2}.test_table_15077_c0043_target_01 (
+         id BIGINT,
+         code STRING
+       );
   steps:
-  - action: 进入【离线开发 → 周期任务】页面
-    expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-  - action: 进入projectA(测试项目) -> 数据开发-周期任务
+  - action: 进入【离线开发 → 任务开发】页面
     expected: 进入成功
-  - action: 创建oboracle2hive数据同步任务taskA, 执行建表语句后, 保存并发布
-    expected: 发布成功, 跳转到「创建发布包」页面
-  - action: 勾选任务taskA并打包
-    expected: 打包成功, 跳转到「发布至目标项目」页面
-  - action: 点击「导出」按钮
-    expected: zip文件${fileA}导出成功
-  - action: 点击「发布」按钮
-    expected: 发布状态由「待发布」 -> 「发布成功」
-  - action: 切换到projectB(生产项目) -> 数据开发-周期任务
-    expected: 新增周期任务taskA, 任务内容与projectA(测试项目)中的taskA保持一致
-  - action: 临时运行任务taskA后删除
-    expected: 运行/删除成功, oboracle2hive 任务一键发布完成目标操作且状态更新
-  - action: 进入projectB(生产项目) -> 任务发布 -> 发布至本项目
-    expected: 进入成功
-  - action: 点击「导入发布包」, 选择zip文件${fileA}后, 点击「发布」按钮
-    expected: 弹出「发布包校验」弹窗, 「数据源」需要手动配置, 其他配置均校验通过
-  - action: 「数据源 - 本项目数据源」中选择projectB(生产项目)中的oboracle数据源后, 点击「发布」
-    expected: 发布成功
-  - action: 检查 projectB(生产项目) -> 数据开发-周期任务
-    expected: 新增周期任务taskA, 任务内容与projectA(测试项目)中的taskA保持一致
-  - action: 临时运行任务taskA
-    expected: 运行成功, oboracle2hive 任务导入导出发布完成目标操作且状态更新
+  - action: 选中两条数据同步任务并点击「批量发布」
+    expected: Toast提示:「发布成功」,发布记录包含 2 条任务
+  - action: 在任务列表分别点击两条任务的「临时运行」
+    expected: 两条任务运行状态均为「成功」,每张目标表记录数为 2
   tags:
-  - 任务发布 ❯
+  - 离线开发
+  - 任务开发
+  - 任务发布
+  - 批量发布
 - case_id: C0044
-  title: 验证「数据同步任务」发布完成目标操作且状态更新(自定义SQL, OBOracle > Hive)
+  title: 验证【数据同步任务】-【批量发布】批量发布两条同步任务，发布结果列表包含2条成功记录(OBOracle到Hive)
   priority: P1
-  precondition: '1. 当前项目中已经成功引入OBOracle数据源
-
-
-    2. 当前项目中存在新建成功的读OBOracle向导模式的数据同步任务（同时来源配置方式为自定义sql）
-
-
-    3. 当前项目已经成功绑定发布目标项目，且OBOracle数据源成功配置了映射配置（发布目标）'
+  precondition: |-
+    1) 离线项目「${ProjectA}」存在任务「${TaskA}」和「${TaskB}」，来源均为「${DataSourceA}」
+    2) 两条任务目标均为 Hive 数据源「${DataSourceB}」
   steps:
-  - action: 进入【离线开发 → 生产项目】页面
-    expected: 已进入【离线开发 → 生产项目】页面，显示页面标题与主要操作区域
-  - action: 点击上述数据同步任务（来源配置方式为自定义sql）右上方的“发布”
-    expected: 进入任务发布页面
-  - action: 勾选该数据同步任务打包
-    expected: 弹出创建发布包弹窗
-  - action: 输入正确的发布描述，点击确定
-    expected: 创建包完成，进入发布至目标项目页面
-  - action: 选择步骤三打的发布包，点击发布
-    expected: 映射配置配置与环境信息配置无误的话，发布成功
-  - action: 进入生产项目-数据开发查看
-    expected: 有从测试项目发布过来的任务
-  - action: 查看该任务
-    expected: '该任务的来源数据源与目标数据源均替换为与测试环境配置映射的OBOracle的数据源
-
-      配置方式为自定义sql，sql框内容与源任务一致'
-  - action: 临时运行该任务
-    expected: 配置无误的情况下运行成功
-  - action: 查看该数据同步任务中目标表中的数据
-    expected: 成功从源表中同步过来
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 勾选「${TaskA}」和「${TaskB}」并点击「批量发布」
+    expected: Toast提示:「发布成功」,发布结果列表包含 2 条成功记录
   tags:
-  - 任务发布 ❯
+  - 离线开发
+  - 任务开发
+  - 任务发布
+  - 批量操作
 - case_id: C0045
-  title: 验证「数据同步任务+多表」同时发布完成目标操作且状态更新(OBOracle > Hive)
-  priority: P1
-  precondition: '1. 当前项目中已经成功引入OBOracle数据源
-
-
-    2. 当前项目中存在新建成功的读OBOracle向导模式的数据同步任务
-
-
-    3. 当前项目已经成功绑定发布目标项目，且OBOracle数据源成功配置了映射配置（发布目标）
-
-
-    4. 存在非数据同步配置的hive、mysql表：test_hive_01、test_mysql_01，表内各包含五条数据'
+  title: 验证【数据同步任务】-【任务发布】发布脚本模式任务并临时运行，任务运行成功(OBOracle到Hive)
+  priority: P2
+  precondition: |-
+    1) 脚本模式任务「${TaskA}」来源为「${DataSourceA}」
+    2) 目标为 Hive 数据源「${DataSourceB}」
   steps:
-  - action: 进入【离线开发 → 生产项目】页面
-    expected: 已进入【离线开发 → 生产项目】页面，显示页面标题与主要操作区域
-  - action: 点击上述数据同步任务右上方的“发布”
-    expected: 进入任务发布页面
-  - action: 勾选该数据同步任务、表test_hive_01、test_mysql_01，点击打包
-    expected: 弹出创建发布包弹窗
-  - action: 输入正确的发布描述，点击确定
-    expected: 创建包完成，进入发布至目标项目页面
-  - action: 选择步骤三打的发布包，点击发布
-    expected: 映射配置配置与环境信息配置无误的话，发布成功
-  - action: 进入生产项目-数据开发查看
-    expected: 有从测试项目发布过来的任务、表
-  - action: 查看该任务
-    expected: 该任务的来源数据源与目标数据源均替换为与测试环境配置映射的OBOracle的数据源
-  - action: 临时运行该任务
-    expected: 配置无误的情况下运行成功
-  - action: 查看该数据同步任务中目标表中的数据
-    expected: 成功从源表中同步过来
-  - action: 执行查询语句查询表
-    expected: 表正确查询、表内数据为空
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 打开「${TaskA}」并点击「发布任务」
+    expected: Toast提示:「发布成功」,任务状态显示「未运行」
+  - action: 点击「临时运行」
+    expected: 运行状态：「成功」
   tags:
-  - 任务发布 ❯
+  - 离线开发
+  - 任务开发
+  - 脚本模式
+  - 任务发布
 - case_id: C0046
-  title: 验证「多数据同步任务」同时发布完成目标操作且状态更新(OBOracle > Hive)
+  title: 验证【数据同步任务】-【调度】启用每日调度并查看运行记录，运行记录新增1条且状态为成功(OBOracle到Hive)
   priority: P1
-  precondition: '1. 当前项目中已经成功引入OBOracle数据源
-
-
-    2. 当前项目中存在2 个新建成功的读OBOracle向导模式的数据同步任务
-
-
-    3. 当前项目已经成功绑定发布目标项目，且OBOracle数据源成功配置了映射配置（发布目标）'
+  precondition: |-
+    1) 任务「${TaskA}」来源为「${DataSourceA}」、目标为「${DataSourceB}」
+    2) 调度周期为每天 02:00，下一次调度时间为今日 02:00
   steps:
-  - action: 进入【离线开发 → 多数据同步任务同时发布完成目标操作且状态更新】页面
-    expected: 已进入【离线开发 → 多数据同步任务同时发布完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-  - action: 点击上述数据同步任务右上方的“发布”
-    expected: 进入任务发布页面
-  - action: 勾选2 个数据同步任务，点击打包
-    expected: 弹出创建发布包弹窗
-  - action: 输入正确的发布描述，点击确定
-    expected: 创建包完成，进入发布至目标项目页面
-  - action: 选择步骤三打的发布包，点击发布
-    expected: 映射配置配置与环境信息配置无误的话，发布成功
-  - action: 进入生产项目-数据开发查看
-    expected: 有从测试项目发布过来的2 个任务
-  - action: 查看对应任务
-    expected: 该任务的来源数据源与目标数据源均替换为与测试环境配置映射的OBOracle的数据源
-  - action: 临时运行该任务
-    expected: 配置无误的情况下运行成功
-  - action: 查看该数据同步任务中目标表中的数据
-    expected: 成功从源表中同步过来
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 打开「${TaskA}」调度配置并点击「启用」
+    expected: 调度状态显示「启用」,下一次运行时间显示今日 02:00
+  - action: 查看调度运行记录
+    expected: 运行记录新增 1 条,状态为「成功」
   tags:
-  - 任务发布 ❯
+  - 离线开发
+  - 任务开发
+  - 调度
+  - 任务运行
 - case_id: C0047
-  title: 验证「数据同步任务」脚本模式发布正常(OBOracle > Hive)
+  title: 验证【数据同步任务】-【调度】启用每日调度并查看运行记录，运行记录新增1条且状态为成功(Hive到OBOracle)
   priority: P1
-  precondition: '1. 当前项目中已经成功引入OBOracle数据源
-
-
-    2. 当前项目中存在新建成功的读OBOracle向导模式的数据同步任务（脚本模式）
-
-
-    3. 当前项目已经成功绑定发布目标项目，且OBOracle数据源成功配置了映射配置（发布目标）'
+  precondition: |-
+    1) 任务「${TaskA}」来源为「${DataSourceB}」、目标为「${DataSourceA}」
+    2) 调度周期为每天 03:00，下一次调度时间为今日 03:00
   steps:
-  - action: 进入【离线开发 → 生产项目】页面
-    expected: 已进入【离线开发 → 生产项目】页面，显示页面标题与主要操作区域
-  - action: 点击上述数据同步任务（脚本模式）右上方的“发布”
-    expected: 进入任务发布页面
-  - action: 勾选该数据同步任务打包
-    expected: 弹出创建发布包弹窗
-  - action: 输入正确的发布描述，点击确定
-    expected: 创建包完成，进入发布至目标项目页面
-  - action: 选择步骤三打的发布包，点击发布
-    expected: 映射配置配置与环境信息配置无误的话，发布成功
-  - action: 进入生产项目-数据开发查看
-    expected: 有从测试项目发布过来的任务
-  - action: 查看该任务
-    expected: '该任务的来源数据源与目标数据源均替换为与测试环境配置映射的OBOracle的数据源
-
-      各个参数配置项与来源均一致'
-  - action: 临时运行该任务
-    expected: 配置无误的情况下运行成功
-  - action: 查看该数据同步任务中目标表中的数据
-    expected: 成功从源表中同步过来
+  - action: 进入【离线开发 → 任务开发】页面
+    expected: 进入成功
+  - action: 打开「${TaskA}」调度配置并点击「启用」
+    expected: 调度状态显示「启用」,下一次运行时间显示今日 03:00
+  - action: 查看调度运行记录
+    expected: 运行记录新增 1 条,状态为「成功」
   tags:
-  - 任务发布 ❯
-- case_id: C0048
-  title: 验证「数据同步任务」调度功能运行正常(OBOracle > Hive)
-  priority: P0
-  precondition: "1. 当前项目中已经成功引入OBOracle数据源\n\n2. oboracle建表语句:\n\nCREATE TABLE PORT_VESSEL_OPERATION_RECORD (\n    VESSEL_CODE\
-    \ SMALLINT,\n    CARGO_DENSITY BINARY_DOUBLE,\n    BERTH_CODE CHAR(3),\n    VESSEL_NAME VARCHAR(100),\n    VOYAGE_NO VARCHAR2(50),\n\
-    \    NATIONALITY_CODE NCHAR(2),\n    SHIPPING_COMPANY NVARCHAR2(120),\n    CONTAINER_COUNT INT,\n    CREW_GROUP_ID INTEGER,\n\
-    \    TOTAL_WEIGHT_TON NUMBER(12,3),\n    CARGO_VOLUME_M3 DECIMAL(10,2),\n    FUEL_CONSUMPTION_RATE FLOAT,\n    SCHEDULED_BERTHING_DATE\
-    \ DATE,\n    AIS_DEVICE_MAC RAW(6),\n    LOG_SNAPSHOT BLOB,\n    DRAFT_DEPTH_M BINARY_FLOAT,\n    ACTUAL_BERTHING_TS TIMESTAMP,\n\
-    \    RECORD_CREATED_TSLTZ TIMESTAMP WITH LOCAL TIME ZONE,\n    ESTIMATED_DEPARTURE_TSTZ TIMESTAMP WITH TIME ZONE,\n  \
-    \  CONTRACT_VALIDITY INTERVAL YEAR TO MONTH,\n    MAX_BERTHING_DELAY INTERVAL DAY TO SECOND\n)\nPARTITION BY RANGE (SCHEDULED_BERTHING_DATE)\
-    \ (\n    PARTITION p_2025_q1 VALUES LESS THAN (DATE '2025-04-01'),\n    PARTITION p_2025_q2 VALUES LESS THAN (DATE '2025-07-01'),\n\
-    \    PARTITION p_2025_q3 VALUES LESS THAN (DATE '2025-10-01'),\n    PARTITION p_2025_q4 VALUES LESS THAN (DATE '2026-01-01'),\n\
-    \    PARTITION p_max VALUES LESS THAN (MAXVALUE)\n);\n\nCOMMENT ON TABLE PORT_VESSEL_OPERATION_RECORD IS '宁波港船舶靠泊与货物装卸作业记录表';\n\
-    COMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.VESSEL_CODE IS '船舶内部编号';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.CARGO_DENSITY\
-    \ IS '货物密度（吨/立方米）';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.BERTH_CODE IS '靠泊码头代码';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.VESSEL_NAME\
-    \ IS '船名';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.VOYAGE_NO IS '航次号';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.NATIONALITY_CODE\
-    \ IS '船舶国籍代码';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.SHIPPING_COMPANY IS '船公司名称';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.CONTAINER_COUNT\
-    \ IS '集装箱数量';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.CREW_GROUP_ID IS '装卸工人班组ID';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.TOTAL_WEIGHT_TON\
-    \ IS '货物总重量（吨）';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.CARGO_VOLUME_M3 IS '货物体积（立方米）';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.FUEL_CONSUMPTION_RATE\
-    \ IS '燃油消耗率估算';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.SCHEDULED_BERTHING_DATE IS '计划靠泊日期';\nCOMMENT ON COLUMN\
-    \ PORT_VESSEL_OPERATION_RECORD.AIS_DEVICE_MAC IS 'AIS设备MAC地址';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.LOG_SNAPSHOT\
-    \ IS '船舶电子日志快照';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.DRAFT_DEPTH_M IS '实时吃水深度（米）';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.ACTUAL_BERTHING_TS\
-    \ IS '实际靠泊时间戳';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.RECORD_CREATED_TSLTZ IS '操作记录创建时间（本地时区）';\nCOMMENT ON\
-    \ COLUMN PORT_VESSEL_OPERATION_RECORD.ESTIMATED_DEPARTURE_TSTZ IS '预期离港时间（带时区）';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.CONTRACT_VALIDITY\
-    \ IS '合同有效期（年-月间隔）';\nCOMMENT ON COLUMN PORT_VESSEL_OPERATION_RECORD.MAX_BERTHING_DELAY IS '最大允许靠泊延迟时间（天-秒间隔）';\n\nALTER\
-    \ SESSION SET TIME_ZONE = '+08:00';\n\nINSERT INTO PORT_VESSEL_OPERATION_RECORD VALUES (\n    101,\n    1. 842375642389,\n\
-    \    'NCT',\n    'COSCO SHIPPING AQUARIUS',\n    '2508E',\n    N'CN',\n    N'中远海运集团',\n    2845,\n    7,\n    32567. 890,\n\
-    \    41250. 75,\n    12. 5,\n    DATE '2025-12-10',\n    HEXTORAW('A1B2C3D4E5F6'),\n    NULL,\n    14. 25,\n    TIMESTAMP\
-    \ '2025-12-10 14:30:22.123',\n    TIMESTAMP '2025-12-10 14:35:00.000',\n    TIMESTAMP '2025-12-12 09:00:00.000 +08:00',\n\
-    \    INTERVAL '2' YEAR,\n    INTERVAL '1 06:30:00' DAY TO SECOND\n);\n\nINSERT INTO PORT_VESSEL_OPERATION_RECORD VALUES\
-    \ (\n    205,\n    0. 921456789012,\n    'MXT',\n    'MAERSK HANGZHOU',\n    '345W',\n    N'DK',\n    N'Maersk Line',\n\
-    \    4120,\n    3,\n    45890. 123,\n    58760. 50,\n    18. 7,\n    DATE '2025-12-11',\n    HEXTORAW('112233445566'),\n\
-    \    NULL,\n    15. 8,\n    TIMESTAMP '2025-12-11 08:15:45.678',\n    TIMESTAMP '2025-12-11 08:20:00.000',\n    TIMESTAMP\
-    \ '2025-12-13 18:00:00.000 +08:00',\n    INTERVAL '1-6' YEAR TO MONTH,\n    INTERVAL '2 12:00:00' DAY TO SECOND\n);\n\n\
-    INSERT INTO PORT_VESSEL_OPERATION_RECORD VALUES (\n    99,\n    2. 310987654321,\n    'ZGT',\n    'OOCL NINGBO',\n   \
-    \ '888N',\n    N'HG',\n    N'东方海外',\n    3560,\n    12,\n    39876. 456,\n    49820. 25,\n    15. 2,\n    DATE '2025-12-09',\n\
-    \    HEXTORAW('AAABBBCCCDDD'),\n    NULL,\n    13. 95,\n    TIMESTAMP '2025-12-09 22:45:10.999',\n    TIMESTAMP '2025-12-09\
-    \ 22:50:00.000',\n    TIMESTAMP '2025-12-11 06:00:00.000 +08:00',\n    INTERVAL '3' YEAR,\n    INTERVAL '0 04:15:30' DAY\
-    \ TO SECOND\n);\n\nSELECT * FROM PORT_VESSEL_OPERATION_RECORD;"
-  steps:
-  - action: 进入【离线开发 → 运维中心】页面
-    expected: 已进入【离线开发 → 运维中心】页面，显示页面标题与主要操作区域
-  - action: 进入「离线开发-数据开发-周期任务」页面
-    expected: 进入成功
-  - action: '创建数据同步任务OBOracle2Hive, 配置如下:
-
-      数据来源: OceanBase 4.3.x(Oracle), PORT_VESSEL_OPERATION_RECORD
-
-      选择目标: Hive 3.x(CDP), 一键建表PORT_VESSEL_OPERATION_RECORD
-
-      字段映射: 同名映射
-
-      其它选项保持默认后, 保存并提交'
-    expected: 提交至运维中心
-  - action: 临时运行, 查看结果
-    expected: 控制台日志显示运行成功
-  - action: '执行SQL查询Hive表数据:
-
-      SELECT * FROM PORT_VESSEL_OPERATION_RECORD;
-
-      TRUNCATE TABLE PORT_VESSEL_OPERATION_RECORD;
-
-      SELECT * FROM PORT_VESSEL_OPERATION_RECORD;'
-    expected: '返回两个结果:
-
-      结果1: oboracle表的数据成功写入到hive表, 数据回显正常
-
-      结果2: 暂无数据'
-  - action: 周期运行, 查看结果
-    expected: 周期任务实例中新增该任务的实例记录并运行成功
-  - action: '执行SQL查询Hive表数据:
-
-      SELECT * FROM PORT_VESSEL_OPERATION_RECORD;
-
-      TRUNCATE TABLE PORT_VESSEL_OPERATION_RECORD;
-
-      SELECT * FROM PORT_VESSEL_OPERATION_RECORD;'
-    expected: '返回两个结果:
-
-      结果1: oboracle表的数据成功写入到hive表, 数据回显正常
-
-      结果2: 暂无数据'
-  - action: 补数据运行, 查看结果
-    expected: 补数据任务实例中新增该任务的实例记录并运行成功
-  - action: '执行SQL查询Hive表数据:
-
-      SELECT * FROM PORT_VESSEL_OPERATION_RECORD;
-
-      TRUNCATE TABLE PORT_VESSEL_OPERATION_RECORD;
-
-      SELECT * FROM PORT_VESSEL_OPERATION_RECORD;'
-    expected: '返回两个结果:
-
-      结果1: oboracle表的数据成功写入到hive表, 数据回显正常
-
-      结果2: 暂无数据'
-  - action: 进入「离线开发-数据开发-手动任务」页面
-    expected: 进入成功
-  - action: 创建数据同步任务OBOracle2Hive后, 保存并提交
-    expected: 提交至运维中心
-  - action: 临时运行, 查看结果
-    expected: 控制台日志显示运行成功
-  - action: '执行SQL查询Hive表数据:
-
-      SELECT * FROM PORT_VESSEL_OPERATION_RECORD;
-
-      TRUNCATE TABLE PORT_VESSEL_OPERATION_RECORD;
-
-      SELECT * FROM PORT_VESSEL_OPERATION_RECORD;'
-    expected: '返回两个结果:
-
-      结果1: oboracle表的数据成功写入到hive表, 数据回显正常
-
-      结果2: 暂无数据'
-  - action: 手动运行, 查看结果
-    expected: 手动任务实例中新增该任务的实例记录并运行成功
-  - action: '执行SQL查询Hive表数据:
-
-      SELECT * FROM PORT_VESSEL_OPERATION_RECORD;
-
-      TRUNCATE TABLE PORT_VESSEL_OPERATION_RECORD;
-
-      SELECT * FROM PORT_VESSEL_OPERATION_RECORD;'
-    expected: '返回两个结果:
-
-      结果1: oboracle表的数据成功写入到hive表, 数据回显正常
-
-      结果2: 暂无数据'
-  tags:
-  - 运维中心
-- case_id: C0049
-  title: 验证「数据同步任务」调度功能运行正常(Hive > OBOracle)
-  priority: P0
-  precondition: "1. 当前项目中已经成功引入OBOracle数据源\n\n2. hive建表语句:\n\nDROP TABLE IF EXISTS employees_hive;\nCREATE TABLE employees_hive\
-    \ (\n    employee_id INT COMMENT '员工ID',\n    full_name VARCHAR(50) COMMENT '姓名',\n    job_title VARCHAR(30) COMMENT '职位',\n\
-    \    salary DECIMAL(10,2) COMMENT '薪资',\n    hire_date DATE COMMENT '入职日期',\n    is_fulltime BOOLEAN COMMENT '是否全职',\n\
-    \    tech_stack VARCHAR(200) COMMENT '技术栈',\n    last_login TIMESTAMP COMMENT '最后登录时间',\n    resume STRING COMMENT '简历'\n\
-    ) COMMENT '员工信息表_Hive'\nROW FORMAT DELIMITED\nFIELDS TERMINATED BY '\\t'\nSTORED AS TEXTFILE;\n\nINSERT INTO employees_hive\
-    \ VALUES\n(101, 'zhangsan', '后端工程师', 25000.00, '2022-03-15', true, 'Java,Spring,MySQL', '2024-05-20 09:15:23', '5年Java开发经验，精通微服务架构'),\n\
-    (102, 'lisi', '数据科学家', 32000.50, '2021-11-01', true, 'Python,TensorFlow,Spark', '2024-05-21 14:30:45', '机器学习专家，主导过2 个AI项目'),\n\
-    (103, 'wangwu', '前端工程师', 22000.00, '2023-01-10', true, 'JavaScript,React,Vue', '2024-05-19 11:22:33', '前端架构师，组件化开发专家'),\n\
-    (104, 'zhaoliu', 'DevOps工程师', 28000.75, '2020-07-22', true, 'Kubernetes,Docker,AWS', '2024-05-22 10:05:17', '云原生基础设施专家'),\n\
-    (105, 'chenqi', '产品经理', 30000.00, '2021-05-30', true, 'Axure,SQL,PPT', '2024-05-18 16:45:21', '主导Taier数据调度平台设计'),\n(106,\
-    \ 'liuba', '测试工程师', 18000.00, '2023-08-14', false, 'Selenium,Jmeter,Python', '2024-05-20 13:18:56', '自动化测试专家');\n\nSELECT\
-    \ * FROM employees_hive;"
-  steps:
-  - action: 进入【离线开发 → 运维中心】页面
-    expected: 已进入【离线开发 → 运维中心】页面，显示页面标题与主要操作区域
-  - action: 进入「离线开发-数据开发-周期任务」页面
-    expected: 进入成功
-  - action: '创建数据同步任务Hive2OBOracle, 配置如下:
-
-      数据来源: Hive 3.x(CDP), employees_hive
-
-      选择目标: OceanBase 4.3.x(Oracle), 一键建表employees_hive
-
-      字段映射: 同名映射
-
-      其它选项保持默认后, 保存并提交'
-    expected: 提交至运维中心
-  - action: 临时运行, 查看结果
-    expected: 控制台日志显示运行成功
-  - action: '执行SQL查询OBOracle表数据:
-
-      SELECT * FROM employees_hive;
-
-      TRUNCATE TABLE employees_hive;
-
-      SELECT * FROM employees_hive;'
-    expected: '返回两个结果:
-
-      结果1: oboracle表的数据成功写入到hive表, 数据回显正常
-
-      结果2: 暂无数据'
-  - action: 周期运行, 查看结果
-    expected: 周期任务实例中新增该任务的实例记录并运行成功
-  - action: '执行SQL查询OBOracle表数据:
-
-      SELECT * FROM employees_hive;
-
-      TRUNCATE TABLE employees_hive;
-
-      SELECT * FROM employees_hive;'
-    expected: '返回两个结果:
-
-      结果1: Hive表的数据成功写入到OBOracle表, 数据回显正常
-
-      结果2: 暂无数据'
-  - action: 补数据运行, 查看结果
-    expected: 补数据任务实例中新增该任务的实例记录并运行成功
-  - action: '执行SQL查询OBOracle表数据:
-
-      SELECT * FROM employees_hive;
-
-      TRUNCATE TABLE employees_hive;
-
-      SELECT * FROM employees_hive;'
-    expected: '返回两个结果:
-
-      结果1: Hive表的数据成功写入到OBOracle表, 数据回显正常
-
-      结果2: 暂无数据'
-  - action: 进入「离线开发-数据开发-手动任务」页面
-    expected: 进入成功
-  - action: 创建数据同步任务Hive2OBOracle后, 保存并提交
-    expected: 提交至运维中心
-  - action: 临时运行, 查看结果
-    expected: 控制台日志显示运行成功
-  - action: '执行SQL查询OBOracle表数据:
-
-      SELECT * FROM employees_hive;
-
-      TRUNCATE TABLE employees_hive;
-
-      SELECT * FROM employees_hive;'
-    expected: '返回两个结果:
-
-      结果1: Hive表的数据成功写入到OBOracle表, 数据回显正常
-
-      结果2: 暂无数据'
-  - action: 手动运行, 查看结果
-    expected: 手动任务实例中新增该任务的实例记录并运行成功
-  - action: '执行SQL查询OBOracle表数据:
-
-      SELECT * FROM employees_hive;
-
-      TRUNCATE TABLE employees_hive;
-
-      SELECT * FROM employees_hive;'
-    expected: '返回两个结果:
-
-      结果1: Hive表的数据成功写入到OBOracle表, 数据回显正常
-
-      结果2: 暂无数据'
-  tags:
-  - 运维中心
+  - 离线开发
+  - 任务开发
+  - 调度
+  - 任务运行
