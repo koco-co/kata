@@ -8,6 +8,7 @@ import {
   buildNotificationCard,
   type EmailCardMessage,
   emitBusinessNotification,
+  emitBusinessNotificationSafely,
   eventIdFor,
   type FeishuInteractiveMessage,
   type FormattedMessage,
@@ -352,6 +353,27 @@ describe("business notifications", () => {
     const ledgers = listNotificationLedgers("dataAssets", testRoot);
     assert.equal(ledgers.length, 1);
     assert.equal(ledgers[0]?.state, "blocked");
+  });
+
+  it("fails closed on retired notify switches without any network call", async () => {
+    const testRoot = root();
+    mkdirSync(join(testRoot, "config", "private", "integrations"), { recursive: true });
+    writeFileSync(
+      join(testRoot, "config", "private", "integrations", "notify.yaml"),
+      "is_enable: false\nenabled_events:\n  - cases-built\ndingtalk:\n  webhook_url: https://example.invalid/robot\n",
+    );
+    let calls = 0;
+    const fetchImpl: NotificationFetch = async () => {
+      calls += 1;
+      return new Response('{"errcode":0}', { status: 200 });
+    };
+    const result = await emitBusinessNotificationSafely("cases-built", payload(), {
+      root: testRoot,
+      fetchImpl,
+    });
+    assert.equal(result.state, "failed");
+    assert.match(result.reason ?? "", /已退役字段 is_enable/);
+    assert.equal(calls, 0, "old config must never reach a webhook");
   });
 
   it("uses one stable ledger and retries only a failed channel", async () => {

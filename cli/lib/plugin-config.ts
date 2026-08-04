@@ -121,6 +121,37 @@ function stringArray(value: unknown): string[] | undefined {
   return value.map((item) => item.trim()).filter(Boolean);
 }
 
+/** 已退役字段（旧命名 / 旧格式）；运行时与校验必须一致拒绝，迁移失败时 fail closed。 */
+const RETIRED_NOTIFY_KEYS: Record<string, string[]> = {
+  "": ["is_enable", "enable", "on"],
+  dingtalk: ["is_enable", "enable", "on"],
+  feishu: ["is_enable", "enable", "on"],
+  wecom: ["is_enable", "enable", "on"],
+  smtp: ["is_enable", "enable", "on", "pass"],
+};
+
+function assertNotifyConfigFresh(raw: Record<string, unknown>, path: string): void {
+  const sections: Array<[string, unknown]> = [
+    ["", raw],
+    ...(["dingtalk", "feishu", "wecom", "smtp"] as const).flatMap((section) =>
+      isRecord(raw[section]) ? [[section, raw[section]] as [string, unknown]] : [],
+    ),
+  ];
+  for (const [section, value] of sections) {
+    const retired = RETIRED_NOTIFY_KEYS[section];
+    if (!retired) continue;
+    const found = Object.keys(value as Record<string, unknown>).filter((key) =>
+      retired.includes(key),
+    );
+    if (found.length > 0) {
+      throw new Error(
+        `${path}${section ? `:${section}` : ""} 包含已退役字段 ${found.join("、")}；` +
+          "字段已统一更名为 enabled，请迁移后重试（通知发送已阻断）",
+      );
+    }
+  }
+}
+
 function writeYamlAtomic(path: string, value: unknown, root: string): void {
   assertPluginPath(path, root);
   mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
@@ -197,6 +228,7 @@ export function loadZentaoConfig(root: string = defaultRepoRoot()): ZentaoPlugin
 
 export function loadNotifyConfig(root: string = defaultRepoRoot()): NotifyPluginConfig {
   const raw = readYamlObject(pluginConfigPath("notify", root), root);
+  assertNotifyConfigFresh(raw, pluginConfigPath("notify", root));
   const dingtalk = isRecord(raw.dingtalk) ? raw.dingtalk : {};
   const feishu = isRecord(raw.feishu) ? raw.feishu : {};
   const wecom = isRecord(raw.wecom) ? raw.wecom : {};

@@ -139,6 +139,32 @@ describe("plugin configuration", () => {
     expect(config.dingtalk?.enabled).toBe(false);
   });
 
+  test("rejects retired notify switches so old configs fail closed", () => {
+    const top = root();
+    writeFileSync(
+      pluginConfigPath("notify", top),
+      "is_enable: false\nenabled_events: [cases-built]\ndingtalk:\n  webhook_url: http://hook\n",
+      { mode: 0o600 },
+    );
+    expect(() => loadNotifyConfig(top)).toThrow(/已退役字段 is_enable/);
+
+    const channel = root();
+    writeFileSync(
+      pluginConfigPath("notify", channel),
+      "enabled_events: [cases-built]\ndingtalk:\n  is_enable: false\n  webhook_url: http://hook\n",
+      { mode: 0o600 },
+    );
+    expect(() => loadNotifyConfig(channel)).toThrow(/dingtalk.*已退役字段 is_enable/);
+
+    const smtp = root();
+    writeFileSync(
+      pluginConfigPath("notify", smtp),
+      "enabled_events: [cases-built]\nsmtp:\n  host: smtp.example.invalid\n  pass: secret\n",
+      { mode: 0o600 },
+    );
+    expect(() => loadNotifyConfig(smtp)).toThrow(/smtp.*已退役字段 pass/);
+  });
+
   test("updates a cookie atomically and keeps the file private", () => {
     const value = root();
     writeFileSync(pluginConfigPath("lanhu", value), "cookie: old\n", {
