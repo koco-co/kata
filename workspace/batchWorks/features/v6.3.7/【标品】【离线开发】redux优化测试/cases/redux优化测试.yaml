@@ -16,11 +16,11 @@ cases:
       4) 数据源 B 类型：Hive2.x
       5) ${DataSourceA}、${DataSourceB} 在数据源管理列表中的状态均为「可用」
     steps:
-      - action: 进入【离线开发 → 数据源管理 → 整库同步】页面
+      - action: 进入【数据源管理 → 整库同步】页面
         expected: 进入成功
       - action: 点击「数据同步目标」下拉框
         expected: 下拉选项包含 ${DataSourceA}、${DataSourceB}，名称、类型和可用状态与数据源管理列表一致
-    tags: ["离线开发", "数据源管理", "整库同步"]
+    tags: ["数据源管理", "整库同步"]
 
   - case_id: C0002
     title: 验证【数据开发】-【批量操作】展开数据源下拉框，选项名称、类型和可用状态与数据源管理列表一致
@@ -32,11 +32,11 @@ cases:
       4) 数据源 B 类型：Hive2.x
       5) ${DataSourceA}、${DataSourceB} 在数据源管理列表中的状态均为「可用」
     steps:
-      - action: 进入【离线开发 → 数据开发 → 批量操作】页面
+      - action: 进入【数据开发 → 批量操作】页面
         expected: 进入成功
       - action: 点击「数据源」下拉框
         expected: 下拉选项包含 ${DataSourceA}、${DataSourceB}，名称、类型和可用状态与数据源管理列表一致
-    tags: ["离线开发", "数据开发", "批量操作"]
+    tags: ["数据开发", "批量操作"]
 
   - case_id: C0003
     title: 验证【数据开发】-【数据同步】向导模式新建任务，来源与目标数据源下拉框仅列出对应类型数据源
@@ -48,7 +48,7 @@ cases:
       4) 数据源 B 类型：Hive2.x
       5) ${DataSourceA}、${DataSourceB} 在数据源管理列表中的状态均为「可用」
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: |-
           新建数据同步周期任务：
@@ -59,7 +59,7 @@ cases:
         expected: 来源数据源下拉选项包含 ${DataSourceA} 且不包含类型为 Hive2.x 的 ${DataSourceB}
       - action: 目标类型选择「Hive」并展开「数据源」下拉框
         expected: 目标数据源下拉选项包含 ${DataSourceB} 且不包含类型为 MySQL 的 ${DataSourceA}
-    tags: ["离线开发", "数据开发", "周期任务"]
+    tags: ["数据开发", "周期任务", "数据同步"]
 
   - case_id: C0004
     title: 验证【数据开发】-【数据同步】脚本模式导入模板，来源与目标数据源下拉框仅列出对应类型数据源
@@ -71,7 +71,7 @@ cases:
       4) 数据源 B 类型：Hive2.x
       5) ${DataSourceA}、${DataSourceB} 在数据源管理列表中的状态均为「可用」
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: |-
           新建数据同步周期任务：
@@ -84,7 +84,7 @@ cases:
         expected: 来源数据源下拉选项包含 ${DataSourceA} 且不包含 ${DataSourceB}
       - action: 目标类型选择「Hive」并展开目标数据源下拉框
         expected: 目标数据源下拉选项包含 ${DataSourceB} 且不包含 ${DataSourceA}
-    tags: ["离线开发", "数据开发", "周期任务"]
+    tags: ["数据开发", "周期任务", "数据同步"]
 
   - case_id: C0005
     title: 验证【数据开发】-【FileCopy】打开任务并展开数据源下拉框，选项名称和可用状态与数据源管理列表一致
@@ -93,11 +93,11 @@ cases:
       1) 数据源管理列表存在名称为「redux_file_source」且状态为「可用」的记录
       2) 存在名称为「redux_filecopy_c0005」的FileCopy周期任务
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 打开 redux_filecopy_c0005 并展开「数据源」下拉框
         expected: 下拉选项包含「redux_file_source」，名称和可用状态与数据源管理列表一致
-    tags: ["离线开发", "数据开发", "周期任务"]
+    tags: ["数据开发", "周期任务", "FileCopy"]
 
   - case_id: C0006
     title: 验证【数据地图】-【查找数据】展开项目名称下拉框，选项名称与项目列表一致
