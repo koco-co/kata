@@ -8,7 +8,7 @@ meta:
     - 5.2表生命周期统一.xmind
 cases:
   - case_id: C0001
-    title: 验证【离线开发】-【数据表管理】修改表生命周期，生命周期同步更新并生成审计记录(Hive表已存在于平台)
+    title: 验证【数据地图】-【数据表管理】修改表生命周期，生命周期同步更新并生成审计记录(Hive表已存在于平台)
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -22,7 +22,7 @@ cases:
            (2, '记录二');
       5) test_table_14895_c0001 已同步至离线开发和数据资产，生命周期均为 9999 天
     steps:
-      - action: 进入【离线开发 → 数据表管理 → 我管理的表】页面
+      - action: 进入【数据地图 → 数据表管理】页面
         expected: 进入成功
       - action: 查询 test_table_14895_c0001
         expected: 初始生命周期显示 9999 天
@@ -34,10 +34,10 @@ cases:
         expected: 生命周期显示 1 天
       - action: 进入【安全审计 → 离线开发】页面并查看该表记录
         expected: 审计新增两条「修改生命周期」记录，变更内容为「9999 天调整为 3 天」和「3 天调整为 1 天」
-    tags: ["离线开发", "数据表管理", "我管理的表"]
+    tags: ["数据地图", "数据表管理"]
 
   - case_id: C0002
-    title: 验证【离线开发】-【数据源管理】同步元数据并修改表生命周期，生命周期同步更新并生成审计记录(Hive表不存在于平台)
+    title: 验证【数据源管理】同步元数据并修改表生命周期，生命周期同步更新并生成审计记录(Hive表不存在于平台)
     priority: P2
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -52,22 +52,22 @@ cases:
            (3, '徐丽', 33);
       5) test_table_14895_c0002 尚未同步至离线开发和数据资产
     steps:
-      - action: 进入【离线开发 → 数据源管理】页面
+      - action: 进入【数据源管理】页面
         expected: 进入成功
       - action: 选择 ${DataSourceA} 并点击「同步元数据」
         expected: 打开同步元数据配置
       - action: 将同步范围设为 ${SchemaA}.test_table_14895_c0002，表类目设为「类目管理」，生命周期输入 9999 天并提交
         expected: 同步任务状态为「成功」
-      - action: 进入【离线开发 → 数据表管理 → 我管理的表】页面并查询 test_table_14895_c0002
+      - action: 进入【数据地图 → 数据表管理】页面并查询 test_table_14895_c0002
         expected: 表列表新增 test_table_14895_c0002，生命周期为 9999 天
       - action: 进入【元数据 → 元数据管理】页面并查询 test_table_14895_c0002
         expected: 表详情生命周期为 9999 天
       - action: 将 test_table_14895_c0002 生命周期批量修改为 3 天
         expected: 离线开发和元数据页面均显示 3 天，安全审计新增「9999 天调整为 3 天」记录
-    tags: ["离线开发", "数据源管理"]
+    tags: ["数据源管理"]
 
   - case_id: C0003
-    title: 验证【离线开发】-【周期任务】新建任务建表并修改生命周期，生命周期同步更新并生成审计记录(Hive表不存在)
+    title: 验证【数据开发】-【周期任务】新建任务建表并修改生命周期，生命周期同步更新并生成审计记录(Hive表不存在)
     priority: P2
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -79,7 +79,7 @@ cases:
          INSERT INTO ${SchemaA}.test_table_14895_c0003 VALUES (1, '记录一'), (2, '记录二');
       5) 离线开发项目的默认表生命周期为 9999 天
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建 SparkSQL 周期任务并保存任务
         expected: 任务列表新增该任务
@@ -87,13 +87,13 @@ cases:
         expected: 表创建完成并写入 2 行记录
       - action: 执行 SELECT COUNT(*) FROM ${SchemaA}.test_table_14895_c0003
         expected: 查询结果为 2
-      - action: 进入【离线开发 → 数据表管理 → 我管理的表】页面并查询 test_table_14895_c0003
+      - action: 进入【数据地图 → 数据表管理】页面并查询 test_table_14895_c0003
         expected: 表列表新增 test_table_14895_c0003，生命周期为 9999 天
       - action: 将 test_table_14895_c0003 生命周期由 9999 天修改为 1 天并保存
         expected: 离线开发表列表生命周期显示 1 天
       - action: 进入【元数据 → 元数据管理】页面并查看 test_table_14895_c0003
         expected: 生命周期显示 1 天，安全审计新增「9999 天调整为 1 天」记录
-    tags: ["离线开发", "数据开发", "周期任务"]
+    tags: ["数据开发", "周期任务"]
 
   - case_id: C0004
     title: 验证【安全审计】-【离线开发】多次修改生命周期后筛选，按时间倒序展示三条变更记录
@@ -112,7 +112,7 @@ cases:
     steps:
       - action: 进入【安全审计 → 离线开发】页面
         expected: 进入成功
-      - action: 进入【离线开发 → 数据表管理 → 我管理的表】页面
+      - action: 进入【数据地图 → 数据表管理】页面
         expected: 进入成功
       - action: 将 test_table_14895_c0004 生命周期修改为 500 天并保存
         expected: Toast提示:「保存成功」,生命周期显示 500 天
