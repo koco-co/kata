@@ -13,7 +13,7 @@ cases:
       1) 周期任务支持新建数据同步任务
       2) 数据源中心存在 RESTful 数据源 ${DataSourceA}，支持 POST 请求
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建数据同步任务，在「数据来源」步骤选择 ${DataSourceA}
         expected: 「数据源」下方展示「Path」输入框，提示「请填写后端服务路径」
@@ -23,6 +23,7 @@ cases:
         expected: 「Path」置红提示:「只能 / 开头，支持英文，数字，下划线，连字符(-)」
       - action: 在「Path」输入以「/」开头且只包含允许字符的 2 至 200 个字符
         expected: 「Path」回显输入内容且无格式错误提示
+    tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0002
     title: 验证【数据开发】-【周期任务】RESTful 来源未配置 Path 时运行失败，配置 Path 后同步成功
@@ -32,7 +33,7 @@ cases:
       2) 存在可写入的目标数据源 ${DataSourceB}
       3) 后端服务 Path「/api/gateway/test/post」返回 3 条固定记录
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建数据同步任务 A，来源选择 ${DataSourceA}，Path 为空，保存并临时运行
         expected: 任务 A 保存成功，临时运行记录显示失败
@@ -42,6 +43,7 @@ cases:
         expected: 任务 B 保存成功，临时运行记录显示成功，目标数据源新增 3 条记录
       - action: 提交任务 B 并执行补数据
         expected: 任务 B 提交成功，补数据运行记录显示成功，目标数据源新增 3 条记录
+    tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0003
     title: 验证【数据开发】-【周期任务】RESTful 来源地址已含 Path 时留空沿用，另配 Path 后运行失败
@@ -51,7 +53,7 @@ cases:
       2) 存在可写入的目标数据源 ${DataSourceB}
       3) 地址 Path 返回 3 条固定记录，另一个 Path「/api/gateway/test/other」返回 0 条记录
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建任务 A，来源选择 ${DataSourceA}，Path 为空，保存并临时运行
         expected: 任务 A 保存成功，临时运行记录显示成功，目标数据源新增 3 条记录
@@ -61,6 +63,7 @@ cases:
         expected: 任务 B 保存成功，临时运行记录显示失败，目标数据源不新增记录
       - action: 提交任务 B 并执行补数据
         expected: 任务 B 提交成功，补数据运行记录显示失败
+    tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0004
     title: 验证【数据开发】-【周期任务】RESTful 来源未配置 Path 或配置请求参数时运行失败，仅配置 Path 后同步成功
@@ -70,7 +73,7 @@ cases:
       2) 存在可写入的目标数据源 ${DataSourceB}
       3) Path「/api/gateway/test/get」返回 3 条固定记录，带 query 参数时返回 3 条固定记录
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建任务 A，来源选择 ${DataSourceA}，Path 为空，配置请求参数后保存并临时运行
         expected: 任务 A 保存成功，临时运行记录显示失败
@@ -80,6 +83,7 @@ cases:
         expected: 任务 B 临时运行记录显示成功，目标数据源新增 3 条记录
       - action: 新建任务 C，Path 填写「/api/gateway/test/get」并配置请求参数，保存并临时运行
         expected: 任务 C 临时运行记录显示成功，目标数据源新增 3 条记录
+    tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0005
     title: 验证【数据开发】-【周期任务】RESTful 来源地址已含 Path 时留空沿用，另配 Path 或请求参数后运行失败
@@ -89,7 +93,7 @@ cases:
       2) 存在可写入的目标数据源 ${DataSourceB}
       3) 地址接口返回 3 条固定记录，Path「/api/gateway/test/other」返回 0 条记录
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建任务 A，来源选择 ${DataSourceA}，Path 为空，不配置请求参数，保存并临时运行
         expected: 任务 A 临时运行记录显示成功，目标数据源新增 3 条记录
@@ -97,6 +101,7 @@ cases:
         expected: 任务 B 临时运行记录显示失败，目标数据源不新增记录
       - action: 新建任务 C，Path 为空并配置请求参数，保存并临时运行
         expected: 任务 C 临时运行记录显示失败
+    tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0006
     title: 验证【数据开发】-【周期任务】新建同步任务选择 RESTful 目标，展示 Path 输入框并校验格式
@@ -105,7 +110,7 @@ cases:
       1) 周期任务支持新建数据同步任务
       2) 数据源中心存在 RESTful 目标数据源 ${DataSourceA}
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建数据同步任务，在「选择目标」步骤选择 ${DataSourceA}
         expected: 「数据同步目标」下方展示「Path」输入框，提示「请填写后端服务路径」
@@ -115,6 +120,7 @@ cases:
         expected: 「Path」置红提示:「只能 / 开头，支持英文，数字，下划线，连字符(-)」
       - action: 在「Path」输入「/api/gateway/test/put」
         expected: 「Path」回显输入内容且无格式错误提示
+    tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0007
     title: 验证【数据开发】-【周期任务】RESTful 目标未配置 Path 时运行失败，配置 Path 后同步成功
@@ -124,7 +130,7 @@ cases:
       2) 存在包含 3 条固定记录的源数据表 source_table
       3) 后端服务 Path「/api/gateway/test/post」接收记录并返回状态码 200
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空，保存并临时运行
         expected: 任务 A 临时运行记录显示失败
@@ -132,6 +138,7 @@ cases:
         expected: 任务 B 临时运行记录显示成功，接口接收 3 条记录
       - action: 提交任务 B 并执行补数据
         expected: 补数据运行记录显示成功，接口累计接收 3 条记录
+    tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0008
     title: 验证【数据开发】-【周期任务】RESTful 目标地址已含 Path 时留空沿用，另配 Path 后运行失败
@@ -141,12 +148,13 @@ cases:
       2) 存在包含 3 条固定记录的源数据表 source_table
       3) 地址 Path 接收记录并返回状态码 200，另一个 Path「/api/gateway/test/other」返回状态码 404
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空，保存并临时运行
         expected: 任务 A 临时运行记录显示成功，接口接收 3 条记录
       - action: 新建任务 B，目标 Path 填写「/api/gateway/test/other」，保存并临时运行
         expected: 任务 B 临时运行记录显示失败，接口未接收记录
+    tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0009
     title: 验证【数据开发】-【周期任务】RESTful 目标未配置 Path 或配置请求参数时运行失败，仅配置 Path 后同步成功
@@ -156,7 +164,7 @@ cases:
       2) 存在包含 3 条固定记录的源数据表 source_table
       3) Path「/api/gateway/test/get」接收记录并返回状态码 200，带 query 参数时返回状态码 200
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空并配置请求参数，保存并临时运行
         expected: 任务 A 临时运行记录显示失败
@@ -164,6 +172,7 @@ cases:
         expected: 任务 B 临时运行记录显示成功，接口接收 3 条记录
       - action: 新建任务 C，Path 填写「/api/gateway/test/get」并配置请求参数，保存并临时运行
         expected: 任务 C 临时运行记录显示成功，接口接收 3 条记录
+    tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0010
     title: 验证【数据开发】-【周期任务】RESTful 目标地址已含 Path 时留空沿用，另配 Path 或请求参数后运行失败
@@ -173,7 +182,7 @@ cases:
       2) 存在包含 3 条固定记录的源数据表 source_table
       3) 地址 Path 接收记录并返回状态码 200，另一个 Path「/api/gateway/test/other」返回状态码 404
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空且不配置请求参数，保存并临时运行
         expected: 任务 A 临时运行记录显示成功，接口接收 3 条记录
@@ -181,6 +190,7 @@ cases:
         expected: 任务 B 临时运行记录显示失败，接口未接收记录
       - action: 新建任务 C，Path 为空并配置请求参数，保存并临时运行
         expected: 任务 C 临时运行记录显示失败
+    tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0011
     title: 验证【数据开发】-【手动任务】新建同步任务选择 RESTful 来源，展示 Path 输入框并校验格式
@@ -189,7 +199,7 @@ cases:
       1) 手动任务支持新建数据同步任务
       2) 数据源中心存在 RESTful 数据源 ${DataSourceA}
     steps:
-      - action: 进入【离线开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建数据同步任务，在「数据来源」步骤选择 ${DataSourceA}
         expected: 「数据源」下方展示「Path」输入框，提示「请填写后端服务路径」
@@ -197,6 +207,7 @@ cases:
         expected: 分别显示长度或字符范围错误提示
       - action: 在「Path」输入「/api/gateway/test/manual」
         expected: 「Path」回显输入内容且无格式错误提示
+    tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0012
     title: 验证【数据开发】-【手动任务】RESTful 来源未配置 Path 时运行失败，配置 Path 后同步成功
@@ -206,7 +217,7 @@ cases:
       2) 存在可写入的目标数据源 ${DataSourceB}
       3) Path「/api/gateway/test/manual-post」返回 3 条固定记录
     steps:
-      - action: 进入【离线开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建任务 A，来源选择 ${DataSourceA}，Path 为空，保存并临时运行
         expected: 任务 A 临时运行记录显示失败
@@ -214,6 +225,7 @@ cases:
         expected: 任务 B 临时运行记录显示成功，目标数据源新增 3 条记录
       - action: 提交任务 B 并手动运行
         expected: 手动运行记录显示成功，目标数据源新增 3 条记录
+    tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0013
     title: 验证【数据开发】-【手动任务】RESTful 来源地址已含 Path 时留空沿用，另配 Path 后运行失败
@@ -223,7 +235,7 @@ cases:
       2) 存在可写入的目标数据源 ${DataSourceB}
       3) 地址 Path 返回 3 条固定记录，另一个 Path「/api/gateway/test/other」返回 0 条记录
     steps:
-      - action: 进入【离线开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建任务 A，来源选择 ${DataSourceA}，Path 为空，保存并临时运行
         expected: 任务 A 临时运行记录显示成功，目标数据源新增 3 条记录
@@ -231,6 +243,7 @@ cases:
         expected: 任务 B 临时运行记录显示失败，目标数据源不新增记录
       - action: 提交任务 A 并手动运行
         expected: 手动运行记录显示成功，目标数据源新增 3 条记录
+    tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0014
     title: 验证【数据开发】-【手动任务】RESTful 来源未配置 Path 或配置请求参数时运行失败，仅配置 Path 后同步成功
@@ -240,7 +253,7 @@ cases:
       2) 存在可写入的目标数据源 ${DataSourceB}
       3) Path「/api/gateway/test/manual-get」返回 3 条固定记录，带 query 参数时返回 3 条固定记录
     steps:
-      - action: 进入【离线开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建任务 A，来源选择 ${DataSourceA}，Path 为空并配置请求参数，保存并临时运行
         expected: 任务 A 临时运行记录显示失败
@@ -248,6 +261,7 @@ cases:
         expected: 任务 B 临时运行记录显示成功，目标数据源新增 3 条记录
       - action: 新建任务 C，Path 填写「/api/gateway/test/manual-get」并配置请求参数，保存并临时运行
         expected: 任务 C 临时运行记录显示成功，目标数据源新增 3 条记录
+    tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0015
     title: 验证【数据开发】-【手动任务】RESTful 来源地址已含 Path 时留空沿用，另配 Path 或请求参数后运行失败
@@ -257,7 +271,7 @@ cases:
       2) 存在可写入的目标数据源 ${DataSourceB}
       3) 地址 Path 返回 3 条固定记录，另一个 Path「/api/gateway/test/other」返回 0 条记录
     steps:
-      - action: 进入【离线开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建任务 A，来源选择 ${DataSourceA}，Path 为空且不配置请求参数，保存并临时运行
         expected: 任务 A 临时运行记录显示成功，目标数据源新增 3 条记录
@@ -265,6 +279,7 @@ cases:
         expected: 任务 B 临时运行记录显示失败，目标数据源不新增记录
       - action: 新建任务 C，Path 为空并配置请求参数，保存并临时运行
         expected: 任务 C 临时运行记录显示失败
+    tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0016
     title: 验证【数据开发】-【手动任务】新建同步任务选择 RESTful 目标，展示 Path 输入框并校验格式
@@ -273,7 +288,7 @@ cases:
       1) 手动任务支持新建数据同步任务
       2) 数据源中心存在 RESTful 目标数据源 ${DataSourceA}
     steps:
-      - action: 进入【离线开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建数据同步任务，在「选择目标」步骤选择 ${DataSourceA}
         expected: 「数据同步目标」下方展示「Path」输入框，提示「请填写后端服务路径」
@@ -281,6 +296,7 @@ cases:
         expected: 分别显示长度或字符范围错误提示
       - action: 在「Path」输入「/api/gateway/test/manual-put」
         expected: 「Path」回显输入内容且无格式错误提示
+    tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0017
     title: 验证【数据开发】-【手动任务】RESTful 目标未配置 Path 时运行失败，配置 Path 后同步成功
@@ -290,7 +306,7 @@ cases:
       2) 存在包含 3 条固定记录的源数据表 source_table
       3) Path「/api/gateway/test/manual-post」接收记录并返回状态码 200
     steps:
-      - action: 进入【离线开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空，保存并临时运行
         expected: 任务 A 临时运行记录显示失败
@@ -298,6 +314,7 @@ cases:
         expected: 任务 B 临时运行记录显示成功，接口接收 3 条记录
       - action: 提交任务 B 并手动运行
         expected: 手动运行记录显示成功，接口接收 3 条记录
+    tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0018
     title: 验证【数据开发】-【手动任务】RESTful 目标地址已含 Path 时留空沿用，另配 Path 后运行失败
@@ -307,12 +324,13 @@ cases:
       2) 存在包含 3 条固定记录的源数据表 source_table
       3) 地址 Path 接收记录并返回状态码 200，另一个 Path「/api/gateway/test/other」返回状态码 404
     steps:
-      - action: 进入【离线开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空，保存并临时运行
         expected: 任务 A 临时运行记录显示成功，接口接收 3 条记录
       - action: 新建任务 B，目标 Path 填写「/api/gateway/test/other」，保存并临时运行
         expected: 任务 B 临时运行记录显示失败，接口未接收记录
+    tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0019
     title: 验证【数据开发】-【手动任务】RESTful 目标未配置 Path 或配置请求参数时运行失败，仅配置 Path 后同步成功
@@ -322,7 +340,7 @@ cases:
       2) 存在包含 3 条固定记录的源数据表 source_table
       3) Path「/api/gateway/test/manual-get」接收记录并返回状态码 200，带 query 参数时返回状态码 200
     steps:
-      - action: 进入【离线开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空并配置请求参数，保存并临时运行
         expected: 任务 A 临时运行记录显示失败
@@ -330,6 +348,7 @@ cases:
         expected: 任务 B 临时运行记录显示成功，接口接收 3 条记录
       - action: 新建任务 C，Path 填写「/api/gateway/test/manual-get」并配置请求参数，保存并临时运行
         expected: 任务 C 临时运行记录显示成功，接口接收 3 条记录
+    tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0020
     title: 验证【数据开发】-【手动任务】RESTful 目标地址已含 Path 时留空沿用，另配 Path 或请求参数后运行失败
@@ -339,7 +358,7 @@ cases:
       2) 存在包含 3 条固定记录的源数据表 source_table
       3) 地址 Path 接收记录并返回状态码 200，另一个 Path「/api/gateway/test/other」返回状态码 404
     steps:
-      - action: 进入【离线开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空且不配置请求参数，保存并临时运行
         expected: 任务 A 临时运行记录显示成功，接口接收 3 条记录
@@ -347,3 +366,4 @@ cases:
         expected: 任务 B 临时运行记录显示失败，接口未接收记录
       - action: 新建任务 C，Path 为空并配置请求参数，保存并临时运行
         expected: 任务 C 临时运行记录显示失败
+    tags: [数据开发, 手动任务, RESTful同步]
