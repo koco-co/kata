@@ -263,6 +263,42 @@ describe("cases content lint", () => {
     }
   });
 
+    it("rejects bracket content that is a generic label instead of a real condition", () => {
+    const goodConditions = [
+      "验证【状态筛选】筛选任务，仅展示匹配任务(单选场景)",
+      "验证【单表校验规则】-【新建监控规则】保存枚举值规则，触发强规则告警(枚举值个数超过阈值)",
+      "验证【数据导出】导出任务，180秒内完成(10000行)",
+      "验证【码表管理】引用数据表，读取成功(=操作符)",
+      "验证【行权限】保存行条件，前端阻断第六个条件(5条上限)",
+    ];
+    for (const title of goodConditions) {
+      expect(lintCaseContent(doc(testCase({ title })), config).map((i) => i.rule)).not.toContain(
+        "case_title_condition",
+      );
+    }
+    const badLabels = [
+      "验证【属性管理】-【删除】删除属性，列表不再展示(逻辑)",
+      "验证【属性管理】-【删除】删除弹窗确认，提示删除成功(交互)",
+      "验证【目录管理】导出L3目录，按范围导出(L3)",
+      "验证【目录管理】编辑目录保存，提交成功(通过)",
+      "验证【数据地图】-【导入】上传L5字段文件，导入成功(L5导入失败)",
+      "验证【资产盘点】查看数据表列表，展示完整字段(数据表结果)",
+    ];
+    for (const title of badLabels) {
+      const rules = lintCaseContent(doc(testCase({ title })), config).map((i) => i.rule);
+      expect(rules).toContain("case_title_condition");
+    }
+  });
+
+  it("accepts titles without any trailing parentheses", () => {
+    expect(
+      lintCaseContent(
+        doc(testCase({ title: "验证【编码管理】重置编码并确认，编码信息重置为初始值" })),
+        config,
+      ),
+    ).toEqual([]);
+  });
+
   it("rejects newly covered vague setup, placeholder nodes and generic assertions", () => {
     const violations = lintCaseContent(
       doc(

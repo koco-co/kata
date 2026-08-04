@@ -17,6 +17,7 @@ export interface CasesLintConfig {
   datasource_types: string[];
   table_roles: string[];
   empty_table_markers: string[];
+  title_condition_disallowed: string[];
   environment_placeholders: {
     project: string;
     datasource: string;
@@ -51,6 +52,9 @@ const RUN_SUFFIX_RE = /\$\{RunSuffix\}/;
 // 禁止「在…时」从句、下划线拼接、通用断言词与括号内嵌套【】。
 const CASE_TITLE_RE =
   /^验证【[^】]+】(?:-【[^】]+】)?[^【，()_]+，[^【，()_]+(?:\([^()【】_]+\))?$/;
+// 标题末尾括号只能是真条件：至少两位连续数字、操作符或英文标识。
+// 单数字、泛类标签（黑名单由 title_condition_disallowed 提供）不算条件。
+const TITLE_CONDITION_ANCHOR_RE = /\d{2,}|[=!<>]|\b[a-zA-Z]{2,}\b/;
 const NUMBERED_LINE_RE = /^(\d+)\)\s+\S/;
 const GENERATOR_COMMAND_RE = /^\s*(?:mysql|psql|sqlplus|beeline|spark-sql|hive|curl|wget|ssh)\b/im;
 
@@ -101,6 +105,7 @@ export function loadCasesLintConfig(repoRoot: string): CasesLintConfig {
     !strings(value.datasource_types) ||
     !strings(value.table_roles) ||
     !strings(value.empty_table_markers) ||
+    !strings(value.title_condition_disallowed) ||
     !stringRecord(value.environment_placeholders) ||
     !(["project", "datasource", "schema"] as const).every(
       (key) => typeof value.environment_placeholders?.[key] === "string",
@@ -1033,6 +1038,25 @@ export function lintCaseContent(file: CasesFile, config: CasesLintConfig): CaseC
           item.title,
         ),
       );
+    }
+    // 括号条件必须是真条件（含数字/操作符/英文/阈值），不能用泛类标签
+    const parenMatch = item.title.match(/\(([^()]+)\)$/);
+    if (parenMatch) {
+      const condition = parenMatch[1].trim();
+      const matchesBlacklist = config.title_condition_disallowed.some(
+        (term) => condition.includes(term),
+      );
+      // 真条件至少含两位连续数字、操作符(=!=<>in)或英文标识
+      const isRealCondition = TITLE_CONDITION_ANCHOR_RE.test(condition);
+      if (matchesBlacklist && !isRealCondition) {
+        violations.push(
+          makeViolation(
+            "case_title_condition",
+            `标题末尾括号应为真条件（含数字、操作符、阈值或参数名），"${condition}" 是泛类标签而非条件；无真条件时去掉括号，有用信息合并到标题正文`,
+            condition,
+          ),
+        );
+      }
     }
     const fields = semanticText(item);
     for (const [category, terms] of Object.entries(config.forbidden_terms)) {
