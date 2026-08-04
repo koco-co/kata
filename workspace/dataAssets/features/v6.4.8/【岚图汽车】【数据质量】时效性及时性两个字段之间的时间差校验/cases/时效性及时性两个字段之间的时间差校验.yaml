@@ -19,7 +19,14 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 新建规则集，选择 ${DataSourceA}、${SchemaA}.test_table_10182_c0001，添加多字段时间差校验：字段组选择 start_time、end_time，阈值 <= 60 秒，关系为 start_time < end_time，保存并立即执行
+      - action: |-
+          新建规则集，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_10182_c0001
+          规则集描述：空
+          添加多字段时间差校验：字段组选择 start_time、end_time，阈值 <= 60 秒，关系为 start_time < end_time，保存并立即执行
         expected: Toast提示:「保存成功」，规则实例状态为「不达标」
       - action: 进入【数据质量 → 校验结果查询】页面
         expected: 最新实例状态为「不达标」，失败记录数为 2
@@ -45,7 +52,14 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 新建规则集，选择 ${DataSourceA}、${SchemaA}.test_table_10182_c0002，添加多字段时间差校验：字段组选择 start_time、end_time，阈值 <= 60 秒，关系为 start_time < end_time，保存并立即执行
+      - action: |-
+          新建规则集，配置基础信息：
+          * 规则集名称：RuleSetB
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_10182_c0002
+          规则集描述：空
+          添加多字段时间差校验：字段组选择 start_time、end_time，阈值 <= 60 秒，关系为 start_time < end_time，保存并立即执行
         expected: Toast提示:「保存成功」，规则实例状态为「达标」，失败记录数为 0
       - action: 进入【数据质量 → 校验结果查询】页面
         expected: 最新实例状态为「达标」

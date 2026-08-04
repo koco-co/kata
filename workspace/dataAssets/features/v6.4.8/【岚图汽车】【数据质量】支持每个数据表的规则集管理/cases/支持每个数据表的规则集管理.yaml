@@ -229,7 +229,13 @@ cases:
         expected: 进入成功
       - action: 新建任务，选择数据表「${SchemaA}.test_table_15522_c0010」，点击【导入规则包】并选择「全部」
         expected: 规则内容展示 pack_a、pack_b、pack_c，规则总数为 6
-      - action: 点击【下一步】进入调度配置
+      - action: |-
+          点击【下一步】进入调度配置，配置调度属性如下：
+          * 调度周期：手动触发
+          规则拼接包：2
+          资源组：默认资源组
+          超时时间：不限制
+          无需生成报告：勾选
         expected: 调度配置展示规则包数量 3 和规则数量 6
       - action: 点击【保存】
         expected: Toast提示:「保存成功」，任务详情保留 3 个规则包和 6 条规则
@@ -326,7 +332,13 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 点击【新建规则集】并选择 ${DataSourceA}、${SchemaA}
+      - action: |-
+          点击【新建规则集】，配置基础信息如下：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：下拉框展示 test_table_15522_c0015_source 与 test_table_15522_c0015_target
+          规则集描述：空
         expected: 数据表下拉框展示 test_table_15522_c0015_source、test_table_15522_c0015_target
       - action: 选择规则集类型「按数据表管理」
         expected: 数据表下拉框仅展示未配置规则集的 test_table_15522_c0015_target，test_table_15522_c0015_source 不可选
@@ -437,7 +449,14 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 点击【新建规则集】，选择 ${DataSourceA}、${SchemaA}、test_table_15522_c0020 和当日分区
+      - action: |-
+          点击【新建规则集】，配置基础信息如下：
+          * 规则集名称：RuleSetN
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15522_c0020
+          规则集描述：按数据表管理回归
+          选择当日分区
         expected: 表单展示数据源、数据库、数据表和当日分区
       - action: 填写规则集名称「RuleSetN」和描述「按数据表管理回归」，点击【下一步】
         expected: 进入规则配置页，基础信息回显名称、描述、数据表和分区
