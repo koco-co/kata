@@ -8,14 +8,14 @@ meta:
     - 离线Doris3.x适配.xmind
 cases:
   - case_id: C0001
-    title: 验证【离线开发】-【数据源】引入并筛选Doris3.x数据源，列表仅展示该类型(数据源类型)
+    title: 验证【数据源】-【引入数据源】引入并筛选Doris3.x数据源，列表仅展示该类型(数据源类型)
     priority: P2
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Doris3.x
       3) 公共管理数据源中心存在该数据源，连接状态为「可用」
     steps:
-      - action: 进入【离线开发 → 数据源】页面
+      - action: 进入【数据源】页面
         expected: 进入成功
       - action: 点击「引入数据源」并展开「数据源类型」
         expected: 下拉列表包含「Doris3.x」选项
@@ -24,12 +24,12 @@ cases:
       - action: 在数据源类型筛选中选择「Doris3.x」
         expected: 列表仅展示类型为「Doris3.x」的数据源
     tags:
-      - 离线开发
       - 数据源
+      - 引入数据源
       - Doris3.x
 
   - case_id: C0002
-    title: 验证【离线开发】-【数据源】配置整库同步任务，目标端同步3行数据(Doris3.x → Other)
+    title: 验证【数据源】-【整库同步】配置整库同步任务，目标端同步3行数据(Doris3.x → Other)
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -47,7 +47,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaC}.test_table_14835_c0002 (id BIGINT, name STRING, amount DECIMAL(10,2));
       9) 目标数据库 ${DataSourceC}.${SchemaC} 已授权给离线开发项目
     steps:
-      - action: 进入【离线开发 → 数据源】页面
+      - action: 进入【数据源】页面
         expected: 进入成功
       - action: 选择「${DataSourceA}」并点击「整库同步」
         expected: 打开整库同步配置页，源端显示 ${DataSourceA}
@@ -63,9 +63,9 @@ cases:
       - action: 在目标端执行 `SELECT COUNT(*) FROM ${SchemaC}.test_table_14835_c0002`
         expected: 查询结果为 3，`SELECT SUM(amount) FROM ${SchemaC}.test_table_14835_c0002` 查询结果为 60.00
     tags:
-      ["离线开发", "数据源"]
+      ["数据源", "整库同步"]
   - case_id: C0003
-    title: 验证【离线开发】-【数据源】配置整库同步任务，目标端同步3行数据(Doris2.x → Other)
+    title: 验证【数据源】-【整库同步】配置整库同步任务，目标端同步3行数据(Doris2.x → Other)
     priority: P2
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -83,7 +83,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_14835_c0003 (id BIGINT, name STRING, amount DECIMAL(10,2));
       9) 目标数据库 ${DataSourceB}.${SchemaB} 已授权给离线开发项目
     steps:
-      - action: 进入【离线开发 → 数据源】页面
+      - action: 进入【数据源】页面
         expected: 进入成功
       - action: 选择「${DataSourceA}」并点击「整库同步」
         expected: 打开整库同步配置页，源端显示 ${DataSourceA}
@@ -92,9 +92,9 @@ cases:
       - action: 在目标端执行 `SELECT COUNT(*) FROM ${SchemaB}.test_table_14835_c0003`
         expected: 查询结果为 3，`SELECT SUM(amount) FROM ${SchemaB}.test_table_14835_c0003` 查询结果为 60.00
     tags:
-      ["离线开发", "数据源"]
+      ["数据源", "整库同步"]
   - case_id: C0004
-    title: 验证【离线开发】-【数据源】配置整库同步任务，目标端同步3行数据(Other → Doris3.x)
+    title: 验证【数据源】-【整库同步】配置整库同步任务，目标端同步3行数据(Other → Doris3.x)
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceC}
@@ -112,7 +112,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0004 (id BIGINT, name STRING, amount DECIMAL(10,2));
       9) 目标数据库 ${DataSourceA}.${SchemaA} 已授权给离线开发项目
     steps:
-      - action: 进入【离线开发 → 数据源】页面
+      - action: 进入【数据源】页面
         expected: 进入成功
       - action: 选择「${DataSourceC}」并点击「整库同步」
         expected: 打开整库同步配置页，源端显示 ${DataSourceC}
@@ -121,9 +121,9 @@ cases:
       - action: 在目标端执行 `SELECT COUNT(*) FROM ${SchemaA}.test_table_14835_c0004`
         expected: 查询结果为 3，`SELECT SUM(amount) FROM ${SchemaA}.test_table_14835_c0004` 查询结果为 60.00
     tags:
-      ["离线开发", "数据源"]
+      ["数据源", "整库同步"]
   - case_id: C0005
-    title: 验证【离线开发】-【数据源】配置整库同步任务，目标端同步3行数据(Other → Doris2.x)
+    title: 验证【数据源】-【整库同步】配置整库同步任务，目标端同步3行数据(Other → Doris2.x)
     priority: P2
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -141,7 +141,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_14835_c0005 (id BIGINT, name STRING, amount DECIMAL(10,2));
       9) 目标数据库 ${DataSourceB}.${SchemaB} 已授权给离线开发项目
     steps:
-      - action: 进入【离线开发 → 数据源】页面
+      - action: 进入【数据源】页面
         expected: 进入成功
       - action: 选择「${DataSourceA}」并点击「整库同步」
         expected: 打开整库同步配置页，源端显示 ${DataSourceA}
@@ -150,9 +150,9 @@ cases:
       - action: 在目标端执行 `SELECT COUNT(*) FROM ${SchemaB}.test_table_14835_c0005`
         expected: 查询结果为 3，`SELECT SUM(amount) FROM ${SchemaB}.test_table_14835_c0005` 查询结果为 60.00
     tags:
-      ["离线开发", "数据源"]
+      ["数据源", "整库同步"]
   - case_id: C0006
-    title: 验证【离线开发】-【数据同步】配置数据同步任务，目标端同步3行数据(Doris3.x → Other、session模式)
+    title: 验证【数据开发】-【数据同步】配置数据同步任务，目标端同步3行数据(Doris3.x → Other、session模式)
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -170,7 +170,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaC}.test_table_14835_c0006 (id BIGINT, order_no STRING, amount DECIMAL(10,2));
       9) 目标数据库 ${DataSourceC}.${SchemaC} 已授权
     steps:
-      - action: 进入【离线开发 → 数据同步】页面
+      - action: 进入【数据开发 → 数据同步】页面
         expected: 进入成功
       - action: 新建数据同步任务，源端选择 ${DataSourceA}.${SchemaA}.test_table_14835_c0006，目标端选择 ${DataSourceC}.${SchemaC}.test_table_14835_c0006
         expected: 源表、目标表和字段映射区域展示完整
@@ -179,12 +179,12 @@ cases:
       - action: 执行 `SELECT COUNT(*) FROM ${SchemaC}.test_table_14835_c0006`
         expected: 查询结果为 3，目标表字段 id、order_no、amount 均有值
     tags:
-      - 离线开发
+      - 数据开发
       - 数据同步
       - session模式
 
   - case_id: C0007
-    title: 验证【离线开发】-【数据同步】配置数据同步任务，目标端同步3行数据(Other → Doris3.x、perJob模式)
+    title: 验证【数据开发】-【数据同步】配置数据同步任务，目标端同步3行数据(Other → Doris3.x、perJob模式)
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceB}
@@ -202,7 +202,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0007 (id BIGINT, order_no VARCHAR(32), amount DECIMAL(10,2));
       9) 目标数据库 ${DataSourceA}.${SchemaA} 已授权
     steps:
-      - action: 进入【离线开发 → 数据同步】页面
+      - action: 进入【数据开发 → 数据同步】页面
         expected: 进入成功
       - action: 新建数据同步任务，源端选择 ${DataSourceB}.${SchemaB}.test_table_14835_c0007，目标端选择 ${DataSourceA}.${SchemaA}.test_table_14835_c0007
         expected: 源表、目标表和字段映射区域展示完整
@@ -211,12 +211,12 @@ cases:
       - action: 执行 `SELECT COUNT(*) FROM ${SchemaA}.test_table_14835_c0007`
         expected: 查询结果为 3，目标表 amount 汇总值与源表一致
     tags:
-      - 离线开发
+      - 数据开发
       - 数据同步
       - per_job模式
 
   - case_id: C0008
-    title: 验证【离线开发】-【数据同步】导入任务配置，任务详情保留源表目标表与执行模式(导入配置)
+    title: 验证【数据开发】-【数据同步】导入任务配置，任务详情保留源表目标表与执行模式(导入配置)
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -236,37 +236,37 @@ cases:
          Title: source,target,mode
          Line1: ${DataSourceA}.${SchemaA}.test_table_14835_c0008,${DataSourceC}.${SchemaC}.test_table_14835_c0008,session
     steps:
-      - action: 进入【离线开发 → 数据同步】页面
+      - action: 进入【数据开发 → 数据同步】页面
         expected: 进入成功
       - action: 点击「导入任务配置」并上传 `doris_sync_config.yaml`
         expected: 导入预览展示源端、目标端和执行模式，分别为 ${DataSourceA}.${SchemaA}.test_table_14835_c0008、${DataSourceC}.${SchemaC}.test_table_14835_c0008、session
       - action: 点击「确认导入」并查看任务详情
         expected: 任务详情保留源表、目标表和 session 执行模式，配置内容可编辑
     tags:
-      - 离线开发
+      - 数据开发
       - 数据同步
       - 导入配置
 
   - case_id: C0009
-    title: 验证【离线开发】-【控制台】新增Doris3.x组件版本，列表新增且状态启用(组件版本)
+    title: 验证【平台管理】-【组件版本管理】新增Doris3.x组件版本，列表新增且状态启用(组件版本)
     priority: P1
     precondition: |-
-      1) 使用租户管理员账号进入离线开发控制台，具备组件版本管理权限
+      1) 使用租户管理员账号进入平台管理，具备组件版本管理权限
       2) 组件列表中不存在版本「Doris3.x-3.0.3」
     steps:
-      - action: 进入【离线开发 → 控制台】页面
+      - action: 进入【平台管理 → 组件版本管理】页面
         expected: 进入成功
-      - action: 点击「组件版本管理」并点击「新增」
+      - action: 点击「新增」
         expected: 打开新增组件版本表单，展示组件名称、版本号和备注字段
       - action: 组件名称选择「Doris」，版本号输入「Doris3.x-3.0.3」，备注输入「离线适配」，点击「保存」
         expected: Toast提示:「保存成功」，列表新增版本「Doris3.x-3.0.3」且状态为「启用」
     tags:
-      - 离线开发
-      - 控制台
-      - 组件版本
+      - 平台管理
+      - 组件版本管理
+      - Doris3.x
 
   - case_id: C0010
-    title: "验证【离线开发】-【项目管理】创建项目添加Doris3.x数据源，连接测试成功且详情展示(初始化方式: 创建)"
+    title: "验证【项目管理】-【创建项目】创建项目添加Doris3.x数据源，连接测试成功且详情展示(初始化方式: 创建)"
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -275,11 +275,11 @@ cases:
       4) 创建数据表，该表为空表：
          DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0010;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0010 (id BIGINT);
-      5) 使用租户管理员账号进入离线开发项目管理，具备项目创建权限
+      5) 使用租户管理员账号进入项目管理，具备项目创建权限
       6) 数据源连接信息为 host=doris3.example、port=8030、database=${SchemaA}，连接测试可返回成功
       7) 项目名称「${ProjectB}」不存在
     steps:
-      - action: 进入【离线开发 → 项目管理】页面
+      - action: 进入【项目管理】页面
         expected: 进入成功
       - action: 点击「创建项目」，填写项目名称「${ProjectB}」并选择初始化方式「创建」
         expected: 表单展示数据源类型、地址、端口、数据库、账号和密码字段
@@ -288,48 +288,48 @@ cases:
       - action: 点击「保存」并打开项目详情
         expected: 项目列表新增「${ProjectB}」，详情展示数据源类型「Doris3.x」、地址 doris3.example、端口 8030、数据库 ${SchemaA}
     tags:
-      - 离线开发
       - 项目管理
+      - 创建项目
       - Doris3.x
 
   - case_id: C0011
-    title: "验证【离线开发】-【项目管理】创建项目对接Doris3.x数据源，项目详情展示数据源(初始化方式: 对接)"
+    title: "验证【项目管理】-【创建项目】创建项目对接Doris3.x数据源，项目详情展示数据源(初始化方式: 对接)"
     priority: P1
     precondition: |-
-      1) 使用租户管理员账号进入离线开发项目管理，具备项目创建权限
+      1) 使用租户管理员账号进入项目管理，具备项目创建权限
       2) 公共管理数据源中心存在「${DataSourceA}」，类型为 Doris3.x，连接状态为「可用」
       3) 项目名称「${ProjectA}」不存在
     steps:
-      - action: 进入【离线开发 → 项目管理】页面
+      - action: 进入【项目管理】页面
         expected: 进入成功
       - action: 点击「创建项目」，填写项目名称「${ProjectA}」并选择初始化方式「对接」
         expected: 表单展示可对接的数据源列表
       - action: 选择「${DataSourceA}」并点击「保存」
         expected: Toast提示:「保存成功」，项目详情展示数据源「${DataSourceA}」和类型「Doris3.x」
     tags:
-      - 离线开发
       - 项目管理
+      - 创建项目
       - 数据源对接
 
   - case_id: C0012
-    title: "验证【离线开发】-【项目管理】创建项目不配置数据源，详情不包含数据源记录(初始化方式: 不创建且不对接)"
+    title: "验证【项目管理】-【创建项目】创建项目不配置数据源，详情不包含数据源记录(初始化方式: 不创建且不对接)"
     priority: P1
     precondition: |-
-      1) 使用租户管理员账号进入离线开发项目管理，具备项目创建权限
+      1) 使用租户管理员账号进入项目管理，具备项目创建权限
       2) 项目名称「${ProjectC}」不存在
     steps:
-      - action: 进入【离线开发 → 项目管理】页面
+      - action: 进入【项目管理】页面
         expected: 进入成功
       - action: 点击「创建项目」，填写项目名称「${ProjectC}」并选择初始化方式「不创建且不对接」
         expected: 数据源配置区隐藏，表单不展示数据源选择项
       - action: 点击「保存」并打开项目详情
         expected: Toast提示:「保存成功」，项目详情不包含 Doris 数据源记录
     tags:
-      - 离线开发
       - 项目管理
+      - 创建项目
 
   - case_id: C0013
-    title: 验证【离线开发】-【数据开发】新建Doris SQL任务，任务保存且SQL完整(新建SQL任务)
+    title: 验证【数据开发】-【任务开发】新建Doris SQL任务，任务保存且SQL完整(新建SQL任务)
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -341,19 +341,19 @@ cases:
          INSERT INTO ${SchemaA}.test_table_14835_c0013 VALUES (1, 'A'), (2, 'B'), (3, 'C');
       5) 项目「${ProjectD}」已创建并关联 ${DataSourceA}
     steps:
-      - action: 进入【离线开发 → 数据开发】页面
+      - action: 进入【数据开发 → 任务开发】页面
         expected: 进入成功
       - action: 点击「新建SQL任务」，选择项目「${ProjectD}」和 Doris3.x 引擎
         expected: SQL编辑器打开，任务配置展示项目和引擎「Doris3.x」
       - action: 输入 `SELECT COUNT(*) FROM ${SchemaA}.test_table_14835_c0013`，点击「保存」
         expected: Toast提示:「保存成功」，任务列表新增 SQL 任务且 SQL 内容完整保存
     tags:
-      - 离线开发
       - 数据开发
+      - 任务开发
       - SQL任务
 
   - case_id: C0014
-    title: 验证【离线开发】-【数据开发】运行Doris SQL任务，结果集返回统计值(SQL执行)
+    title: 验证【数据开发】-【任务开发】运行Doris SQL任务，结果集返回统计值(SQL执行)
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -365,19 +365,19 @@ cases:
          INSERT INTO ${SchemaA}.test_table_14835_c0014 VALUES (1, 'A'), (2, 'B'), (3, 'C');
       5) 项目「${ProjectD}」存在任务「TaskA」
     steps:
-      - action: 进入【离线开发 → 数据开发】页面
+      - action: 进入【数据开发 → 任务开发】页面
         expected: 进入成功
       - action: 打开任务「TaskA」并点击「运行」
         expected: Toast提示:「任务提交成功」，任务状态变为「运行中」
       - action: 等待任务状态变为「运行完成」并查看结果
         expected: 结果集包含一行，`COUNT(*)` 值为 3
     tags:
-      - 离线开发
       - 数据开发
+      - 任务开发
       - SQL执行
 
   - case_id: C0015
-    title: 验证【离线开发】-【数据开发】输入错误语法运行任务，标记错误且运行失败(语法校验)
+    title: 验证【数据开发】-【任务开发】输入错误语法运行任务，标记错误且运行失败(语法校验)
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -390,19 +390,19 @@ cases:
       5) 项目「${ProjectD}」已关联 ${DataSourceA}
       6) SQL编辑器可创建任务「TaskC」
     steps:
-      - action: 进入【离线开发 → 数据开发】页面
+      - action: 进入【数据开发 → 任务开发】页面
         expected: 进入成功
       - action: 新建任务「TaskC」，输入 `SELEC COUNT(*) FROM ${SchemaA}.test_table_14835_c0015`
         expected: 编辑器标记语法错误位置，并展示「SELEC」关键字错误提示
       - action: 点击「运行」
         expected: Toast提示包含「SQL语法错误」，任务状态为「运行失败」
     tags:
-      - 离线开发
       - 数据开发
+      - 任务开发
       - SQL语法
 
   - case_id: C0016
-    title: 验证【离线开发】-【数据开发】停止运行中任务，状态变为已停止且无新结果(任务停止)
+    title: 验证【数据开发】-【任务开发】停止运行中任务，状态变为已停止且无新结果(任务停止)
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -414,19 +414,19 @@ cases:
          INSERT INTO ${SchemaA}.test_table_14835_c0016 SELECT id FROM range(1, 10001);
       5) 项目「${ProjectD}」存在可运行任务「TaskB」
     steps:
-      - action: 进入【离线开发 → 数据开发】页面
+      - action: 进入【数据开发 → 任务开发】页面
         expected: 进入成功
       - action: 运行「TaskB」，在任务状态为「运行中」时点击「停止」并确认
         expected: Toast提示:「停止成功」，任务状态变为「已停止」
       - action: 刷新任务列表并打开任务详情
         expected: 任务状态仍为「已停止」，不产生新的结果集记录
     tags:
-      - 离线开发
       - 数据开发
+      - 任务开发
       - 任务停止
 
   - case_id: C0017
-    title: 验证【离线开发】-【数据开发】运行含系统函数的SQL，结果集返回函数值(系统函数)
+    title: 验证【数据开发】-【任务开发】运行含系统函数的SQL，结果集返回函数值(系统函数)
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -438,19 +438,19 @@ cases:
          INSERT INTO ${SchemaA}.test_table_14835_c0017 VALUES (1, 10.00), (2, 20.00), (3, 30.00);
       5) 项目「${ProjectD}」已关联 ${DataSourceA}
     steps:
-      - action: 进入【离线开发 → 数据开发】页面
+      - action: 进入【数据开发 → 任务开发】页面
         expected: 进入成功
       - action: 新建 SQL 任务并输入 `SELECT DATE_FORMAT(CURRENT_DATE(), '%Y-%m-%d') AS today, SUM(amount) AS total FROM ${SchemaA}.test_table_14835_c0017`
         expected: SQL编辑器保存成功
       - action: 运行任务并查看结果集
         expected: 结果集包含 today 日期字符串，total 值为 60.00
     tags:
-      - 离线开发
       - 数据开发
+      - 任务开发
       - 系统函数
 
   - case_id: C0018
-    title: 验证【离线开发】-【数据开发】运行含自定义函数的SQL，结果集返回函数值(自定义函数)
+    title: 验证【数据开发】-【任务开发】运行含自定义函数的SQL，结果集返回函数值(自定义函数)
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -463,19 +463,19 @@ cases:
       5) 项目「${ProjectD}」已关联 ${DataSourceA}
       6) ${DataSourceA} 已注册自定义函数 `mask_name`，输入 STRING，返回 STRING
     steps:
-      - action: 进入【离线开发 → 数据开发】页面
+      - action: 进入【数据开发 → 任务开发】页面
         expected: 进入成功
       - action: 新建 SQL 任务并输入 `SELECT mask_name(name) AS masked_name FROM ${SchemaA}.test_table_14835_c0018 ORDER BY name`
         expected: SQL编辑器保存成功，函数名未被标记为未知函数
       - action: 运行任务并查看结果集
         expected: 结果集包含 2 行 masked_name，值为 mask_name 函数返回值
     tags:
-      - 离线开发
       - 数据开发
+      - 任务开发
       - 自定义函数
 
   - case_id: C0019
-    title: 验证【离线开发】-【数据源】查询Doris3.x数据表，预览数据并按条件筛选记录(表查询)
+    title: 验证【数据源】-【表查询】查询Doris3.x数据表，预览数据并按条件筛选记录(表查询)
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -486,19 +486,18 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0019 (id BIGINT, name STRING);
          INSERT INTO ${SchemaA}.test_table_14835_c0019 VALUES (1, 'A'), (2, 'B');
     steps:
-      - action: 进入【离线开发 → 数据源】页面
+      - action: 进入【数据源】页面
         expected: 进入成功
       - action: 选择「${DataSourceA}」的数据库 ${SchemaA} 和数据表 test_table_14835_c0019，点击「查询」
         expected: 字段列表展示 id、name，数据预览展示 2 行记录
       - action: 输入查询条件 `id = 2` 并执行
         expected: 结果仅包含 id=2、name='B' 的 1 行记录
     tags:
-      - 离线开发
       - 数据源
       - 表查询
 
   - case_id: C0020
-    title: 验证【离线开发】-【数据源】同步元数据后查看字段，列表包含新增字段(元数据同步)
+    title: 验证【数据源】-【元数据同步】同步元数据后查看字段，列表包含新增字段(元数据同步)
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -509,19 +508,18 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0020 (id BIGINT, name STRING);
       5) 执行 `ALTER TABLE ${SchemaA}.test_table_14835_c0020 ADD COLUMN amount DECIMAL(10,2)` 后数据库字段包含 amount
     steps:
-      - action: 进入【离线开发 → 数据源】页面
+      - action: 进入【数据源】页面
         expected: 进入成功
       - action: 选择「${DataSourceA}」并点击「同步元数据」
         expected: Toast提示:「同步成功」，同步任务状态为「运行完成」
       - action: 打开 ${SchemaA}.test_table_14835_c0020 字段详情
         expected: 字段列表包含 id、name、amount，amount 类型为 DECIMAL(10,2)
     tags:
-      - 离线开发
       - 数据源
       - 元数据同步
 
   - case_id: C0021
-    title: 验证【离线开发】-【周期任务】创建Doris SQL调度任务，执行DDL成功且建表生效(DDL语法)
+    title: 验证【数据开发】-【周期任务】创建Doris SQL调度任务，执行DDL成功且建表生效(DDL语法)
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -533,7 +531,7 @@ cases:
          INSERT INTO ${SchemaA}.test_table_14835_c0021 VALUES (1, 'A');
       5) 项目「${ProjectD}」已关联 ${DataSourceA}
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 创建 Doris SQL 调度任务，SQL 为 `CREATE TABLE IF NOT EXISTS ${SchemaA}.schedule_ddl_c0021 (id BIGINT, name STRING)`，调度周期选择「一次性」并发布
         expected: Toast提示:「发布成功」，任务状态为「待运行」
@@ -542,12 +540,12 @@ cases:
       - action: 查询 `SHOW TABLES FROM ${SchemaA} LIKE 'schedule_ddl_c0021'`
         expected: 查询结果包含 schedule_ddl_c0021
     tags:
-      - 离线开发
+      - 数据开发
       - 周期任务
       - DDL
 
   - case_id: C0022
-    title: 验证【离线开发】-【周期任务】创建Doris SQL调度任务，执行DML成功且写入数据(DML语法)
+    title: 验证【数据开发】-【周期任务】创建Doris SQL调度任务，执行DML成功且写入数据(DML语法)
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -558,7 +556,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0022 (id BIGINT, name STRING);
       5) 项目「${ProjectD}」已关联 ${DataSourceA}
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 创建一次性 Doris SQL 调度任务，SQL 为 `INSERT INTO ${SchemaA}.test_table_14835_c0022 VALUES (1, 'A'), (2, 'B')` 并发布
         expected: Toast提示:「发布成功」，任务状态为「待运行」
@@ -567,12 +565,12 @@ cases:
       - action: 执行 `SELECT COUNT(*) FROM ${SchemaA}.test_table_14835_c0022`
         expected: 查询结果为 2
     tags:
-      - 离线开发
+      - 数据开发
       - 周期任务
       - DML
 
   - case_id: C0023
-    title: 验证【离线开发】-【周期任务】创建Doris SQL调度任务，执行DQL返回结果集(DQL语法)
+    title: 验证【数据开发】-【周期任务】创建Doris SQL调度任务，执行DQL返回结果集(DQL语法)
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -584,19 +582,19 @@ cases:
          INSERT INTO ${SchemaA}.test_table_14835_c0023 VALUES (1, 10.00), (2, 20.00), (3, 30.00);
       5) 项目「${ProjectD}」已关联 ${DataSourceA}
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 创建一次性 Doris SQL 调度任务，SQL 为 `SELECT SUM(amount) AS total FROM ${SchemaA}.test_table_14835_c0023` 并发布
         expected: Toast提示:「发布成功」，任务状态为「待运行」
       - action: 运行任务并打开结果集
         expected: 实例状态为「运行完成」，结果集 total 值为 60.00
     tags:
-      - 离线开发
+      - 数据开发
       - 周期任务
       - DQL
 
   - case_id: C0024
-    title: 验证【离线开发】-【项目管理】为账号绑定数据库权限，账号下拉仅展示绑定数据库(数据库权限)
+    title: 验证【项目管理】-【数据库权限】为账号绑定数据库权限，账号下拉仅展示绑定数据库(数据库权限)
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -606,12 +604,12 @@ cases:
          DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0024;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0024 (id BIGINT, name STRING);
          INSERT INTO ${SchemaA}.test_table_14835_c0024 VALUES (1, 'A');
-      5) 使用租户管理员账号进入离线开发项目管理，具备项目数据库权限配置权限
+      5) 使用租户管理员账号进入项目管理，具备项目数据库权限配置权限
       6) 项目「${ProjectD}」已关联 ${DataSourceA}
       7) 可绑定数据库为 ${SchemaA}、doris_archive
       8) 账号「UserA」已创建
     steps:
-      - action: 进入【离线开发 → 项目管理】页面
+      - action: 进入【项目管理】页面
         expected: 进入成功
       - action: 打开项目「${ProjectD}」的数据库权限配置，选择账号「UserA」
         expected: 数据库多选列表展示 ${SchemaA}、doris_archive
@@ -620,6 +618,5 @@ cases:
       - action: 使用账号 UserA 打开 SQL 任务数据库下拉框
         expected: 下拉框展示 ${SchemaA}，不展示 doris_archive
     tags:
-      - 离线开发
       - 项目管理
       - 数据库权限
