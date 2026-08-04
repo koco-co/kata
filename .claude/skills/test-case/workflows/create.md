@@ -71,17 +71,17 @@
    - 完成条件：每个需求 ID 已覆盖或有明确不覆盖理由，用户确认覆盖设计，摘要与当前 PRD 一致。
 
 8. 写 YAML 并构建
-   - 格式见 [../examples/cases.yaml](../examples/cases.yaml)。`meta.test_points_digest` 是完整测试点文件的 SHA-256；`source_ref` 引用测试点 ID；`meta.case_module_id` 必填，未知写 `""`；省略 `meta.exports` 时默认生成 YAML 同名 XMind，显式导出须写具体文件名。
-   - 每条用例首步骤独立写 `进入【实际一级模块 → 实际页面】页面`。出现 `${DataSourceX}` 与 `${SchemaX}` 时，前置条件必须包含对应数据源语义块、精确数据源类型和完整 SQL；需求沉默时默认 `SparkThrift2.x`，不得把未注册类型回退到 Spark。
-   - SQL 初始化按声明的数据源类型使用对应方言 profile。支持幂等删除/建表的类型写 `DROP TABLE IF EXISTS`、`CREATE TABLE IF NOT EXISTS`；Oracle 系列按 Oracle profile，不写这两个子句。表名使用 `test_table_<requirement_id>_<case_id>`，多表只允许 `source/target/comparison/dimension` 角色。
+   - 整体格式见 [../examples/cases.yaml](../examples/cases.yaml)，按文件顶部索引读取 [../examples/best-practices.md](../examples/best-practices.md) 对应章节。
+   - `meta.test_points_digest` 是完整测试点文件的 SHA-256；`source_ref` 引用测试点 ID；`meta.case_module_id` 必填，未知写 `""`；省略 `meta.exports` 时默认生成 YAML 同名 XMind，显式导出须写具体文件名。
    - 模型不得读取 `config/`；由 CLI 读取规则并执行硬校验。
 
      ```bash
      kata cases build --feature <feature-dir>
+     # 也可按 YAML requirement_id 简写定位: kata cases build <需求ID>
      kata cases lint --project <项目> --feature <版本目录/需求目录名> --exit-code
      ```
 
-   - 修复源 YAML 后重建。纯接口用例写 `automation.executor: api` 且不声明 `spec_file`；Playwright 用例只有存在真实脚本时才声明 `spec_file`，否则由 coverage 报告为 `unmapped`。
+   - 修复源 YAML 后重建。纯接口用例不纳入功能用例集；Playwright 用例只有存在真实脚本时才声明 `spec_file`，否则由 coverage 报告为 `unmapped`。
    - 完成条件：build 与 lint 均成功，YAML 标题、步骤和预期可执行，exports 与当前 YAML 同步；项目交付还需 `kata cases lint --all-projects --exit-code`。
 
 9. 完成知识闭环

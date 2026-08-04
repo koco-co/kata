@@ -59,16 +59,19 @@ Usage: kata cases [options] [command]
 用例导入、构建与检查
 
 Options:
-  -h, --help        display help for command
+  -h, --help                       display help for command
 
 Commands:
-  build [options]   按 YAML meta.exports 中的文件名生成派生产物；缺省仅生成同名 XMind；requirements
-                    布局按需求生成多个 L1
-  import [options]  将 CSV/XLSX/MD/XMind 转为 YAML；XMind 可按 L1 拆分(默认 dry-run)
-  sync [options]    按 YAML 中已声明的 Playwright spec_file 同步文件名和 generated
-                    runner；API executor 单独报告(默认 dry-run)
-  lint [options]    检查 feature 目录、命名、YAML 来源、用例内容与历史导入文件
-  help [command]    display help for command
+  build [options] [requirementId]  用例内容 lint 通过后按 YAML meta.exports
+                                   生成派生产物；缺省生成同名 XMind；requirements 布局生成多个
+                                   L1；传需求 id 简写定位 feature
+  import [options]                 将 CSV/XLSX/MD/XMind 转为 YAML；XMind 可按 L1 拆分(默认
+                                   dry-run)
+  sync [options]                   按 YAML 中已声明的 Playwright spec_file 同步文件名和
+                                   generated runner；API executor 单独报告(默认
+                                   dry-run)
+  lint [options]                   检查 feature 目录、命名、YAML 来源、动作原子性等内容硬规则与历史导入文件
+  help [command]                   display help for command
 ```
 
 ## kata config
@@ -380,13 +383,17 @@ Options:
 ## kata cases build
 
 ```text
-Usage: kata cases build [options]
+Usage: kata cases build [options] [requirementId]
 
-按 YAML meta.exports 中的文件名生成派生产物；缺省仅生成同名 XMind；requirements 布局按需求生成多个 L1
+用例内容 lint 通过后按 YAML meta.exports 生成派生产物；缺省生成同名 XMind；requirements 布局生成多个 L1；传需求
+id 简写定位 feature
+
+Arguments:
+  requirementId     需求 id；按 cases YAML 中 requirement_id 字段定位 feature
 
 Options:
-  --feature <dir>   feature 目录路径
-  --project <name>  项目名；feature 传相对 features/ 的完整路径时必填
+  --feature <dir>   feature 目录路径；与 <requirementId> 二选一
+  --project <name>  项目名；feature 传相对 features/ 的完整路径时必填；按需求 id 定位时可限定项目
   -h, --help        display help for command
 ```
 
@@ -431,7 +438,7 @@ Options:
 ```text
 Usage: kata cases lint [options]
 
-检查 feature 目录、命名、YAML 来源、用例内容与历史导入文件
+检查 feature 目录、命名、YAML 来源、动作原子性等内容硬规则与历史导入文件
 
 Options:
   --project <name>  项目名；与 --all-projects 二选一
