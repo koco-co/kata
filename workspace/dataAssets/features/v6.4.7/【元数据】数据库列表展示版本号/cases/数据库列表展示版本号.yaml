@@ -5,186 +5,217 @@ meta:
     - 数据库列表展示版本号.xmind
 cases:
   - case_id: C0001
-    title: 验证「元数据管理」页面，「导出元数据」的文件中，「版本号」正常展示的功能
+    title: 验证【元数据】-【元数据管理】导出元数据文件并核对版本号列，九种数据源版本号与底层一致
     priority: P0
-    steps:
-      - action: 进入【元数据 → 版本号】页面
-        expected: 已进入【元数据 → 版本号】页面，显示页面标题与主要操作区域
-      - action: 进入「元数据-元数据管理」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看页面信息展示
-        expected: 「hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris」数据源的版本号正常展示
     precondition: |-
-      1、 进入元数据-元数据管理页面
-      2、 资产成功引入以下数据源：
-      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+      1) 元数据管理已引入Hive数据源「${DataSourceA}」，底层版本号记录为「${HiveVersion}」
+      2) 元数据管理已引入SparkThrift数据源「${DataSourceB}」，底层版本号记录为「${SparkVersion}」
+      3) 元数据管理已引入Trino数据源「${DataSourceC}」，底层版本号记录为「${TrinoVersion}」
+      4) 元数据管理已引入MySQL数据源「${DataSourceD}」，底层版本号记录为「${MySQLVersion}」
+      5) 元数据管理已引入Oracle数据源「${DataSourceE}」，底层版本号记录为「${OracleVersion}」
+      6) 元数据管理已引入SQL Server数据源「${DataSourceF}」，底层版本号记录为「${SQLServerVersion}」
+      7) 元数据管理已引入DM数据源「${DataSourceG}」，底层版本号记录为「${DMVersion}」
+      8) 元数据管理已引入PostgreSQL数据源「${DataSourceH}」，底层版本号记录为「${PostgreSQLVersion}」
+      9) 元数据管理已引入Doris数据源「${DataSourceI}」，底层版本号记录为「${DorisVersion}」
+    steps:
+      - action: 进入【元数据 → 元数据管理】页面
+        expected: 进入成功
+      - action: 查看九条数据源记录的「版本号」列
+        expected: 九条记录均展示非空版本号，取值分别等于对应前置条件中的底层版本号
+    tags:
+      - 元数据
+      - 元数据管理
+      - 版本号
+
   - case_id: C0002
-    title: 验证「元数据管理」页面，「HANA」数据源「版本号」正常展示的功能
+    title: 验证【元数据】-【元数据管理】搜索并查看 HANA 数据源版本号，版本号列展示底层版本值
     priority: P0
-    steps:
-      - action: 进入【元数据 → 版本号】页面
-        expected: 已进入【元数据 → 版本号】页面，显示页面标题与主要操作区域
-      - action: 进入「元数据-元数据管理」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看页面信息展示
-        expected: 「HANA」数据源的版本号正常展示，数据与底层查询的版本保持一致
     precondition: |-
-      1、 进入元数据-元数据管理页面
-      2、 资产成功引入以下数据源：
-      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+      1) 元数据管理已引入HANA数据源「${DataSourceA}」
+      2) 该数据源底层版本号记录为「${HANAVersion}」
+    steps:
+      - action: 进入【元数据 → 元数据管理】页面
+        expected: 进入成功
+      - action: 搜索并查看数据源「${DataSourceA}」
+        expected: 「版本号」列展示「${HANAVersion}」
+    tags:
+      - 元数据
+      - 元数据管理
+      - 版本号
+
   - case_id: C0003
-    title: 验证「元数据管理」页面，「doris2.x」数据源「版本号」正常展示的功能
+    title: 验证【元数据】-【元数据管理】搜索并查看 Doris2.x 数据源版本号，版本号列展示底层版本值
     priority: P0
-    steps:
-      - action: 进入【元数据 → 版本号】页面
-        expected: 已进入【元数据 → 版本号】页面，显示页面标题与主要操作区域
-      - action: 进入「元数据-元数据管理」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看页面信息展示
-        expected: 「doris2.x」数据源的版本号正常展示，数据与底层查询的版本保持一致
     precondition: |-
-      1、 进入元数据-元数据管理页面
-      2、 资产成功引入以下数据源：
-      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+      1) 元数据管理已引入Doris2.x数据源「${DataSourceA}」
+      2) 该数据源底层版本号记录为「${Doris2Version}」
+    steps:
+      - action: 进入【元数据 → 元数据管理】页面
+        expected: 进入成功
+      - action: 搜索并查看数据源「${DataSourceA}」
+        expected: 「版本号」列展示「${Doris2Version}」
+    tags:
+      - 元数据
+      - 元数据管理
+      - 版本号
+
   - case_id: C0004
-    title: 验证「元数据管理」页面，「DM」数据源「版本号」正常展示的功能
+    title: 验证【元数据】-【元数据管理】搜索并查看 DM 数据源版本号，版本号列展示底层版本值
     priority: P2
-    steps:
-      - action: 进入【元数据 → 版本号】页面
-        expected: 已进入【元数据 → 版本号】页面，显示页面标题与主要操作区域
-      - action: 进入「元数据-元数据管理」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看页面信息展示
-        expected: 「DM」数据源的版本号正常展示，数据与底层查询的版本保持一致
     precondition: |-
-      1、 进入元数据-元数据管理页面
-      2、 资产成功引入以下数据源：
-      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+      1) 元数据管理已引入DM数据源「${DataSourceA}」
+      2) 该数据源底层版本号记录为「${DMVersion}」
+    steps:
+      - action: 进入【元数据 → 元数据管理】页面
+        expected: 进入成功
+      - action: 搜索并查看数据源「${DataSourceA}」
+        expected: 「版本号」列展示「${DMVersion}」
+    tags:
+      - 元数据
+      - 元数据管理
+      - 版本号
+
   - case_id: C0005
-    title: 验证「元数据管理」页面，「PostgreSQL」数据源「版本号」正常展示的功能
+    title: 验证【元数据】-【元数据管理】搜索并查看 PostgreSQL 数据源版本号，版本号列展示底层版本值
     priority: P2
-    steps:
-      - action: 进入【元数据 → 版本号】页面
-        expected: 已进入【元数据 → 版本号】页面，显示页面标题与主要操作区域
-      - action: 进入「元数据-元数据管理」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看页面信息展示
-        expected: 「PostgreSQL」数据源的版本号正常展示，数据与底层查询的版本保持一致
     precondition: |-
-      1、 进入元数据-元数据管理页面
-      2、 资产成功引入以下数据源：
-      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+      1) 元数据管理已引入PostgreSQL数据源「${DataSourceA}」
+      2) 该数据源底层版本号记录为「${PostgreSQLVersion}」
+    steps:
+      - action: 进入【元数据 → 元数据管理】页面
+        expected: 进入成功
+      - action: 搜索并查看数据源「${DataSourceA}」
+        expected: 「版本号」列展示「${PostgreSQLVersion}」
+    tags:
+      - 元数据
+      - 元数据管理
+      - 版本号
+
   - case_id: C0006
-    title: 验证「元数据管理」页面，「sqlserver」数据源「版本号」正常展示的功能
+    title: 验证【元数据】-【元数据管理】搜索并查看 SQL Server 数据源版本号，版本号列展示底层版本值
     priority: P0
-    steps:
-      - action: 进入【元数据 → 版本号】页面
-        expected: 已进入【元数据 → 版本号】页面，显示页面标题与主要操作区域
-      - action: 进入「元数据-元数据管理」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看页面信息展示
-        expected: 「sqlserver」数据源的版本号正常展示，数据与底层查询的版本保持一致
     precondition: |-
-      1、 进入元数据-元数据管理页面
-      2、 资产成功引入以下数据源：
-      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+      1) 元数据管理已引入SQL Server数据源「${DataSourceA}」
+      2) 该数据源底层版本号记录为「${SQLServerVersion}」
+    steps:
+      - action: 进入【元数据 → 元数据管理】页面
+        expected: 进入成功
+      - action: 搜索并查看数据源「${DataSourceA}」
+        expected: 「版本号」列展示「${SQLServerVersion}」
+    tags:
+      - 元数据
+      - 元数据管理
+      - 版本号
+
   - case_id: C0007
-    title: 验证「元数据管理」页面，「oracle」数据源「版本号」正常展示的功能
+    title: 验证【元数据】-【元数据管理】搜索并查看 Oracle 数据源版本号，版本号列展示底层版本值
     priority: P2
-    steps:
-      - action: 进入【元数据 → 版本号】页面
-        expected: 已进入【元数据 → 版本号】页面，显示页面标题与主要操作区域
-      - action: 进入「元数据-元数据管理」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看页面信息展示
-        expected: 「oracle」数据源的版本号正常展示，数据与底层查询的版本保持一致
     precondition: |-
-      1、 进入元数据-元数据管理页面
-      2、 资产成功引入以下数据源：
-      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+      1) 元数据管理已引入Oracle数据源「${DataSourceA}」
+      2) 该数据源底层版本号记录为「${OracleVersion}」
+    steps:
+      - action: 进入【元数据 → 元数据管理】页面
+        expected: 进入成功
+      - action: 搜索并查看数据源「${DataSourceA}」
+        expected: 「版本号」列展示「${OracleVersion}」
+    tags:
+      - 元数据
+      - 元数据管理
+      - 版本号
+
   - case_id: C0008
-    title: 验证「元数据管理」页面，「mysql」数据源「版本号」正常展示的功能
+    title: 验证【元数据】-【元数据管理】搜索并查看 MySQL 数据源版本号，版本号列展示底层版本值
     priority: P2
-    steps:
-      - action: 进入【元数据 → 版本号】页面
-        expected: 已进入【元数据 → 版本号】页面，显示页面标题与主要操作区域
-      - action: 进入「元数据-元数据管理」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看页面信息展示
-        expected: 「mysql」数据源的版本号正常展示，数据与底层查询的版本保持一致
     precondition: |-
-      1、 进入元数据-元数据管理页面
-      2、 资产成功引入以下数据源：
-      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+      1) 元数据管理已引入MySQL数据源「${DataSourceA}」
+      2) 该数据源底层版本号记录为「${MySQLVersion}」
+    steps:
+      - action: 进入【元数据 → 元数据管理】页面
+        expected: 进入成功
+      - action: 搜索并查看数据源「${DataSourceA}」
+        expected: 「版本号」列展示「${MySQLVersion}」
+    tags:
+      - 元数据
+      - 元数据管理
+      - 版本号
+
   - case_id: C0009
-    title: 验证「元数据管理」页面，「trino」数据源「版本号」正常展示的功能
+    title: 验证【元数据】-【元数据管理】搜索并查看 Trino 数据源版本号，版本号列展示底层版本值
     priority: P2
-    steps:
-      - action: 进入【元数据 → 版本号】页面
-        expected: 已进入【元数据 → 版本号】页面，显示页面标题与主要操作区域
-      - action: 进入「元数据-元数据管理」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看页面信息展示
-        expected: 「trino」数据源的版本号正常展示，数据与底层查询的版本保持一致
     precondition: |-
-      1、 进入元数据-元数据管理页面
-      2、 资产成功引入以下数据源：
-      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+      1) 元数据管理已引入Trino数据源「${DataSourceA}」
+      2) 该数据源底层版本号记录为「${TrinoVersion}」
+    steps:
+      - action: 进入【元数据 → 元数据管理】页面
+        expected: 进入成功
+      - action: 搜索并查看数据源「${DataSourceA}」
+        expected: 「版本号」列展示「${TrinoVersion}」
+    tags:
+      - 元数据
+      - 元数据管理
+      - 版本号
+
   - case_id: C0010
-    title: 验证「元数据管理」页面，「sparkthrift」数据源「版本号」正常展示的功能
+    title: 验证【元数据】-【元数据管理】搜索并查看 SparkThrift 数据源版本号，版本号列展示底层版本值
     priority: P0
-    steps:
-      - action: 进入【元数据 → 版本号】页面
-        expected: 已进入【元数据 → 版本号】页面，显示页面标题与主要操作区域
-      - action: 进入「元数据-元数据管理」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看页面信息展示
-        expected: 「sparkthrift」数据源的版本号正常展示，数据与底层查询的版本保持一致
     precondition: |-
-      1、 进入元数据-元数据管理页面
-      2、 资产成功引入以下数据源：
-      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+      1) 元数据管理已引入SparkThrift数据源「${DataSourceA}」
+      2) 该数据源底层版本号记录为「${SparkVersion}」
+    steps:
+      - action: 进入【元数据 → 元数据管理】页面
+        expected: 进入成功
+      - action: 搜索并查看数据源「${DataSourceA}」
+        expected: 「版本号」列展示「${SparkVersion}」
+    tags:
+      - 元数据
+      - 元数据管理
+      - 版本号
+
   - case_id: C0011
-    title: 验证「元数据管理」页面，「hive」数据源「版本号」正常展示的功能
+    title: 验证【元数据】-【元数据管理】搜索并查看 Hive 数据源版本号，版本号列展示底层版本值
     priority: P1
-    steps:
-      - action: 进入【元数据 → 版本号】页面
-        expected: 已进入【元数据 → 版本号】页面，显示页面标题与主要操作区域
-      - action: 进入「元数据-元数据管理」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看页面信息展示
-        expected: 「hive」数据源的版本号正常展示，数据与底层查询的版本保持一致
     precondition: |-
-      1、 进入元数据-元数据管理页面
-      2、 资产成功引入以下数据源：
-      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+      1) 元数据管理已引入Hive数据源「${DataSourceA}」
+      2) 该数据源底层版本号记录为「${HiveVersion}」
+    steps:
+      - action: 进入【元数据 → 元数据管理】页面
+        expected: 进入成功
+      - action: 搜索并查看数据源「${DataSourceA}」
+        expected: 「版本号」列展示「${HiveVersion}」
+    tags:
+      - 元数据
+      - 元数据管理
+      - 版本号
+
   - case_id: C0012
-    title: 验证「元数据管理」页面，「导出元数据」的文件中，新增「版本号」的功能
+    title: 验证【元数据】-【元数据管理】打开导出文件查看版本号列位置，版本号列位于库名与表数量之间
     priority: P2
-    steps:
-      - action: 进入【元数据 → 版本号】页面
-        expected: 已进入【元数据 → 版本号】页面，显示页面标题与主要操作区域
-      - action: 进入「元数据-元数据管理」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 点击「导出元数据」
-        expected: 元数据正常导出
-      - action: 查看导出文件
-        expected: 文件中新增「版本号」信息列（位于「数据库名称」和「数据表数量」列中间）
     precondition: |-
-      1、 进入元数据-元数据管理页面
-      2、 资产成功引入以下数据源：
-      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+      1) 元数据管理已引入数据源「${DataSourceA}」
+      2) 该数据源底层版本号记录为「${MySQLVersion}」
+    steps:
+      - action: 进入【元数据 → 元数据管理】页面
+        expected: 进入成功
+      - action: 点击「导出元数据」并下载文件
+        expected: 浏览器下载元数据文件
+      - action: 打开导出文件并查看「${DataSourceA}」记录
+        expected: 「版本号」列位于「数据库名称」和「数据表数量」之间，取值为「${MySQLVersion}」
+    tags:
+      - 元数据
+      - 元数据管理
+      - 版本号
+
   - case_id: C0013
-    title: 验证「元数据管理」页面，新增「版本号」的功能
+    title: 验证【元数据】-【元数据管理】查看列表表头列顺序，版本号列位于数据库列右侧
     priority: P2
-    steps:
-      - action: 进入【元数据 → 版本号】页面
-        expected: 已进入【元数据 → 版本号】页面，显示页面标题与主要操作区域
-      - action: 进入「元数据-元数据管理」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看页面信息展示
-        expected: 列表新增「版本号」信息列（位于「数据库」的右侧）
     precondition: |-
-      1、 进入元数据-元数据管理页面
-      2、 资产成功引入以下数据源：
-      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+      1) 元数据管理已引入数据源「${DataSourceA}」
+    steps:
+      - action: 进入【元数据 → 元数据管理】页面
+        expected: 进入成功
+      - action: 查看列表表头
+        expected: 「版本号」列位于「数据库」列右侧
+    tags:
+      - 元数据
+      - 元数据管理
+      - 版本号
