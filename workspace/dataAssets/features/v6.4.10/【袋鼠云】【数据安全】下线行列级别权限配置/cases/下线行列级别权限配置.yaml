@@ -157,7 +157,7 @@ cases:
         expected: 不展示行级权限入口、行过滤表达式或行条件配置项
     tags:
       ["数据安全", "权限分配"]
-  - case_id: C0013
+  - case_id: C0012
     title: 验证【数据安全】-【权限配置】关闭列级权限开关后打开数据预览，展示全部字段
     priority: P1
     precondition: |-
