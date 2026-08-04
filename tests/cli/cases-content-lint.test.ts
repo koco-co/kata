@@ -927,4 +927,64 @@ cases:
       "case_schedule_form",
     );
   });
+
+  it("requires mandatory * markers and full fields in the monitor object form", () => {
+    const noStar = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则任务管理】页面", expected: "进入成功" },
+        {
+          action: `配置监控对象：
+数据源：\${DataSourceA}
+数据库：\${SchemaA}
+数据表：test_table_16178_c0001
+点击「下一步」`,
+          expected: "进入「监控规则」步骤",
+        },
+      ],
+    });
+    const starRules = lintCaseContent(doc(noStar), config).map((entry) => entry.rule);
+    expect(starRules).toContain("case_monitor_object_form");
+    const starViolation = lintCaseContent(doc(noStar), config).find(
+      (entry) => entry.rule === "case_monitor_object_form",
+    );
+    expect(starViolation?.message).toContain("缺少必填 * 标志");
+    expect(starViolation?.message).toContain("数据源");
+
+    const missingField = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则任务管理】页面", expected: "进入成功" },
+        {
+          action: `配置监控对象：
+* 数据源：\${DataSourceA}
+* 数据表：test_table_16178_c0001
+点击「下一步」`,
+          expected: "进入「监控规则」步骤",
+        },
+      ],
+    });
+    const missingRules = lintCaseContent(doc(missingField), config).map((entry) => entry.rule);
+    expect(missingRules).toContain("case_monitor_object_form");
+    const missingViolation = lintCaseContent(doc(missingField), config).find(
+      (entry) => entry.rule === "case_monitor_object_form",
+    );
+    expect(missingViolation?.message).toContain("缺少配置项");
+    expect(missingViolation?.message).toContain("数据库");
+
+    const complete = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则任务管理】页面", expected: "进入成功" },
+        {
+          action: `配置监控对象：
+* 数据源：\${DataSourceA}
+* 数据库：\${SchemaA}
+* 数据表：test_table_16178_c0001
+点击「下一步」`,
+          expected: "进入「监控规则」步骤",
+        },
+      ],
+    });
+    expect(lintCaseContent(doc(complete), config).map((entry) => entry.rule)).not.toContain(
+      "case_monitor_object_form",
+    );
+  });
 });

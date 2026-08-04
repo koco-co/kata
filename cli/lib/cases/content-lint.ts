@@ -1109,8 +1109,49 @@ const RULE_SET_FORM_FIELDS: { label: string; required: boolean }[] = [
   { label: "选择数据源", required: true },
   { label: "选择数据库", required: true },
   { label: "选择数据表", required: true },
-  { label: "规则集描述", required: false },
+  { label: "规则集描述", required: true },
 ];
+
+/** 监控对象表单配置项，顺序与前端一致；数据源/数据库/数据表必填且带 * 标志。 */
+const MONITOR_OBJECT_FORM_FIELDS: { label: string; required: boolean }[] = [
+  { label: "数据源", required: true },
+  { label: "数据库", required: true },
+  { label: "数据表", required: true },
+];
+
+function lintMonitorObjectForm(action: string): CaseContentViolation[] {
+  const violations: CaseContentViolation[] = [];
+  if (!/配置监控对象/.test(action)) return violations;
+
+  const missing: string[] = [];
+  const noStar: string[] = [];
+  const order: string[] = [];
+  for (const field of MONITOR_OBJECT_FORM_FIELDS) {
+    if (!new RegExp(`(?:\\*\\s*)?${field.label}[：:]`).test(action)) {
+      missing.push(field.label);
+    } else {
+      order.push(field.label);
+      if (!new RegExp(`\\*\\s*${field.label}[：:]`).test(action)) noStar.push(field.label);
+    }
+  }
+  const expectedOrder = MONITOR_OBJECT_FORM_FIELDS.map((field) => field.label);
+  const ordered = order.every((label, index) => label === expectedOrder[index]);
+  if (missing.length > 0 || noStar.length > 0 || !ordered) {
+    violations.push(
+      makeViolation(
+        "case_monitor_object_form",
+        "配置监控对象表单必填项必须带 * 标志并按前端顺序列出：*数据源、*数据库、*数据表",
+        missing.length > 0
+          ? `缺少配置项：${missing.join("、")}`
+          : noStar.length > 0
+            ? `缺少必填 * 标志：${noStar.join("、")}`
+            : `配置项顺序错乱：${order.join(" → ")}`,
+        `在「配置监控对象」action 中补齐并按顺序列出：\n* 数据源：${"${DataSourceA}"}\n* 数据库：${"${SchemaA}"}\n* 数据表：`,
+      ),
+    );
+  }
+  return violations;
+}
 
 function lintRuleSetForm(action: string): CaseContentViolation[] {
   const violations: CaseContentViolation[] = [];
@@ -1143,18 +1184,19 @@ function lintRuleSetForm(action: string): CaseContentViolation[] {
   return violations;
 }
 
-/** 调度属性表单配置项，顺序与前端一致；必填项必须出现，可空项占位列出。 */
+/** 调度属性表单配置项，顺序与前端一致；全部配置项都必须占位列出（可空项值为空/不限制/不勾选）。 */
 const SCHEDULE_FORM_FIELDS: { label: string; required: boolean }[] = [
   { label: "调度周期", required: true },
-  { label: "规则拼接包", required: false },
-  { label: "资源组", required: false },
-  { label: "超时时间", required: false },
-  { label: "无需生成报告", required: false },
+  { label: "规则拼接包", required: true },
+  { label: "资源组", required: true },
+  { label: "超时时间", required: true },
+  { label: "无需生成报告", required: true },
 ];
 
 function lintScheduleForm(action: string): CaseContentViolation[] {
   const violations: CaseContentViolation[] = [];
-  if (!/调度属性|调度配置/.test(action)) return violations;
+  // 只拦数据质量规则任务的调度属性表单；落标检查的「调度配置」是检查周期，不在此列
+  if (!/调度属性/.test(action)) return violations;
 
   const missing: string[] = [];
   const order: string[] = [];
@@ -1301,6 +1343,7 @@ export function lintCaseContent(file: CasesFile, config: CasesLintConfig): CaseC
     for (const step of item.steps) {
       violations.push(...lintRuleSetForm(step.action));
       violations.push(...lintScheduleForm(step.action));
+      violations.push(...lintMonitorObjectForm(step.action));
     }
 
     const actual = item.steps[0]?.action.trim() || "<空步骤>";
