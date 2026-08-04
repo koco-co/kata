@@ -6,268 +6,338 @@ meta:
     - Spark任务调参.xmind
 cases:
   - case_id: C0001
-    title: 验证Spark环境参数配置生效(spark.driver.maxResultSize)
+    title: 验证【数据质量】-【规则任务管理】配置spark.driver.maxResultSize=2g环境参数并运行任务，YARN Environment页签展示参数值
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入100行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15532_c0001;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15532_c0001 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15532_c0001 SELECT id, CONCAT('code_', CAST(id AS STRING)) FROM range(1, 101);
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
-        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
-        expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
-      - action: 点击【环境参数配置】, 设置spark.driver.maxResultSize=2g 后保存
-        expected: 规则任务保存成功
-      - action: 运行规则任务
-        expected: 任务运行成功, 校验结果正常
-      - action: "进入Apache Hadoop YARN界面, 点击 Tracking UI: ApplicationMaster，在 Environment 页签确认该参数值"
-        expected: 应为2g
-    precondition: 无
+      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0001，完成监控规则配置并进入「调度属性」步骤
+        expected: 「调度属性」展示「环境参数配置」入口
+      - action: 打开「环境参数配置」，设置 spark.driver.maxResultSize=2g，确认配置并保存规则
+        expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.driver.maxResultSize=2g
+      - action: 运行规则任务并打开对应YARN应用的「Environment」页签
+        expected: 任务实例状态为「成功」，Spark Properties中的spark.driver.maxResultSize为2g
     tags:
+      - 数据质量
       - 规则任务管理
+
   - case_id: C0002
-    title: 验证Spark环境参数配置生效(logLevel)
+    title: 验证【数据质量】-【规则任务管理】配置logLevel=ERROR环境参数并运行任务，Executor日志不包含INFO级别记录
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入100行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15532_c0002;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15532_c0002 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15532_c0002 SELECT id, CONCAT('code_', CAST(id AS STRING)) FROM range(1, 101);
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
-        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
-        expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
-      - action: 点击【环境参数配置】, 设置logLevel=ERROR 后保存
-        expected: 规则任务保存成功
-      - action: 运行规则任务
-        expected: 任务运行成功, 校验结果正常
-      - action: "进入Apache Hadoop YARN界面, 点击 Tracking UI: ApplicationMaster -❯ Executors -❯ stderr/stdout"
-        expected: 日志不再打印 INFO 级别信息
-    precondition: 无
+      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0002，完成监控规则配置并进入「调度属性」步骤
+        expected: 「调度属性」展示「环境参数配置」入口
+      - action: 打开「环境参数配置」，设置 logLevel=ERROR，确认配置并保存规则
+        expected: Toast提示:「保存成功」，规则详情的环境参数展示 logLevel=ERROR
+      - action: 运行规则任务并打开对应YARN应用的「Executors → stderr/stdout」日志
+        expected: 任务实例状态为「成功」，日志不包含INFO级别记录
     tags:
+      - 数据质量
       - 规则任务管理
+
   - case_id: C0003
-    title: 验证Spark环境参数配置生效(spark.speculation)
+    title: 验证【数据质量】-【规则任务管理】配置spark.speculation=true环境参数并运行任务，YARN Environment页签展示参数值
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入100行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15532_c0003;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15532_c0003 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15532_c0003 SELECT id, CONCAT('code_', CAST(id AS STRING)) FROM range(1, 101);
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
-        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
-        expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
-      - action: 点击【环境参数配置】, 设置spark.speculation=true 后保存
-        expected: 规则任务保存成功
-      - action: 运行规则任务
-        expected: 任务运行成功, 校验结果正常
-      - action: "进入Apache Hadoop YARN界面, 点击 Tracking UI: ApplicationMaster，在 Environment 页签确认 spark.speculation"
-        expected: 应为true
-    precondition: 无
+      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0003，完成监控规则配置并进入「调度属性」步骤
+        expected: 「调度属性」展示「环境参数配置」入口
+      - action: 打开「环境参数配置」，设置 spark.speculation=true，确认配置并保存规则
+        expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.speculation=true
+      - action: 运行规则任务并打开对应YARN应用的「Environment」页签
+        expected: 任务实例状态为「成功」，Spark Properties中的spark.speculation为true
     tags:
+      - 数据质量
       - 规则任务管理
+
   - case_id: C0004
-    title: 验证Spark环境参数配置生效(spark.network.timeout)
+    title: 验证【数据质量】-【规则任务管理】配置spark.network.timeout=300s环境参数并运行任务，YARN Environment页签展示参数值
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入100行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15532_c0004;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15532_c0004 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15532_c0004 SELECT id, CONCAT('code_', CAST(id AS STRING)) FROM range(1, 101);
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
-        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
-        expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
-      - action: 点击【环境参数配置】, 设置spark.network.timeout=300s 后保存
-        expected: 规则任务保存成功
-      - action: 运行规则任务
-        expected: 任务运行成功, 校验结果正常
-      - action: "进入Apache Hadoop YARN界面, 点击 Tracking UI: ApplicationMaster，在 Environment 页签搜索该参数"
-        expected: 确认 Value 为 300s
-    precondition: 无
+      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0004，完成监控规则配置并进入「调度属性」步骤
+        expected: 「调度属性」展示「环境参数配置」入口
+      - action: 打开「环境参数配置」，设置 spark.network.timeout=300s，确认配置并保存规则
+        expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.network.timeout=300s
+      - action: 运行规则任务并打开对应YARN应用的「Environment」页签
+        expected: 任务实例状态为「成功」，Spark Properties中的spark.network.timeout为300s
     tags:
+      - 数据质量
       - 规则任务管理
+
   - case_id: C0005
-    title: 验证Spark环境参数配置生效(spark.sql.shuffle.partitions)
+    title: 验证【数据质量】-【规则任务管理】配置spark.sql.shuffle.partitions=10环境参数并运行任务，聚合Shuffle Stage包含10个Task
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入100行分组数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15532_c0005;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15532_c0005 (id BIGINT, group_code STRING);
+         INSERT INTO ${SchemaA}.test_table_15532_c0005 SELECT id, CONCAT('group_', CAST(id % 10 AS STRING)) FROM range(1, 101);
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
-        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
-        expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
-      - action: 点击【环境参数配置】, 设置spark.sql.shuffle.partitions=10 后保存
-        expected: 规则任务保存成功
-      - action: 运行规则任务
-        expected: 任务运行成功, 校验结果正常
-      - action: "进入Apache Hadoop YARN界面, 点击 Tracking UI: ApplicationMaster 进入 Spark UI，在 Stages 页签查看 Shuffle 操作的 Tasks 总数"
-        expected: 应为 10
-    precondition: 无
+      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0005，为group_code配置重复值校验规则并进入「调度属性」步骤
+        expected: 「调度属性」展示「环境参数配置」入口
+      - action: 打开「环境参数配置」，设置 spark.sql.shuffle.partitions=10，确认配置并保存规则
+        expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.sql.shuffle.partitions=10
+      - action: 运行规则任务并打开对应Spark UI的「Stages」页签
+        expected: 任务实例状态为「成功」，聚合产生的Shuffle Stage包含10个Task
     tags:
+      - 数据质量
       - 规则任务管理
+
   - case_id: C0006
-    title: 验证Spark环境参数配置生效(spark.yarn.executor.memoryOverhead)
+    title: 验证【数据质量】-【规则任务管理】配置spark.yarn.executor.memoryOverhead=1024环境参数并运行任务，Executor容器分配内存为2048MB
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入100行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15532_c0006;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15532_c0006 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15532_c0006 SELECT id, CONCAT('code_', CAST(id AS STRING)) FROM range(1, 101);
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
-        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
-        expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
-      - action: 点击【环境参数配置】, 设置spark.yarn.executor.memoryOverhead=1024(1g) 后保存
-        expected: 规则任务保存成功
-      - action: 运行规则任务
-        expected: 任务运行成功, 校验结果正常
-      - action: 进入Apache Hadoop YARN界面, 检查【 Allocated Memory MB】字段下, 对应任务的值
-        expected: Allocated Memory MB 总量会增加。例如 executor.memory 为 1g 时，该字段应显示约 2048MB
-    precondition: 无
+      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0006，完成监控规则配置并进入「调度属性」步骤
+        expected: 「调度属性」展示「环境参数配置」入口
+      - action: 打开「环境参数配置」，设置 spark.executor.memory=1g 和 spark.yarn.executor.memoryOverhead=1024，确认配置并保存规则
+        expected: 规则详情展示spark.executor.memory=1g和spark.yarn.executor.memoryOverhead=1024
+      - action: 运行规则任务并查看对应YARN应用的Executor容器资源
+        expected: 任务实例状态为「成功」，单个Executor容器的Allocated Memory MB为2048
     tags:
+      - 数据质量
       - 规则任务管理
+
   - case_id: C0007
-    title: 验证Spark环境参数配置生效(spark.driver.memory)
+    title: 验证【数据质量】-【规则任务管理】配置spark.driver.memory=2g环境参数并运行任务，YARN Environment页签展示参数值
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入100行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15532_c0007;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15532_c0007 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15532_c0007 SELECT id, CONCAT('code_', CAST(id AS STRING)) FROM range(1, 101);
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
-        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
-        expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
-      - action: 点击【环境参数配置】, 设置spark.driver.memory=2g 后保存
-        expected: 规则任务保存成功
-      - action: 运行规则任务
-        expected: 任务运行成功, 校验结果正常
-      - action: 进入Apache Hadoop YARN界面, 检查【 Allocated Memory MB】字段下, 对应任务的值
-        expected: 找到 AppMaster 对应的那个 Container，其 Allocated Memory MB 应为 2048MB + Overhead
-    precondition: 无
+      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0007，完成监控规则配置并进入「调度属性」步骤
+        expected: 「调度属性」展示「环境参数配置」入口
+      - action: 打开「环境参数配置」，设置 spark.driver.memory=2g，确认配置并保存规则
+        expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.driver.memory=2g
+      - action: 运行规则任务并打开对应YARN应用的「Environment」页签
+        expected: 任务实例状态为「成功」，Spark Properties中的spark.driver.memory为2g
     tags:
+      - 数据质量
       - 规则任务管理
+
   - case_id: C0008
-    title: 验证Spark环境参数配置生效(spark.driver.cores)
+    title: 验证【数据质量】-【规则任务管理】配置spark.driver.cores=2环境参数并运行任务，YARN Environment页签展示参数值
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入100行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15532_c0008;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15532_c0008 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15532_c0008 SELECT id, CONCAT('code_', CAST(id AS STRING)) FROM range(1, 101);
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
-        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
-        expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
-      - action: 点击【环境参数配置】, 设置spark.driver.cores=2 后保存
-        expected: 规则任务保存成功
-      - action: 运行规则任务
-        expected: 任务运行成功, 校验结果正常
-      - action: 进入Apache Hadoop YARN界面, 检查【Allocated CPU Vcores】字段下, 对应任务的值
-        expected: Allocated CPU Vcores 的总量应在默认基础上增加 1（因为 Driver 占用了更多核）
-    precondition: 无
+      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0008，完成监控规则配置并进入「调度属性」步骤
+        expected: 「调度属性」展示「环境参数配置」入口
+      - action: 打开「环境参数配置」，设置 spark.driver.cores=2，确认配置并保存规则
+        expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.driver.cores=2
+      - action: 运行规则任务并打开对应YARN应用的「Environment」页签
+        expected: 任务实例状态为「成功」，Spark Properties中的spark.driver.cores为2
     tags:
+      - 数据质量
       - 规则任务管理
+
   - case_id: C0009
-    title: 验证Spark环境参数配置生效(spark.executor.memory)
+    title: 验证【数据质量】-【规则任务管理】配置spark.executor.memory=2g环境参数并运行任务，YARN Environment页签展示参数值
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入100行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15532_c0009;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15532_c0009 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15532_c0009 SELECT id, CONCAT('code_', CAST(id AS STRING)) FROM range(1, 101);
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
-        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
-        expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
-      - action: 点击【环境参数配置】, 设置spark.executor.memory=2g 后保存
-        expected: 规则任务保存成功
-      - action: 运行规则任务
-        expected: 任务运行成功, 校验结果正常
-      - action: 进入Apache Hadoop YARN界面, 检查【Allocated Memory MB】字段下, 对应任务的值
-        expected: 单个 Container 的 Allocated Memory MB 应显著增加（在默认配置下显示为 2048MB + Overhead
-    precondition: 无
+      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0009，完成监控规则配置并进入「调度属性」步骤
+        expected: 「调度属性」展示「环境参数配置」入口
+      - action: 打开「环境参数配置」，设置 spark.executor.memory=2g，确认配置并保存规则
+        expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.executor.memory=2g
+      - action: 运行规则任务并打开对应YARN应用的「Environment」页签
+        expected: 任务实例状态为「成功」，Spark Properties中的spark.executor.memory为2g
     tags:
+      - 数据质量
       - 规则任务管理
+
   - case_id: C0010
-    title: 验证Spark环境参数配置生效(spark.executor.cores)
+    title: 验证【数据质量】-【规则任务管理】配置executor与driver核数环境参数并运行任务，Allocated CPU Vcores为3
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入100行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15532_c0010;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15532_c0010 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15532_c0010 SELECT id, CONCAT('code_', CAST(id AS STRING)) FROM range(1, 101);
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
-        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
-        expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
-      - action: 点击【环境参数配置】, 设置spark.executor.cores=2 后保存
-        expected: 规则任务保存成功
-      - action: 运行规则任务
-        expected: 任务运行成功, 校验结果正常
-      - action: 进入Apache Hadoop YARN界面, 检查【Allocated CPU Vcores】字段下, 对应任务的值
-        expected: 【Allocated CPU Vcores】 字段应显示为：3 = instances * 2 + driver.cores
-    precondition: 无
+      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0010，完成监控规则配置并进入「调度属性」步骤
+        expected: 「调度属性」展示「环境参数配置」入口
+      - action: 打开「环境参数配置」，设置 spark.executor.instances=1、spark.executor.cores=2、spark.driver.cores=1，确认配置并保存规则
+        expected: 规则详情回显三个参数及其配置值
+      - action: 运行规则任务并查看对应YARN应用的资源指标
+        expected: 任务实例状态为「成功」，Allocated CPU Vcores为3
     tags:
+      - 数据质量
       - 规则任务管理
+
   - case_id: C0011
-    title: 验证Spark环境参数配置生效(spark.executor.instances)
+    title: 验证【数据质量】-【规则任务管理】配置spark.executor.instances=3环境参数并运行任务，Running Containers为4
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入100行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15532_c0011;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15532_c0011 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15532_c0011 SELECT id, CONCAT('code_', CAST(id AS STRING)) FROM range(1, 101);
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
-        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
-        expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
-      - action: 点击【环境参数配置】, 设置spark.executor.instances=3 后保存
-        expected: 规则任务保存成功
-      - action: 运行规则任务
-        expected: 任务运行成功, 校验结果正常
-      - action: 进入Apache Hadoop YARN界面, 检查【Running Containers】字段下, 对应任务的值
-        expected: 【Running Containers】 字段应显示为 4 = 3 + 1 (Driver/AM)
-    precondition: 无
+      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0011，完成监控规则配置并进入「调度属性」步骤
+        expected: 「调度属性」展示「环境参数配置」入口
+      - action: 打开「环境参数配置」，设置 spark.executor.instances=3，确认配置并保存规则
+        expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.executor.instances=3
+      - action: 运行规则任务并查看对应YARN应用的资源指标
+        expected: 任务运行期间Running Containers为4，包含3个Executor容器和1个ApplicationMaster容器
     tags:
+      - 数据质量
       - 规则任务管理
+
   - case_id: C0012
-    title: 验证规则任务详情-环境参数显示目标记录及字段值(SparkThrift2.x)
+    title: 验证【数据质量】-【规则任务管理】查看环境参数默认配置并保存规则，详情回显十个默认参数值
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入1行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15532_c0012;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15532_c0012 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15532_c0012 VALUES (1, 'code_1');
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
-        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
-        expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
-      - action: 点击【环境参数配置】
-        expected: 进入【环境参数配置】页面, 可进行编辑, 默认内容:## Driver程序使用的CPU核数,默认为1# spark.driver.cores=1## Driver程序使用内存大小,默认1g# spark.driver.memory=1g## 对Spark每个action结果集大小的限制，最少是1M，若设为0则不限制大小。## 若Job结果超过限制则会异常退出，若结果集限制过大也当造成OOM问题，默认1g# spark.driver.maxResultSize=1g## 启动的executor的数量，默认为1# spark.executor.instances=1## 每个executor使用的CPU核数，默认为1# spark.executor.cores=1## 每个executor内存大小,默认1g# spark.executor.memory=1g## spark 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN# logLevel = INFO## spark中所有网络交互的最大超时时间# spark.network.timeout=120s## executor的OffHeap内存，和spark.executor.memory配置使用# spark.yarn.executor.memoryOverhead=## 设置spark sql shuffle分区数，默认200# spark.sql.shuffle.partitions=200## 开启spark根据实际值行为，默认false# spark.speculation=false
-      - action: 保存后, 进入规则任务详情页中, 点击【环境参数】
-        expected: 展开环境参数抽屉, 参数显示目标记录及字段值
-      - action: 运行规则任务
-        expected: 运行成功, 校验结果正常
-    precondition: 无
+      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0012，完成监控规则配置并进入「调度属性」步骤
+        expected: 「调度属性」展示「环境参数配置」入口
+      - action: 打开「环境参数配置」
+        expected: 默认内容包含spark.driver.cores=1、spark.driver.memory=1g、spark.driver.maxResultSize=1g、spark.executor.instances=1、spark.executor.cores=1、spark.executor.memory=1g、logLevel=INFO、spark.network.timeout=120s、spark.sql.shuffle.partitions=200、spark.speculation=false
+      - action: 确认默认配置并保存规则，进入规则详情后点击「环境参数」
+        expected: 环境参数抽屉回显保存时的十个默认参数及其值
     tags:
+      - 数据质量
       - 规则任务管理
+
   - case_id: C0013
-    title: 验证调度属性编辑环境参数配置(SparkThrift2.x)
+    title: 验证【数据质量】-【规则任务管理】编辑环境参数并保存规则，详情回显修改后的参数值
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入1行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15532_c0013;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15532_c0013 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15532_c0013 VALUES (1, 'code_1');
+      5) 规则任务「TaskA」监控该表且环境参数包含spark.executor.cores=2
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
-        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
-        expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
-      - action: 点击【环境参数配置】, 设置spark.executor.cores=2 后保存
-        expected: 规则任务保存成功
-      - action: 进入规则任务详情, 点击「环境参数」
-        expected: 进入「配置环境参数」界面, 配置参数回显正确
-      - action: 设置spark.executor.cores=3 后保存
-        expected: 修改成功, 配置参数回显正确
-    precondition: 无
+      - action: 打开规则任务「TaskA」详情并点击「环境参数」
+        expected: 环境参数抽屉展示spark.executor.cores=2
+      - action: 将spark.executor.cores改为3并点击「确定」后保存规则
+        expected: Toast提示:「保存成功」
+      - action: 重新打开规则详情的「环境参数」
+        expected: 环境参数抽屉展示spark.executor.cores=3
     tags:
+      - 数据质量
       - 规则任务管理
+
   - case_id: C0014
-    title: 验证调度属性新增环境参数配置(SparkThrift2.x)
+    title: 验证【数据质量】-【规则任务管理】新增环境参数并保存规则，详情展示新增参数值
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入1行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15532_c0014;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15532_c0014 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15532_c0014 VALUES (1, 'code_1');
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
-        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
-        expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
-      - action: 检查调度配置信息
-        expected: "新增配置: 环境参数配置"
-      - action: 点击【环境参数配置】
-        expected: 进入【环境参数配置】页面, 可进行编辑
-      - action: 取消/确定
-        expected: 配置页面关闭 / 配置内容保存成功
-    precondition: 无
+      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0014，完成监控规则配置并进入「调度属性」步骤
+        expected: 「调度属性」展示「环境参数配置」入口
+      - action: 打开「环境参数配置」，将spark.executor.cores改为2并点击「取消」
+        expected: 配置窗口关闭，重新打开后spark.executor.cores仍为1
+      - action: 将spark.executor.cores改为2并点击「确定」后保存规则
+        expected: Toast提示:「保存成功」，规则详情的环境参数展示spark.executor.cores=2
     tags:
+      - 数据质量
       - 规则任务管理
