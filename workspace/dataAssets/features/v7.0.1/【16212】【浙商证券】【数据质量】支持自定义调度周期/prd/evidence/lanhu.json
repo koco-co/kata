@@ -1,0 +1,19 @@
+{
+  "contract": "kata.prd.evidence/v1",
+  "source": "lanhu",
+  "source_url": "https://lanhuapp.com/web/#/item/project/product?tid=24a1c6b2-a52e-454c-8d51-8aff866598b1&pid=7de90493-e80f-4592-a263-38fb2d2e98c0&corpId=null&versionId=3ad3e69d-1464-4ebc-a48f-ee51c593a070&docId=39a7f277-38a7-4cc3-a489-2cff4eb5c1d4&docType=axure&pageId=1cc95cc9bd9a42e59a8ae854f0ac6004&image_id=39a7f277-38a7-4cc3-a489-2cff4eb5c1d4&parentId=2381f282-5208-4b71-9e26-c1372620013a",
+  "doc_id": "39a7f277-38a7-4cc3-a489-2cff4eb5c1d4",
+  "version_id": "3ad3e69d-1464-4ebc-a48f-ee51c593a070",
+  "page_id": "1cc95cc9bd9a42e59a8ae854f0ac6004",
+  "requirement_id": "16212",
+  "title": "数据资产V7.0.1",
+  "pages": [
+    {
+      "id": "1cc95cc9bd9a42e59a8ae854f0ac6004",
+      "name": "16212【浙商证券】支持自定义调度周期",
+      "path": "资产V7.0.1/浙商证券/16212【浙商证券】支持自定义调度周期",
+      "text": "16212【浙商证券】支持自定义调度周期\n开发版本：浙商证券_6.0定制分支\n【需求内容】\n将6.3标品中“【数据质量调度】-支持设置自定义调度周期”功能迁移至浙商证券6.0定制分支\n涉及影响范围：\n【控制台-全局配置-自定义调度日期配置】、【数据质量-规则任务配置/任务实例】",
+      "assets": []
+    }
+  ]
+}
