@@ -13,6 +13,31 @@ title: 验证【周期任务】同步Restful源，任务状态为成功(源URL�
 title: 验证【数据开发】-【周期任务】同步Restful源，任务状态为成功(未配置path)
 ```
 
+### tags 平级模块（数据质量）
+
+数据质量下的 `规则库配置 / 规则集管理 / 规则任务管理 / 校验结果查询 / 数据质量报告` 是**同一级别平级菜单**（非层级关系）。tags 只保留**一个核心操作模块**（用例主要操作所在的模块，与首步导航无关）：
+
+```yaml
+# ✅ 正确：tags 只保留核心操作模块
+tags:
+  - 数据质量
+  - 规则任务管理
+# ✅ 正确：核心模块 + 功能细节
+tags:
+  - 数据质量
+  - 校验结果查询
+  - 监控报告
+# ❌ 错误：把流程中经过的平级模块串成层级链
+tags:
+  - 数据质量
+  - 规则集管理
+  - 规则任务管理
+  - 校验结果查询
+```
+
+lint 规则 `case_tags_flat_modules` 强制此项；tags 与首步导航 action 无强制挂钩关系。
+
+
 规则：
 
 - 前缀固定「验证」；对象用链式括号【模块】-【功能点】，每层一个【】、用 - 连接，最多两级；第三级起不写进标题（放 tags），标题内不用「」。
@@ -30,7 +55,7 @@ title: 验证【数据开发】-【周期任务】同步Restful源，任务状�
 
 写不出含判断关键字的表达式时，**去掉括号**，把信息合并到标题正文。
 
-✅ 正确的条件（含判断关键字，lint 通过）：
+✅ 正确
 
 ```yaml
 title: 验证【数据导出】发起L4导出任务，文件行数完整(行数 ≥ 10000)
@@ -43,7 +68,7 @@ title: 验证【数据表列表】按状态筛选数据表，列表返回已发�
 title: 验证【L4导出】导出10000行数据，180秒内完成且文件行数完整(行数 = 10000)
 ```
 
-❌ 错误的条件（无判断关键字，lint 一律拦截）：
+❌ 错误
 
 ```yaml
 title: 验证【数据导出】导出10000行数据，文件行数完整(10000行)          # 纯数字，无判断符
@@ -153,6 +178,39 @@ precondition: |-
      SELECT 1, CAST(100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
      UNION ALL
      SELECT 2, CAST(200 AS DECIMAL(10,2)), date_format(current_date(), 'yyyy-MM-dd');
+```
+
+### 分区数据一正一异（质量规则任务）
+
+监控任务选择分区时，前置分区表必须写入两个分区：**一个分区全部为可校验通过的正确数据，另一个分区全部为校验不通过的异常数据**；「选择分区」值指向与用例预期一致的分区，并写**分区字段=具体值**（如 `dt=2026-08-05`），不得写「选择当日分区」「选择已有分区」这类无值占位。
+
+```yaml
+precondition: |-
+  1) 授权数据源：${DataSourceA}
+  2) 数据源类型：SparkThrift2.x
+  3) 存在数据库：${SchemaA}
+  4) 创建分区表，前一日分区写入正确数据、当日分区写入异常数据：
+     DROP TABLE IF EXISTS ${SchemaA}.test_table_13925_c0260;
+     CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13925_c0260 (
+       id BIGINT, month STRING, sales BIGINT, dt STRING
+     ) PARTITIONED BY (dt);
+     INSERT INTO ${SchemaA}.test_table_13925_c0260 PARTITION (dt)
+     SELECT 1, '2026-01', 100, date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
+     UNION ALL SELECT 2, '2026-02', 200, date_format(date_sub(current_date(), 1), 'yyyy-MM-dd');
+     INSERT INTO ${SchemaA}.test_table_13925_c0260 PARTITION (dt)
+     SELECT 3, '2026-01', 100, date_format(current_date(), 'yyyy-MM-dd')
+     UNION ALL SELECT 4, '2026-02', 80, date_format(current_date(), 'yyyy-MM-dd');
+# 步骤中选择异常数据分区（预期校验不通过）
+- action: |-
+    新建监控任务：
+    * 规则名称：RuleA
+    * 选择数据源：${DataSourceA}
+    * 选择数据库：${SchemaA}
+    * 选择数据表：test_table_13925_c0260
+    选择分区：选择已有分区(dt=2026-08-05)
+    抽样检查设置：百分比抽样50%
+    点击「下一步」
+  expected: 进入「监控规则」步骤
 ```
 
 ### 生成脚本
@@ -314,6 +372,73 @@ precondition: |-
   expected: 规则项展示「sales / 数据变化趋势 / 排序字段 month / 单调递增 / 维度字段 city」
 - action: 点击该规则任务「立即执行」
   expected: 提示执行成功，任务进入调度
+
+# 规则任务创建路径（数据质量）— 规则集建规则包 → 规则任务引入规则包 → 点表名进详情 → 立即执行
+# 数据质量规则任务不是直接「新建监控规则-单表校验」手配规则；先在【规则集管理】新建规则集并配置规则包，
+# 再到【规则任务管理】新建规则任务、选择监控表并引入该规则包；创建完成后点击「表名」进入规则任务详情，
+# 才能在详情页点击「立即执行」。
+- action: |-
+    进入【数据质量 → 规则集管理】页面，点击「新建规则集」：
+    * 规则集名称：RuleSetA
+    * 选择数据源：${DataSourceA}
+    * 选择数据库：${SchemaA}
+    * 选择数据表：test_table_15862_c0001
+    规则集描述：空
+    点击「下一步」
+  expected: 进入规则配置步骤
+- action: |-
+    配置规则包「packA」的规则（合理性校验-数据变化趋势）：
+    * 字段：sales
+    * 统计函数：数据变化趋势
+    维度字段：city（非必填，支持多选，最多 10 个）
+    过滤条件：空
+    * 选择排序字段：month
+    * 校验方法：单调递增
+    * 强弱规则：弱规则
+    规则描述：空
+    点击「保存」
+  expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 packA 规则数量为 1
+- action: |-
+    进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」：
+    * 规则名称：RuleA
+    * 选择数据源：${DataSourceA}
+    * 选择数据库：${SchemaA}
+    * 选择数据表：test_table_15862_c0001
+    选择分区：选择已有分区(dt=2026-08-05)
+    抽样检查设置：百分比抽样50%
+    点击「下一步」
+  expected: 进入「监控规则」步骤
+- action: |-
+    引入规则包：
+    * 规则包：packA
+    * 规则类型：全部
+    点击「引入」并「确定」
+  expected: 规则包区域展示 packA，规则行数量为 1
+- action: |-
+    配置调度属性：
+    * 调度周期：手动触发
+    * 规则拼接包：1
+    * 资源组：default
+    * 超时时间：不限制
+    告警方式：无
+    无需生成报告：不勾选
+    报告名称：质量报告A
+    点击「保存」
+  expected: Toast提示:「保存成功」,规则任务列表新增 TaskA
+- action: 点击「表名」进入 TaskA 规则任务详情页
+  expected: 进入 TaskA 详情页，展示规则配置
+- action: 点击「立即执行」
+  expected: 提示执行成功，任务进入调度
+
+# 明细数据 = 脏数据 — 查看明细需给校验SQL定义违规明细行
+# 规则包/规则集的规则靠「校验SQL」定义：校验SQL 返回「不符合规则要求的明细数据」，即脏数据表内容。
+# 前置条件建表/插数时必须包含能产生违规明细的数据，步骤「查看明细」的 expected 同时写出
+# 校验SQL（SELECT 列 FROM 表 WHERE 违规条件）与其应返回的行数/记录，明细才能被验证为脏数据。
+- action: 点击「查看明细」
+  expected: |-
+    1) 明细列表展示违规明细数据（脏数据），保留校验字段、维度字段、排序字段
+    2) 校验SQL：SELECT sales, city, month FROM ${SchemaA}.test_table_15862_c0001 WHERE 不满足单调递增
+       查询结果：1 行（城市=北京，车型=A）
 
 # 规则集新建 — 一个 action 写全基础信息表单，配置项顺序与前端一致
 # 新建规则集的 action 必须按前端顺序逐行列出全部配置项：*规则集名称、*选择数据源、

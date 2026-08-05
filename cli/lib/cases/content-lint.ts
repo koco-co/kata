@@ -482,6 +482,14 @@ const SQL_TABLE_CONTEXT =
 const STABLE_TABLE_TOKEN_RE =
   /\btest_table_\d+_c\d{4}(?:_(?:source|target|comparison|dimension)(?:_\d{2,})?)?\b/gi;
 const FILE_TOKEN_RE = /\b[^\s，,。；;、]+\.(?:csv|xlsx|xls|sql)\b/gi;
+/** 数据质量模块下的同级别平级菜单（岚图 ltqc 侧边栏）；tags 中只允许保留一个平级模块。 */
+const FLAT_DQ_MODULES = [
+  "规则库配置",
+  "规则集管理",
+  "规则任务管理",
+  "校验结果查询",
+  "数据质量报告",
+];
 const BUSINESS_VALUE =
   "(?:\\s*(?:[：:][^\\S\\n]*)?(?:「([^」\\n]+)」|“([^”\\n]+)”|‘([^’\\n]+)’|\"([^\"\\n]+)\"|'([^'\\n]+)'|`([^`\\n]+)`)|(?:[：:][^\\S\\n]*|\\s+)([A-Za-z][A-Za-z0-9_-]*))";
 
@@ -849,25 +857,43 @@ function lintBusinessPlaceholders(item: CaseItem): CaseContentViolation[] {
   ];
 }
 
-function lintNavigationTags(item: CaseItem): CaseContentViolation[] {
+/**
+ * 平级模块校验：数据质量下的规则库配置/规则集管理/规则任务管理/校验结果查询/数据质量报告
+ * 是同一级别的平级菜单（岚图 ltqc 侧边栏），tags 中只允许保留一个平级模块（用例核心操作模块）；
+ * 不得把流程中经过的其他平级模块串成层级链（如 [数据质量, 规则集管理, 规则任务管理, 校验结果查询]）。
+ * 其他平级模块可放入功能细节 tag，但必须与核心模块同层级、不形成 数据质量→A→B→C 链。
+ */
+function lintTagsFlatModules(item: CaseItem): CaseContentViolation[] {
   if (!item.tags || item.tags.length === 0) return [];
-  const navigation = item.steps[0]?.action.trim().match(/^进入【(.+)】页面$/);
-  if (!navigation?.[1]) return [];
-  const expectedTags = navigation[1].split(/\s*→\s*/).filter(Boolean);
-  const tags = item.tags;
-  // 首步骤菜单路径必须作为 tags 的起始前缀（保留模块→菜单层级），其后可追加功能细节 tag。
-  if (
-    tags.length >= expectedTags.length &&
-    expectedTags.every((tag, index) => tag === tags[index])
-  ) {
-    return [];
+  const tagList = item.tags;
+  // 找到连续出现的平级模块（中间无其他 tag 间隔即视为串链）
+  const modulePositions = tagList
+    .map((tag, index) => ({ tag, index }))
+    .filter(({ tag }) => FLAT_DQ_MODULES.includes(tag));
+  // 平级模块间若被非模块 tag 隔开则不构成串链（如 [规则集管理, 规则任务管理, 校验结果查询] 是串链，
+  // [规则集管理, 明细查看, 校验结果查询] 是分散引用）。
+  let chainFound = false;
+  let chainStart = -1;
+  let chainEnd = -1;
+  for (let i = 0; i < modulePositions.length; i++) {
+    const cur = modulePositions[i];
+    const next = modulePositions[i + 1];
+    if (!next) continue;
+    // 相邻平级模块（中间无其他 tag）即构成同级别串链
+    if (next.index === cur.index + 1) {
+      chainFound = true;
+      chainStart = chainStart === -1 ? cur.index : chainStart;
+      chainEnd = next.index;
+    }
   }
+  if (!chainFound) return [];
+  const chainTags = tagList.slice(chainStart, chainEnd + 1);
   return [
     makeViolation(
-      "case_tags_navigation",
-      `tags 必须以首步骤菜单路径开头：[${expectedTags.join(", ")}]，可追加功能细节`,
-      item.tags.join("、"),
-      `将 tags 改为 [${expectedTags.join(", ")}] 开头，后可追加功能细节`,
+      "case_tags_flat_modules",
+      "数据质量下 规则库配置/规则集管理/规则任务管理/校验结果查询/数据质量报告 是同一级别平级模块，tags 只保留一个核心模块；不得把平级模块串成层级链",
+      `tags 平级模块串链：${chainTags.join("、")}`,
+      `将 tags 改为 [数据质量, ${chainTags[0]}]（核心操作模块），或保留核心模块 + 平级功能细节（如 [数据质量, ${chainTags[0]}, ${chainTags[1]} 明细]）`,
     ),
   ];
 }
@@ -1075,12 +1101,84 @@ function lintPartitionFixture(
   const hasCurrentDate =
     /date_format\s*\(\s*current_date\s*\(\s*\)/i.test(withoutPreviousDateExpr) ||
     /\bcurrent_date\b(?!\s*-\s*interval)/i.test(withoutPreviousDateExpr);
-  if (hasPartitionTable && hasPreviousDate && hasCurrentDate) return undefined;
+  // 明确固定日期分区：前置写入至少两个不同的 YYYY-MM-DD 日期字面量作为分区值，
+  // 与动态日期二选一即可（用例选择分区需写具体值 dt=YYYY-MM-DD）。
+  const fixedPartitionDates = new Set(
+    [...precondition.matchAll(/'(\d{4}-\d{2}-\d{2})'/g)].map((m) => m[1]),
+  );
+  const hasFixedTwoPartitions = fixedPartitionDates.size >= 2;
+  const dynamicOk = hasPartitionTable && hasPreviousDate && hasCurrentDate;
+  const fixedOk = hasPartitionTable && hasFixedTwoPartitions;
+  if (dynamicOk || fixedOk) return undefined;
   return makeViolation(
     "case_partition_fixture",
-    "分区、增量同步或分区扫描场景使用分区表，并通过动态日期写入前一日和当日至少两个分区",
-    `分区表=${hasPartitionTable ? "是" : "否"}，前一日动态分区=${hasPreviousDate ? "是" : "否"}，当日动态分区=${hasCurrentDate ? "是" : "否"}`,
+    "分区、增量同步或分区扫描场景使用分区表，并写入至少两个分区（动态日期前一日+当日，或两个明确固定日期 YYYY-MM-DD）",
+    `分区表=${hasPartitionTable ? "是" : "否"}，前一日动态分区=${hasPreviousDate ? "是" : "否"}，当日动态分区=${hasCurrentDate ? "是" : "否"}，固定日期分区数=${fixedPartitionDates.size}`,
   );
+}
+
+/**
+ * 分区数据语义校验：新建监控任务选择分区时，选择分区必须写出分区字段=具体值
+ * （如「选择已有分区(dt=2026-08-05)」），不得写「选择当日分区」「选择已有分区」这类无值占位；
+ * 分区表用例的两个分区数据必须一正一异——一个分区全部可校验通过，
+ * 另一个分区全部校验不通过，与用例预期结果（达标/通过 vs 校验不通过/失败）形成对照。
+ */
+function lintPartitionDataSplit(item: CaseItem): CaseContentViolation[] {
+  const violations: CaseContentViolation[] = [];
+  const precondition = item.precondition ?? "";
+  if (!/\bPARTITIONED\s+BY\b|\bPARTITION\s+BY\b/i.test(precondition)) return violations;
+
+  const allText = semanticText(item).join("\n");
+  const selectPartitionSteps = item.steps.filter((s) => /选择分区[：:]/.test(s.action));
+
+  // 选择分区必须写出分区字段=具体值，如 选择已有分区(dt=2026-08-05)
+  for (const step of selectPartitionSteps) {
+    const m = step.action.match(/选择分区[：:]\s*([^\n]+)/);
+    if (!m) continue;
+    const value = m[1].trim();
+    const hasExplicitValue =
+      /\([^()\n]*[A-Za-z_][A-Za-z0-9_]*\s*=\s*[^()\n]+\)/.test(value);
+    if (!hasExplicitValue) {
+      violations.push(
+        makeViolation(
+          "case_partition_data_split",
+          "选择分区必须写出分区字段=具体值（如「选择已有分区(dt=2026-08-05)」），不得写「选择当日分区」「选择已有分区」等无值占位；分区值要与前置 SQL 写入的分区及用例预期结果一致（预期达标选正确数据分区，预期不通过选异常数据分区）",
+          `选择分区：${value}`,
+          `改为：选择分区：选择已有分区(dt=2026-08-05)（dt 为前置 SQL 实际写入的分区值）`,
+        ),
+      );
+    }
+  }
+
+  // 监控任务选择分区场景：用例声明了预期结果时，两个分区数据必须一正一异
+  if (selectPartitionSteps.length === 0) return violations;
+  const hasExpectedPass =
+    /校验(?:状态|结果)(?:为|是)?[「"']?(?:达标|通过|「达标」|「通过」)/.test(allText) ||
+    /结果状态为「达标」/.test(allText);
+  const hasExpectedFail =
+    /校验(?:状态|结果)(?:为|是)?[「"']?(?:不通过|失败|异常)/.test(allText) ||
+    /「校验不通过」|「校验失败」|「校验异常」/.test(allText);
+  // 校验失败场景（如字段类型不支持导致运行失败）与数据正异无关，放行。
+  if (/校验失败|「校验失败」|运行失败|字段类型[^\n]*(?:不支持|不匹配)/.test(allText)) return violations;
+  if (!hasExpectedPass && !hasExpectedFail) return violations;
+
+  const hasPassPartition =
+    /正确(?:数据|分区)|通过(?:数据|分区)|(?:全部|均为)[^\n]*(?:单调递增|正确)/.test(allText) ||
+    (hasExpectedPass && /符合规则单调递增/.test(allText));
+  const hasFailPartition =
+    /异常(?:数据|分区)|不通过(?:数据|分区)|违规(?:数据|分区)|(?:全部|均为)[^\n]*(?:不单调|违规)/.test(allText) ||
+    (hasExpectedFail && /不符合规则单调递增/.test(allText));
+  if (!hasPassPartition || !hasFailPartition) {
+    violations.push(
+      makeViolation(
+        "case_partition_data_split",
+        "分区表用例的两个分区数据必须一正一异：一个分区全部为可校验通过的正确数据，另一个分区全部为校验不通过的异常数据；步骤/前置中应声明分区数据对照（如「前一日分区为正确数据，当日分区为异常数据」）",
+        `正确分区数据=${hasPassPartition ? "已声明" : "未声明"}，异常分区数据=${hasFailPartition ? "已声明" : "未声明"}`,
+        "前置建表插入两个分区：一个分区全部写入单调递增正确数据（预期达标），另一个分区写入违反单调递增的异常数据（预期校验不通过）；并在前置或步骤中声明两个分区的数据对照",
+      ),
+    );
+  }
+  return violations;
 }
 
 function lintSqlExpected(item: CaseItem): CaseContentViolation[] {
@@ -1119,6 +1217,22 @@ const MONITOR_OBJECT_FORM_FIELDS: { label: string; required: boolean }[] = [
   { label: "数据表", required: true },
 ];
 
+/** 新建监控任务表单配置项，顺序与前端一致；规则名称/选择数据源/选择数据库/选择数据表必填带 *，选择分区/抽样检查设置可空但须占位。 */
+const MONITOR_TASK_FORM_FIELDS: { label: string; required: boolean }[] = [
+  { label: "规则名称", required: true },
+  { label: "选择数据源", required: true },
+  { label: "选择数据库", required: true },
+  { label: "选择数据表", required: true },
+  { label: "选择分区", required: false },
+  { label: "抽样检查设置", required: false },
+];
+
+/** 引入规则包表单配置项，顺序与前端一致；规则包/规则类型必填带 *，点击「引入」并「确定」。 */
+const RULE_PACKAGE_IMPORT_FIELDS: { label: string; required: boolean }[] = [
+  { label: "规则包", required: true },
+  { label: "规则类型", required: true },
+];
+
 function lintMonitorObjectForm(action: string): CaseContentViolation[] {
   const violations: CaseContentViolation[] = [];
   if (!/配置监控对象/.test(action)) return violations;
@@ -1147,6 +1261,84 @@ function lintMonitorObjectForm(action: string): CaseContentViolation[] {
             ? `缺少必填 * 标志：${noStar.join("、")}`
             : `配置项顺序错乱：${order.join(" → ")}`,
         `在「配置监控对象」action 中补齐并按顺序列出：\n* 数据源：${"${DataSourceA}"}\n* 数据库：${"${SchemaA}"}\n* 数据表：`,
+      ),
+    );
+  }
+  return violations;
+}
+
+/** 新建监控任务表单校验：规则名称/选择数据源/选择数据库/选择数据表必填带 *，选择分区/抽样检查设置可空占位。 */
+function lintMonitorTaskForm(action: string): CaseContentViolation[] {
+  const violations: CaseContentViolation[] = [];
+  // 只拦含表单内容的 action；「点击「新建规则任务」」这类纯按钮步骤不含表单，跳过。
+  if (!/新建规则任务|新建监控任务/.test(action)) return violations;
+  if (!/(?:规则名称|选择数据源)[：:]/.test(action)) return violations;
+
+  const missing: string[] = [];
+  const noStar: string[] = [];
+  const order: string[] = [];
+  for (const field of MONITOR_TASK_FORM_FIELDS) {
+    const present = new RegExp(`(?:\\*\\s*)?${field.label}[：:]`).test(action);
+    if (present) {
+      order.push(field.label);
+      if (field.required && !new RegExp(`\\*\\s*${field.label}[：:]`).test(action)) {
+        noStar.push(field.label);
+      }
+    } else if (field.required) {
+      missing.push(field.label);
+    }
+  }
+  const expectedOrder = MONITOR_TASK_FORM_FIELDS.map((field) => field.label);
+  const ordered = order.every((label, index) => label === expectedOrder[index]);
+  if (missing.length > 0 || noStar.length > 0 || !ordered) {
+    violations.push(
+      makeViolation(
+        "case_monitor_task_form",
+        "新建监控任务表单必须按前端顺序列出全部配置项：*规则名称、*选择数据源、*选择数据库、*选择数据表、选择分区、抽样检查设置（必填带 *，可空项也须占位列出）",
+        missing.length > 0
+          ? `缺少配置项：${missing.join("、")}`
+          : noStar.length > 0
+            ? `缺少必填 * 标志：${noStar.join("、")}`
+            : `配置项顺序错乱：${order.join(" → ")}`,
+        `在「新建监控任务」action 中补齐并按顺序列出：\n* 规则名称：\n* 选择数据源：${"${DataSourceA}"}\n* 选择数据库：${"${SchemaA}"}\n* 选择数据表：\n选择分区：\n抽样检查设置：`,
+      ),
+    );
+  }
+  return violations;
+}
+
+/** 引入规则包表单校验：规则包/规则类型必填带 *，点击「引入」并「确定」。 */
+function lintRulePackageImportForm(action: string): CaseContentViolation[] {
+  const violations: CaseContentViolation[] = [];
+  if (!/引入规则包|「引入」/.test(action)) return violations;
+
+  const missing: string[] = [];
+  const noStar: string[] = [];
+  const order: string[] = [];
+  for (const field of RULE_PACKAGE_IMPORT_FIELDS) {
+    const present = new RegExp(`(?:\\*\\s*)?${field.label}[：:]`).test(action);
+    if (present) {
+      order.push(field.label);
+      if (field.required && !new RegExp(`\\*\\s*${field.label}[：:]`).test(action)) {
+        noStar.push(field.label);
+      }
+    } else if (field.required) {
+      missing.push(field.label);
+    }
+  }
+  const expectedOrder = RULE_PACKAGE_IMPORT_FIELDS.map((field) => field.label);
+  const ordered = order.every((label, index) => label === expectedOrder[index]);
+  if (missing.length > 0 || noStar.length > 0 || !ordered) {
+    violations.push(
+      makeViolation(
+        "case_rule_package_import",
+        "引入规则包必须按前端顺序列出：*规则包（规则名称）、*规则类型，并点击「引入」并「确定」",
+        missing.length > 0
+          ? `缺少配置项：${missing.join("、")}`
+          : noStar.length > 0
+            ? `缺少必填 * 标志：${noStar.join("、")}`
+            : `配置项顺序错乱：${order.join(" → ")}`,
+        `在「引入规则包」action 中补齐并按顺序列出：\n* 规则包：\n* 规则类型：全部\n点击「引入」并「确定」`,
       ),
     );
   }
@@ -1190,7 +1382,9 @@ const SCHEDULE_FORM_FIELDS: { label: string; required: boolean }[] = [
   { label: "规则拼接包", required: true },
   { label: "资源组", required: true },
   { label: "超时时间", required: true },
+  { label: "告警方式", required: true },
   { label: "无需生成报告", required: true },
+  { label: "报告名称", required: true },
 ];
 
 function lintScheduleForm(action: string): CaseContentViolation[] {
@@ -1213,11 +1407,11 @@ function lintScheduleForm(action: string): CaseContentViolation[] {
     violations.push(
       makeViolation(
         "case_schedule_form",
-        "调度属性表单必须按前端顺序列出全部配置项：*调度周期（默认手动触发）、规则拼接包（最小值2）、资源组、超时时间、无需生成报告（可空项也须占位列出）",
+        "调度属性表单必须按前端顺序列出全部配置项：*调度周期、*规则拼接包、*资源组、*超时时间、告警方式、无需生成报告、报告名称（可空项也须占位列出）",
         missing.length > 0
           ? `缺少配置项：${missing.join("、")}`
           : `配置项顺序错乱：${order.join(" → ")}`,
-        `在「调度属性」action 中补齐全部配置项并按顺序列出：\n* 调度周期：手动触发\n规则拼接包：\n资源组：\n超时时间：不限制\n无需生成报告：勾选`,
+        `在「调度属性」action 中补齐全部配置项并按顺序列出：\n* 调度周期：手动触发\n* 规则拼接包：\n* 资源组：\n* 超时时间：不限制\n告警方式：\n无需生成报告：\n报告名称：`,
       ),
     );
   }
@@ -1344,6 +1538,8 @@ export function lintCaseContent(file: CasesFile, config: CasesLintConfig): CaseC
       violations.push(...lintRuleSetForm(step.action));
       violations.push(...lintScheduleForm(step.action));
       violations.push(...lintMonitorObjectForm(step.action));
+      violations.push(...lintMonitorTaskForm(step.action));
+      violations.push(...lintRulePackageImportForm(step.action));
     }
 
     const actual = item.steps[0]?.action.trim() || "<空步骤>";
@@ -1371,13 +1567,14 @@ export function lintCaseContent(file: CasesFile, config: CasesLintConfig): CaseC
     violations.push(...lintDatasourceSql(file, item, config));
     violations.push(...lintEnvironmentPlaceholders(item, config));
     violations.push(...lintBusinessPlaceholders(item));
-    violations.push(...lintNavigationTags(item));
+    violations.push(...lintTagsFlatModules(item));
     const generatorProblem = generatorViolation(precondition);
     if (generatorProblem) violations.push(generatorProblem);
     violations.push(...lintImportFixture(precondition, config.bulk_row_threshold));
     violations.push(...lintPreconditionConfigAction(precondition));
     const partitionProblem = lintPartitionFixture(item, config);
     if (partitionProblem) violations.push(partitionProblem);
+    violations.push(...lintPartitionDataSplit(item));
     violations.push(...lintSqlExpected(item));
     if (item.automation?.executor === "api") {
       violations.push(

@@ -147,24 +147,33 @@ describe("cases content lint", () => {
     expect(groupViolation?.message).toContain("研发组 → UserGroupA");
   });
 
-  it("requires tags to start with the first navigation path and allows functional detail", () => {
-    // 导航路径作为前缀，功能细节可追加
-    expect(
-      lintCaseContent(doc(testCase({ tags: ["数据质量", "规则库配置", "目录筛选"] })), config),
-    ).toEqual([]);
-    // 缺模块：导航路径不是前缀
-    const noModule = testCase({ tags: ["规则库配置", "目录筛选"] });
-    const violation = lintCaseContent(doc(noModule), config).find(
-      (entry) => entry.rule === "case_tags_navigation",
+  it("rejects chaining flat DQ modules in tags and allows a single core module", () => {
+    const chained = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则集管理】页面", expected: "进入成功" },
+        { action: "查看校验结果", expected: "展示结果" },
+      ],
+      tags: ["数据质量", "规则集管理", "规则任务管理", "校验结果查询"],
+    });
+    const rules = lintCaseContent(doc(chained), config).map((entry) => entry.rule);
+    expect(rules).toContain("case_tags_flat_modules");
+    const violation = lintCaseContent(doc(chained), config).find(
+      (entry) => entry.rule === "case_tags_flat_modules",
     );
-    expect(violation).toBeDefined();
-    expect(violation?.message).toContain("实际：规则库配置、目录筛选");
-    expect(violation?.message).toContain("修复：将 tags 改为 [数据质量, 规则库配置] 开头");
-    // 缺菜单层级
-    const noMenu = testCase({ tags: ["数据质量", "目录筛选"] });
-    expect(
-      lintCaseContent(doc(noMenu), config).some((entry) => entry.rule === "case_tags_navigation"),
-    ).toBe(true);
+    expect(violation?.message).toContain("平级模块串链");
+    expect(violation?.message).toContain("规则集管理、规则任务管理");
+
+    // 平级模块被功能细节隔开不算串链
+    const separated = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则集管理】页面", expected: "进入成功" },
+        { action: "查看校验结果", expected: "展示结果" },
+      ],
+      tags: ["数据质量", "规则集管理", "规则包明细", "校验结果查询"],
+    });
+    expect(lintCaseContent(doc(separated), config).map((entry) => entry.rule)).not.toContain(
+      "case_tags_flat_modules",
+    );
   });
 
   it("does not treat option values or statuses as business instances", () => {
@@ -781,6 +790,88 @@ cases:
     ).toContain("case_partition_fixture");
   });
 
+  it("requires explicit partition selection and one-pass-one-fail partition data split", () => {
+    const base = `1) 授权数据源：\${DataSourceA}
+2) 数据源类型：SparkThrift2.x
+3) 存在数据库：\${SchemaA}
+4) 创建分区表并写入前一日和当日两个分区：
+   DROP TABLE IF EXISTS \${SchemaA}.test_table_16178_c0001;
+   CREATE TABLE IF NOT EXISTS \${SchemaA}.test_table_16178_c0001 (id BIGINT, month STRING, sales BIGINT, dt STRING) PARTITIONED BY (dt);
+   INSERT INTO \${SchemaA}.test_table_16178_c0001 PARTITION (dt)
+   SELECT 1, '2026-01', 100, date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
+   UNION ALL SELECT 2, '2026-02', 200, date_format(date_sub(current_date(), 1), 'yyyy-MM-dd');
+   INSERT INTO \${SchemaA}.test_table_16178_c0001 PARTITION (dt)
+   SELECT 3, '2026-01', 100, date_format(current_date(), 'yyyy-MM-dd')
+   UNION ALL SELECT 4, '2026-02', 80, date_format(current_date(), 'yyyy-MM-dd');`;
+
+    const vague = testCase({
+      precondition: base,
+      steps: [
+        { action: "进入【数据质量 → 规则任务管理】页面", expected: "进入成功" },
+        { action: "点击「新建规则任务」", expected: "打开向导" },
+        {
+          action: `新建监控任务：
+* 规则名称：RuleA
+* 选择数据源：\${DataSourceA}
+* 选择数据库：\${SchemaA}
+* 选择数据表：test_table_16178_c0001
+选择分区：选择已有分区
+抽样检查设置：百分比抽样50%`,
+          expected: "进入「监控规则」步骤",
+        },
+      ],
+    });
+    const rules = lintCaseContent(doc(vague, "分区扫描需求"), config).map((item) => item.rule);
+    expect(rules).toContain("case_partition_data_split");
+    const violation = lintCaseContent(doc(vague, "分区扫描需求"), config).find(
+      (item) => item.rule === "case_partition_data_split",
+    );
+    expect(violation?.message).toContain("选择分区");
+
+    const explicit = testCase({
+      precondition: base,
+      steps: [
+        { action: "进入【数据质量 → 规则任务管理】页面", expected: "进入成功" },
+        { action: "点击「新建规则任务」", expected: "打开向导" },
+        {
+          action: `新建监控任务：
+* 规则名称：RuleA
+* 选择数据源：\${DataSourceA}
+* 选择数据库：\${SchemaA}
+* 选择数据表：test_table_16178_c0001
+选择分区：选择已有分区(dt=2026-08-05)
+抽样检查设置：百分比抽样50%`,
+          expected: "进入「监控规则」步骤",
+        },
+      ],
+    });
+    const passCase = testCase({
+      precondition: base,
+      title: "验证【数据变化趋势】前一日分区为正确数据，当日分区为异常数据，选择当日分区校验不通过",
+      steps: [
+        { action: "进入【数据质量 → 规则任务管理】页面", expected: "进入成功" },
+        { action: "点击「新建规则任务」", expected: "打开向导" },
+        {
+          action: `新建监控任务：
+* 规则名称：RuleA
+* 选择数据源：\${DataSourceA}
+* 选择数据库：\${SchemaA}
+* 选择数据表：test_table_16178_c0001
+选择分区：选择已有分区(dt=2026-08-05)
+抽样检查设置：百分比抽样50%`,
+          expected: "进入「监控规则」步骤",
+        },
+        { action: "查看 TaskA 最新实例校验结果", expected: "实例校验结果为「校验不通过」" },
+      ],
+    });
+    expect(lintCaseContent(doc(passCase, "分区扫描需求"), config).map((item) => item.rule)).not.toContain(
+      "case_partition_data_split",
+    );
+    expect(lintCaseContent(doc(explicit, "分区扫描需求"), config).map((item) => item.rule)).not.toContain(
+      "case_partition_data_split",
+    );
+  });
+
   it("requires complete inline import data and script generation above five rows", () => {
     const incomplete = testCase({ precondition: "1) 创建导入文件 rules.xlsx" });
     expect(lintCaseContent(doc(incomplete), config).map((item) => item.rule)).toContain(
@@ -915,10 +1006,12 @@ cases:
         {
           action: `配置调度属性：
 * 调度周期：手动触发
-规则拼接包：10
-资源组：默认资源组
-超时时间：不限制
-无需生成报告：勾选`,
+* 规则拼接包：10
+* 资源组：默认资源组
+* 超时时间：不限制
+告警方式：无
+无需生成报告：不勾选
+报告名称：质量报告A`,
           expected: "调度属性配置完成，规则任务保存成功，执行周期为手动触发",
         },
       ],
@@ -985,6 +1078,81 @@ cases:
     });
     expect(lintCaseContent(doc(complete), config).map((entry) => entry.rule)).not.toContain(
       "case_monitor_object_form",
+    );
+  });
+
+  it("requires the full monitor task form with rule name and optional partition/sampling fields", () => {
+    const missingTask = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则任务管理】页面", expected: "进入成功" },
+        {
+          action: `新建规则任务：
+* 选择数据源：\${DataSourceA}
+* 选择数据库：\${SchemaA}
+* 选择数据表：test_table_16178_c0001
+点击「下一步」`,
+          expected: "进入「监控规则」步骤",
+        },
+      ],
+    });
+    const rules = lintCaseContent(doc(missingTask), config).map((entry) => entry.rule);
+    expect(rules).toContain("case_monitor_task_form");
+    const violation = lintCaseContent(doc(missingTask), config).find(
+      (entry) => entry.rule === "case_monitor_task_form",
+    );
+    expect(violation?.message).toContain("缺少配置项");
+    expect(violation?.message).toContain("规则名称");
+
+    const completeTask = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则任务管理】页面", expected: "进入成功" },
+        {
+          action: `新建规则任务：
+* 规则名称：TaskA
+* 选择数据源：\${DataSourceA}
+* 选择数据库：\${SchemaA}
+* 选择数据表：test_table_16178_c0001
+选择分区：空
+抽样检查设置：空
+点击「下一步」`,
+          expected: "进入「监控规则」步骤",
+        },
+      ],
+    });
+    expect(lintCaseContent(doc(completeTask), config).map((entry) => entry.rule)).not.toContain(
+      "case_monitor_task_form",
+    );
+  });
+
+  it("requires rule package import form with package and type", () => {
+    const missingImport = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则任务管理】页面", expected: "进入成功" },
+        { action: "点击「引入规则包」，选择 RuleSetA 的规则包 packA", expected: "规则包展示成功" },
+      ],
+    });
+    const rules = lintCaseContent(doc(missingImport), config).map((entry) => entry.rule);
+    expect(rules).toContain("case_rule_package_import");
+    const violation = lintCaseContent(doc(missingImport), config).find(
+      (entry) => entry.rule === "case_rule_package_import",
+    );
+    expect(violation?.message).toContain("缺少配置项");
+    expect(violation?.message).toContain("规则包");
+
+    const completeImport = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则任务管理】页面", expected: "进入成功" },
+        {
+          action: `引入规则包：
+* 规则包：packA
+* 规则类型：全部
+点击「引入」并「确定」`,
+          expected: "规则包区域展示 packA，规则行数量为 1",
+        },
+      ],
+    });
+    expect(lintCaseContent(doc(completeImport), config).map((entry) => entry.rule)).not.toContain(
+      "case_rule_package_import",
     );
   });
 });
