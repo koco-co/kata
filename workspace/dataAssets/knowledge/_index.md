@@ -15,6 +15,7 @@
 ## Modules
 
 - [data-quality.md](modules/data-quality.md) — 数据质量模块业务规则（产品级） [tags: 数据质量, 规则类型, 统计函数, 校验语义, 规则集, 多表比对, 自定义SQL, 字段类型约束, 自定义调度日期, 调度周期] (updated: 2026-08-04, status: verified)
+- [zszq-data-quality-forms.md](modules/zszq-data-quality-forms.md) — 浙商证券（标品）数据质量表单事实（向导字段/必填项/自定义调度日期组件） [tags: 数据质量, 浙商证券, zszq, 标品, 单表校验, 多表比对, 规则集, 调度属性, 自定义调度日期, 表单字段, 起调周期] (updated: 2026-08-05, status: verified)
 - [落标检查与元数据同步菜单位置.md](modules/落标检查与元数据同步菜单位置.md) — 落标检查与元数据同步菜单位置 [tags: 数据标准, 落标检查, 元数据同步, 菜单路径] (updated: 2026-07-26, status: verified)
 - [调度引擎-environment_param_template-表结构与取值.md](modules/调度引擎-environment_param_template-表结构与取值.md) — 调度引擎 environment_param_template 表结构与取值 [tags: 调度引擎, 环境参数, Spark, SQL, 落标检查] (updated: 2026-07-26, status: verified)
 
@@ -39,4 +40,4 @@
 - [sites/shuzhan60-test-zszq/dom-dataAssets.md](sites/shuzhan60-test-zszq/dom-dataAssets.md) — shuzhan60-test-zszq DataAssets 数据质量 DOM（浙商证券标品） [tags: dataAssets, 数据质量, 浙商证券, zszq, StarRocks, 规则配置, 多表比对, 规则集, 任务查询, 实时校验, 脏数据, 平台管理, 菜单基线] (updated: 2026-06-24, status: verified)
 - [sites/shuzhan63-test-ltqc.k8s.dtstack.cn/dom-dataAssets.md](sites/shuzhan63-test-ltqc.k8s.dtstack.cn/dom-dataAssets.md) — DataAssets · 数据资产 [tags: dataAssets, 岚图汽车, 数据质量, 数据资产, DOM, 页面校准] (updated: 2026-05-22, status: observed)
 
-<!-- last-indexed: 2026-08-04T07:34:49.330Z -->
+<!-- last-indexed: 2026-08-05T04:49:55.987Z -->
