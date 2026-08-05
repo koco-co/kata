@@ -20,13 +20,30 @@
    - 非 Lanhu 材料也先整理为可追踪证据。提取失败时停止，不从 URL 或截图缺失区域猜需求。
    - 完成条件：原始来源、选中页面、文本摘要和引用图片均可追踪。
 
-3. 注入知识并准备源码
-   ```bash
-   kata knowledge read --project <项目> --module <模块>
-   kata repos prepare --project <项目> --module <模块> --customer <客户或标品>
-   ```
-   - 分支取 `config/private/repositories.yaml` 的 `branch`；用 `kata repos grep/show` 查当前实现、枚举和约束。
-   - 完成条件：知识查询结果、每个命中仓库的 branch/commit 及源码证据已记录。
+3. 解析客户身份并注入知识与规范（写用例前必执行）
+   - 从需求标题/VCS 分支/feature 目录名识别客户编号：
+     - **高置信度** → 自行确认，不过问用户
+     - **低置信度** → 向用户确认，确认前先基于知识库/源码验证给推荐答案
+   - 列出可用客户：`kata knowledge list --project <项目>`
+   - 注入用例编写规范：
+     ```bash
+     kata knowledge read --project <项目> --type standard --customer <客户编号>
+     ```
+   - 注入项目业务知识：
+     ```bash
+     kata knowledge read --project <项目> --module <模块>
+     ```
+   - 无客户专属文件或文件落后时，**必须按此分支补齐再写用例**：
+     - `customers/<code>.md` 缺环境地址或源码分支 → 向用户索要测试环境地址与源码仓库/分支
+     - `kata repos prepare --project <项目> --module <模块> --customer <客户或标品>` 拉取源码；对测试环境做 DOM 探测
+     - 按 [../templates/standard-template.md](../templates/standard-template.md) 结构初始化或更新 `standards/<customer>/` 文档
+     - 向用户报备（写哪个文件、依据、影响），同意后 `kata knowledge write --type standard --customer <客户>` 落盘
+     - 重新加载后再写用例
+   - 准备源码（已在上面分支时执行过则跳过）：
+     ```bash
+     kata repos prepare --project <项目> --module <模块> --customer <客户或标品>
+     ```
+   - 完成条件：客户身份确定，规范与知识已加载，客户专属文件存在且时效满足需求
 
 4. 扫描遗漏与冲突
    - 第一轮：需求明确写出的目标、范围、角色、字段、状态、异常、兼容和验收。
