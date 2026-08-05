@@ -10,11 +10,10 @@ export function commitSubjectsInRange(
   head: string,
   root: string,
 ): Array<{ hash: string; subject: string }> {
-  const output = execFileSync(
-    "git",
-    ["-C", root, "log", "--format=%h%x00%s", `${base}..${head}`],
-    { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
-  );
+  const output = execFileSync("git", ["-C", root, "log", "--format=%h%x00%s", `${base}..${head}`], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"],
+  });
   return output
     .split("\n")
     .filter(Boolean)
@@ -37,44 +36,42 @@ export function registerRepo(program: Command): void {
     .option("--exit-code", "存在违规时退出码为 1")
     .option("--commit-message <subject>", "附加检查一条 Emoji Conventional Commit subject")
     .option("--commit-range <base>..<head>", "逐条校验该提交范围内的每个 subject")
-    .action(
-      (opts: { exitCode?: boolean; commitMessage?: string; commitRange?: string }) => {
-        const violations = checkRepositoryPolicy(repoRoot());
-        const commitMessageReason = opts.commitMessage
-          ? validateCommitMessage(opts.commitMessage)
-          : undefined;
-        if (commitMessageReason) {
-          violations.push({ path: "<commit-message>", reason: commitMessageReason });
-        }
-        if (opts.commitRange) {
-          const [base, head] = opts.commitRange.split("..");
-          if (!base || !head) {
-            violations.push({ path: "<commit-range>", reason: "范围必须是 <base>..<head>" });
-          } else {
-            const root = repoRoot();
-            const subjects = commitSubjectsInRange(base, head, root);
-            for (const { hash, subject } of subjects) {
-              const reason = validateCommitMessage(subject);
-              if (reason) {
-                violations.push({
-                  path: `<commit-range> ${hash}`,
-                  reason: `${reason}: "${subject}"`,
-                });
-              }
-            }
-            if (subjects.length === 0) {
-              violations.push({ path: "<commit-range>", reason: "范围内没有提交" });
+    .action((opts: { exitCode?: boolean; commitMessage?: string; commitRange?: string }) => {
+      const violations = checkRepositoryPolicy(repoRoot());
+      const commitMessageReason = opts.commitMessage
+        ? validateCommitMessage(opts.commitMessage)
+        : undefined;
+      if (commitMessageReason) {
+        violations.push({ path: "<commit-message>", reason: commitMessageReason });
+      }
+      if (opts.commitRange) {
+        const [base, head] = opts.commitRange.split("..");
+        if (!base || !head) {
+          violations.push({ path: "<commit-range>", reason: "范围必须是 <base>..<head>" });
+        } else {
+          const root = repoRoot();
+          const subjects = commitSubjectsInRange(base, head, root);
+          for (const { hash, subject } of subjects) {
+            const reason = validateCommitMessage(subject);
+            if (reason) {
+              violations.push({
+                path: `<commit-range> ${hash}`,
+                reason: `${reason}: "${subject}"`,
+              });
             }
           }
+          if (subjects.length === 0) {
+            violations.push({ path: "<commit-range>", reason: "范围内没有提交" });
+          }
         }
-        if (violations.length === 0) {
-          process.stdout.write("[repository policy] ok\n");
-          return;
-        }
+      }
+      if (violations.length === 0) {
+        process.stdout.write("[repository policy] ok\n");
+        return;
+      }
 
-        process.stderr.write(`${formatPolicyViolations(violations)}\n`);
-        process.stdout.write(`[repository policy] violations=${violations.length}\n`);
-        if (opts.exitCode) process.exitCode = 1;
-      },
-    );
+      process.stderr.write(`${formatPolicyViolations(violations)}\n`);
+      process.stdout.write(`[repository policy] violations=${violations.length}\n`);
+      if (opts.exitCode) process.exitCode = 1;
+    });
 }

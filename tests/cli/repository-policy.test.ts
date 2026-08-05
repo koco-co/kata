@@ -4,12 +4,12 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { parse } from "yaml";
+import { commitSubjectsInRange } from "../../cli/commands/repo.ts";
+import { validateCommitMessage } from "../../cli/lib/commit-message.ts";
 import {
   checkRepositoryPolicy,
   trackedAndUntrackedPaths,
 } from "../../cli/lib/repository-policy.ts";
-import { validateCommitMessage } from "../../cli/lib/commit-message.ts";
-import { commitSubjectsInRange } from "../../cli/commands/repo.ts";
 
 const POLICY = String.raw`root:
   allowed_files: [package.json]
@@ -100,12 +100,27 @@ source_code:
     - cli/generated.ts
 `,
       );
-      writeFileSync(join(root, "package.json"), "{\"name\":\"kata\"}\n");
-      writeFileSync(join(root, "cli", "big.ts"), `${Array.from({ length: 10 }, () => "// line").join("\n")}\n`);
+      writeFileSync(join(root, "package.json"), '{"name":"kata"}\n');
+      writeFileSync(
+        join(root, "cli", "big.ts"),
+        `${Array.from({ length: 10 }, () => "// line").join("\n")}\n`,
+      );
       writeFileSync(join(root, "cli", "small.ts"), "// ok\n");
-      writeFileSync(join(root, "cli", "generated.ts"), `${Array.from({ length: 10 }, () => "// line").join("\n")}\n`);
-      writeFileSync(join(root, "cli", "vendor", "lib.ts"), `${Array.from({ length: 10 }, () => "// line").join("\n")}\n`);
-      const paths = ["package.json", "cli/big.ts", "cli/small.ts", "cli/generated.ts", "cli/vendor/lib.ts"];
+      writeFileSync(
+        join(root, "cli", "generated.ts"),
+        `${Array.from({ length: 10 }, () => "// line").join("\n")}\n`,
+      );
+      writeFileSync(
+        join(root, "cli", "vendor", "lib.ts"),
+        `${Array.from({ length: 10 }, () => "// line").join("\n")}\n`,
+      );
+      const paths = [
+        "package.json",
+        "cli/big.ts",
+        "cli/small.ts",
+        "cli/generated.ts",
+        "cli/vendor/lib.ts",
+      ];
       const violations = checkRepositoryPolicy(root, paths);
       const lineViolations = violations.filter((item) => item.reason.includes("超过上限"));
       expect(lineViolations.map((item) => item.path)).toEqual(["cli/big.ts"]);
@@ -397,25 +412,25 @@ source_code:
       execFileSync("git", ["init", "-q", "-b", "main", root]);
       execFileSync("git", ["-C", root, "config", "user.name", "Kata Test"]);
       execFileSync("git", ["-C", root, "config", "user.email", "kata@example.invalid"]);
-      writeFileSync(join(root, "package.json"), "{\"name\":\"kata\"}\n");
+      writeFileSync(join(root, "package.json"), '{"name":"kata"}\n');
       execFileSync("git", ["-C", root, "add", "package.json"]);
       execFileSync("git", ["-C", root, "commit", "-q", "-m", "✨ feat: base"]);
-      const base = execFileSync("git", ["-C", root, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+      const base = execFileSync("git", ["-C", root, "rev-parse", "HEAD"], {
+        encoding: "utf8",
+      }).trim();
       execFileSync("git", ["-C", root, "commit", "-q", "--allow-empty", "-m", "🐛 fix: valid"]);
       execFileSync("git", ["-C", root, "commit", "-q", "--allow-empty", "-m", "bad subject"]);
 
       const subjects = commitSubjectsInRange(base, "HEAD", root);
-      expect(subjects.map((entry) => entry.subject)).toEqual([
-        "bad subject",
-        "🐛 fix: valid",
-      ]);
+      expect(subjects.map((entry) => entry.subject)).toEqual(["bad subject", "🐛 fix: valid"]);
       const reasons = subjects
         .map((entry) => validateCommitMessage(entry.subject))
         .filter((reason): reason is string => Boolean(reason));
       expect(reasons).toEqual(["提交消息必须使用 <emoji> <type>: <摘要> 格式"]);
 
       const filtered = commitSubjectsInRange(base, "HEAD~1", root);
-      expect(filtered.map((entry) => entry.subject)).toEqual(["🐛 fix: valid"]);      expect(filtered.every((entry) => validateCommitMessage(entry.subject) === undefined)).toBe(
+      expect(filtered.map((entry) => entry.subject)).toEqual(["🐛 fix: valid"]);
+      expect(filtered.every((entry) => validateCommitMessage(entry.subject) === undefined)).toBe(
         true,
       );
     } finally {

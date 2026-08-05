@@ -217,12 +217,15 @@ describe("kata cases build by requirement id", () => {
     const valid = writeFeature(root, "dataAssets", "16019", "【模块】需求甲");
     const broken = writeFeature(root, "batchWorks", "16019", "【模块】需求乙");
     // 第二个目标在预检阶段失败：cases 为空触发 validateCases 报错
-    writeFileSync(join(broken, "cases", "需求名.yaml"), `meta:
+    writeFileSync(
+      join(broken, "cases", "需求名.yaml"),
+      `meta:
   title: 需求名
   case_module_id: ""
   requirement_id: "16019"
 cases: []
-`);
+`,
+    );
     try {
       const r = runBuild(["16019"], root);
       expect(r.status).not.toBe(0);

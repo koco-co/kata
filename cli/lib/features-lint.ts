@@ -113,8 +113,13 @@ function lintCaseSources(
     let doc: CaseDoc;
     try {
       doc = (parse(text) as CaseDoc | null) ?? {};
-    } catch {
-      continue; // syntax errors are reported by cases build
+    } catch (error) {
+      violations.push({
+        feature,
+        rule: "case_yaml_parse",
+        message: `cases/${filename} 不是合法 YAML: ${(error as Error).message.split("\n")[0]}; 修复源文件后重新 lint`,
+      });
+      continue;
     }
     if (doc.meta?.feature_id !== undefined) {
       violations.push({
@@ -161,8 +166,13 @@ function lintCaseSources(
           message: violation.message,
         });
       }
-    } catch {
-      // Structural/YAML failures are owned by cases build; semantic lint starts after parsing.
+    } catch (error) {
+      // parseCasesYaml 已确认合法；此处的异常是 parse 与 lint 的内部缺陷，不应静默吞掉
+      violations.push({
+        feature,
+        rule: "case_parse_internal",
+        message: `cases/${filename} 解析内部错误: ${(error as Error).message}`,
+      });
     }
     const cases = Array.isArray(doc.cases) ? doc.cases : [];
     const historicalImport =

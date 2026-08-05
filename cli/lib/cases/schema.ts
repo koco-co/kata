@@ -11,8 +11,8 @@ import { type CasesFile, PRIORITIES } from "./types.ts";
 export function validateCases(file: CasesFile): string[] {
   const problems: string[] = [];
   if (!file.meta.title?.trim()) problems.push("meta.title 为空");
-  if (file.meta.requirement_id !== undefined && !/^\d+$/.test(file.meta.requirement_id)) {
-    problems.push("meta.requirement_id 必须是数字字符串");
+  if (file.meta.requirement_id !== undefined && !/^(?:\d+|none)$/.test(file.meta.requirement_id)) {
+    problems.push('meta.requirement_id 必须是数字字符串或 "none"');
   }
   if (file.meta.case_module_id === undefined) {
     problems.push('meta.case_module_id 缺失；未知时写空字符串 ""');
@@ -86,9 +86,13 @@ export function validateCases(file: CasesFile): string[] {
     if (!PRIORITIES.includes(c.priority)) problems.push(`用例 ${c.id} 优先级非法: ${c.priority}`);
     if (!c.steps || c.steps.length === 0) problems.push(`用例 ${c.id} 没有步骤`);
     if (c.requirement_id !== undefined) {
-      if (!/^\d+$/.test(c.requirement_id)) {
-        problems.push(`用例 ${c.id} requirement_id 必须是数字字符串`);
-      } else if (file.meta.layout === "requirements" && !requirementIds.has(c.requirement_id)) {
+      if (!/^(?:\d+|none)$/.test(c.requirement_id)) {
+        problems.push(`用例 ${c.id} requirement_id 必须是数字字符串或 "none"`);
+      } else if (
+        file.meta.layout === "requirements" &&
+        c.requirement_id !== "none" &&
+        !requirementIds.has(c.requirement_id)
+      ) {
         problems.push(`用例 ${c.id} 引用了未知需求 ${c.requirement_id}`);
       }
     } else if (file.meta.layout === "requirements") {

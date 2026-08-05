@@ -25,7 +25,19 @@ function mkValidActive(root: string, casesYaml: string): string {
 describe("features lint", () => {
   it("accepts a canonical active directory without feature metadata", () => {
     const root = ws();
-    mkValidActive(root, "cases:\n  - id: C0001\n    title: 验证字段映射\n    priority: P1\n");
+    mkValidActive(
+      root,
+      `meta: { title: 需求, case_module_id: "" }
+cases:
+  - case_id: C0001
+    title: 验证【资产盘点】-【列表】展示数据，核对结果
+    priority: P1
+    precondition: 无
+    steps:
+      - action: 进入【资产盘点】页面
+        expected: 进入成功
+`,
+    );
     expect(runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations).toHaveLength(
       0,
     );
@@ -263,6 +275,49 @@ cases:
       workspaceRoot: canonical,
     }).violations.map((item) => item.rule);
     expect(canonicalRules).not.toContain("case_precondition_semicolon");
+  });
+
+  it("flags a cases YAML that is not parseable as YAML", () => {
+    const root = ws();
+    mkValidActive(
+      root,
+      'cases:\n  -     tags: ["数据开发"]\ncase_id: C0001\n    title: 验证字段\n',
+    );
+    const violations = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations;
+    const parseViolations = violations.filter((v) => v.rule === "case_yaml_parse");
+    expect(parseViolations.length).toBe(1);
+    expect(parseViolations[0].message).toContain("不是合法 YAML");
+    expect(parseViolations[0].message).toContain("修复源文件");
+  });
+
+  it("reports internal parse-lint failures instead of swallowing them", () => {
+    const root = ws();
+    // 顶层是数组而不是对象: parse() 成功但 parseCasesYaml 会抛 CasesParseError
+    mkValidActive(root, "- broken\n");
+    const violations = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations;
+    const internal = violations.filter((v) => v.rule === "case_parse_internal");
+    expect(internal.length).toBe(1);
+    expect(internal[0].message).toContain("解析内部错误");
+  });
+
+  it("fails --exit-code when a cases YAML is not parseable", () => {
+    const workspaceRoot = ws();
+    mkValidActive(
+      workspaceRoot,
+      'cases:\n  -     tags: ["数据开发"]\ncase_id: C0001\n    title: 验证\n',
+    );
+    const result = spawnSync(
+      "bun",
+      ["cli/bin/kata.ts", "cases", "lint", "--project", "dataAssets", "--exit-code"],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8",
+        env: { ...process.env, KATA_WORKSPACE_ROOT: workspaceRoot },
+      },
+    );
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain("case_yaml_parse");
+    expect(result.stdout).toContain("不是合法 YAML");
   });
 
   it("lints every workspace project through --all-projects", () => {

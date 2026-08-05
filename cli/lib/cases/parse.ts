@@ -88,8 +88,8 @@ function asCaseItem(v: unknown, index: number): CaseItem {
       failType(`cases[${index}].requirement_id`, "数字字符串", o.requirement_id);
     }
     const requirementId = String(o.requirement_id).trim();
-    if (!/^\d+$/.test(requirementId)) {
-      fail(`字段 cases[${index}].requirement_id 必须是数字字符串`);
+    if (!/^(?:\d+|none)$/.test(requirementId)) {
+      fail(`字段 cases[${index}].requirement_id 必须是数字字符串或 "none"`);
     }
     item.requirement_id = requirementId;
   }
@@ -173,8 +173,8 @@ export function parseCasesYaml(yamlText: string): CasesFile {
       failType("meta.requirement_id", "数字字符串", m.requirement_id);
     }
     const requirementId = String(m.requirement_id).trim();
-    if (!/^\d+$/.test(requirementId)) {
-      fail("字段 meta.requirement_id 必须是数字字符串");
+    if (!/^(?:\d+|none)$/.test(requirementId)) {
+      fail(`字段 meta.requirement_id 必须是数字字符串或 "none"`);
     }
     meta.requirement_id = requirementId;
   }
