@@ -40,4 +40,13 @@
 - [sites/shuzhan60-test-zszq/dom-dataAssets.md](sites/shuzhan60-test-zszq/dom-dataAssets.md) — shuzhan60-test-zszq DataAssets 数据质量 DOM（浙商证券标品） [tags: dataAssets, 数据质量, 浙商证券, zszq, StarRocks, 规则配置, 多表比对, 规则集, 任务查询, 实时校验, 脏数据, 平台管理, 菜单基线] (updated: 2026-06-24, status: verified)
 - [sites/shuzhan63-test-ltqc.k8s.dtstack.cn/dom-dataAssets.md](sites/shuzhan63-test-ltqc.k8s.dtstack.cn/dom-dataAssets.md) — DataAssets · 数据资产 [tags: dataAssets, 岚图汽车, 数据质量, 数据资产, DOM, 页面校准] (updated: 2026-05-22, status: observed)
 
-<!-- last-indexed: 2026-08-05T04:49:55.987Z -->
+## Standards
+
+- [standards/ltqc/data-quality.md](standards/ltqc/data-quality.md) — 岚图汽车(ltqc) 数据质量 用例编写规范 [tags: customer:ltqc, 数据质量, 规则集管理, 规则任务管理, 调度属性, 表单配置] (updated: 2026-08-05, status: observed)
+
+## Customers
+
+- [ltqc.md](customers/ltqc.md) — 岚图汽车 [tags: customer:ltqc] (updated: 2026-08-05, status: verified)
+- [zszq.md](customers/zszq.md) — 浙商证券 [tags: customer:zszq] (updated: 2026-08-05, status: verified)
+
+<!-- last-indexed: 2026-08-05T08:57:00.910Z -->
