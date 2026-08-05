@@ -13,7 +13,11 @@ import {
   workspaceRelativePath,
 } from "../integrations/notify/index.ts";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
-import { lintCaseContent, loadCasesLintConfig } from "../lib/cases/content-lint.ts";
+import {
+  lintCaseContent,
+  loadCasesLintConfig,
+  resolveCaseCustomer,
+} from "../lib/cases/content-lint.ts";
 import { type CaseExportFormat, caseExports, parseCaseExportName } from "../lib/cases/formats.ts";
 import { parseCasesYaml, validateCases } from "../lib/cases/parse.ts";
 import { renderCsv } from "../lib/cases/render-csv.ts";
@@ -232,7 +236,11 @@ function preflightFeature(featureDir: string): {
   if (problems.length > 0) {
     throw new Error(`用例校验未通过:\n${problems.map((p) => `  - ${p}`).join("\n")}`);
   }
-  const contentProblems = lintCaseContent(file, loadCasesLintConfig(locateProjectRoot()));
+  const contentProblems = lintCaseContent(
+    file,
+    loadCasesLintConfig(locateProjectRoot()),
+    resolveCaseCustomer(featureDir),
+  );
   if (contentProblems.length > 0) {
     throw new Error(
       `用例内容 lint 未通过:\n${contentProblems

@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { isMap, isScalar, isSeq, parse, parseDocument } from "yaml";
 import { lintSql } from "../automation/sql.ts";
 import { casesLintPath } from "../config-paths.ts";
@@ -1136,8 +1137,7 @@ function lintPartitionDataSplit(item: CaseItem): CaseContentViolation[] {
     const m = step.action.match(/选择分区[：:]\s*([^\n]+)/);
     if (!m) continue;
     const value = m[1].trim();
-    const hasExplicitValue =
-      /\([^()\n]*[A-Za-z_][A-Za-z0-9_]*\s*=\s*[^()\n]+\)/.test(value);
+    const hasExplicitValue = /\([^()\n]*[A-Za-z_][A-Za-z0-9_]*\s*=\s*[^()\n]+\)/.test(value);
     if (!hasExplicitValue) {
       violations.push(
         makeViolation(
@@ -1159,14 +1159,17 @@ function lintPartitionDataSplit(item: CaseItem): CaseContentViolation[] {
     /校验(?:状态|结果)(?:为|是)?[「"']?(?:不通过|失败|异常)/.test(allText) ||
     /「校验不通过」|「校验失败」|「校验异常」/.test(allText);
   // 校验失败场景（如字段类型不支持导致运行失败）与数据正异无关，放行。
-  if (/校验失败|「校验失败」|运行失败|字段类型[^\n]*(?:不支持|不匹配)/.test(allText)) return violations;
+  if (/校验失败|「校验失败」|运行失败|字段类型[^\n]*(?:不支持|不匹配)/.test(allText))
+    return violations;
   if (!hasExpectedPass && !hasExpectedFail) return violations;
 
   const hasPassPartition =
     /正确(?:数据|分区)|通过(?:数据|分区)|(?:全部|均为)[^\n]*(?:单调递增|正确)/.test(allText) ||
     (hasExpectedPass && /符合规则单调递增/.test(allText));
   const hasFailPartition =
-    /异常(?:数据|分区)|不通过(?:数据|分区)|违规(?:数据|分区)|(?:全部|均为)[^\n]*(?:不单调|违规)/.test(allText) ||
+    /异常(?:数据|分区)|不通过(?:数据|分区)|违规(?:数据|分区)|(?:全部|均为)[^\n]*(?:不单调|违规)/.test(
+      allText,
+    ) ||
     (hasExpectedFail && /不符合规则单调递增/.test(allText));
   if (!hasPassPartition || !hasFailPartition) {
     violations.push(
@@ -1197,78 +1200,174 @@ function lintSqlExpected(item: CaseItem): CaseContentViolation[] {
   return violations;
 }
 
+/** 表单 lint 按客户区分字段集：ltqc（岚图定制）与 zszq（标品）的监控对象/调度/规则集表单字段与必填项不同。 */
+export type CaseCustomer = "ltqc" | "zszq";
+
+/** 从 feature 目录路径/名称识别客户：含「岚图汽车」用 ltqc 字段集；含「浙商证券/标品」用 zszq；无显式标识时读用例内容推断。 */
+export function resolveCaseCustomer(featureDirOrName: string): CaseCustomer {
+  if (/【岚图汽车】/.test(featureDirOrName)) return "ltqc";
+  if (/【(?:浙商证券|标品)】/.test(featureDirOrName)) return "zszq";
+  return inferCaseCustomer(featureDirOrName);
+}
+
 /**
- * 规则集新建表单必须按前端顺序列出全部配置项：
- * *规则集名称、*选择数据源、*选择数据库、*选择数据表、规则集描述（可空但必须占位列出）。
- * 只检查 action 文本中含「新建规则集」语义的块。
+ * 由用例内容推断客户：出现 ltqc 专属菜单（规则集管理/规则任务管理/校验结果查询/数据质量报告）
+ * 或 ltqc 专属字段（选择数据库）即视为 ltqc；否则按标品基线。读取失败时按 feature 目录名兜底。
  */
-const RULE_SET_FORM_FIELDS: { label: string; required: boolean }[] = [
-  { label: "规则集名称", required: true },
-  { label: "选择数据源", required: true },
-  { label: "选择数据库", required: true },
-  { label: "选择数据表", required: true },
-  { label: "规则集描述", required: true },
-];
+function inferCaseCustomer(featureDir: string): CaseCustomer {
+  let text = featureDir;
+  try {
+    const casesDir = join(featureDir, "cases");
+    if (existsSync(casesDir)) {
+      const yamlNames = readdirSync(casesDir).filter((name) => name.endsWith(".yaml"));
+      for (const name of yamlNames) text += `\n${readFileSync(join(casesDir, name), "utf8")}`;
+    }
+  } catch {
+    // 非 feature 目录或不可读：仅按目录名文本判断。
+  }
+  return /(规则集管理|规则任务管理|校验结果查询|数据质量报告|选择数据库)/.test(text)
+    ? "ltqc"
+    : "zszq";
+}
 
-/** 监控对象表单配置项，顺序与前端一致；数据源/数据库/数据表必填且带 * 标志。 */
-const MONITOR_OBJECT_FORM_FIELDS: { label: string; required: boolean }[] = [
-  { label: "数据源", required: true },
-  { label: "数据库", required: true },
-  { label: "数据表", required: true },
-];
+interface FormField {
+  label: string;
+  required: boolean;
+}
 
-/** 新建监控任务表单配置项，顺序与前端一致；规则名称/选择数据源/选择数据库/选择数据表必填带 *，选择分区/抽样检查设置可空但须占位。 */
-const MONITOR_TASK_FORM_FIELDS: { label: string; required: boolean }[] = [
-  { label: "规则名称", required: true },
-  { label: "选择数据源", required: true },
-  { label: "选择数据库", required: true },
-  { label: "选择数据表", required: true },
-  { label: "选择分区", required: false },
-  { label: "抽样检查设置", required: false },
-];
+type CustomerFormFields = {
+  monitorObject: FormField[];
+  schedule: FormField[];
+  monitorTask: FormField[];
+  ruleSet: FormField[];
+  rulePackageImport: FormField[];
+};
 
-/** 引入规则包表单配置项，顺序与前端一致；规则包/规则类型必填带 *，点击「引入」并「确定」。 */
-const RULE_PACKAGE_IMPORT_FIELDS: { label: string; required: boolean }[] = [
-  { label: "规则包", required: true },
-  { label: "规则类型", required: true },
-];
+/**
+ * 客户表单字段集，顺序与前端一致。source 见 knowledge/modules/zszq-data-quality-forms.md
+ * （zszq 源码 feat_6.0.x_zszq_16212）与 ltqc 实测；字段缺失只按 required 判缺失，可空项占位列出但顺序仍校验。
+ */
+const CUSTOMER_FORM_FIELDS: Record<CaseCustomer, CustomerFormFields> = {
+  ltqc: {
+    // 岚图监控对象：数据源/数据库/数据表必填带 *（无规则名称；规则名称在新建规则任务表单）。
+    monitorObject: [
+      { label: "数据源", required: true },
+      { label: "数据库", required: true },
+      { label: "数据表", required: true },
+    ],
+    schedule: [
+      { label: "调度周期", required: true },
+      { label: "规则拼接包", required: true },
+      { label: "资源组", required: true },
+      { label: "超时时间", required: true },
+      { label: "告警方式", required: true },
+      { label: "无需生成报告", required: true },
+      { label: "报告名称", required: true },
+    ],
+    monitorTask: [
+      { label: "规则名称", required: true },
+      { label: "选择数据源", required: true },
+      { label: "选择数据库", required: true },
+      { label: "选择数据表", required: true },
+      { label: "选择分区", required: false },
+      { label: "抽样检查设置", required: false },
+    ],
+    ruleSet: [
+      { label: "规则集名称", required: true },
+      { label: "选择数据源", required: true },
+      { label: "选择数据库", required: true },
+      { label: "选择数据表", required: true },
+      { label: "规则集描述", required: true },
+    ],
+    rulePackageImport: [
+      { label: "规则包", required: true },
+      { label: "规则类型", required: true },
+    ],
+  },
+  zszq: {
+    // 标品监控对象：规则名称/选择数据源/选择数据表必填带 *；选择Schema 仅 TRINO/KINGBASEES8/SAPHANA1X 显示，
+    // 选择分区仅分区表显示，二者可空占位。无「数据库」字段。
+    monitorObject: [
+      { label: "规则名称", required: true },
+      { label: "选择数据源", required: true },
+      { label: "选择Schema", required: false },
+      { label: "选择数据表", required: true },
+      { label: "选择分区", required: false },
+    ],
+    // 标品调度：调度配置（调度周期/生效日期/周期专属组件）+ 告警配置；仅调度周期必填，生效日期/告警方式可空占位。
+    schedule: [
+      { label: "调度周期", required: true },
+      { label: "生效日期", required: false },
+      { label: "告警方式", required: false },
+    ],
+    // 标品无「新建监控任务」流程（规则配置即建即存），字段集为空不触发。
+    monitorTask: [],
+    // 标品规则集：基础信息 = 规则集名称/校验数据源/规则集描述；数据表经规则内容步 Excel 导入，不在基础信息。
+    ruleSet: [
+      { label: "规则集名称", required: true },
+      { label: "校验数据源", required: true },
+      { label: "规则集描述", required: true },
+    ],
+    // 标品规则集用「导入规则」从规则库导入，无「引入规则包」流程，字段集为空不触发。
+    rulePackageImport: [],
+  },
+};
 
-function lintMonitorObjectForm(action: string): CaseContentViolation[] {
+function formFieldList(fields: FormField[]): string {
+  return fields.map((field) => `${field.required ? "*" : ""}${field.label}`).join("、");
+}
+
+function formFieldFixList(fields: FormField[]): string {
+  return fields.map((field) => `${field.required ? "* " : ""}${field.label}：`).join("\n");
+}
+
+/** 已出现字段必须是期望字段集的子序列：可空字段缺席时仍保持相对顺序，不按索引对齐误报。 */
+function isOrderedSubsequence(present: string[], expected: string[]): boolean {
+  let matched = 0;
+  for (const label of expected) {
+    if (label === present[matched]) matched++;
+  }
+  return matched === present.length;
+}
+
+function lintMonitorObjectForm(action: string, fields: FormField[]): CaseContentViolation[] {
   const violations: CaseContentViolation[] = [];
   if (!/配置监控对象/.test(action)) return violations;
 
   const missing: string[] = [];
   const noStar: string[] = [];
   const order: string[] = [];
-  for (const field of MONITOR_OBJECT_FORM_FIELDS) {
+  for (const field of fields) {
     if (!new RegExp(`(?:\\*\\s*)?${field.label}[：:]`).test(action)) {
-      missing.push(field.label);
+      if (field.required) missing.push(field.label);
     } else {
       order.push(field.label);
-      if (!new RegExp(`\\*\\s*${field.label}[：:]`).test(action)) noStar.push(field.label);
+      if (field.required && !new RegExp(`\\*\\s*${field.label}[：:]`).test(action)) {
+        noStar.push(field.label);
+      }
     }
   }
-  const expectedOrder = MONITOR_OBJECT_FORM_FIELDS.map((field) => field.label);
-  const ordered = order.every((label, index) => label === expectedOrder[index]);
+  const expectedOrder = fields.map((field) => field.label);
+  const ordered = isOrderedSubsequence(order, expectedOrder);
   if (missing.length > 0 || noStar.length > 0 || !ordered) {
     violations.push(
       makeViolation(
         "case_monitor_object_form",
-        "配置监控对象表单必填项必须带 * 标志并按前端顺序列出：*数据源、*数据库、*数据表",
+        `配置监控对象表单必填项必须带 * 标志并按前端顺序列出：${formFieldList(fields)}`,
         missing.length > 0
           ? `缺少配置项：${missing.join("、")}`
           : noStar.length > 0
             ? `缺少必填 * 标志：${noStar.join("、")}`
             : `配置项顺序错乱：${order.join(" → ")}`,
-        `在「配置监控对象」action 中补齐并按顺序列出：\n* 数据源：${"${DataSourceA}"}\n* 数据库：${"${SchemaA}"}\n* 数据表：`,
+        `在「配置监控对象」action 中补齐并按顺序列出：\n${formFieldFixList(fields)}`,
       ),
     );
   }
   return violations;
 }
 
-/** 新建监控任务表单校验：规则名称/选择数据源/选择数据库/选择数据表必填带 *，选择分区/抽样检查设置可空占位。 */
-function lintMonitorTaskForm(action: string): CaseContentViolation[] {
+/** 新建监控任务表单校验：必填项带 *，可空项占位列出；字段集为空（客户无此流程）时不触发。 */
+function lintMonitorTaskForm(action: string, fields: FormField[]): CaseContentViolation[] {
   const violations: CaseContentViolation[] = [];
   // 只拦含表单内容的 action；「点击「新建规则任务」」这类纯按钮步骤不含表单，跳过。
   if (!/新建规则任务|新建监控任务/.test(action)) return violations;
@@ -1277,7 +1376,7 @@ function lintMonitorTaskForm(action: string): CaseContentViolation[] {
   const missing: string[] = [];
   const noStar: string[] = [];
   const order: string[] = [];
-  for (const field of MONITOR_TASK_FORM_FIELDS) {
+  for (const field of fields) {
     const present = new RegExp(`(?:\\*\\s*)?${field.label}[：:]`).test(action);
     if (present) {
       order.push(field.label);
@@ -1288,19 +1387,19 @@ function lintMonitorTaskForm(action: string): CaseContentViolation[] {
       missing.push(field.label);
     }
   }
-  const expectedOrder = MONITOR_TASK_FORM_FIELDS.map((field) => field.label);
-  const ordered = order.every((label, index) => label === expectedOrder[index]);
+  const expectedOrder = fields.map((field) => field.label);
+  const ordered = isOrderedSubsequence(order, expectedOrder);
   if (missing.length > 0 || noStar.length > 0 || !ordered) {
     violations.push(
       makeViolation(
         "case_monitor_task_form",
-        "新建监控任务表单必须按前端顺序列出全部配置项：*规则名称、*选择数据源、*选择数据库、*选择数据表、选择分区、抽样检查设置（必填带 *，可空项也须占位列出）",
+        `新建监控任务表单必须按前端顺序列出全部配置项：${formFieldList(fields)}（必填带 *，可空项也须占位列出）`,
         missing.length > 0
           ? `缺少配置项：${missing.join("、")}`
           : noStar.length > 0
             ? `缺少必填 * 标志：${noStar.join("、")}`
             : `配置项顺序错乱：${order.join(" → ")}`,
-        `在「新建监控任务」action 中补齐并按顺序列出：\n* 规则名称：\n* 选择数据源：${"${DataSourceA}"}\n* 选择数据库：${"${SchemaA}"}\n* 选择数据表：\n选择分区：\n抽样检查设置：`,
+        `在「新建监控任务」action 中补齐并按顺序列出：\n${formFieldFixList(fields)}`,
       ),
     );
   }
@@ -1308,14 +1407,14 @@ function lintMonitorTaskForm(action: string): CaseContentViolation[] {
 }
 
 /** 引入规则包表单校验：规则包/规则类型必填带 *，点击「引入」并「确定」。 */
-function lintRulePackageImportForm(action: string): CaseContentViolation[] {
+function lintRulePackageImportForm(action: string, fields: FormField[]): CaseContentViolation[] {
   const violations: CaseContentViolation[] = [];
   if (!/引入规则包|「引入」/.test(action)) return violations;
 
   const missing: string[] = [];
   const noStar: string[] = [];
   const order: string[] = [];
-  for (const field of RULE_PACKAGE_IMPORT_FIELDS) {
+  for (const field of fields) {
     const present = new RegExp(`(?:\\*\\s*)?${field.label}[：:]`).test(action);
     if (present) {
       order.push(field.label);
@@ -1326,32 +1425,32 @@ function lintRulePackageImportForm(action: string): CaseContentViolation[] {
       missing.push(field.label);
     }
   }
-  const expectedOrder = RULE_PACKAGE_IMPORT_FIELDS.map((field) => field.label);
-  const ordered = order.every((label, index) => label === expectedOrder[index]);
+  const expectedOrder = fields.map((field) => field.label);
+  const ordered = isOrderedSubsequence(order, expectedOrder);
   if (missing.length > 0 || noStar.length > 0 || !ordered) {
     violations.push(
       makeViolation(
         "case_rule_package_import",
-        "引入规则包必须按前端顺序列出：*规则包（规则名称）、*规则类型，并点击「引入」并「确定」",
+        `引入规则包必须按前端顺序列出：${formFieldList(fields)}，并点击「引入」并「确定」`,
         missing.length > 0
           ? `缺少配置项：${missing.join("、")}`
           : noStar.length > 0
             ? `缺少必填 * 标志：${noStar.join("、")}`
             : `配置项顺序错乱：${order.join(" → ")}`,
-        `在「引入规则包」action 中补齐并按顺序列出：\n* 规则包：\n* 规则类型：全部\n点击「引入」并「确定」`,
+        `在「引入规则包」action 中补齐并按顺序列出：\n${formFieldFixList(fields)}\n点击「引入」并「确定」`,
       ),
     );
   }
   return violations;
 }
 
-function lintRuleSetForm(action: string): CaseContentViolation[] {
+function lintRuleSetForm(action: string, fields: FormField[]): CaseContentViolation[] {
   const violations: CaseContentViolation[] = [];
   if (!/新建规则集/.test(action)) return violations;
 
   const missing: string[] = [];
   const order: string[] = [];
-  for (const field of RULE_SET_FORM_FIELDS) {
+  for (const field of fields) {
     if (new RegExp(field.label).test(action)) {
       order.push(field.label);
     } else if (field.required) {
@@ -1359,59 +1458,48 @@ function lintRuleSetForm(action: string): CaseContentViolation[] {
     }
   }
   // 校验配置项按前端顺序出现：缺失时按缺失项报；顺序错乱时单独报。
-  const expectedOrder = RULE_SET_FORM_FIELDS.map((field) => field.label);
-  const ordered = order.every((label, index) => label === expectedOrder[index]);
+  const expectedOrder = fields.map((field) => field.label);
+  const ordered = isOrderedSubsequence(order, expectedOrder);
   if (missing.length > 0 || !ordered) {
     violations.push(
       makeViolation(
         "case_rule_set_form",
-        "新建规则集表单必须按前端顺序列出全部配置项：*规则集名称、*选择数据源、*选择数据库、*选择数据表、规则集描述（可空也须占位列出）",
+        `新建规则集表单必须按前端顺序列出全部配置项：${formFieldList(fields)}（可空也须占位列出）`,
         missing.length > 0
           ? `缺少配置项：${missing.join("、")}`
           : `配置项顺序错乱：${order.join(" → ")}`,
-        `在「新建规则集」action 中补齐全部配置项并按顺序列出：\n* 规则集名称：\n* 选择数据源：${"${DataSourceA}"}\n* 选择数据库：${"${SchemaA}"}\n* 选择数据表：\n规则集描述：`,
+        `在「新建规则集」action 中补齐全部配置项并按顺序列出：\n${formFieldFixList(fields)}`,
       ),
     );
   }
   return violations;
 }
 
-/** 调度属性表单配置项，顺序与前端一致；全部配置项都必须占位列出（可空项值为空/不限制/不勾选）。 */
-const SCHEDULE_FORM_FIELDS: { label: string; required: boolean }[] = [
-  { label: "调度周期", required: true },
-  { label: "规则拼接包", required: true },
-  { label: "资源组", required: true },
-  { label: "超时时间", required: true },
-  { label: "告警方式", required: true },
-  { label: "无需生成报告", required: true },
-  { label: "报告名称", required: true },
-];
-
-function lintScheduleForm(action: string): CaseContentViolation[] {
+function lintScheduleForm(action: string, fields: FormField[]): CaseContentViolation[] {
   const violations: CaseContentViolation[] = [];
   // 只拦数据质量规则任务的调度属性表单；落标检查的「调度配置」是检查周期，不在此列
   if (!/调度属性/.test(action)) return violations;
 
   const missing: string[] = [];
   const order: string[] = [];
-  for (const field of SCHEDULE_FORM_FIELDS) {
+  for (const field of fields) {
     if (new RegExp(field.label).test(action)) {
       order.push(field.label);
     } else if (field.required) {
       missing.push(field.label);
     }
   }
-  const expectedOrder = SCHEDULE_FORM_FIELDS.map((field) => field.label);
-  const ordered = order.every((label, index) => label === expectedOrder[index]);
+  const expectedOrder = fields.map((field) => field.label);
+  const ordered = isOrderedSubsequence(order, expectedOrder);
   if (missing.length > 0 || !ordered) {
     violations.push(
       makeViolation(
         "case_schedule_form",
-        "调度属性表单必须按前端顺序列出全部配置项：*调度周期、*规则拼接包、*资源组、*超时时间、告警方式、无需生成报告、报告名称（可空项也须占位列出）",
+        `调度属性表单必须按前端顺序列出全部配置项：${formFieldList(fields)}（可空项也须占位列出）`,
         missing.length > 0
           ? `缺少配置项：${missing.join("、")}`
           : `配置项顺序错乱：${order.join(" → ")}`,
-        `在「调度属性」action 中补齐全部配置项并按顺序列出：\n* 调度周期：手动触发\n* 规则拼接包：\n* 资源组：\n* 超时时间：不限制\n告警方式：\n无需生成报告：\n报告名称：`,
+        `在「调度属性」action 中补齐全部配置项并按顺序列出：\n${formFieldFixList(fields)}`,
       ),
     );
   }
@@ -1452,8 +1540,42 @@ function lintPreconditionConfigAction(precondition: string): CaseContentViolatio
   return violations;
 }
 
-/** Lint authored case semantics only; metadata, requirements and evidence fields are out of scope. */
-export function lintCaseContent(file: CasesFile, config: CasesLintConfig): CaseContentViolation[] {
+/**
+ * 前置条件不得写产品交付/部署/迁移状态类说明（环境依赖、已部署后端迁移、未合入、待迁移等）。
+ * 前置条件只声明测试环境可准备的数据与对象；交付状态属于范围/测试点层，不属于用例前置。
+ */
+function lintPreconditionDependencyNote(precondition: string): CaseContentViolation[] {
+  const violations: CaseContentViolation[] = [];
+  const dependencyNote =
+    /^(?:环境依赖|前置依赖|部署依赖|依赖说明|交付依赖)[：:]|(?:后端迁移|未合入|尚未合入|待迁移|待合入|待后端|尚未实现|未见实现|已部署[^。\n]{0,20}(?:后端|迁移))/;
+  for (const line of precondition.split("\n")) {
+    const trimmed = line.trimStart();
+    if (!/^\d+\)\s+/.test(trimmed)) continue;
+    const content = trimmed.replace(/^\d+\)\s+/, "");
+    if (dependencyNote.test(content)) {
+      violations.push(
+        makeViolation(
+          "case_precondition_dependency_note",
+          "前置条件只声明测试环境可准备的数据与对象（数据源授权、建表、插数、账号、已存在对象）；" +
+            "产品交付/部署/迁移状态类说明（环境依赖、已部署后端迁移、未合入、待迁移等）不得写入前置条件",
+          trimmed,
+          "删除该交付状态说明；如确为执行前提，改写为可准备的环境事实（如已存在对应日历/数据），或将范围说明放到测试点层",
+        ),
+      );
+    }
+  }
+  return violations;
+}
+
+/**
+ * Lint authored case semantics only; metadata, requirements and evidence fields are out of scope.
+ * customer 按 feature 客户取字段集（ltqc/zszq），默认 zszq 标品基线避免误伤非岚图用例。
+ */
+export function lintCaseContent(
+  file: CasesFile,
+  config: CasesLintConfig,
+  customer: CaseCustomer = "zszq",
+): CaseContentViolation[] {
   const violations: CaseContentViolation[] = [];
   const firstStep = new RegExp(config.first_step_pattern);
   const forbiddenByCategory = new Map<string, Set<string>>();
@@ -1534,12 +1656,13 @@ export function lintCaseContent(file: CasesFile, config: CasesLintConfig): CaseC
       );
     }
 
+    const formFields = CUSTOMER_FORM_FIELDS[customer];
     for (const step of item.steps) {
-      violations.push(...lintRuleSetForm(step.action));
-      violations.push(...lintScheduleForm(step.action));
-      violations.push(...lintMonitorObjectForm(step.action));
-      violations.push(...lintMonitorTaskForm(step.action));
-      violations.push(...lintRulePackageImportForm(step.action));
+      violations.push(...lintRuleSetForm(step.action, formFields.ruleSet));
+      violations.push(...lintScheduleForm(step.action, formFields.schedule));
+      violations.push(...lintMonitorObjectForm(step.action, formFields.monitorObject));
+      violations.push(...lintMonitorTaskForm(step.action, formFields.monitorTask));
+      violations.push(...lintRulePackageImportForm(step.action, formFields.rulePackageImport));
     }
 
     const actual = item.steps[0]?.action.trim() || "<空步骤>";
@@ -1572,6 +1695,7 @@ export function lintCaseContent(file: CasesFile, config: CasesLintConfig): CaseC
     if (generatorProblem) violations.push(generatorProblem);
     violations.push(...lintImportFixture(precondition, config.bulk_row_threshold));
     violations.push(...lintPreconditionConfigAction(precondition));
+    violations.push(...lintPreconditionDependencyNote(precondition));
     const partitionProblem = lintPartitionFixture(item, config);
     if (partitionProblem) violations.push(partitionProblem);
     violations.push(...lintPartitionDataSplit(item));

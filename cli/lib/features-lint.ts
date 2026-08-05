@@ -6,6 +6,7 @@ import {
   lintCaseContent,
   lintCaseYamlSource,
   loadCasesLintConfig,
+  resolveCaseCustomer,
 } from "./cases/content-lint.ts";
 import { parseCaseExportName } from "./cases/formats.ts";
 import { parseCasesYaml } from "./cases/parse.ts";
@@ -159,7 +160,7 @@ function lintCaseSources(
         });
       }
       const authored = parseCasesYaml(text);
-      for (const violation of lintCaseContent(authored, contentConfig)) {
+      for (const violation of lintCaseContent(authored, contentConfig, resolveCaseCustomer(dir))) {
         violations.push({
           feature,
           rule: violation.rule,

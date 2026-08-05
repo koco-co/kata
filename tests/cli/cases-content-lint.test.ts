@@ -1,9 +1,12 @@
 import { describe, expect, it } from "bun:test";
-import { resolve } from "node:path";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import {
   lintCaseContent,
   lintCaseYamlSource,
   loadCasesLintConfig,
+  resolveCaseCustomer,
 } from "../../cli/lib/cases/content-lint.ts";
 import { parseCasesYaml, validateCases } from "../../cli/lib/cases/parse.ts";
 import type { CaseItem, CasesFile } from "../../cli/lib/cases/types.ts";
@@ -864,12 +867,12 @@ cases:
         { action: "查看 TaskA 最新实例校验结果", expected: "实例校验结果为「校验不通过」" },
       ],
     });
-    expect(lintCaseContent(doc(passCase, "分区扫描需求"), config).map((item) => item.rule)).not.toContain(
-      "case_partition_data_split",
-    );
-    expect(lintCaseContent(doc(explicit, "分区扫描需求"), config).map((item) => item.rule)).not.toContain(
-      "case_partition_data_split",
-    );
+    expect(
+      lintCaseContent(doc(passCase, "分区扫描需求"), config).map((item) => item.rule),
+    ).not.toContain("case_partition_data_split");
+    expect(
+      lintCaseContent(doc(explicit, "分区扫描需求"), config).map((item) => item.rule),
+    ).not.toContain("case_partition_data_split");
   });
 
   it("requires complete inline import data and script generation above five rows", () => {
@@ -954,9 +957,9 @@ cases:
         },
       ],
     });
-    const rules = lintCaseContent(doc(missing), config).map((entry) => entry.rule);
+    const rules = lintCaseContent(doc(missing), config, "ltqc").map((entry) => entry.rule);
     expect(rules).toContain("case_rule_set_form");
-    const violation = lintCaseContent(doc(missing), config).find(
+    const violation = lintCaseContent(doc(missing), config, "ltqc").find(
       (entry) => entry.rule === "case_rule_set_form",
     );
     expect(violation?.message).toContain("缺少配置项");
@@ -977,7 +980,7 @@ cases:
         },
       ],
     });
-    expect(lintCaseContent(doc(complete), config).map((entry) => entry.rule)).not.toContain(
+    expect(lintCaseContent(doc(complete), config, "ltqc").map((entry) => entry.rule)).not.toContain(
       "case_rule_set_form",
     );
   });
@@ -992,9 +995,9 @@ cases:
         },
       ],
     });
-    const rules = lintCaseContent(doc(missing), config).map((entry) => entry.rule);
+    const rules = lintCaseContent(doc(missing), config, "ltqc").map((entry) => entry.rule);
     expect(rules).toContain("case_schedule_form");
-    const violation = lintCaseContent(doc(missing), config).find(
+    const violation = lintCaseContent(doc(missing), config, "ltqc").find(
       (entry) => entry.rule === "case_schedule_form",
     );
     expect(violation?.message).toContain("缺少配置项");
@@ -1016,7 +1019,7 @@ cases:
         },
       ],
     });
-    expect(lintCaseContent(doc(complete), config).map((entry) => entry.rule)).not.toContain(
+    expect(lintCaseContent(doc(complete), config, "ltqc").map((entry) => entry.rule)).not.toContain(
       "case_schedule_form",
     );
   });
@@ -1035,9 +1038,9 @@ cases:
         },
       ],
     });
-    const starRules = lintCaseContent(doc(noStar), config).map((entry) => entry.rule);
+    const starRules = lintCaseContent(doc(noStar), config, "ltqc").map((entry) => entry.rule);
     expect(starRules).toContain("case_monitor_object_form");
-    const starViolation = lintCaseContent(doc(noStar), config).find(
+    const starViolation = lintCaseContent(doc(noStar), config, "ltqc").find(
       (entry) => entry.rule === "case_monitor_object_form",
     );
     expect(starViolation?.message).toContain("缺少必填 * 标志");
@@ -1055,9 +1058,11 @@ cases:
         },
       ],
     });
-    const missingRules = lintCaseContent(doc(missingField), config).map((entry) => entry.rule);
+    const missingRules = lintCaseContent(doc(missingField), config, "ltqc").map(
+      (entry) => entry.rule,
+    );
     expect(missingRules).toContain("case_monitor_object_form");
-    const missingViolation = lintCaseContent(doc(missingField), config).find(
+    const missingViolation = lintCaseContent(doc(missingField), config, "ltqc").find(
       (entry) => entry.rule === "case_monitor_object_form",
     );
     expect(missingViolation?.message).toContain("缺少配置项");
@@ -1076,7 +1081,7 @@ cases:
         },
       ],
     });
-    expect(lintCaseContent(doc(complete), config).map((entry) => entry.rule)).not.toContain(
+    expect(lintCaseContent(doc(complete), config, "ltqc").map((entry) => entry.rule)).not.toContain(
       "case_monitor_object_form",
     );
   });
@@ -1095,9 +1100,9 @@ cases:
         },
       ],
     });
-    const rules = lintCaseContent(doc(missingTask), config).map((entry) => entry.rule);
+    const rules = lintCaseContent(doc(missingTask), config, "ltqc").map((entry) => entry.rule);
     expect(rules).toContain("case_monitor_task_form");
-    const violation = lintCaseContent(doc(missingTask), config).find(
+    const violation = lintCaseContent(doc(missingTask), config, "ltqc").find(
       (entry) => entry.rule === "case_monitor_task_form",
     );
     expect(violation?.message).toContain("缺少配置项");
@@ -1119,9 +1124,9 @@ cases:
         },
       ],
     });
-    expect(lintCaseContent(doc(completeTask), config).map((entry) => entry.rule)).not.toContain(
-      "case_monitor_task_form",
-    );
+    expect(
+      lintCaseContent(doc(completeTask), config, "ltqc").map((entry) => entry.rule),
+    ).not.toContain("case_monitor_task_form");
   });
 
   it("requires rule package import form with package and type", () => {
@@ -1131,9 +1136,9 @@ cases:
         { action: "点击「引入规则包」，选择 RuleSetA 的规则包 packA", expected: "规则包展示成功" },
       ],
     });
-    const rules = lintCaseContent(doc(missingImport), config).map((entry) => entry.rule);
+    const rules = lintCaseContent(doc(missingImport), config, "ltqc").map((entry) => entry.rule);
     expect(rules).toContain("case_rule_package_import");
-    const violation = lintCaseContent(doc(missingImport), config).find(
+    const violation = lintCaseContent(doc(missingImport), config, "ltqc").find(
       (entry) => entry.rule === "case_rule_package_import",
     );
     expect(violation?.message).toContain("缺少配置项");
@@ -1151,8 +1156,155 @@ cases:
         },
       ],
     });
-    expect(lintCaseContent(doc(completeImport), config).map((entry) => entry.rule)).not.toContain(
-      "case_rule_package_import",
+    expect(
+      lintCaseContent(doc(completeImport), config, "ltqc").map((entry) => entry.rule),
+    ).not.toContain("case_rule_package_import");
+  });
+
+  it("applies zszq monitor object fields by default and does not mis-apply ltqc 数据库", () => {
+    // zszq（标品）监控对象：规则名称/选择数据源/选择数据表必填带 *；无「数据库」字段。
+    const complete = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则配置】页面", expected: "进入成功" },
+        {
+          action: `配置监控对象：
+* 规则名称：RuleA
+* 选择数据源：\${DataSourceA}
+* 选择数据表：test_table_16212_c0001
+点击「下一步」`,
+          expected: "进入「监控规则」步骤",
+        },
+      ],
+    });
+    // 默认 zszq：不强制「数据库」字段。
+    expect(lintCaseContent(doc(complete), config).map((entry) => entry.rule)).not.toContain(
+      "case_monitor_object_form",
     );
+    // 缺「规则名称」时按 zszq 字段集报缺失。
+    const missingName = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则配置】页面", expected: "进入成功" },
+        {
+          action: `配置监控对象：
+* 选择数据源：\${DataSourceA}
+* 选择数据表：test_table_16212_c0001
+点击「下一步」`,
+          expected: "进入「监控规则」步骤",
+        },
+      ],
+    });
+    const rules = lintCaseContent(doc(missingName), config).map((entry) => entry.rule);
+    expect(rules).toContain("case_monitor_object_form");
+    const violation = lintCaseContent(doc(missingName), config).find(
+      (entry) => entry.rule === "case_monitor_object_form",
+    );
+    expect(violation?.message).toContain("缺少配置项");
+    expect(violation?.message).toContain("规则名称");
+  });
+
+  it("applies zszq schedule and rule set fields with 生效日期/校验数据源 baseline", () => {
+    // zszq 调度：仅调度周期必填；生效日期/告警方式可空。
+    const schedule = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则配置】页面", expected: "进入成功" },
+        {
+          action: `配置调度属性：
+* 调度周期：自定义调度日期
+自定义调度日期：调度日历A
+点击「保存」`,
+          expected: "Toast提示:「保存成功」",
+        },
+      ],
+    });
+    expect(lintCaseContent(doc(schedule), config).map((entry) => entry.rule)).not.toContain(
+      "case_schedule_form",
+    );
+    // 缺「调度周期」时报缺失。
+    const noPeriod = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则配置】页面", expected: "进入成功" },
+        { action: "配置调度属性：自定义调度日期：调度日历A", expected: "保存成功" },
+      ],
+    });
+    expect(
+      lintCaseContent(doc(noPeriod), config).find((entry) => entry.rule === "case_schedule_form")
+        ?.message,
+    ).toContain("调度周期");
+
+    // zszq 规则集基础信息：规则集名称/校验数据源/规则集描述（无 选择数据库/选择数据表）。
+    const ruleSet = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则配置】页面", expected: "进入成功" },
+        {
+          action: `新建规则集：
+* 规则集名称：RuleSetA
+* 校验数据源：\${DataSourceA}
+规则集描述：空
+点击「下一步」`,
+          expected: "进入规则内容步骤",
+        },
+      ],
+    });
+    expect(lintCaseContent(doc(ruleSet), config).map((entry) => entry.rule)).not.toContain(
+      "case_rule_set_form",
+    );
+  });
+
+  it("blocks delivery/deployment/migration status notes in preconditions", () => {
+    const dependencyNote = testCase({
+      precondition: `1) 授权数据源：\${DataSourceA}
+2) 数据源类型：StarRocks3.x
+3) 环境依赖：测试环境已部署 zszq 自定义调度日期后端迁移（PeriodType 新增周期 6）`,
+      steps: [{ action: "进入【数据质量 → 规则配置】页面", expected: "进入成功" }],
+    });
+    const rules = lintCaseContent(doc(dependencyNote), config).map((entry) => entry.rule);
+    expect(rules).toContain("case_precondition_dependency_note");
+    const violation = lintCaseContent(doc(dependencyNote), config).find(
+      (entry) => entry.rule === "case_precondition_dependency_note",
+    );
+    expect(violation?.message).toContain("环境依赖");
+
+    // 交付状态短语（后端迁移/未合入/待迁移）同样拦截。
+    const migrationStatus = testCase({
+      precondition: `1) 规则任务「TaskA」已配置完整性校验，后端迁移未合入前不可执行`,
+      steps: [{ action: "进入【数据质量 → 任务查询】页面", expected: "进入成功" }],
+    });
+    expect(lintCaseContent(doc(migrationStatus), config).map((entry) => entry.rule)).toContain(
+      "case_precondition_dependency_note",
+    );
+
+    // 正常数据准备前置不误伤。
+    const clean = testCase({
+      precondition: `1) 授权数据源：\${DataSourceA}
+2) 数据源类型：StarRocks3.x
+3) 存在数据库：\${SchemaA}
+4) 创建数据表并插入数据：
+   DROP TABLE IF EXISTS \${SchemaA}.test_table_16035_c0001;`,
+      steps: [{ action: "进入【数据质量 → 规则配置】页面", expected: "进入成功" }],
+    });
+    expect(lintCaseContent(doc(clean), config).map((entry) => entry.rule)).not.toContain(
+      "case_precondition_dependency_note",
+    );
+  });
+
+  it("resolves customer from feature dir name and infers ltqc from case content when no marker", () => {
+    expect(resolveCaseCustomer("/p/【15913】【岚图汽车】【数据质量】x")).toBe("ltqc");
+    expect(resolveCaseCustomer("/p/【16212】【浙商证券】【数据质量】x")).toBe("zszq");
+    expect(resolveCaseCustomer("/p/【16208】【标品】【数据标准】x")).toBe("zszq");
+    // 无显式客户标识：内容含 ltqc 专属菜单/字段视为 ltqc。
+    const dir = mkdtempSync(join(tmpdir(), "kata-customer-"));
+    try {
+      const cases = join(dir, "cases");
+      mkdirSync(cases);
+      writeFileSync(
+        join(cases, "cases.yaml"),
+        "cases:\n  - title: 验证【规则任务管理】新建规则任务\n",
+      );
+      expect(resolveCaseCustomer(dir)).toBe("ltqc");
+      writeFileSync(join(cases, "cases.yaml"), "cases:\n  - title: 验证【任务查询】查看实例\n");
+      expect(resolveCaseCustomer(dir)).toBe("zszq");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
