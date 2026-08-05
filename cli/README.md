@@ -180,7 +180,8 @@ Options:
   -h, --help       display help for command
 
 Commands:
-  read [options]   统一检索知识条目(term/module/pitfall/site)与项目概览
+  list [options]   列出知识库中登记的客户编号与中文名(default 始终作为保留项)
+  read [options]   统一检索知识条目(term/module/pitfall/site/standard)与项目概览
   write [options]  写入知识:独立条目用 --status/--title/--body;overview 用
                    --content/--status/--source
   index [options]  重建知识库索引 _index.md
@@ -781,18 +782,32 @@ Options:
   -h, --help  display help for command
 ```
 
+## kata knowledge list
+
+```text
+Usage: kata knowledge list [options]
+
+列出知识库中登记的客户编号与中文名(default 始终作为保留项)
+
+Options:
+  --project <name>  项目名
+  --json            JSON 输出 (default: false)
+  -h, --help        display help for command
+```
+
 ## kata knowledge read
 
 ```text
 Usage: kata knowledge read [options]
 
-统一检索知识条目(term/module/pitfall/site)与项目概览
+统一检索知识条目(term/module/pitfall/site/standard)与项目概览
 
 Options:
   --project <name>     项目名
+  --customer <code>    客户编号(default=公共条目即袋鼠云,具体 code=公共+客户专属)
   --module <name>      按模块过滤(匹配标题或 tags)
   --keyword <word>     按关键词检索(匹配标题/正文/tags)
-  --type <types>       限定类型,逗号分隔(term,module,pitfall,site)
+  --type <types>       限定类型,逗号分隔(term,module,pitfall,site,standard)
   --status <statuses>  限定状态,逗号分隔；默认仅 verified，使用 all 读取全部状态
   --json               JSON 输出 (default: false)
   -h, --help           display help for command
@@ -807,7 +822,8 @@ Usage: kata knowledge write [options]
 
 Options:
   --project <name>   项目名
-  --type <type>      term | overview | module | pitfall | site
+  --type <type>      term | overview | module | pitfall | site | standard |
+                     customer
   --status <status>  四态:verified | observed | conflicting | deprecated；overview
                      默认 observed
   --title <title>    条目标题
@@ -815,6 +831,7 @@ Options:
   --tags <tags>      标签,逗号分隔
   --source <source>  证据来源(写入知识必填)
   --content <json>   overview 内容 JSON(仅 overview 类型可用)
+  --customer <code>  客户编号(standard 类型必填;default=公共条目)
   --confirmed        确认 observed→verified 的状态升级 (default: false)
   --dry-run          只预览不写入(仅 overview 类型可用) (default: false)
   --force            越过 block 级冲突(仅 overview 类型可用) (default: false)

@@ -35,6 +35,8 @@ export function gatherIndexData(projectName: string): {
   const modules = scanAndFixKnowledgeDir(kdir, "modules", today, fixedFiles, paths);
   const pitfalls = scanAndFixKnowledgeDir(kdir, "pitfalls", today, fixedFiles, paths);
   const sites = scanAndFixSites(kdir, today, fixedFiles, paths);
+  const standards = scanAndFixNestedDir(kdir, "standards", today, fixedFiles, paths);
+  const customers = scanAndFixKnowledgeDir(kdir, "customers", today, fixedFiles, paths);
 
   return {
     data: {
@@ -42,6 +44,8 @@ export function gatherIndexData(projectName: string): {
       modules,
       pitfalls,
       sites,
+      standards,
+      customers,
       overview_updated: readKnowledgeUpdated(kdir, "overview.md"),
       terms_count: terms.length,
     },
@@ -70,7 +74,7 @@ function fixSingleKnowledgeFiles(
 
 function scanAndFixKnowledgeDir(
   kdir: string,
-  subdir: "terms" | "modules" | "pitfalls",
+  subdir: "terms" | "modules" | "pitfalls" | "customers",
   today: string,
   fixedFiles: string[],
   paths: ProjectPaths,
@@ -120,6 +124,54 @@ function scanAndFixSites(
     }
   }
   return sites;
+}
+
+/** 递归扫描嵌套目录(standards/<customer>/**).md),用法同 scanAndFixSites。 */
+function scanAndFixNestedDir(
+  kdir: string,
+  subdir: "standards",
+  today: string,
+  fixedFiles: string[],
+  paths: ProjectPaths,
+): IndexEntry[] {
+  const entries: IndexEntry[] = [];
+  const rootDir = join(kdir, subdir);
+  if (!existsSync(rootDir)) return entries;
+  assertWritable(paths, rootDir);
+  for (const name of readdirSync(rootDir)) {
+    const childPath = join(rootDir, name);
+    assertWritable(paths, childPath);
+    if (statSync(childPath).isDirectory()) {
+      // 客户子目录:standards/ltqc/xxx.md
+      for (const f of readdirSync(childPath)) {
+        if (!f.endsWith(".md")) continue;
+        const mdPath = join(childPath, f);
+        entries.push(
+          ...scanAndFixKnowledgeFile(
+            mdPath,
+            `${subdir}/${name}/${f.replace(/\.md$/, "")}`,
+            `${subdir}/${name}/${f}`,
+            today,
+            fixedFiles,
+            paths,
+          ),
+        );
+      }
+    } else if (name.endsWith(".md")) {
+      // 公共条目:standards/xxx.md
+      entries.push(
+        ...scanAndFixKnowledgeFile(
+          childPath,
+          `${subdir}/${name.replace(/\.md$/, "")}`,
+          `${subdir}/${name}`,
+          today,
+          fixedFiles,
+          paths,
+        ),
+      );
+    }
+  }
+  return entries;
 }
 
 function scanAndFixKnowledgeFile(

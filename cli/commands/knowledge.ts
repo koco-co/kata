@@ -3,25 +3,46 @@ import { outputJson } from "../lib/cli.ts";
 import { formatKnowledgeRead, runReadEntries, runWriteEntry } from "../lib/knowledge/entry.ts";
 import { writeIndexFile } from "../lib/knowledge/index-data.ts";
 import { formatKnowledgeLint, lintKnowledge } from "../lib/knowledge/lint.ts";
+import { listCustomers } from "../lib/knowledge/store.ts";
 import { runWrite } from "../lib/knowledge/write.ts";
-import { listWorkspaceProjects } from "../lib/workspace-locator.ts";
+import { listWorkspaceProjects, locateProject } from "../lib/workspace-locator.ts";
 
-/** Build the `knowledge` command: read / write / index over the project knowledge base. */
+/** Build the `knowledge` command: list / read / write / index over the project knowledge base. */
 export function registerKnowledge(program: Command): void {
   const knowledge = program.command("knowledge").description("项目知识的查询、维护与索引");
 
   knowledge
-    .command("read")
-    .description("统一检索知识条目(term/module/pitfall/site)与项目概览")
+    .command("list")
+    .description("列出知识库中登记的客户编号与中文名(default 始终作为保留项)")
     .requiredOption("--project <name>", "项目名")
+    .option("--json", "JSON 输出", false)
+    .action((opts: { project: string; json: boolean }) => {
+      const customers = listCustomers(locateProject(opts.project));
+      if (opts.json) outputJson(customers);
+      else {
+        for (const c of customers) {
+          process.stdout.write(`${c.code} → ${c.name}\n`);
+        }
+      }
+    });
+
+  knowledge
+    .command("read")
+    .description("统一检索知识条目(term/module/pitfall/site/standard)与项目概览")
+    .requiredOption("--project <name>", "项目名")
+    .requiredOption(
+      "--customer <code>",
+      "客户编号(default=公共条目即袋鼠云,具体 code=公共+客户专属)",
+    )
     .option("--module <name>", "按模块过滤(匹配标题或 tags)")
     .option("--keyword <word>", "按关键词检索(匹配标题/正文/tags)")
-    .option("--type <types>", "限定类型,逗号分隔(term,module,pitfall,site)")
+    .option("--type <types>", "限定类型,逗号分隔(term,module,pitfall,site,standard)")
     .option("--status <statuses>", "限定状态,逗号分隔；默认仅 verified，使用 all 读取全部状态")
     .option("--json", "JSON 输出", false)
     .action(
       (opts: {
         project: string;
+        customer: string;
         module?: string;
         keyword?: string;
         type?: string;
@@ -40,7 +61,10 @@ export function registerKnowledge(program: Command): void {
       "写入知识:独立条目用 --status/--title/--body;overview 用 --content/--status/--source",
     )
     .requiredOption("--project <name>", "项目名")
-    .requiredOption("--type <type>", "term | overview | module | pitfall | site")
+    .requiredOption(
+      "--type <type>",
+      "term | overview | module | pitfall | site | standard | customer",
+    )
     .option(
       "--status <status>",
       "四态:verified | observed | conflicting | deprecated；overview 默认 observed",
@@ -50,6 +74,7 @@ export function registerKnowledge(program: Command): void {
     .option("--tags <tags>", "标签,逗号分隔")
     .option("--source <source>", "证据来源(写入知识必填)")
     .option("--content <json>", "overview 内容 JSON(仅 overview 类型可用)")
+    .option("--customer <code>", "客户编号(standard 类型必填;default=公共条目)")
     .option("--confirmed", "确认 observed→verified 的状态升级", false)
     .option("--dry-run", "只预览不写入(仅 overview 类型可用)", false)
     .option("--force", "越过 block 级冲突(仅 overview 类型可用)", false)
@@ -63,6 +88,7 @@ export function registerKnowledge(program: Command): void {
         tags?: string;
         source?: string;
         content?: string;
+        customer?: string;
         confirmed: boolean;
         dryRun: boolean;
         force: boolean;
@@ -100,6 +126,11 @@ export function registerKnowledge(program: Command): void {
             `[knowledge] --content/--dry-run/--force 仅 overview 类型可用;${opts.type} 用 --status/--title/--body 写入`,
           );
         }
+        if (opts.type === "standard" && !opts.customer) {
+          throw new Error(
+            "[knowledge] standard 类型必须提供 --customer（使用 default 写入公共条目）",
+          );
+        }
         if (!opts.status || !opts.title || !opts.body) {
           throw new Error(`[knowledge] 类型 ${opts.type} 需要 --status/--title/--body`);
         }
@@ -115,6 +146,7 @@ export function registerKnowledge(program: Command): void {
             body: opts.body,
             tags: opts.tags,
             source: opts.source,
+            customer: opts.customer,
             confirmed: opts.confirmed,
           }),
         );

@@ -7,11 +7,17 @@ import { knowledgeDirFromPaths } from "../knowledge-paths.ts";
 import { locateProject } from "../workspace-locator.ts";
 import { isKnowledgeStatus, type KnowledgeType } from "./types.ts";
 
-const ENTRY_DIRECTORIES: ReadonlyArray<{ directory: string; type: KnowledgeType }> = [
+const ENTRY_DIRECTORIES: ReadonlyArray<{
+  directory: string;
+  type: KnowledgeType;
+  recursive?: boolean;
+}> = [
   { directory: "terms", type: "term" },
   { directory: "modules", type: "module" },
   { directory: "pitfalls", type: "pitfall" },
   { directory: "sites", type: "site" },
+  { directory: "standards", type: "standard" },
+  { directory: "customers", type: "customer" },
 ];
 
 const CANONICAL_FIELDS = new Set(["title", "type", "tags", "status", "source", "updated"]);

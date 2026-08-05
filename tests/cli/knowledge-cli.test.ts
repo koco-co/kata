@@ -382,7 +382,16 @@ describe("kata knowledge write", () => {
 describe("kata knowledge read", () => {
   it("rejects an unknown --type instead of silently ignoring it", () => {
     const root = proj();
-    const r = kata(root, ["knowledge", "read", "--project", "dataAssets", "--type", "bogus"]);
+    const r = kata(root, [
+      "knowledge",
+      "read",
+      "--project",
+      "dataAssets",
+      "--customer",
+      "default",
+      "--type",
+      "bogus",
+    ]);
     expect(r.status).not.toBe(0);
     expect(r.stderr).toContain("非法 --type");
   });
@@ -395,6 +404,8 @@ describe("kata knowledge read", () => {
       "read",
       "--project",
       "dataAssets",
+      "--customer",
+      "default",
       "--keyword",
       "数据质量",
       "--json",
@@ -430,6 +441,8 @@ describe("kata knowledge read", () => {
       "read",
       "--project",
       "dataAssets",
+      "--customer",
+      "default",
       "--module",
       "质量",
       "--json",
@@ -443,10 +456,174 @@ describe("kata knowledge read", () => {
   it("prints human-readable output without --json", () => {
     const root = proj();
     writeModule(root);
-    const r = kata(root, ["knowledge", "read", "--project", "dataAssets", "--keyword", "规则"]);
+    const r = kata(root, [
+      "knowledge",
+      "read",
+      "--project",
+      "dataAssets",
+      "--customer",
+      "default",
+      "--keyword",
+      "规则",
+    ]);
     expect(r.status).toBe(0);
     expect(r.stdout).toContain("数据质量规则");
     expect(r.stdout).toContain("verified");
+  });
+
+  it("writes and reads a standard entry into the customer subdirectory", () => {
+    const root = proj();
+    const w = kata(root, [
+      "knowledge",
+      "write",
+      "--project",
+      "dataAssets",
+      "--type",
+      "standard",
+      "--status",
+      "observed",
+      "--title",
+      "岚图数据质量规范",
+      "--body",
+      "# 岚图表单配置",
+      "--source",
+      "tests/knowledge-cli.test.ts",
+      "--customer",
+      "ltqc",
+    ]);
+    expect(w.status).toBe(0);
+    const file = join(
+      root,
+      "workspace",
+      "dataAssets",
+      "knowledge",
+      "standards",
+      "ltqc",
+      "岚图数据质量规范.md",
+    );
+    expect(existsSync(file)).toBe(true);
+
+    // ltqc 客户可读到该条目(standard 默认含 observed)
+    const r = kata(root, [
+      "knowledge",
+      "read",
+      "--project",
+      "dataAssets",
+      "--type",
+      "standard",
+      "--customer",
+      "ltqc",
+      "--json",
+    ]);
+    expect(r.status).toBe(0);
+    const out = JSON.parse(r.stdout);
+    expect(out.entries.map((e) => e.title)).toContain("岚图数据质量规范");
+
+    // default 客户不应读到 ltqc 专属条目
+    const rd = kata(root, [
+      "knowledge",
+      "read",
+      "--project",
+      "dataAssets",
+      "--type",
+      "standard",
+      "--customer",
+      "default",
+      "--json",
+    ]);
+    expect(rd.status).toBe(0);
+    const outD = JSON.parse(rd.stdout);
+    expect(outD.entries.map((e) => e.title)).not.toContain("岚图数据质量规范");
+  });
+
+  it("standard type requires --customer", () => {
+    const root = proj();
+    const r = kata(root, [
+      "knowledge",
+      "write",
+      "--project",
+      "dataAssets",
+      "--type",
+      "standard",
+      "--status",
+      "observed",
+      "--title",
+      "无客户规范",
+      "--body",
+      "body",
+      "--source",
+      "tests/knowledge-cli.test.ts",
+    ]);
+    expect(r.status).not.toBe(0);
+    expect(r.stderr).toContain("standard 类型必须提供 --customer");
+  });
+
+  it("standard rewrite overwrites instead of appending duplicates", () => {
+    const root = proj();
+    // 第一次写入
+    const w1 = kata(root, [
+      "knowledge",
+      "write",
+      "--project",
+      "dataAssets",
+      "--type",
+      "standard",
+      "--status",
+      "observed",
+      "--title",
+      "覆盖测试规范",
+      "--body",
+      "版本一的表单配置",
+      "--source",
+      "tests/knowledge-cli.test.ts",
+      "--customer",
+      "ltqc",
+    ]);
+    expect(w1.status).toBe(0);
+    // 第二次写入完全不同的正文(正常情况会触发拼接,standard 应整篇覆盖)
+    const w2 = kata(root, [
+      "knowledge",
+      "write",
+      "--project",
+      "dataAssets",
+      "--type",
+      "standard",
+      "--status",
+      "observed",
+      "--title",
+      "覆盖测试规范",
+      "--body",
+      "版本二的全新表单配置",
+      "--source",
+      "tests/knowledge-cli.test.ts",
+      "--customer",
+      "ltqc",
+    ]);
+    expect(w2.status).toBe(0);
+    const file = join(
+      root,
+      "workspace",
+      "dataAssets",
+      "knowledge",
+      "standards",
+      "ltqc",
+      "覆盖测试规范.md",
+    );
+    const content = readFileSync(file, "utf8");
+    // 必须是版本二,不能出现版本一+版本二拼接
+    expect(content).toContain("版本二的全新表单配置");
+    expect(content).not.toContain("版本一的表单配置");
+  });
+});
+
+describe("kata knowledge list", () => {
+  it("lists default reserved customer plus registered customers", () => {
+    const root = proj();
+    const r = kata(root, ["knowledge", "list", "--project", "dataAssets", "--json"]);
+    expect(r.status).toBe(0);
+    const out = JSON.parse(r.stdout);
+    expect(out[0].code).toBe("default");
+    expect(out[0].name).toContain("袋鼠云");
   });
 });
 

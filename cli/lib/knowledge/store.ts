@@ -19,6 +19,8 @@ const TYPE_DIRS: Record<string, string> = {
   module: "modules",
   pitfall: "pitfalls",
   site: "sites",
+  standard: "standards",
+  customer: "customers",
 };
 
 /** 标题 → 文件名 slug:保留中日韩字符,其余非字母数字折叠为 `-`。 */
@@ -35,6 +37,10 @@ function entryPath(dir: string, entry: KnowledgeEntry): string {
   const sub = TYPE_DIRS[entry.type];
   if (!sub) throw new Error(`类型 ${entry.type} 不是 file-per-entry`);
   const slug = slugifyTitle(entry.title);
+  // standard 类型:有 customer 写 standards/<customer>/<slug>.md,无 customer 写 standards/<slug>.md
+  if (entry.type === "standard" && entry.customer && entry.customer !== "default") {
+    return join(dir, sub, entry.customer, `${slug}.md`);
+  }
   return join(dir, sub, `${slug}.md`);
 }
 
@@ -107,6 +113,30 @@ export function readOverview(paths: ProjectPaths): string | null {
   return readFileSync(file, "utf8");
 }
 
+/** 客户清单条目。 */
+export interface CustomerInfo {
+  code: string;
+  name: string;
+  file: string | null;
+}
+
+/** 列出知识库中登记的客户编号与中文名。default 始终作为保留项返回。 */
+export function listCustomers(paths: ProjectPaths): CustomerInfo[] {
+  const dir = knowledgeDirFromPaths(paths);
+  const customersDir = join(dir, "customers");
+  const result: CustomerInfo[] = [{ code: "default", name: "袋鼠云（标品平台）", file: null }];
+  if (!existsSync(customersDir)) return result;
+  for (const file of listMarkdown(customersDir)) {
+    const parsed = parseEntryFile("customer", file);
+    if (!parsed) continue;
+    // 文件名去掉 .md 即为 customer code
+    const code = parsed.file.split("/").pop()?.replace(/\.md$/, "") ?? "";
+    const name = parsed.title || code;
+    result.push({ code, name, file: parsed.file });
+  }
+  return result;
+}
+
 interface RawHit {
   type: KnowledgeType;
   file: string;
@@ -160,7 +190,7 @@ function listMarkdown(dir: string): string[] {
   return out;
 }
 
-/** 检索条目:types 限定类型;module 匹配标题或 tags;keyword 匹配标题/正文/tags。 */
+/** 检索条目:types 限定类型;module 匹配标题或 tags;keyword 匹配标题/正文/tags;customer 过滤 standard 条目子目录。 */
 export function readEntries(
   paths: ProjectPaths,
   query: {
@@ -168,6 +198,8 @@ export function readEntries(
     keyword?: string;
     types?: string[];
     statuses?: KnowledgeEntry["status"][];
+    /** 客户编号过滤(仅 standard 类型):default=公共条目,具体 code=公共+该客户专属。 */
+    customer?: string;
   } = {},
 ): KnowledgeEntry[] {
   const dir = knowledgeDirFromPaths(paths);
@@ -175,11 +207,19 @@ export function readEntries(
   // 提升为局部常量,闭包内保持收窄后的类型
   const mod = query.module;
   const kw = query.keyword;
+  const customer = query.customer;
   const hits: KnowledgeEntry[] = [];
   for (const type of types) {
     const sub = TYPE_DIRS[type];
     if (!sub) continue;
     for (const file of listMarkdown(join(dir, sub))) {
+      // customer 过滤(仅 standard 类型):跳过不匹配子目录的条目
+      if (type === "standard" && customer) {
+        const rel = file.slice(join(dir, sub).length + 1);
+        const inCustomerDir = rel.includes("/") && !rel.startsWith(".");
+        if (customer === "default" && inCustomerDir) continue; // 只读公共
+        if (customer !== "default" && inCustomerDir && !rel.startsWith(`${customer}/`)) continue; // 跳过其他客户
+      }
       const hit = parseEntryFile(type, file);
       if (!hit) continue;
       if (query.statuses && !query.statuses.includes(hit.status)) continue;

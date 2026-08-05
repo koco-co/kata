@@ -10,7 +10,7 @@ import {
   type KnowledgeType,
 } from "./types.ts";
 
-const ENTRY_TYPES = ["term", "module", "pitfall", "site"];
+const ENTRY_TYPES = ["term", "module", "pitfall", "site", "standard", "customer"];
 
 /** title 进 frontmatter 单行,tags 进 `[a, b]` 列表;换行/逗号/方括号会破坏磁盘格式。 */
 function assertLegalEntryFields(title: string, tags: string[]): void {
@@ -29,6 +29,7 @@ export function runReadEntries(opts: {
   keyword?: string;
   type?: string;
   status?: string;
+  customer?: string;
 }): {
   project: string;
   count: number;
@@ -50,12 +51,22 @@ export function runReadEntries(opts: {
   if (statusFilter && requestedStatuses?.length !== statusFilter.split(",").length) {
     throw new Error("非法 --status；须为 verified | observed | conflicting | deprecated");
   }
-  const statuses = requestedStatuses ?? (["verified"] as KnowledgeStatus[]);
+  // standard 类型默认读 verified+observed：规范类知识即使单次观察(未复核)也必须加载进写用例上下文；
+  // 其他类型保持默认仅 verified。
+  let statuses: KnowledgeStatus[];
+  if (requestedStatuses) {
+    statuses = requestedStatuses;
+  } else if (types?.includes("standard")) {
+    statuses = ["verified", "observed"];
+  } else {
+    statuses = ["verified"];
+  }
   const entries = readEntries(paths, {
     module: opts.module,
     keyword: opts.keyword,
     types,
     statuses,
+    customer: opts.customer,
   });
   const overview = readOverview(paths);
   return { project: opts.project, count: entries.length, entries, overview };
@@ -107,12 +118,17 @@ export function runWriteEntry(opts: {
   tags?: string;
   source?: string;
   confirmed: boolean;
+  /** standard 类型的客户编号,决定写入 standards/<customer>/ 子目录。 */
+  customer?: string;
 }): KnowledgeEntryWriteResult {
   if (!ENTRY_TYPES.includes(opts.type)) throw new Error(`类型 ${opts.type} 不是独立条目`);
   if (!isKnowledgeStatus(opts.status)) {
     throw new Error(
       `非法 status: ${opts.status};须为 verified | observed | conflicting | deprecated`,
     );
+  }
+  if (opts.type === "standard" && !opts.customer) {
+    throw new Error("standard 类型必须提供 --customer（使用 default 写入公共条目）");
   }
   if (!opts.source?.trim()) throw new Error("知识条目必须提供 --source，禁止写入无来源事实");
 
@@ -132,6 +148,7 @@ export function runWriteEntry(opts: {
     source: opts.source.trim(),
     updated: todayIso(),
     body: opts.body,
+    customer: opts.customer,
   };
   const paths = locateProject(opts.project);
   const existing = readEntryByTitle(paths, incoming.type, incoming.title);
@@ -140,32 +157,38 @@ export function runWriteEntry(opts: {
   if (existing) {
     const oldBody = existing.body.trim();
     const newBody = incoming.body.trim();
-    const compatible =
-      oldBody === newBody || oldBody.includes(newBody) || newBody.includes(oldBody);
-    if (!compatible && !opts.confirmed) {
-      return { pending: true, conflict: true, title: incoming.title, existing, incoming };
-    }
-    if (existing.status === "observed" && incoming.status === "verified" && !opts.confirmed) {
-      return {
-        pending: true,
-        promotion: true,
-        title: incoming.title,
-        hint: "observed→verified 属人工确认升级,请加 --confirmed",
-        existing,
-        incoming,
+    // standard 是"当前唯一权威规范",永远整篇覆盖,不做拼接,避免重复内容累积。
+    if (incoming.type === "standard") {
+      entry = { ...incoming, tags: [...new Set([...existing.tags, ...incoming.tags])] };
+      action = oldBody === newBody ? "merge" : "replace-confirmed";
+    } else {
+      const compatible =
+        oldBody === newBody || oldBody.includes(newBody) || newBody.includes(oldBody);
+      if (!compatible && !opts.confirmed) {
+        return { pending: true, conflict: true, title: incoming.title, existing, incoming };
+      }
+      if (existing.status === "observed" && incoming.status === "verified" && !opts.confirmed) {
+        return {
+          pending: true,
+          promotion: true,
+          title: incoming.title,
+          hint: "observed→verified 属人工确认升级,请加 --confirmed",
+          existing,
+          incoming,
+        };
+      }
+      entry = {
+        ...incoming,
+        tags: [...new Set([...existing.tags, ...incoming.tags])],
+        body:
+          oldBody === newBody || oldBody.includes(newBody)
+            ? existing.body
+            : newBody.includes(oldBody)
+              ? incoming.body
+              : `${existing.body.trim()}\n\n${incoming.body.trim()}`,
       };
+      action = compatible ? "merge" : "replace-confirmed";
     }
-    entry = {
-      ...incoming,
-      tags: [...new Set([...existing.tags, ...incoming.tags])],
-      body:
-        oldBody === newBody || oldBody.includes(newBody)
-          ? existing.body
-          : newBody.includes(oldBody)
-            ? incoming.body
-            : `${existing.body.trim()}\n\n${incoming.body.trim()}`,
-    };
-    action = compatible ? "merge" : "replace-confirmed";
   }
   const file = writeEntry(paths, entry);
   return {

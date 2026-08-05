@@ -14,7 +14,14 @@ export const KNOWLEDGE_STATUSES: readonly KnowledgeStatus[] = [
   "deprecated",
 ];
 
-export type KnowledgeType = "term" | "overview" | "module" | "pitfall" | "site";
+export type KnowledgeType =
+  | "term"
+  | "overview"
+  | "module"
+  | "pitfall"
+  | "site"
+  | "standard"
+  | "customer";
 
 /** One knowledge entry; overview remains a project-level context document. */
 export interface KnowledgeEntry {
@@ -27,6 +34,8 @@ export interface KnowledgeEntry {
   /** YYYY-MM-DD */
   updated: string;
   body: string;
+  /** 客户编号(standard 类型用,决定文件写入 standards/<customer>/ 子目录). */
+  customer?: string;
 }
 
 export function isKnowledgeStatus(s: string): s is KnowledgeStatus {

@@ -2,7 +2,7 @@
 
 export interface Frontmatter {
   title: string;
-  type: "overview" | "term" | "module" | "pitfall" | "site";
+  type: "overview" | "term" | "module" | "pitfall" | "site" | "standard" | "customer";
   tags: string[];
   /** 四态:verified | observed | conflicting | deprecated */
   status: "verified" | "observed" | "conflicting" | "deprecated";
@@ -80,7 +80,7 @@ export function parseFrontmatter(raw: string): ParsedFile {
     typeof fm.title !== "string" ||
     typeof fm.type !== "string" ||
     !Array.isArray(fm.tags) ||
-    !["overview", "term", "module", "pitfall", "site"].includes(fm.type) ||
+    !["overview", "term", "module", "pitfall", "site", "standard", "customer"].includes(fm.type) ||
     !["verified", "observed", "conflicting", "deprecated"].includes(fm.status ?? "") ||
     typeof fm.source !== "string" ||
     typeof fm.updated !== "string"
@@ -184,11 +184,16 @@ export interface IndexData {
   modules: IndexEntry[];
   pitfalls: IndexEntry[];
   sites: IndexEntry[];
+  standards: IndexEntry[];
+  customers: IndexEntry[];
   overview_updated: string;
   terms_count: number;
 }
 
-function renderIndexEntry(subdir: "terms" | "modules" | "pitfalls", entry: IndexEntry): string {
+function renderIndexEntry(
+  subdir: "terms" | "modules" | "pitfalls" | "customers",
+  entry: IndexEntry,
+): string {
   const tagsStr = entry.tags.length ? ` [tags: ${entry.tags.join(", ")}]` : "";
   return `- [${entry.name}.md](${subdir}/${entry.name}.md) — ${entry.title}${tagsStr} (updated: ${entry.updated}, status: ${entry.status})`;
 }
@@ -198,6 +203,8 @@ export function renderIndex(project: string, data: IndexData): string {
   const sortedPitfalls = [...data.pitfalls].sort((a, b) => a.name.localeCompare(b.name));
   const sortedTerms = [...data.terms].sort((a, b) => a.name.localeCompare(b.name));
   const sortedSites = [...data.sites].sort((a, b) => a.name.localeCompare(b.name));
+  const sortedStandards = [...data.standards].sort((a, b) => a.name.localeCompare(b.name));
+  const sortedCustomers = [...data.customers].sort((a, b) => a.name.localeCompare(b.name));
 
   const modulesBody = sortedModules.length
     ? sortedModules.map((e) => renderIndexEntry("modules", e)).join("\n")
@@ -215,6 +222,17 @@ export function renderIndex(project: string, data: IndexData): string {
     : "_（暂无）_";
   const termsBody = sortedTerms.length
     ? sortedTerms.map((e) => renderIndexEntry("terms", e)).join("\n")
+    : "_（暂无）_";
+  const standardsBody = sortedStandards.length
+    ? sortedStandards
+        .map((e) => {
+          const tagsStr = e.tags.length ? ` [tags: ${e.tags.join(", ")}]` : "";
+          return `- [${e.name}.md](${e.name}.md) — ${e.title}${tagsStr} (updated: ${e.updated}, status: ${e.status})`;
+        })
+        .join("\n")
+    : "_（暂无）_";
+  const customersBody = sortedCustomers.length
+    ? sortedCustomers.map((e) => renderIndexEntry("customers", e)).join("\n")
     : "_（暂无）_";
 
   const nowIso = new Date().toISOString();
@@ -244,6 +262,14 @@ ${pitfallsBody}
 ## Sites
 
 ${sitesBody}
+
+## Standards
+
+${standardsBody}
+
+## Customers
+
+${customersBody}
 
 <!-- last-indexed: ${nowIso} -->
 `;
@@ -294,6 +320,8 @@ export function autoFixFrontmatter(
   if (filePath.includes("/modules/")) type = "module";
   else if (filePath.includes("/pitfalls/")) type = "pitfall";
   else if (filePath.includes("/sites/")) type = "site";
+  else if (filePath.includes("/standards/")) type = "standard";
+  else if (filePath.includes("/customers/")) type = "customer";
   else if (filePath.endsWith("overview.md")) type = "overview";
   else if (filePath.endsWith("terms.md")) type = "term";
   else type = "module";
