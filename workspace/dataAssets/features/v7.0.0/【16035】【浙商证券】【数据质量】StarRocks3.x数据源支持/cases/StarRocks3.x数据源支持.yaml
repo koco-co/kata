@@ -71,7 +71,7 @@ cases:
       - 统计
 
   - case_id: C0004
-    title: 验证【规则库配置】-【新建规则集】创建StarRocks3.x规则集并添加规则，列表新增规则集且规则数为2
+    title: 验证【规则配置】-【新建规则集】创建StarRocks3.x规则集并添加规则，列表新增规则集且规则数为2
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -88,23 +88,23 @@ cases:
            (2, CAST(200.00 AS DECIMAL(10,2))),
            (3, CAST(300.00 AS DECIMAL(10,2)));
     steps:
-      - action: 进入【数据质量 → 规则库配置】页面
+      - action: 进入【数据质量 → 规则配置】页面
         expected: 进入成功
       - action: |-
           点击【新建规则集】，配置基础信息：
           * 规则集名称：RuleSetA
-          * 选择数据源：${DataSourceA}
-          * 选择数据库：${SchemaA}
-          * 选择数据表：test_table_16035_c0004
+          * 校验数据源：${DataSourceA}
           规则集描述：空
-          规则：金额非空、订单号唯一
-          点击「保存」
-        expected: Toast提示:「保存成功」，列表新增「RuleSetA」，规则数为 2
+          点击「下一步」
+        expected: 进入「规则内容」步骤
+      - action: |-
+          在「规则内容」步骤点击「导入规则」，导入含金额非空与订单号唯一两条规则的规则文件并点击「保存」
+        expected: Toast提示:「添加成功！」,列表新增「RuleSetA」，规则数为 2
       - action: 打开「RuleSetA」详情
         expected: 数据源类型显示 StarRocks3.x，规则内容包含金额非空和订单号唯一
     tags:
       - 数据质量
-      - 规则库配置
+      - 规则配置
       - 规则集
       - StarRocks3.x
 
