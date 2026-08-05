@@ -43,6 +43,12 @@ evidence_digest: "sha256:fb75c3aabe0e42a0c6a4bb7d98981df6873de5288ef0f3c3bead251
 
 来源：`Q-003`、`历史用例 CSV`
 
+### PD-004 自定义调度日期时间配置以 zszq 移植实现为准
+
+浙商证券 6.0 移植分支（`feat_6.0.x_zszq_16212`）中，调度属性选择「自定义调度日期」后**始终展示「起调周期」时/分配置**，不随日历格式（年月日/年月日时分）显隐——与 6.3 标品「具体时间」按格式显隐的行为不同。用例与测试点按 zszq 实际行为断言「起调周期」始终展示。
+
+来源：`source:customltem/dt-insight-studio@feat_6.0.x_zszq_16212:views/valid/components/scheduleTime/index.tsx(SCHEDULE_CALENDAR 分支)`、`source:customltem/dt-insight-studio@feat_6.0.x_zszq_16212:views/valid/components/scheduleTime/adjustCycleItemForm/index.tsx(起调周期)`
+
 ## 验收标准
 
 AC-001 自定义调度日期命中的日期生成并运行任务实例；AC-002 未命中的日期不生成任务实例；AC-003 年月日与年月日时分格式的「具体时间」配置显隐正确；AC-004 规则配置调度属性可选择自定义调度日期并预览；AC-005 任务停止/中途停止/状态筛选回归通过。
