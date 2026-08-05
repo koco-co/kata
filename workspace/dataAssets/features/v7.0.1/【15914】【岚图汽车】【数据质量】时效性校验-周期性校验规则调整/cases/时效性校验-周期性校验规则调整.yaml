@@ -1,0 +1,1298 @@
+meta:
+  title: 【数据质量】时效性校验-周期性校验规则调整
+  requirement_id: "15914"
+  case_module_id: ""
+  source: "蓝湖需求 #15914"
+  test_points_digest: "sha256:1de64304faab49ca082e3c751f43e2d79827e8e7ebd82831390f79922dd1ca95"
+  exports:
+    - 时效性校验-周期性校验规则调整.xmind
+cases:
+  - case_id: C0001
+    title: 验证【规则集管理】-【周期性校验】选择单字段时间差统计函数，展示非必填多选维度字段
+    source_ref: TP-001
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0001;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0001 (
+           id BIGINT,
+           vin STRING,
+           city STRING,
+           event_seq BIGINT,
+           event_time STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15914_c0001 VALUES
+           (1, 'VIN-A', '武汉', 1, '2026-08-05 08:00:00'),
+           (2, 'VIN-A', '武汉', 2, '2026-08-05 08:30:00');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0001
+          规则集描述：空
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息回显规则集名称、描述、数据源、数据库和数据表
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：空
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：<= 60 分钟
+          * 强弱规则：弱规则
+          规则描述：空
+        expected: 「维度字段」选择框展示在统计函数之后，标识为非必填并支持多选
+      - action: 在「维度字段」中依次选择 vin、city
+        expected: vin、city 同时保持选中，已选项以两个独立标签回显且可分别移除
+    tags:
+      - 数据质量
+      - 规则集管理
+
+  - case_id: C0002
+    title: 验证【规则集管理】-【维度字段】选择10个维度后继续选择第11个，限制选择并完整保存上限值
+    source_ref: TP-002
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建包含 14 个字段的数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0002;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0002 (
+           id BIGINT,
+           d01 STRING, d02 STRING, d03 STRING, d04 STRING, d05 STRING,
+           d06 STRING, d07 STRING, d08 STRING, d09 STRING, d10 STRING,
+           d11 STRING,
+           event_seq BIGINT,
+           event_time STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15914_c0002 VALUES
+           (1, 'a01', 'a02', 'a03', 'a04', 'a05', 'a06', 'a07', 'a08', 'a09', 'a10', 'a11', 1, '2026-08-05 08:00:00'),
+           (2, 'a01', 'a02', 'a03', 'a04', 'a05', 'a06', 'a07', 'a08', 'a09', 'a10', 'a11', 2, '2026-08-05 08:30:00');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0002
+          规则集描述：空
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：d01、d02、d03、d04、d05、d06、d07、d08、d09、d10
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：<= 60 分钟
+          * 强弱规则：弱规则
+          规则描述：十维度上限验证
+        expected: d01 至 d10 共 10 个维度字段全部保持选中，已选数量为 10
+      - action: 继续在「维度字段」中选择 d11
+        expected: d11 不会新增到已选项或页面提示「最多选择10个」，已选字段仍为 d01 至 d10
+      - action: 点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackA 规则数量为 1
+      - action: 点击「规则集详情」打开 RuleSetA 详情并查看周期性校验规则
+        expected: 维度字段完整回显 d01 至 d10，不包含 d11，其他规则参数与保存值一致
+    tags:
+      - 数据质量
+      - 规则集管理
+
+  - case_id: C0003
+    title: 验证【规则集管理】-【规则集详情】保存单维度周期性校验规则，详情完整展示维度与规则参数
+    source_ref: TP-003
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0003;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0003 (
+           id BIGINT,
+           vin STRING,
+           event_seq BIGINT,
+           event_time STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15914_c0003 VALUES
+           (1, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (2, 'VIN-A', 2, '2026-08-05 08:30:00');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0003
+          规则集描述：单维度详情验证
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息回显规则集名称、描述、数据源、数据库和数据表
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：vin
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：<= 60 分钟
+          * 强弱规则：弱规则
+          规则描述：单维度详情验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackA 规则数量为 1
+      - action: 点击「规则集详情」打开 RuleSetA 详情
+        expected: 进入 RuleSetA 详情页，展示基本信息与监控规则
+      - action: 在监控规则区域查看周期性校验规则
+        expected: 详情展示「字段：event_time」「统计函数：周期性校验（单字段时间差校验）」「维度字段：vin」「排序字段：event_seq」「时间差：<= 60 分钟」「强弱规则：弱规则」
+    tags:
+      - 数据质量
+      - 规则集管理
+
+  - case_id: C0004
+    title: 验证【规则任务管理】-【规则任务详情】执行含维度字段的周期性校验，任务详情与监控报告展示维度字段
+    source_ref: TP-004
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入两个分区，dt=2026-08-04 为全部符合规则的正确数据，dt=2026-08-05 为全部不符合规则的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0004;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0004 (
+           id BIGINT,
+           vin STRING,
+           event_seq BIGINT,
+           event_time STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15914_c0004 PARTITION (dt='2026-08-04') VALUES
+           (1, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (2, 'VIN-A', 2, '2026-08-05 08:30:00');
+         INSERT INTO ${SchemaA}.test_table_15914_c0004 PARTITION (dt='2026-08-05') VALUES
+           (3, 'VIN-B', 1, '2026-08-05 08:00:00'),
+           (4, 'VIN-B', 2, '2026-08-05 10:00:00');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0004
+          规则集描述：空
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：vin
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：<= 60 分钟
+          * 强弱规则：弱规则
+          规则描述：空
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackA 规则数量为 1
+      - action: |-
+          进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0004
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：质量报告A
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 详情页，展示规则配置和「立即执行」操作
+      - action: 在规则配置区查看周期性校验规则
+        expected: 任务详情展示「维度字段：vin」，并展示字段 event_time、排序字段 event_seq 和时间差 <= 60 分钟
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面，定位 RuleA 最新运行实例
+        expected: 任务状态为「运行成功」，结果状态为「达标」
+      - action: 打开最新运行实例的「监控报告」并查看周期性校验规则
+        expected: 监控报告展示「维度字段：vin」，并完整展示字段 event_time、排序字段 event_seq 和时间差 <= 60 分钟
+    tags:
+      - 数据质量
+      - 规则任务管理
+
+  - case_id: C0005
+    title: 验证【校验结果查询】-【无维度周期性校验】按全表排序比较交错车辆数据，保留全表比较行为
+    source_ref: TP-005
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入两个分区，dt=2026-08-04 为全表相邻间隔 30 分钟的正确数据，dt=2026-08-05 为各车辆组内不违规但全表存在跨车辆 120 分钟间隔的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0005;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0005 (
+           id BIGINT,
+           vin STRING,
+           event_seq BIGINT,
+           event_time STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15914_c0005 PARTITION (dt='2026-08-04') VALUES
+           (1, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (2, 'VIN-B', 2, '2026-08-05 08:30:00');
+         INSERT INTO ${SchemaA}.test_table_15914_c0005 PARTITION (dt='2026-08-05') VALUES
+           (3, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (4, 'VIN-B', 2, '2026-08-05 10:00:00'),
+           (5, 'VIN-A', 3, '2026-08-05 08:30:00');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0005
+          规则集描述：无维度历史兼容验证
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：空
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：<= 60 分钟
+          * 强弱规则：弱规则
+          规则描述：无维度历史兼容验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，维度字段保持为空
+      - action: |-
+          进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0005
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：质量报告A
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 详情页，周期性校验规则的维度字段为空
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面，定位 RuleA 最新运行实例
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「不达标」
+          2) 按 event_seq 全表比较时，id=3 与 id=4 的跨车辆相邻时间差为 120 分钟并违反 <= 60 分钟规则
+          3) 结果未按 vin 分组，符合未配置维度时的历史全表比较行为
+    tags:
+      - 数据质量
+      - 校验结果查询
+
+  - case_id: C0006
+    title: 验证【校验结果查询】-【单维度分组】执行含局部异常的周期性校验，仅展示违规车辆明细及字段颜色
+    source_ref: TP-006
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入两个分区，dt=2026-08-04 为全部符合规则的正确数据，dt=2026-08-05 为仅 VIN-B 分组含 90 分钟违规间隔的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0006;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0006 (
+           id BIGINT,
+           vin STRING,
+           event_seq BIGINT,
+           event_time STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15914_c0006 PARTITION (dt='2026-08-04') VALUES
+           (1, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (2, 'VIN-A', 2, '2026-08-05 08:30:00');
+         INSERT INTO ${SchemaA}.test_table_15914_c0006 PARTITION (dt='2026-08-05') VALUES
+           (3, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (4, 'VIN-B', 1, '2026-08-05 08:30:00'),
+           (5, 'VIN-B', 2, '2026-08-05 10:00:00');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0006
+          规则集描述：单维度违规明细验证
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：vin
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：<= 60 分钟
+          * 强弱规则：弱规则
+          规则描述：单维度违规明细验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackA 规则数量为 1
+      - action: |-
+          进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0006
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：质量报告A
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 详情页，展示维度字段 vin 和「立即执行」操作
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面，定位 RuleA 最新运行实例
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「不达标」
+          2) 只有 VIN-B 分组存在 90 分钟违规间隔，VIN-A 分组不产生违规结果
+          3) 实例提供「查看明细」操作
+      - action: 点击「查看明细」
+        expected: |-
+          1) 明细列表展示 VIN-B 的 id=4、id=5 两条违规明细，不包含 VIN-A 数据
+          2) 明细保留 event_time、vin、event_seq 字段；event_time 标红，vin 标蓝，event_seq 使用普通样式
+          3) 校验SQL：SELECT event_time, vin, event_seq FROM ${SchemaA}.test_table_15914_c0006 WHERE dt='2026-08-05' AND id IN (4, 5)
+             查询结果：2 行，分别为 ('2026-08-05 08:30:00','VIN-B',1)、('2026-08-05 10:00:00','VIN-B',2)
+    tags:
+      - 数据质量
+      - 校验结果查询
+
+  - case_id: C0007
+    title: 验证【校验结果查询】-【复合维度分组】按城市与车辆组合执行周期性校验，仅违规组合产生明细
+    source_ref: TP-007
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入两个分区，dt=2026-08-04 为全部符合规则的正确数据，dt=2026-08-05 为仅「武汉 + VIN-B」组合含 120 分钟违规间隔的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0007;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0007 (
+           id BIGINT,
+           city STRING,
+           vin STRING,
+           event_seq BIGINT,
+           event_time STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15914_c0007 PARTITION (dt='2026-08-04') VALUES
+           (1, '武汉', 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (2, '武汉', 'VIN-A', 2, '2026-08-05 08:30:00');
+         INSERT INTO ${SchemaA}.test_table_15914_c0007 PARTITION (dt='2026-08-05') VALUES
+           (3, '武汉', 'VIN-B', 1, '2026-08-05 08:00:00'),
+           (4, '武汉', 'VIN-B', 2, '2026-08-05 10:00:00'),
+           (5, '上海', 'VIN-A', 1, '2026-08-05 08:00:00');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0007
+          规则集描述：复合维度分组验证
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：city、vin
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：<= 60 分钟
+          * 强弱规则：弱规则
+          规则描述：复合维度分组验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，维度字段按 city、vin 保存
+      - action: |-
+          进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0007
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：质量报告A
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 详情页，维度字段按 city、vin 回显
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面，定位 RuleA 最新运行实例
+        expected: 任务状态为「运行成功」，结果状态为「不达标」，仅「武汉 + VIN-B」组合违反规则
+      - action: 点击「查看明细」
+        expected: |-
+          1) 明细仅展示 id=3、id=4 的「武汉 + VIN-B」组合，不展示「武汉 + VIN-A」和「上海 + VIN-A」数据
+          2) 校验SQL：SELECT event_time, city, vin, event_seq FROM ${SchemaA}.test_table_15914_c0007 WHERE dt='2026-08-05' AND id IN (3, 4)
+             查询结果：2 行，分别为 ('2026-08-05 08:00:00','武汉','VIN-B',1)、('2026-08-05 10:00:00','武汉','VIN-B',2)
+    tags:
+      - 数据质量
+      - 校验结果查询
+
+  - case_id: C0008
+    title: 验证【校验结果查询】-【单记录分组】每个维度仅一条记录，结果达标且不提供明细
+    source_ref: TP-008
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入两个分区，dt=2026-08-04 为每个 vin 只有一条记录的正确数据，dt=2026-08-05 为 VIN-Z 存在 120 分钟违规间隔的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0008;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0008 (
+           id BIGINT,
+           vin STRING,
+           event_seq BIGINT,
+           event_time STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15914_c0008 PARTITION (dt='2026-08-04') VALUES
+           (1, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (2, 'VIN-B', 1, '2026-08-05 10:00:00'),
+           (3, 'VIN-C', 1, '2026-08-05 12:00:00');
+         INSERT INTO ${SchemaA}.test_table_15914_c0008 PARTITION (dt='2026-08-05') VALUES
+           (4, 'VIN-Z', 1, '2026-08-05 08:00:00'),
+           (5, 'VIN-Z', 2, '2026-08-05 10:00:00');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0008
+          规则集描述：单记录分组验证
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：vin
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：<= 60 分钟
+          * 强弱规则：弱规则
+          规则描述：单记录分组验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA
+      - action: |-
+          进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0008
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：质量报告A
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 详情页，展示维度字段 vin 和「立即执行」操作
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面，定位 RuleA 最新运行实例
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「达标」
+          2) VIN-A、VIN-B、VIN-C 分组各只有一条记录，没有相邻记录可比较
+          3) 实例不展示「查看明细」操作且不记录明细数据
+    tags:
+      - 数据质量
+      - 校验结果查询
+
+  - case_id: C0009
+    title: 验证【校验结果查询】-【运行失败日志】保存任务后删除专用表再执行，运行失败且日志定位表不存在
+    source_ref: TP-009
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建仅供本用例使用的专用分区表，dt=2026-08-04 为全部符合规则的正确数据，dt=2026-08-05 为全部不符合规则的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0009;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0009 (
+           id BIGINT,
+           vin STRING,
+           event_seq BIGINT,
+           event_time STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15914_c0009 PARTITION (dt='2026-08-04') VALUES
+           (1, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (2, 'VIN-A', 2, '2026-08-05 08:30:00');
+         INSERT INTO ${SchemaA}.test_table_15914_c0009 PARTITION (dt='2026-08-05') VALUES
+           (3, 'VIN-B', 1, '2026-08-05 08:00:00'),
+           (4, 'VIN-B', 2, '2026-08-05 10:00:00');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0009
+          规则集描述：运行失败日志验证
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：vin
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：<= 60 分钟
+          * 强弱规则：弱规则
+          规则描述：运行失败日志验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA
+      - action: |-
+          进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0009
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：质量报告A
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 详情页，展示已保存的周期性校验规则和「立即执行」操作
+      - action: |-
+          在 ${DataSourceA} 执行：
+          DROP TABLE ${SchemaA}.test_table_15914_c0009;
+        expected: 专用数据表 test_table_15914_c0009 删除成功，已保存的规则任务仍保留该表引用
+      - action: 返回 RuleA 规则任务详情页并点击「立即执行」
+        expected: 提示已提交执行，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面，定位 RuleA 最新运行实例
+        expected: 任务状态为「运行失败」，实例提供「查看日志」操作，不提供「查看明细」操作
+      - action: 点击「查看日志」
+        expected: 日志可正常打开，并包含 test_table_15914_c0009 及数据表不存在或无法解析的错误原因
+    tags:
+      - 数据质量
+      - 校验结果查询
+
+  - case_id: C0010
+    title: 验证【数据质量报告】-【达标规则说明】配置维度并执行达标数据，报告展示维度与符合规则描述
+    source_ref: TP-010
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入两个分区，dt=2026-08-04 为全部符合规则的正确数据，dt=2026-08-05 为全部不符合规则的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0010;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0010 (
+           id BIGINT,
+           vin STRING,
+           event_seq BIGINT,
+           event_time STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15914_c0010 PARTITION (dt='2026-08-04') VALUES
+           (1, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (2, 'VIN-A', 2, '2026-08-05 08:30:00');
+         INSERT INTO ${SchemaA}.test_table_15914_c0010 PARTITION (dt='2026-08-05') VALUES
+           (3, 'VIN-B', 1, '2026-08-05 08:00:00'),
+           (4, 'VIN-B', 2, '2026-08-05 10:00:00');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0010
+          规则集描述：达标质量报告验证
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：vin
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：<= 60 分钟
+          * 强弱规则：弱规则
+          规则描述：达标质量报告验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA
+      - action: |-
+          进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0010
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：质量报告A
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 详情页，展示维度字段 vin 和「立即执行」操作
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面，定位 RuleA 最新运行实例
+        expected: 任务状态为「运行成功」，结果状态为「达标」，质量报告生成成功
+      - action: 进入【数据质量 → 数据质量报告】页面，打开「质量报告A」并查看周期性校验规则说明
+        expected: 规则说明包含「维度字段：vin」或等价的「以 vin 字段为维度」描述，并明确该组内时间差符合 <= 60 分钟规则
+    tags:
+      - 数据质量
+      - 数据质量报告
+
+  - case_id: C0011
+    title: 验证【数据质量报告】-【不达标规则说明】配置维度并执行异常数据，报告展示维度与不符合规则描述
+    source_ref: TP-011
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入两个分区，dt=2026-08-04 为全部符合规则的正确数据，dt=2026-08-05 为 VIN-B 分组全部不符合规则的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0011;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0011 (
+           id BIGINT,
+           vin STRING,
+           event_seq BIGINT,
+           event_time STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15914_c0011 PARTITION (dt='2026-08-04') VALUES
+           (1, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (2, 'VIN-A', 2, '2026-08-05 08:30:00');
+         INSERT INTO ${SchemaA}.test_table_15914_c0011 PARTITION (dt='2026-08-05') VALUES
+           (3, 'VIN-B', 1, '2026-08-05 08:00:00'),
+           (4, 'VIN-B', 2, '2026-08-05 10:00:00');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0011
+          规则集描述：不达标质量报告验证
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：vin
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：<= 60 分钟
+          * 强弱规则：弱规则
+          规则描述：不达标质量报告验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA
+      - action: |-
+          进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0011
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：质量报告A
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 详情页，展示维度字段 vin 和「立即执行」操作
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面，定位 RuleA 最新运行实例
+        expected: 任务状态为「运行成功」，结果状态为「不达标」，质量报告生成成功
+      - action: 进入【数据质量 → 数据质量报告】页面，打开「质量报告A」并查看周期性校验规则说明
+        expected: 规则说明包含「维度字段：vin」或等价的「以 vin 字段为维度」描述，并明确 VIN-B 组内时间差不符合 <= 60 分钟规则
+    tags:
+      - 数据质量
+      - 数据质量报告
+
+  - case_id: C0012
+    title: 验证【数据质量报告】-【无维度规则说明】未配置维度并执行达标数据，报告不展示维度描述
+    source_ref: TP-012
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入两个分区，dt=2026-08-04 为全表相邻间隔 30 分钟的正确数据，dt=2026-08-05 为全表相邻间隔 120 分钟的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0012;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0012 (
+           id BIGINT,
+           vin STRING,
+           event_seq BIGINT,
+           event_time STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15914_c0012 PARTITION (dt='2026-08-04') VALUES
+           (1, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (2, 'VIN-B', 2, '2026-08-05 08:30:00');
+         INSERT INTO ${SchemaA}.test_table_15914_c0012 PARTITION (dt='2026-08-05') VALUES
+           (3, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (4, 'VIN-B', 2, '2026-08-05 10:00:00');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0012
+          规则集描述：无维度质量报告验证
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：空
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：<= 60 分钟
+          * 强弱规则：弱规则
+          规则描述：无维度质量报告验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，维度字段为空
+      - action: |-
+          进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0012
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：质量报告A
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 详情页，周期性校验规则的维度字段为空
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面，定位 RuleA 最新运行实例
+        expected: 任务状态为「运行成功」，结果状态为「达标」，质量报告生成成功
+      - action: 进入【数据质量 → 数据质量报告】页面，打开「质量报告A」并查看周期性校验规则说明
+        expected: 规则说明展示全表按 event_seq 比较 event_time 时间差符合 <= 60 分钟，不出现「维度字段」或「以某字段为维度」描述
+    tags:
+      - 数据质量
+      - 数据质量报告
+
+  - case_id: C0013
+    title: 验证【规则任务管理】-【维度字段等于校验字段】保存并执行唯一时间值数据，配置回显且单记录分组达标
+    source_ref: TP-013
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入两个分区，dt=2026-08-04 为 event_time 均唯一且每组仅一条记录的正确数据，dt=2026-08-05 为含两个相同 event_time 且 0 分钟间隔不符合 > 60 分钟规则的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0013;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0013 (
+           id BIGINT,
+           vin STRING,
+           event_seq BIGINT,
+           event_time STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15914_c0013 PARTITION (dt='2026-08-04') VALUES
+           (1, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (2, 'VIN-A', 2, '2026-08-05 10:00:00'),
+           (3, 'VIN-B', 3, '2026-08-05 12:00:00');
+         INSERT INTO ${SchemaA}.test_table_15914_c0013 PARTITION (dt='2026-08-05') VALUES
+           (4, 'VIN-Z', 1, '2026-08-05 08:00:00'),
+           (5, 'VIN-Z', 2, '2026-08-05 08:00:00');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0013
+          规则集描述：维度等于校验字段边界验证
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：event_time
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：> 60 分钟
+          * 强弱规则：弱规则
+          规则描述：维度等于校验字段边界验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,event_time 可同时作为字段和维度字段，规则集列表新增 RuleSetA
+      - action: 点击「规则集详情」打开 RuleSetA 详情并查看周期性校验规则
+        expected: 详情同时回显「字段：event_time」和「维度字段：event_time」，配置未被清理或替换
+      - action: |-
+          进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0013
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：质量报告A
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 任务详情同时回显「字段：event_time」和「维度字段：event_time」，并展示「立即执行」操作
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面，定位 RuleA 最新运行实例
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「达标」
+          2) 每个唯一 event_time 值形成一个单记录分组，没有相邻时间差可比较
+          3) 实例不展示「查看明细」操作且不记录明细数据
+    tags:
+      - 数据质量
+      - 规则任务管理
+
+  - case_id: C0014
+    title: 验证【规则任务管理】-【维度字段等于排序字段】保存并执行唯一排序值数据，配置回显且单记录分组达标
+    source_ref: TP-014
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入两个分区，dt=2026-08-04 为 event_seq 均唯一且每组仅一条记录的正确数据，dt=2026-08-05 为含两个相同 event_seq 且时间差为 120 分钟的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0014;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0014 (
+           id BIGINT,
+           vin STRING,
+           event_seq BIGINT,
+           event_time STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15914_c0014 PARTITION (dt='2026-08-04') VALUES
+           (1, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (2, 'VIN-A', 2, '2026-08-05 10:00:00'),
+           (3, 'VIN-B', 3, '2026-08-05 12:00:00');
+         INSERT INTO ${SchemaA}.test_table_15914_c0014 PARTITION (dt='2026-08-05') VALUES
+           (4, 'VIN-Z', 9, '2026-08-05 08:00:00'),
+           (5, 'VIN-Z', 9, '2026-08-05 10:00:00');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0014
+          规则集描述：维度等于排序字段边界验证
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：event_seq
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：= 0 分钟
+          * 强弱规则：弱规则
+          规则描述：维度等于排序字段边界验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,event_seq 可同时作为维度字段和排序字段，规则集列表新增 RuleSetA
+      - action: 点击「规则集详情」打开 RuleSetA 详情并查看周期性校验规则
+        expected: 详情同时回显「维度字段：event_seq」和「排序字段：event_seq」，配置未被清理或替换
+      - action: |-
+          进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0014
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：质量报告A
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 任务详情同时回显「维度字段：event_seq」和「排序字段：event_seq」，并展示「立即执行」操作
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面，定位 RuleA 最新运行实例
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「达标」
+          2) 每个唯一 event_seq 值形成一个单记录分组，没有相邻时间差可比较
+          3) 实例不展示「查看明细」操作且不记录明细数据
+    tags:
+      - 数据质量
+      - 规则任务管理
+
+  - case_id: C0015
+    title: 验证【校验结果查询】-【数据源兼容】在SparkThrift2.x与Doris3.x执行等价分组数据，结果与违规明细一致
+    source_ref: TP-015
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 在 ${DataSourceA} 创建分区表，dt=2026-08-04 为全部符合规则的正确数据，dt=2026-08-05 为仅 VIN-B 分组含 90 分钟违规间隔的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15914_c0015_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15914_c0015_source (
+           id BIGINT,
+           vin STRING,
+           event_seq BIGINT,
+           event_time STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15914_c0015_source PARTITION (dt='2026-08-04') VALUES
+           (1, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (2, 'VIN-A', 2, '2026-08-05 08:30:00');
+         INSERT INTO ${SchemaA}.test_table_15914_c0015_source PARTITION (dt='2026-08-05') VALUES
+           (3, 'VIN-A', 1, '2026-08-05 08:00:00'),
+           (4, 'VIN-B', 1, '2026-08-05 08:30:00'),
+           (5, 'VIN-B', 2, '2026-08-05 10:00:00');
+      5) 授权数据源：${DataSourceB}
+      6) 数据源类型：Doris3.x
+      7) 存在数据库：${SchemaB}
+      8) 在 ${DataSourceB} 创建分区表并写入与 ${DataSourceA} 等价的正确、异常数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15914_c0015_target;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15914_c0015_target (
+           id BIGINT,
+           vin VARCHAR(32),
+           event_seq BIGINT,
+           event_time DATETIME,
+           dt DATE
+         )
+         DUPLICATE KEY(id)
+         PARTITION BY RANGE(dt) (
+           PARTITION p20260804 VALUES LESS THAN ("2026-08-05"),
+           PARTITION p20260805 VALUES LESS THAN ("2026-08-06"),
+           PARTITION pmax VALUES LESS THAN (MAXVALUE)
+         )
+         DISTRIBUTED BY HASH(id) BUCKETS 1
+         PROPERTIES ("replication_num" = "1");
+         INSERT INTO ${SchemaB}.test_table_15914_c0015_target VALUES
+           (1, 'VIN-A', 1, '2026-08-05 08:00:00', '2026-08-04'),
+           (2, 'VIN-A', 2, '2026-08-05 08:30:00', '2026-08-04');
+         INSERT INTO ${SchemaB}.test_table_15914_c0015_target VALUES
+           (3, 'VIN-A', 1, '2026-08-05 08:00:00', '2026-08-05'),
+           (4, 'VIN-B', 1, '2026-08-05 08:30:00', '2026-08-05'),
+           (5, 'VIN-B', 2, '2026-08-05 10:00:00', '2026-08-05');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，为 SparkThrift2.x 配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0015_source
+          规则集描述：SparkThrift2.x 兼容验证
+          点击「下一步」
+        expected: 进入 SparkThrift2.x 规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：vin
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：<= 60 分钟
+          * 强弱规则：弱规则
+          规则描述：SparkThrift2.x 兼容验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA
+      - action: |-
+          点击「新建规则集」，为 Doris3.x 配置基础信息：
+          * 规则集名称：RuleSetB
+          * 选择数据源：${DataSourceB}
+          * 选择数据库：${SchemaB}
+          * 选择数据表：test_table_15914_c0015_target
+          规则集描述：Doris3.x 兼容验证
+          点击「下一步」
+        expected: 进入 Doris3.x 规则配置步骤
+      - action: |-
+          配置规则包「PackB」的规则（时效性校验-周期性校验（单字段时间差校验））：
+          * 字段：event_time
+          * 统计函数：周期性校验（单字段时间差校验）
+          维度字段：vin
+          过滤条件：空
+          * 选择排序字段：event_seq
+          * 时间差：<= 60 分钟
+          * 强弱规则：弱规则
+          规则描述：Doris3.x 兼容验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetB
+      - action: |-
+          进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15914_c0015_source
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入 SparkThrift2.x 任务的「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：质量报告A
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 详情页，规则参数与 SparkThrift2.x 规则集一致
+      - action: 点击「立即执行」
+        expected: RuleA 提示执行成功并进入调度
+      - action: |-
+          返回规则任务列表并点击「新建规则任务」：
+          * 规则名称：RuleB
+          * 选择数据源：${DataSourceB}
+          * 选择数据库：${SchemaB}
+          * 选择数据表：test_table_15914_c0015_target
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入 Doris3.x 任务的「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackB
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackB，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：质量报告B
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleB
+      - action: 点击「表名」进入 RuleB 规则任务详情页
+        expected: 进入 RuleB 详情页，规则参数与 Doris3.x 规则集一致
+      - action: 点击「立即执行」
+        expected: RuleB 提示执行成功并进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面，等待并定位两个规则任务的最新运行实例
+        expected: RuleA 与 RuleB 的任务状态均为「运行成功」，结果状态均为「不达标」
+      - action: 分别打开两个实例的「查看明细」并核对违规组合与记录
+        expected: |-
+          1) 两个数据源均仅判定 VIN-B 分组违规，VIN-A 分组不违规
+          2) 两个实例均展示 id=4、id=5 对应的两条违规明细，字段均为 event_time、vin、event_seq
+          3) Spark校验SQL：SELECT event_time, vin, event_seq FROM ${SchemaA}.test_table_15914_c0015_source WHERE dt='2026-08-05' AND id IN (4, 5)
+             Doris校验SQL：SELECT event_time, vin, event_seq FROM ${SchemaB}.test_table_15914_c0015_target WHERE dt='2026-08-05' AND id IN (4, 5)
+             两个查询均返回 ('2026-08-05 08:30:00','VIN-B',1)、('2026-08-05 10:00:00','VIN-B',2)
+    tags:
+      - 数据质量
+      - 校验结果查询
