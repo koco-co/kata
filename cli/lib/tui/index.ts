@@ -20,13 +20,13 @@ import { recentHistory, recordFeature } from "./history.ts";
 import { existingCaseModuleId, featureRefByProjectPath, formatBuildReport } from "./registry.ts";
 import type { FeatureRef } from "./types.ts";
 
-const TUI_BANNER = String.raw` _  __      _        _
-| |/ /_ __ | |_ __ _| |_
-| ' /| '_ \| __/ _| | __|
-| . \| | | | || (_| | |_
-|_|\_\_| |_|\__\__,_|\__|
-
-  𝓚𝓪𝓽𝓪 +`;
+const TUI_BANNER = [
+  " _  __      _        _",
+  "| |/ /_ __ | |_ __ _| |_",
+  "| ' /| '_ \\| __/ _| | __|",
+  "| . \\| | | | || (_| | |_",
+  "|_|\\_\\_| |_|\\__\\__,_|\\__|",
+].join("\n");
 
 export interface TuiInitialFeature {
   project: string;
@@ -35,7 +35,7 @@ export interface TuiInitialFeature {
 
 export async function startTui(initial?: TuiInitialFeature): Promise<void> {
   process.stdout.write(`${TUI_BANNER}\n\n`);
-  intro("Kata interactive workspace");
+  intro("Kata");
   if (initial) {
     const ref = featureRefByProjectPath(initial.project, initial.relativePath);
     if (!ref) {
