@@ -67,6 +67,7 @@ describe("renderXmind", () => {
     const content = zip.file("content.json");
     if (!content) throw new Error("missing content.json");
     const sheets = JSON.parse(await content.async("string"));
+    expect(sheets[0].rootTopic.structureClass).toBe("org.xmind.ui.logic.right");
     const l1s = sheets[0].rootTopic.children.attached;
     expect(l1s.map((node: { title: string }) => node.title)).toEqual([
       "【泸州老窖】数据资产编码管理",

@@ -28,6 +28,8 @@ export interface RenderOptions {
 
 export const UNCLASSIFIED = "未分类";
 
+const ALL_RIGHT_STRUCTURE = "org.xmind.ui.logic.right";
+
 const XMindEpoch = new Date(0);
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -79,6 +81,17 @@ export function applyProgressiveFolding(content: unknown): unknown {
   return folded;
 }
 
+/**
+ * 根主题使用右侧逻辑结构，保证所有 L1 分支都显示在中心主题右侧。
+ */
+export function applyAllRightL1Layout(content: unknown): void {
+  if (!Array.isArray(content)) return;
+  for (const sheet of content) {
+    const rootTopic = (sheet as { rootTopic?: { structureClass?: string } }).rootTopic;
+    if (rootTopic) rootTopic.structureClass = ALL_RIGHT_STRUCTURE;
+  }
+}
+
 /** Normalize folding, generated UUIDs and ZIP timestamps for repeatable builds. */
 export async function normalizeXmindBuffer(input: Buffer): Promise<Buffer> {
   const source = await JSZip.loadAsync(input);
@@ -89,6 +102,7 @@ export async function normalizeXmindBuffer(input: Buffer): Promise<Buffer> {
     if (name === "content.json") {
       const parsed = JSON.parse(await entry.async("string"));
       const folded = applyProgressiveFolding(parsed);
+      applyAllRightL1Layout(folded);
       content = `${JSON.stringify(normalizeContentIds(folded, "content"))}\n`;
     } else {
       content = await entry.async("nodebuffer");

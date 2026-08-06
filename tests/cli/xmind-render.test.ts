@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import type { CaseItem } from "../../cli/lib/cases/types.ts";
 import {
+  applyAllRightL1Layout,
   applyProgressiveFolding,
   buildL1Labels,
   buildL1Title,
@@ -35,6 +36,16 @@ describe("applyProgressiveFolding", () => {
     expect(
       (folded[0]?.rootTopic.children.attached[0] as { branch?: string } | undefined)?.branch,
     ).toBe("folded");
+  });
+});
+
+describe("L1 right layout", () => {
+  it("sets the root structure so all L1 branches render on the right", () => {
+    const content = [{ rootTopic: { title: "root", children: { attached: [] } } }];
+    applyAllRightL1Layout(content);
+    expect(
+      (content[0] as { rootTopic: { structureClass?: string } }).rootTopic.structureClass,
+    ).toBe("org.xmind.ui.logic.right");
   });
 });
 
