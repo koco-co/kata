@@ -9641,3 +9641,40 @@ cases:
   - 数据标准
   - 标准管理
   - 标准定义
+- case_id: C0355
+  requirement_id: '13178'
+  title: 验证【目录管理】-【L1目录导入】编码无法识别与自定义属性必填/取值错误，错误文件按单元格分别批注对应原因(错误数 = 3)
+  priority: P1
+  source_ref: TP-109
+  precondition: "1) 使用 UserA，已授予目录管理查看和操作权限\n2) L1 已配置必填枚举属性 AttrEnumA（选项 A1、A2）与非必填文本属性 AttrStringA\n3) 创建导入文件 catalog_c0355.xlsx（每行除目标列外其他列合法，目录名唯一）：\n   Sheet: L1\n   Title: 编码, *目录中文名称, *目录英文名称, *业务定义, *数据负责人工号, *AttrEnumA, AttrStringA\n   Line1: 非法编码_555, L1_CN_555, L1_EN_555, 业务定义_555, Owner_Valid_555, A1, 文本_555\n   Line2: 空, L1_CN2_555, L1_EN2_555, 业务定义_555, Owner_Valid_555, 空, 文本_555\n   Line3: 空, L1_CN3_555, L1_EN3_555, 业务定义_555, Owner_Valid_555, 不存在值_555, 文本_555"
+  steps:
+  - action: 进入【元数据 → 数据目录 → 目录管理】页面
+    expected: 进入成功
+  - action: 打开「导入目录」，导入数据维度选择 L1，重复处理规则选择「重复则跳过」，上传 catalog_c0355.xlsx 并点击「确定」
+    expected: 弹出确认框：标题「导入失败」，正文「导入表格中存在错误数据，请检查后重新导入。」，确认按钮「导出错误文件」
+  - action: 点击「导出错误文件」并打开下载文件
+    expected: 三行错误单元格分别带红色批注：Line1 编码单元格「编码信息无法识别」，Line2 AttrEnumA 单元格「自定义属性必填项值不能为空」，Line3 AttrEnumA 单元格「自定义属性值不存在」
+  - action: 查看 L1 目录列表
+    expected: 未新增任何 L1 目录，L1 目录数量不变
+  tags:
+  - 元数据
+  - 数据目录
+  - 目录管理
+- case_id: C0356
+  requirement_id: '13551'
+  title: 验证【L4导入】数据源、数据库、数据表或表中文名留空，错误文件按单元格分别批注不能为空(空值数 = 3)
+  priority: P1
+  source_ref: TP-054
+  precondition: "1) 使用 UserA，已授予数据地图查看与导入权限\n2) 数据源：${DataSourceA}，数据源类型：SparkThrift2.x\n3) 数据库 test_schema_13551_c0356 中已同步表 test_table_13551_c0356_01（字段 id BIGINT、code STRING）\n4) 创建导入文件 l4_import_13551_c0356.xlsx：\n   Sheet: L4\n   Title: *所属数据源,*所属数据库,*数据表,*表中文名,*表负责人,*数据责任人工号,*数据管家工号,*来源业务系统,自定义属性1\n   Line1: ,test_schema_13551_c0356,test_table_13551_c0356_01,表甲,张三,1001,2001,营销系统,值A\n   Line2: ${DataSourceA},,test_table_13551_c0356_01,表甲,张三,1001,2001,营销系统,值B\n   Line3: ${DataSourceA},test_schema_13551_c0356,,表甲,张三,1001,2001,营销系统,值C"
+  steps:
+  - action: 进入【元数据 → 数据地图】页面
+    expected: 进入成功
+  - action: 点击【导入】，配置导入数据维度 L4、导入数据源类型 SparkThrift2.x，上传 l4_import_13551_c0356.xlsx，点击「确定」
+    expected: 弹出确认框：标题「导入失败」，正文「导入表格中存在错误数据，请检查后重新导入。」，确认按钮「导出错误文件」
+  - action: 点击「导出错误文件」并打开下载文件
+    expected: 三行错误单元格分别带红色批注，对应列名称为空：Line1 所属数据源单元格提示数据源名称留空，Line2 所属数据库单元格提示数据库名称留空，Line3 数据表单元格提示数据表名称留空
+  - action: 查看数据表列表
+    expected: 未新增或更新任何数据表
+  tags:
+  - 元数据
+  - 数据地图
