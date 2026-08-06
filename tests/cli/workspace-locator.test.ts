@@ -6,6 +6,7 @@ import {
   listWorkspaceProjects,
   locateProject,
   locateProjectRoot,
+  locateProjectRootWithCandidates,
 } from "../../cli/lib/workspace-locator.ts";
 
 function scaffold(): string {
@@ -85,6 +86,6 @@ describe("locateProjectRoot", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-ws-"));
     writeFileSync(join(root, "workspace"), "not a directory");
     writeFileSync(join(root, "package.json"), "{}");
-    expect(() => locateProjectRoot(root)).toThrow(/未找到仓库根/);
+    expect(() => locateProjectRootWithCandidates(root, undefined)).toThrow(/未找到仓库根/);
   });
 });
