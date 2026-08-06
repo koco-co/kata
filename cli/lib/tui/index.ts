@@ -81,11 +81,7 @@ async function rootMenu(): Promise<void> {
 }
 
 async function featuresMenu(): Promise<void> {
-  const project = await pickProject();
-  if (!project) return;
-  const version = await pickVersion(project);
-  if (!version) return;
-  const ref = await pickFeature(project, version);
+  const ref = await pickProjectFeature();
   if (!ref) return;
   await featureMenu(ref);
 }
@@ -105,11 +101,7 @@ async function casesMenu(): Promise<void> {
     if (choice === "lint") {
       await casesLint();
     } else {
-      const project = await pickProject();
-      if (!project) continue;
-      const version = await pickVersion(project);
-      if (!version) continue;
-      const ref = await pickFeature(project, version);
+      const ref = await pickProjectFeature();
       if (ref) await featureMenu(ref);
     }
   }
@@ -270,6 +262,18 @@ async function pickProject(): Promise<string | undefined> {
     options: projects.map((project) => ({ value: project, label: project })),
   });
   return isCancel(choice) ? undefined : choice;
+}
+
+async function pickProjectFeature(): Promise<FeatureRef | undefined> {
+  for (;;) {
+    const project = await pickProject();
+    if (!project) return undefined;
+    const version = await pickVersion(project);
+    if (!version) continue;
+    const ref = await pickFeature(project, version);
+    if (!ref) return undefined;
+    return ref;
+  }
 }
 
 async function pickVersion(project: string): Promise<string | undefined> {
