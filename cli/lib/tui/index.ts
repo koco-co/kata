@@ -16,6 +16,7 @@ import { findCasesYaml, runCasesBuild } from "../../commands/cases-build.ts";
 import { runFeaturesList } from "../../commands/features.ts";
 import type { CaseExportFormat } from "../cases/formats.ts";
 import { listWorkspaceProjects } from "../workspace-locator.ts";
+import { browseProjectFeature } from "./browse.ts";
 import { recentHistory, recordFeature } from "./history.ts";
 import {
   LINT_PAGE_SIZE,
@@ -81,9 +82,7 @@ async function rootMenu(): Promise<void> {
 }
 
 async function featuresMenu(): Promise<void> {
-  const ref = await pickProjectFeature();
-  if (!ref) return;
-  await featureMenu(ref);
+  await browseProjectFeature(featureBrowseMenus());
 }
 
 async function casesMenu(): Promise<void> {
@@ -101,8 +100,7 @@ async function casesMenu(): Promise<void> {
     if (choice === "lint") {
       await casesLint();
     } else {
-      const ref = await pickProjectFeature();
-      if (ref) await featureMenu(ref);
+      await browseProjectFeature(featureBrowseMenus());
     }
   }
 }
@@ -138,26 +136,28 @@ async function historyMenu(): Promise<void> {
     note("Opening or acting on a feature records the latest 5", "History");
     return;
   }
-  const choice = await select({
-    message: "Recent features",
-    options: entries.map((entry) => ({
-      value: entry.feature_key,
-      label: entry.title,
-      hint: `${entry.project} · ${entry.relative_path}`,
-    })),
-  });
-  if (isCancel(choice)) return;
-  const entry = entries.find((item) => item.feature_key === choice);
-  if (!entry) return;
-  try {
-    const ref = featureRefByProjectPath(entry.project, entry.relative_path);
-    if (!ref) {
-      log.error(`Feature is no longer available: ${entry.project}:${entry.relative_path}`);
-      return;
+  for (;;) {
+    const choice = await select({
+      message: "Recent features",
+      options: entries.map((entry) => ({
+        value: entry.feature_key,
+        label: entry.title,
+        hint: `${entry.project} · ${entry.relative_path}`,
+      })),
+    });
+    if (isCancel(choice)) return;
+    const entry = entries.find((item) => item.feature_key === choice);
+    if (!entry) continue;
+    try {
+      const ref = featureRefByProjectPath(entry.project, entry.relative_path);
+      if (!ref) {
+        log.error(`Feature is no longer available: ${entry.project}:${entry.relative_path}`);
+        continue;
+      }
+      await featureMenu(ref);
+    } catch (error) {
+      log.error(`Feature is no longer available: ${errorMessage(error)}`);
     }
-    await featureMenu(ref);
-  } catch (error) {
-    log.error(`Feature is no longer available: ${errorMessage(error)}`);
   }
 }
 
@@ -264,18 +264,13 @@ async function pickProject(): Promise<string | undefined> {
   return isCancel(choice) ? undefined : choice;
 }
 
-async function pickProjectFeature(): Promise<FeatureRef | undefined> {
-  for (;;) {
-    const project = await pickProject();
-    if (!project) return undefined;
-    for (;;) {
-      const version = await pickVersion(project);
-      if (!version) break;
-      const ref = await pickFeature(project, version);
-      if (!ref) continue;
-      return ref;
-    }
-  }
+function featureBrowseMenus() {
+  return {
+    pickProject,
+    pickVersion,
+    pickFeature,
+    openFeature: featureMenu,
+  };
 }
 
 async function pickVersion(project: string): Promise<string | undefined> {
