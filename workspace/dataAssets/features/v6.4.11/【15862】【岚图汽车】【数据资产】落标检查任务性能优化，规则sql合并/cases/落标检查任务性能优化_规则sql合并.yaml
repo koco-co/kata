@@ -1,0 +1,5356 @@
+meta:
+  title: 落标检查任务性能优化_规则sql合并
+  requirement_id: "15862"
+  imports:
+    - 落标检查规则SQL.csv
+  exports:
+    - 落标检查任务性能优化_规则sql合并.xmind
+  case_module_id: ""
+cases:
+  - case_id: C0001
+    title: 验证【数据标准】-【落标检查】配置日期与时间戳字段全部检查项并执行，展示空值数和重复数检查结果(车型关联字段为空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 存在标准目录：${CatalogA}
+      5) 创建表并插入日期时间字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0001;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0001 (id BIGINT, car_model STRING, register_date DATE, last_login TIMESTAMP, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0001 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE DATE_SUB(CURRENT_DATE(), id) END, CASE WHEN id % 3 = 0 THEN NULL ELSE CAST(date_add(CURRENT_DATE(), id) AS TIMESTAMP) END, DATE '2026-01-12' FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0001 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE DATE_SUB(CURRENT_DATE(), id) END, CASE WHEN id % 3 = 0 THEN NULL ELSE CAST(date_add(CURRENT_DATE(), id) AS TIMESTAMP) END, DATE '2026-01-13' FROM range(4, 7);
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：${CatalogA}
+          * 车型：小米su7、保时捷718
+        expected: 基础信息填写完成，展示车型标准配置区域
+      - action: |-
+          配置「小米su7」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=10且<=280
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「小米su7」车型标准配置完成
+      - action: |-
+          配置「保时捷718」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=180且<=999
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「保时捷718」车型标准配置完成
+      - action: 点击【上线】
+        expected: 标准状态为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 进入成功
+      - action: 给该标准绑定字段 register_date、last_login
+        expected: 标准映射列表新增该标准，字段绑定状态为「已绑定」
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          新增检查任务，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0001
+          是否设置分区：不设置分区
+          * 标准目录：${CatalogA}
+          车型关联字段：不绑定
+          点击「下一步」
+        expected: 检查内容配置完成，进入选择字段页面
+      - action: |-
+          开启 register_date、last_login 字段检查：
+          * 检查字段：register_date、last_login
+          * 检查项：全部
+          点击「下一步」
+        expected: 检查项仅包含空值数、重复数，进入调度配置页面
+      - action: |-
+          配置检查周期：
+          * 检查周期：按天运行
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 查看【落标检查设置】tab 列表
+        expected: 任务状态为「检查完成」，列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数、最近编辑时间、最近检查时间和操作
+      - action: 点击任务【查看结果详情】
+        expected: 切换至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作
+      - action: 点击结果【查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与任务配置一致，空值数和重复数检查项展示实际值、标准值和达标状态，未达标检查项操作为「查看详情」
+      - action: 点击未达标检查项【查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，明细行数 <= 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          空值数规则进行 SQL 合并：
+          1) 源表只扫描一次，FROM 后的源表仅出现 1 次
+          2) register_date、last_login 的空值数写在同一个 SELECT 中，用 SUM(CASE WHEN) 并行计算
+          3) 计算结果插入同一张脏数据表
+          重复数规则不进行 SQL 合并：
+          1) register_date、last_login 的重复数各自独立读取源表
+          2) 一条规则对应一个 SELECT，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 重复数脏数据写入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，查看结果详情
+        expected: 检查结果列表按最新一次运行展示，检查项展示实际值、标准值和达标状态，详情与脏数据明细可查看
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0002
+    title: 验证【数据标准】-【落标检查】配置布尔字段全部检查项并执行，仅展示空值数检查项(车型关联字段为空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 存在标准目录：${CatalogA}
+      5) 创建表并插入布尔字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0002;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0002 (id BIGINT, car_model STRING, is_vip BOOLEAN, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0002 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE id % 2 = 0 END, DATE '2026-01-12' FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0002 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE id % 2 = 0 END, DATE '2026-01-13' FROM range(4, 7);
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：${CatalogA}
+          * 车型：小米su7、保时捷718
+        expected: 基础信息填写完成，展示车型标准配置区域
+      - action: |-
+          配置「小米su7」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=10且<=280
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「小米su7」车型标准配置完成
+      - action: |-
+          配置「保时捷718」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=180且<=999
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「保时捷718」车型标准配置完成
+      - action: 点击【上线】
+        expected: 标准状态为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 进入成功
+      - action: 给该标准绑定字段 is_vip
+        expected: 标准映射列表新增该标准，字段绑定状态为「已绑定」
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          新增检查任务，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0002
+          是否设置分区：不设置分区
+          * 标准目录：${CatalogA}
+          车型关联字段：不绑定
+          点击「下一步」
+        expected: 检查内容配置完成，进入选择字段页面
+      - action: |-
+          开启 is_vip 字段检查：
+          * 检查字段：is_vip
+          * 检查项：全部
+          点击「下一步」
+        expected: 检查项仅包含空值数，进入调度配置页面
+      - action: |-
+          配置检查周期：
+          * 检查周期：按天运行
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 查看【落标检查设置】tab 列表
+        expected: 任务状态为「检查完成」，列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数、最近编辑时间、最近检查时间和操作
+      - action: 点击任务【查看结果详情】
+        expected: 切换至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作
+      - action: 点击结果【查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与任务配置一致，空值数检查项展示实际值、标准值和达标状态，未达标检查项操作为「查看详情」
+      - action: 点击未达标检查项【查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，明细行数 <= 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          is_vip 空值数规则单次扫描源表：
+          1) FROM 后的源表仅出现 1 次
+          2) 空值数用 SUM(CASE WHEN) 计算
+          3) 计算结果插入脏数据表
+      - action: 等待该检查任务按周期运行完成，查看结果详情
+        expected: 检查结果列表按最新一次运行展示，检查项展示实际值、标准值和达标状态，详情与脏数据明细可查看
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0003
+    title: 验证【数据标准】-【落标检查】配置数值字符串字段全部检查项并执行，展示 6 项检查结果(车型关联字段为空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 存在标准目录：${CatalogA}
+      5) 创建表并插入数值字符串字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0003;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0003 (id BIGINT, car_model STRING, order_amount_str STRING, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0003 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE CONCAT(CAST(id AS STRING), '.00') END, DATE '2026-01-12' FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0003 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE CONCAT(CAST(id AS STRING), '.00') END, DATE '2026-01-13' FROM range(4, 7);
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：${CatalogA}
+          * 车型：小米su7、保时捷718
+        expected: 基础信息填写完成，展示车型标准配置区域
+      - action: |-
+          配置「小米su7」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=10且<=280
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「小米su7」车型标准配置完成
+      - action: |-
+          配置「保时捷718」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=180且<=999
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「保时捷718」车型标准配置完成
+      - action: 点击【上线】
+        expected: 标准状态为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 进入成功
+      - action: 给该标准绑定字段 order_amount_str
+        expected: 标准映射列表新增该标准，字段绑定状态为「已绑定」
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          新增检查任务，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0003
+          是否设置分区：不设置分区
+          * 标准目录：${CatalogA}
+          车型关联字段：不绑定
+          点击「下一步」
+        expected: 检查内容配置完成，进入选择字段页面
+      - action: |-
+          开启 order_amount_str 字段检查：
+          * 检查字段：order_amount_str
+          * 检查项：全部
+          点击「下一步」
+        expected: 检查项包含字符串长度、数据精度、精度倍数、空值数、重复数和取值范围，进入调度配置页面
+      - action: |-
+          配置检查周期：
+          * 检查周期：按天运行
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 查看【落标检查设置】tab 列表
+        expected: 任务状态为「检查完成」，列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数、最近编辑时间、最近检查时间和操作
+      - action: 点击任务【查看结果详情】
+        expected: 切换至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作
+      - action: 点击结果【查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与任务配置一致，数据精度按小数点后位数校验，精度倍数和取值范围展示达标与未达标状态，未达标检查项操作为「查看详情」
+      - action: 点击未达标检查项【查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，明细行数 <= 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          字符串长度、数据精度、空值数、取值范围、精度倍数规则进行 SQL 合并：
+          1) 源表只扫描一次，FROM 后的源表仅出现 1 次
+          2) 可合并规则写在同一个 SELECT 中，用 SUM(CASE WHEN) 并行计算
+          3) 计算后把结果拆成多行，每行代表单个规则，插入同一张脏数据表
+          重复数规则不进行 SQL 合并：
+          1) 重复数规则使用独立 SELECT 计算
+          2) 无 SUM(CASE WHEN) 并行计算逻辑
+          3) 重复数脏数据写入另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，查看结果详情
+        expected: 检查结果列表按最新一次运行展示，检查项展示实际值、标准值和达标状态，详情与脏数据明细可查看
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0004
+    title: 验证【数据标准】-【落标检查】配置非数值字符串字段全部检查项并执行，精度倍数与取值范围始终达标(车型关联字段为空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 存在标准目录：${CatalogA}
+      5) 创建表并插入非数值字符串字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0004;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0004 (id BIGINT, car_model STRING, user_name STRING, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0004 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE CONCAT('user_', CAST(id AS STRING)) END, DATE '2026-01-12' FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0004 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE CONCAT('user_', CAST(id AS STRING)) END, DATE '2026-01-13' FROM range(4, 7);
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：${CatalogA}
+          * 车型：小米su7、保时捷718
+        expected: 基础信息填写完成，展示车型标准配置区域
+      - action: |-
+          配置「小米su7」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=10且<=280
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「小米su7」车型标准配置完成
+      - action: |-
+          配置「保时捷718」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=180且<=999
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「保时捷718」车型标准配置完成
+      - action: 点击【上线】
+        expected: 标准状态为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 进入成功
+      - action: 给该标准绑定字段 user_name
+        expected: 标准映射列表新增该标准，字段绑定状态为「已绑定」
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          新增检查任务，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0004
+          是否设置分区：不设置分区
+          * 标准目录：${CatalogA}
+          车型关联字段：不绑定
+          点击「下一步」
+        expected: 检查内容配置完成，进入选择字段页面
+      - action: |-
+          开启 user_name 字段检查：
+          * 检查字段：user_name
+          * 检查项：全部
+          点击「下一步」
+        expected: 检查项包含字符串长度、数据精度、精度倍数、空值数、重复数和取值范围，进入调度配置页面
+      - action: |-
+          配置检查周期：
+          * 检查周期：按天运行
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 查看【落标检查设置】tab 列表
+        expected: 任务状态为「检查完成」，列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数、最近编辑时间、最近检查时间和操作
+      - action: 点击任务【查看结果详情】
+        expected: 切换至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作
+      - action: 点击结果【查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与任务配置一致，数据精度按小数点后位数校验，精度倍数和取值范围始终达标，未达标检查项操作为「查看详情」
+      - action: 点击未达标检查项【查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，明细行数 <= 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          字符串长度、数据精度、空值数、取值范围、精度倍数规则进行 SQL 合并：
+          1) 源表只扫描一次，FROM 后的源表仅出现 1 次
+          2) 可合并规则写在同一个 SELECT 中，用 SUM(CASE WHEN) 并行计算
+          3) 计算后把结果拆成多行，每行代表单个规则，插入同一张脏数据表
+          重复数规则不进行 SQL 合并：
+          1) 重复数规则使用独立 SELECT 计算
+          2) 无 SUM(CASE WHEN) 并行计算逻辑
+          3) 重复数脏数据写入另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，查看结果详情
+        expected: 检查结果列表按最新一次运行展示，检查项展示实际值、标准值和达标状态，详情与脏数据明细可查看
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0005
+    title: 验证【数据标准】-【落标检查】配置浮点数值字段全部检查项并执行，展示 6 项检查结果(车型关联字段为空)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 存在标准目录：${CatalogA}
+      5) 创建表并插入浮点数值字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0005;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0005 (id BIGINT, car_model STRING, tall FLOAT, weight DOUBLE, amount DECIMAL(10,3), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0005 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CAST(id AS FLOAT), CAST(id * 1.5 AS DOUBLE), CASE WHEN id % 3 = 0 THEN NULL ELSE CAST(id AS DECIMAL(10,3)) END, DATE '2026-01-12' FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0005 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CAST(id AS FLOAT), CAST(id * 1.5 AS DOUBLE), CASE WHEN id % 3 = 0 THEN NULL ELSE CAST(id AS DECIMAL(10,3)) END, DATE '2026-01-13' FROM range(4, 7);
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：${CatalogA}
+          * 车型：小米su7、保时捷718
+        expected: 基础信息填写完成，展示车型标准配置区域
+      - action: |-
+          配置「小米su7」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=10且<=280
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「小米su7」车型标准配置完成
+      - action: |-
+          配置「保时捷718」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=180且<=999
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「保时捷718」车型标准配置完成
+      - action: 点击【上线】
+        expected: 标准状态为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 进入成功
+      - action: 给该标准绑定字段 tall、weight、amount
+        expected: 标准映射列表新增该标准，字段绑定状态为「已绑定」
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          新增检查任务，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0005
+          是否设置分区：不设置分区
+          * 标准目录：${CatalogA}
+          车型关联字段：不绑定
+          点击「下一步」
+        expected: 检查内容配置完成，进入选择字段页面
+      - action: |-
+          开启 tall、weight、amount 字段检查：
+          * 检查字段：tall、weight、amount
+          * 检查项：全部
+          点击「下一步」
+        expected: 检查项包含字符串长度、数据精度、精度倍数、空值数、重复数和取值范围，进入调度配置页面
+      - action: |-
+          配置检查周期：
+          * 检查周期：按天运行
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 查看【落标检查设置】tab 列表
+        expected: 任务状态为「检查完成」，列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数、最近编辑时间、最近检查时间和操作
+      - action: 点击任务【查看结果详情】
+        expected: 切换至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作
+      - action: 点击结果【查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与任务配置一致，数据精度、精度倍数和取值范围展示达标与未达标状态，未达标检查项操作为「查看详情」
+      - action: 点击未达标检查项【查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，明细行数 <= 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          字符串长度、数据精度、空值数、取值范围、精度倍数规则进行 SQL 合并：
+          1) 源表只扫描一次，FROM 后的源表仅出现 1 次
+          2) 可合并规则写在同一个 SELECT 中，用 SUM(CASE WHEN) 并行计算
+          3) 计算后把结果拆成多行，每行代表单个规则，插入同一张脏数据表
+          重复数规则不进行 SQL 合并：
+          1) 重复数规则使用独立 SELECT 计算
+          2) 无 SUM(CASE WHEN) 并行计算逻辑
+          3) 重复数脏数据写入另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，查看结果详情
+        expected: 检查结果列表按最新一次运行展示，检查项展示实际值、标准值和达标状态，详情与脏数据明细可查看
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0006
+    title: 验证【数据标准】-【落标检查】配置整数数值字段全部检查项并执行，仅检查所选分区数据(选择分区 dt=2026-01-12)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 存在标准目录：${CatalogA}
+      5) 创建表并插入整数数值字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0006;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0006 (id BIGINT, car_model STRING, user_id INT, age BYTE, score SHORT, total_orders LONG, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0006 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, id, CAST(id AS BYTE), CAST(id AS SHORT), CAST(id AS BIGINT), DATE '2026-01-12' FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0006 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, id, CAST(id AS BYTE), CAST(id AS SHORT), CAST(id AS BIGINT), DATE '2026-01-13' FROM range(4, 7);
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：用户ID
+          * 英文名称：user_id
+          * 英文缩写：uid
+          * 标准目录：${CatalogA}
+          * 车型：小米su7、保时捷718
+        expected: 基础信息填写完成，展示车型标准配置区域
+      - action: |-
+          配置「小米su7」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=4
+          * 数据精度：4/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=10且<=1200
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+        expected: 「小米su7」车型标准配置完成
+      - action: |-
+          配置「保时捷718」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：5/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=100且<=1200
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+        expected: 「保时捷718」车型标准配置完成
+      - action: 点击【上线】
+        expected: 标准状态为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 进入成功
+      - action: 给该标准绑定字段 user_id、age、score、total_orders
+        expected: 标准映射列表新增该标准，字段绑定状态为「已绑定」
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          新增检查任务，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0006
+          是否设置分区：选择已有分区 dt=2026-01-12
+          * 标准目录：${CatalogA}
+          车型关联字段：不绑定
+          点击「下一步」
+        expected: 检查内容配置完成，进入选择字段页面
+      - action: |-
+          开启 user_id、age、score、total_orders 字段检查：
+          * 检查字段：user_id、age、score、total_orders
+          * 检查项：全部
+          点击「下一步」
+        expected: 检查项包含字符串长度、数据精度、精度倍数、空值数、重复数和取值范围，进入调度配置页面
+      - action: |-
+          配置检查周期：
+          * 检查周期：按天运行
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 查看【落标检查设置】tab 列表
+        expected: 任务状态为「检查完成」，列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数、最近编辑时间、最近检查时间和操作
+      - action: 点击任务【查看结果详情】
+        expected: 切换至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作
+      - action: 点击结果【查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与任务配置一致，数据精度只针对小数点前最大位进行校验，未达标检查项操作为「查看详情」
+      - action: 点击未达标检查项【查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，明细行数 <= 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          字符串长度、数据精度、空值数、取值范围、精度倍数规则进行 SQL 合并：
+          1) 源表只扫描一次，FROM 后的源表仅出现 1 次
+          2) 可合并规则写在同一个 SELECT 中，用 SUM(CASE WHEN) 并行计算
+          3) 计算后把结果拆成多行，每行代表单个规则，插入同一张脏数据表
+          重复数规则不进行 SQL 合并：
+          1) 重复数规则使用独立 SELECT 计算
+          2) 无 SUM(CASE WHEN) 并行计算逻辑
+          3) 重复数脏数据写入另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，查看结果详情
+        expected: 检查结果列表按最新一次运行展示，检查项展示实际值、标准值和达标状态，详情与脏数据明细可查看
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0007
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段配置日期时间戳字段检查，结果按车型分组展示(车型关联字段非空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 存在标准目录：${CatalogA}
+      5) 创建表并插入日期时间字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0007;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0007 (id BIGINT, car_model STRING, register_date DATE, last_login TIMESTAMP, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0007 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE DATE_SUB(CURRENT_DATE(), id) END, CASE WHEN id % 3 = 0 THEN NULL ELSE CAST(date_add(CURRENT_DATE(), id) AS TIMESTAMP) END, DATE '2026-01-12' FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0007 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE DATE_SUB(CURRENT_DATE(), id) END, CASE WHEN id % 3 = 0 THEN NULL ELSE CAST(date_add(CURRENT_DATE(), id) AS TIMESTAMP) END, DATE '2026-01-13' FROM range(4, 7);
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：${CatalogA}
+          * 车型：小米su7、保时捷718
+        expected: 基础信息填写完成，展示车型标准配置区域
+      - action: |-
+          配置「小米su7」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=10且<=280
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「小米su7」车型标准配置完成
+      - action: |-
+          配置「保时捷718」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=180且<=999
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「保时捷718」车型标准配置完成
+      - action: 点击【上线】
+        expected: 标准状态为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 进入成功
+      - action: 给该标准绑定字段 register_date、last_login
+        expected: 标准映射列表新增该标准，字段绑定状态为「已绑定」
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          新增检查任务，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0007
+          是否设置分区：不设置分区
+          * 标准目录：${CatalogA}
+          车型关联字段：car_model
+          点击「下一步」
+        expected: 检查内容配置完成，进入选择字段页面
+      - action: |-
+          开启 register_date、last_login 字段检查：
+          * 检查字段：register_date、last_login
+          * 检查项：全部
+          点击「下一步」
+        expected: 检查项仅包含空值数、重复数，进入调度配置页面
+      - action: |-
+          配置检查周期：
+          * 检查周期：按天运行
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 查看【落标检查设置】tab 列表
+        expected: 任务状态为「检查完成」，列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数、最近编辑时间、最近检查时间和操作
+      - action: 点击任务【查看结果详情】
+        expected: 切换至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作
+      - action: 点击结果【查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与任务配置一致，检查结果按 car_model 分组展示，未达标检查项操作为「查看详情」
+      - action: 点击未达标检查项【查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，明细行数 <= 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          空值数规则进行 SQL 合并：
+          1) 源表只扫描一次，FROM 后的源表仅出现 1 次
+          2) register_date、last_login 的空值数写在同一个 SELECT 中，用 SUM(CASE WHEN) 并行计算
+          3) 计算结果插入同一张脏数据表
+          重复数规则不进行 SQL 合并：
+          1) register_date、last_login 的重复数各自独立读取源表
+          2) 一条规则对应一个 SELECT，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 重复数脏数据写入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，查看结果详情
+        expected: 检查结果列表按最新一次运行展示，检查项展示实际值、标准值和达标状态，详情与脏数据明细可查看
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0008
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段配置布尔字段检查，仅展示空值数检查项(车型关联字段非空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 存在标准目录：${CatalogA}
+      5) 创建表并插入布尔字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0008;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0008 (id BIGINT, car_model STRING, is_vip BOOLEAN, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0008 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE id % 2 = 0 END, DATE '2026-01-12' FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0008 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE id % 2 = 0 END, DATE '2026-01-13' FROM range(4, 7);
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：${CatalogA}
+          * 车型：小米su7、保时捷718
+        expected: 基础信息填写完成，展示车型标准配置区域
+      - action: |-
+          配置「小米su7」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=10且<=280
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「小米su7」车型标准配置完成
+      - action: |-
+          配置「保时捷718」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=180且<=999
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「保时捷718」车型标准配置完成
+      - action: 点击【上线】
+        expected: 标准状态为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 进入成功
+      - action: 给该标准绑定字段 is_vip
+        expected: 标准映射列表新增该标准，字段绑定状态为「已绑定」
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          新增检查任务，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0008
+          是否设置分区：不设置分区
+          * 标准目录：${CatalogA}
+          车型关联字段：car_model
+          点击「下一步」
+        expected: 检查内容配置完成，进入选择字段页面
+      - action: |-
+          开启 is_vip 字段检查：
+          * 检查字段：is_vip
+          * 检查项：全部
+          点击「下一步」
+        expected: 检查项仅包含空值数，进入调度配置页面
+      - action: |-
+          配置检查周期：
+          * 检查周期：按天运行
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 查看【落标检查设置】tab 列表
+        expected: 任务状态为「检查完成」，列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数、最近编辑时间、最近检查时间和操作
+      - action: 点击任务【查看结果详情】
+        expected: 切换至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作
+      - action: 点击结果【查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与任务配置一致，空值数检查项展示实际值、标准值和达标状态，未达标检查项操作为「查看详情」
+      - action: 点击未达标检查项【查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，明细行数 <= 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          is_vip 空值数规则单次扫描源表：
+          1) FROM 后的源表仅出现 1 次
+          2) 空值数用 SUM(CASE WHEN) 计算
+          3) 计算结果插入脏数据表
+      - action: 等待该检查任务按周期运行完成，查看结果详情
+        expected: 检查结果列表按最新一次运行展示，检查项展示实际值、标准值和达标状态，详情与脏数据明细可查看
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0009
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段配置数值字符串字段检查，展示 6 项检查结果(车型关联字段非空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 存在标准目录：${CatalogA}
+      5) 创建表并插入数值字符串字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0009;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0009 (id BIGINT, car_model STRING, order_amount_str STRING, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0009 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE CONCAT(CAST(id AS STRING), '.00') END, DATE '2026-01-12' FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0009 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE CONCAT(CAST(id AS STRING), '.00') END, DATE '2026-01-13' FROM range(4, 7);
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：${CatalogA}
+          * 车型：小米su7、保时捷718
+        expected: 基础信息填写完成，展示车型标准配置区域
+      - action: |-
+          配置「小米su7」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=10且<=280
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「小米su7」车型标准配置完成
+      - action: |-
+          配置「保时捷718」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=180且<=999
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「保时捷718」车型标准配置完成
+      - action: 点击【上线】
+        expected: 标准状态为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 进入成功
+      - action: 给该标准绑定字段 order_amount_str
+        expected: 标准映射列表新增该标准，字段绑定状态为「已绑定」
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          新增检查任务，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0009
+          是否设置分区：不设置分区
+          * 标准目录：${CatalogA}
+          车型关联字段：car_model
+          点击「下一步」
+        expected: 检查内容配置完成，进入选择字段页面
+      - action: |-
+          开启 order_amount_str 字段检查：
+          * 检查字段：order_amount_str
+          * 检查项：全部
+          点击「下一步」
+        expected: 检查项包含字符串长度、数据精度、精度倍数、空值数、重复数和取值范围，进入调度配置页面
+      - action: |-
+          配置检查周期：
+          * 检查周期：按天运行
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 查看【落标检查设置】tab 列表
+        expected: 任务状态为「检查完成」，列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数、最近编辑时间、最近检查时间和操作
+      - action: 点击任务【查看结果详情】
+        expected: 切换至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作
+      - action: 点击结果【查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与任务配置一致，数据精度按小数点后位数校验，精度倍数和取值范围展示达标与未达标状态，未达标检查项操作为「查看详情」
+      - action: 点击未达标检查项【查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，明细行数 <= 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          字符串长度、数据精度、空值数、取值范围、精度倍数规则进行 SQL 合并：
+          1) 源表只扫描一次，FROM 后的源表仅出现 1 次
+          2) 可合并规则写在同一个 SELECT 中，用 SUM(CASE WHEN) 并行计算
+          3) 计算后把结果拆成多行，每行代表单个规则，插入同一张脏数据表
+          重复数规则不进行 SQL 合并：
+          1) 重复数规则使用独立 SELECT 计算
+          2) 无 SUM(CASE WHEN) 并行计算逻辑
+          3) 重复数脏数据写入另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，查看结果详情
+        expected: 检查结果列表按最新一次运行展示，检查项展示实际值、标准值和达标状态，详情与脏数据明细可查看
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0010
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段配置非数值字符串字段检查，数据精度按小数点后位数校验(车型关联字段非空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 存在标准目录：${CatalogA}
+      5) 创建表并插入非数值字符串字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0010;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0010 (id BIGINT, car_model STRING, user_name STRING, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0010 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE CONCAT('user_', CAST(id AS STRING)) END, DATE '2026-01-12' FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0010 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CASE WHEN id % 3 = 0 THEN NULL ELSE CONCAT('user_', CAST(id AS STRING)) END, DATE '2026-01-13' FROM range(4, 7);
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：${CatalogA}
+          * 车型：小米su7、保时捷718
+        expected: 基础信息填写完成，展示车型标准配置区域
+      - action: |-
+          配置「小米su7」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=10且<=280
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「小米su7」车型标准配置完成
+      - action: |-
+          配置「保时捷718」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=180且<=999
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「保时捷718」车型标准配置完成
+      - action: 点击【上线】
+        expected: 标准状态为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 进入成功
+      - action: 给该标准绑定字段 user_name
+        expected: 标准映射列表新增该标准，字段绑定状态为「已绑定」
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          新增检查任务，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0010
+          是否设置分区：不设置分区
+          * 标准目录：${CatalogA}
+          车型关联字段：car_model
+          点击「下一步」
+        expected: 检查内容配置完成，进入选择字段页面
+      - action: |-
+          开启 user_name 字段检查：
+          * 检查字段：user_name
+          * 检查项：全部
+          点击「下一步」
+        expected: 检查项包含字符串长度、数据精度、精度倍数、空值数、重复数和取值范围，进入调度配置页面
+      - action: |-
+          配置检查周期：
+          * 检查周期：按天运行
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 查看【落标检查设置】tab 列表
+        expected: 任务状态为「检查完成」，列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数、最近编辑时间、最近检查时间和操作
+      - action: 点击任务【查看结果详情】
+        expected: 切换至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作
+      - action: 点击结果【查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与任务配置一致，数据精度按小数点后位数校验，精度倍数和取值范围始终达标，未达标检查项操作为「查看详情」
+      - action: 点击未达标检查项【查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，明细行数 <= 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          字符串长度、数据精度、空值数、取值范围、精度倍数规则进行 SQL 合并：
+          1) 源表只扫描一次，FROM 后的源表仅出现 1 次
+          2) 可合并规则写在同一个 SELECT 中，用 SUM(CASE WHEN) 并行计算
+          3) 计算后把结果拆成多行，每行代表单个规则，插入同一张脏数据表
+          重复数规则不进行 SQL 合并：
+          1) 重复数规则使用独立 SELECT 计算
+          2) 无 SUM(CASE WHEN) 并行计算逻辑
+          3) 重复数脏数据写入另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，查看结果详情
+        expected: 检查结果列表按最新一次运行展示，检查项展示实际值、标准值和达标状态，详情与脏数据明细可查看
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0011
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段配置浮点数值字段检查，展示 6 项检查结果(车型关联字段非空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 存在标准目录：${CatalogA}
+      5) 创建表并插入浮点数值字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0011;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0011 (id BIGINT, car_model STRING, tall FLOAT, weight DOUBLE, amount DECIMAL(10,3), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0011 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CAST(id AS FLOAT), CAST(id * 1.5 AS DOUBLE), CASE WHEN id % 3 = 0 THEN NULL ELSE CAST(id AS DECIMAL(10,3)) END, DATE '2026-01-12' FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0011 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, CAST(id AS FLOAT), CAST(id * 1.5 AS DOUBLE), CASE WHEN id % 3 = 0 THEN NULL ELSE CAST(id AS DECIMAL(10,3)) END, DATE '2026-01-13' FROM range(4, 7);
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：${CatalogA}
+          * 车型：小米su7、保时捷718
+        expected: 基础信息填写完成，展示车型标准配置区域
+      - action: |-
+          配置「小米su7」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=10且<=280
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「小米su7」车型标准配置完成
+      - action: |-
+          配置「保时捷718」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=180且<=999
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+        expected: 「保时捷718」车型标准配置完成
+      - action: 点击【上线】
+        expected: 标准状态为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 进入成功
+      - action: 给该标准绑定字段 tall、weight、amount
+        expected: 标准映射列表新增该标准，字段绑定状态为「已绑定」
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          新增检查任务，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0011
+          是否设置分区：不设置分区
+          * 标准目录：${CatalogA}
+          车型关联字段：car_model
+          点击「下一步」
+        expected: 检查内容配置完成，进入选择字段页面
+      - action: |-
+          开启 tall、weight、amount 字段检查：
+          * 检查字段：tall、weight、amount
+          * 检查项：全部
+          点击「下一步」
+        expected: 检查项包含字符串长度、数据精度、精度倍数、空值数、重复数和取值范围，进入调度配置页面
+      - action: |-
+          配置检查周期：
+          * 检查周期：按天运行
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 查看【落标检查设置】tab 列表
+        expected: 任务状态为「检查完成」，列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数、最近编辑时间、最近检查时间和操作
+      - action: 点击任务【查看结果详情】
+        expected: 切换至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作
+      - action: 点击结果【查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与任务配置一致，数据精度、精度倍数和取值范围展示达标与未达标状态，未达标检查项操作为「查看详情」
+      - action: 点击未达标检查项【查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，明细行数 <= 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          字符串长度、数据精度、空值数、取值范围、精度倍数规则进行 SQL 合并：
+          1) 源表只扫描一次，FROM 后的源表仅出现 1 次
+          2) 可合并规则写在同一个 SELECT 中，用 SUM(CASE WHEN) 并行计算
+          3) 计算后把结果拆成多行，每行代表单个规则，插入同一张脏数据表
+          重复数规则不进行 SQL 合并：
+          1) 重复数规则使用独立 SELECT 计算
+          2) 无 SUM(CASE WHEN) 并行计算逻辑
+          3) 重复数脏数据写入另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，查看结果详情
+        expected: 检查结果列表按最新一次运行展示，检查项展示实际值、标准值和达标状态，详情与脏数据明细可查看
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0012
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段配置整数数值字段检查，仅检查所选分区数据(选择分区 dt=2026-01-12)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 存在标准目录：${CatalogA}
+      5) 创建表并插入整数数值字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0012;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0012 (id BIGINT, car_model STRING, user_id INT, age BYTE, score SHORT, total_orders LONG, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0012 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, id, CAST(id AS BYTE), CAST(id AS SHORT), CAST(id AS BIGINT), DATE '2026-01-12' FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0012 SELECT id, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END, id, CAST(id AS BYTE), CAST(id AS SHORT), CAST(id AS BIGINT), DATE '2026-01-13' FROM range(4, 7);
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：用户ID
+          * 英文名称：user_id
+          * 英文缩写：uid
+          * 标准目录：${CatalogA}
+          * 车型：小米su7、保时捷718
+        expected: 基础信息填写完成，展示车型标准配置区域
+      - action: |-
+          配置「小米su7」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=4
+          * 数据精度：4/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=10且<=1200
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+        expected: 「小米su7」车型标准配置完成
+      - action: |-
+          配置「保时捷718」车型标准：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：5/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 取值范围：>=100且<=1200
+          默认值：1
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+        expected: 「保时捷718」车型标准配置完成
+      - action: 点击【上线】
+        expected: 标准状态为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 进入成功
+      - action: 给该标准绑定字段 user_id、age、score、total_orders
+        expected: 标准映射列表新增该标准，字段绑定状态为「已绑定」
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          新增检查任务，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0012
+          是否设置分区：选择已有分区 dt=2026-01-12
+          * 标准目录：${CatalogA}
+          车型关联字段：car_model
+          点击「下一步」
+        expected: 检查内容配置完成，进入选择字段页面
+      - action: |-
+          开启 user_id、age、score、total_orders 字段检查：
+          * 检查字段：user_id、age、score、total_orders
+          * 检查项：全部
+          点击「下一步」
+        expected: 检查项包含字符串长度、数据精度、精度倍数、空值数、重复数和取值范围，进入调度配置页面
+      - action: |-
+          配置检查周期：
+          * 检查周期：按天运行
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 查看【落标检查设置】tab 列表
+        expected: 任务状态为「检查完成」，列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数、最近编辑时间、最近检查时间和操作
+      - action: 点击任务【查看结果详情】
+        expected: 切换至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作
+      - action: 点击结果【查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与任务配置一致，数据精度只针对小数点前最大位进行校验，未达标检查项操作为「查看详情」
+      - action: 点击未达标检查项【查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，明细行数 <= 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          字符串长度、数据精度、空值数、取值范围、精度倍数规则进行 SQL 合并：
+          1) 源表只扫描一次，FROM 后的源表仅出现 1 次
+          2) 可合并规则写在同一个 SELECT 中，用 SUM(CASE WHEN) 并行计算
+          3) 计算后把结果拆成多行，每行代表单个规则，插入同一张脏数据表
+          重复数规则不进行 SQL 合并：
+          1) 重复数规则使用独立 SELECT 计算
+          2) 无 SUM(CASE WHEN) 并行计算逻辑
+          3) 重复数脏数据写入另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，查看结果详情
+        expected: 检查结果列表按最新一次运行展示，检查项展示实际值、标准值和达标状态，详情与脏数据明细可查看
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0013
+    title: 验证【数据标准】-【落标检查】配置日期与时间戳字段全部检查项并执行，展示空值数和重复数检查结果(车型为空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入日期时间字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0013;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0013 (id BIGINT, date_field DATE, timestamp_field TIMESTAMP, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0013 SELECT id, DATE '2025-01-01', TIMESTAMP '2026-08-04 08:30:00', DATE_SUB(CURRENT_DATE(), 1) FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0013 SELECT id, CASE WHEN id = 4 THEN NULL ELSE DATE '2025-01-01' END, CASE WHEN id = 5 THEN NULL ELSE TIMESTAMP '2026-08-05 08:30:00' END, CURRENT_DATE() FROM range(4, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「姓名」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：姓名
+          * 英文名称：name
+          * 英文缩写：ne
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=3
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，标准上线成功
+      - action: 点击「标准映射」，给标准「姓名」绑定 date_field、timestamp_field 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0013
+          是否设置分区：不设置
+          * 标准目录：CatalogA
+          车型关联字段：不配置
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 date_field、timestamp_field 字段的检查，检查项选择「全部」，点击「下一步」
+        expected: date_field、timestamp_field 的检查项仅包含空值数、重复数，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+      - action: 点击检查任务的【操作-查看详情】
+        expected: 检查结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与配置内容一致
+      - action: 点击未达标检查项的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，行数不超过 100
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) 空值数规则 SQL 合并：源表只扫描一次，两个字段的空值数写在同一个 SELECT 中用 SUM(CASE WHEN) 并行计算，结果插入同一张脏数据表
+          2) 重复数规则 SQL 不合并：各自单独读取源数据表，一条规则对应一个 SELECT，无 SUM(CASE WHEN) 并行计算逻辑，脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0014
+    title: 验证【数据标准】-【落标检查】配置布尔字段全部检查项并执行，检查项仅含空值数(车型为空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入布尔字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0014;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0014 (id BIGINT, boolean_field BOOLEAN, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0014 SELECT id, CASE WHEN id = 2 THEN NULL ELSE TRUE END, DATE_SUB(CURRENT_DATE(), 1) FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0014 SELECT id, CASE WHEN id IN (4, 5) THEN NULL ELSE FALSE END, CURRENT_DATE() FROM range(4, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「姓名」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：姓名
+          * 英文名称：name
+          * 英文缩写：ne
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=3
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，标准上线成功
+      - action: 点击「标准映射」，给标准「姓名」绑定 boolean_field 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0014
+          是否设置分区：不设置
+          * 标准目录：CatalogA
+          车型关联字段：不配置
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 boolean_field 字段的检查，检查项选择「全部」，点击「下一步」
+        expected: boolean_field 的检查项仅包含空值数，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+      - action: 点击检查任务的【操作-查看详情】
+        expected: 检查结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与配置内容一致
+      - action: 点击未达标检查项的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，行数不超过 100
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) 空值数规则 SQL 合并：源表只扫描一次，空值数写在同一个 SELECT 中用 SUM(CASE WHEN) 计算，结果插入同一张脏数据表
+          2) 布尔字段无重复数规则，不生成重复数独立 SELECT
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0015
+    title: 验证【数据标准】-【落标检查】配置数值字符串字段全部检查项并执行，展示字符串长度等 6 项检查结果(车型为空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入数值字符串字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0015;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0015 (id BIGINT, string_num STRING, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0015 SELECT id, CAST(id AS STRING), DATE_SUB(CURRENT_DATE(), 1) FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0015 SELECT id, CASE WHEN id = 4 THEN NULL WHEN id = 5 THEN CAST(10 AS STRING) ELSE CAST(10 AS STRING) END, CURRENT_DATE() FROM range(4, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「姓名」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：姓名
+          * 英文名称：name
+          * 英文缩写：ne
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=3
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，标准上线成功
+      - action: 点击「标准映射」，给标准「姓名」绑定 string_num 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0015
+          是否设置分区：不设置
+          * 标准目录：CatalogA
+          车型关联字段：不配置
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 string_num 字段的检查，检查项选择「全部」，点击「下一步」
+        expected: string_num 的检查项包含字符串长度、数据精度、精度倍数、空值数、取值范围、重复数，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+      - action: 点击检查任务的【操作-查看详情】
+        expected: 检查结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与配置内容一致，数据精度、精度倍数、取值范围按标准配置校验
+      - action: 点击未达标检查项的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，行数不超过 100
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) 字符串长度、数据精度、空值数、取值范围、精度倍数规则 SQL 合并：源表只扫描一次，可合并规则写在同一个 SELECT 中用 SUM(CASE WHEN) 并行计算，计算结果拆成多行插入同一张脏数据表
+          2) 重复数规则 SQL 不合并：单独一个 SELECT 计算，不参与 SUM(CASE WHEN) 并行计算逻辑，脏数据存储于另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0016
+    title: 验证【数据标准】-【落标检查】配置非数值字符串字段全部检查项并执行，精度倍数与取值范围始终达标(车型为空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入非数值字符串字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0016;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0016 (id BIGINT, name STRING, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0016 SELECT id, CONCAT('姓名', CAST(id AS STRING)), DATE_SUB(CURRENT_DATE(), 1) FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0016 SELECT id, CASE WHEN id = 4 THEN NULL WHEN id = 6 THEN CONCAT('姓名', CAST(5 AS STRING)) ELSE CONCAT('姓名', CAST(id AS STRING)) END, CURRENT_DATE() FROM range(4, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「姓名」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：姓名
+          * 英文名称：name
+          * 英文缩写：ne
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=3
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，标准上线成功
+      - action: 点击「标准映射」，给标准「姓名」绑定 name 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0016
+          是否设置分区：不设置
+          * 标准目录：CatalogA
+          车型关联字段：不配置
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 name 字段的检查，检查项选择「全部」，点击「下一步」
+        expected: name 的检查项包含字符串长度、数据精度、精度倍数、空值数、取值范围、重复数，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+      - action: 点击检查任务的【操作-查看详情】
+        expected: 检查结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与配置内容一致，精度倍数和取值范围显示达标，数据精度按小数点后最大位校验
+      - action: 点击未达标检查项的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，行数不超过 100
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) 字符串长度、数据精度、空值数、取值范围、精度倍数规则 SQL 合并：源表只扫描一次，可合并规则写在同一个 SELECT 中用 SUM(CASE WHEN) 并行计算，计算结果拆成多行插入同一张脏数据表
+          2) 重复数规则 SQL 不合并：单独一个 SELECT 计算，不参与 SUM(CASE WHEN) 并行计算逻辑，脏数据存储于另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0017
+    title: 验证【数据标准】-【落标检查】配置浮点与 decimal 字段全部检查项并执行，展示 6 项检查结果(车型为空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入浮点与高精度数值字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0017;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0017 (id BIGINT, money DOUBLE, float_field FLOAT, decimal_field DECIMAL(10,2), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0017 SELECT id, CAST(id * 2 AS DOUBLE), CAST(id * 2 AS FLOAT), CAST(id * 2 AS DECIMAL(10,2)), DATE_SUB(CURRENT_DATE(), 1) FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0017 SELECT id, CASE WHEN id = 4 THEN NULL ELSE CAST(id AS DOUBLE) END, CASE WHEN id = 5 THEN NULL ELSE CAST(id AS FLOAT) END, CASE WHEN id = 6 THEN NULL ELSE CAST(id AS DECIMAL(10,2)) END, CURRENT_DATE() FROM range(4, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=6
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardA」绑定 float_field、decimal_field、money 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0017
+          是否设置分区：不设置
+          * 标准目录：CatalogA
+          车型关联字段：不配置
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 float_field、decimal_field、money 字段的检查，检查项选择「全部」，点击「下一步」
+        expected: float_field、decimal_field、money 的检查项包含字符串长度、数据精度、精度倍数、空值数、取值范围、重复数，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+      - action: 点击检查任务的【操作-查看详情】
+        expected: 检查结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与配置内容一致
+      - action: 点击未达标检查项的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，行数不超过 100
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) 字符串长度、数据精度、空值数、取值范围、精度倍数规则 SQL 合并：源表只扫描一次，可合并规则写在同一个 SELECT 中用 SUM(CASE WHEN) 并行计算，计算结果拆成多行插入同一张脏数据表
+          2) 重复数规则 SQL 不合并：单独一个 SELECT 计算，不参与 SUM(CASE WHEN) 并行计算逻辑，脏数据存储于另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0018
+    title: 验证【数据标准】-【落标检查】配置整数类型字段全部检查项并执行，数据精度按小数点前最大位校验(车型为空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入整数类型字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0018;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0018 (id BIGINT, byte_field TINYINT, short_field SMALLINT, long_field BIGINT, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0018 SELECT id, CAST(id AS TINYINT), CAST(id AS SMALLINT), CAST(id AS BIGINT), DATE_SUB(CURRENT_DATE(), 1) FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15862_c0018 SELECT id, CAST(id + 100 AS TINYINT), CAST(id + 100 AS SMALLINT), CAST(id + 100 AS BIGINT), CURRENT_DATE() FROM range(4, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「ID」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：ID
+          * 英文名称：id
+          * 英文缩写：id
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：数值型
+          * 数据长度：<=2
+          * 数据精度：2/1
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=1且<102
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，标准上线成功
+      - action: 点击「标准映射」，给标准「ID」绑定 id、byte_field、short_field、long_field 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0018
+          是否设置分区：不设置
+          * 标准目录：CatalogA
+          车型关联字段：不配置
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 id、byte_field、short_field、long_field 字段的检查，检查项选择「全部」，点击「下一步」
+        expected: id、byte_field、short_field、long_field 的检查项包含字符串长度、数据精度、精度倍数、空值数、取值范围、重复数，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+      - action: 点击检查任务的【操作-查看详情】
+        expected: 检查结果详情展示检查信息、检查结果列表和关联标准详情，检查信息与配置内容一致，数据精度针对小数点前最大位校验
+      - action: 点击未达标检查项的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，行数不超过 100
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) 字符串长度、数据精度、空值数、取值范围、精度倍数规则 SQL 合并：源表只扫描一次，可合并规则写在同一个 SELECT 中用 SUM(CASE WHEN) 并行计算，计算结果拆成多行插入同一张脏数据表
+          2) 重复数规则 SQL 不合并：单独一个 SELECT 计算，不参与 SUM(CASE WHEN) 并行计算逻辑，脏数据存储于另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0019
+    title: 验证【数据标准】-【落标检查】配置金额字段全部检查项并执行，标准达标率 100%(车型关联字段为空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入金额字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0019;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0019 (user_id BIGINT, amount DECIMAL(10,3), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0019 PARTITION (order_date='2026-01-12') VALUES (1000, 265.2, '小米su7'), (102, 140.80, '小米su7'), (1100, 187, '保时捷718');
+         INSERT INTO ${SchemaA}.test_table_15862_c0019 PARTITION (order_date='2026-01-13') SELECT id + 1000, CAST(id + 99 AS DECIMAL(10,3)), '小米su7' FROM range(1, 4);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardB」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          1）小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=10且<=280
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          2）保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=180且<=999
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，两个车型的标准值分别配置完成，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardB」绑定 amount 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0019
+          * 选择已有分区：order_date=2026-01-12
+          * 标准目录：CatalogA
+          车型关联字段：不绑定
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 amount 字段的检查，检查项勾选「字符串长度」「数据精度」「空值数」「取值范围」「精度倍数」「重复数」，点击「下一步」
+        expected: amount 展示 6 个检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 100%，不达标字段数/检查失败数为 0/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示字符串长度、数据精度、空值数、取值范围、精度倍数、重复数均显示「达标」
+          3) 关联标准详情与配置内容一致
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) 字符串长度、数据精度、空值数、取值范围、精度倍数规则 SQL 合并：源表只扫描一次，可合并规则写在同一个 SELECT 中用 SUM(CASE WHEN) 并行计算，计算结果拆成多行插入同一张脏数据表
+          2) 重复数规则 SQL 不合并：单独一个 SELECT 计算，不参与 SUM(CASE WHEN) 并行计算逻辑，脏数据存储于另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0020
+    title: 验证【数据标准】-【落标检查】配置取值范围与重复数检查并执行，标准达标率 100%(车型关联字段为空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入金额字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0020;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0020 (user_id BIGINT, amount DECIMAL(10,3), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0020 PARTITION (order_date='2026-01-12') VALUES (1000, 265.2, '小米su7'), (102, 140.80, '小米su7'), (1100, 187, '保时捷718');
+         INSERT INTO ${SchemaA}.test_table_15862_c0020 PARTITION (order_date='2026-01-13') SELECT id + 1000, CAST(id + 99 AS DECIMAL(10,3)), '小米su7' FROM range(1, 4);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardB」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          1）小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=10且<=280
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          2）保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=180且<=999
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，两个车型的标准值分别配置完成，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardB」绑定 amount 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0020
+          * 选择已有分区：order_date=2026-01-12
+          * 标准目录：CatalogA
+          车型关联字段：不绑定
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 amount 字段的检查，检查项勾选「取值范围」「重复数」，点击「下一步」
+        expected: amount 展示取值范围、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 100%，不达标字段数/检查失败数为 0/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示取值范围、重复数均显示「达标」
+          3) 关联标准详情与配置内容一致
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：取值范围、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0021
+    title: 验证【数据标准】-【落标检查】配置空值数与重复数检查并执行，标准达标率 100%(车型关联字段为空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入金额字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0021;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0021 (user_id BIGINT, amount DECIMAL(10,3), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0021 PARTITION (order_date='2026-01-12') VALUES (1000, 265.2, '小米su7'), (102, 140.80, '小米su7'), (1100, 187, '保时捷718');
+         INSERT INTO ${SchemaA}.test_table_15862_c0021 PARTITION (order_date='2026-01-13') SELECT id + 1000, CAST(id + 99 AS DECIMAL(10,3)), '小米su7' FROM range(1, 4);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardB」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          1）小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=10且<=280
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          2）保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=180且<=999
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，两个车型的标准值分别配置完成，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardB」绑定 amount 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0021
+          * 选择已有分区：order_date=2026-01-12
+          * 标准目录：CatalogA
+          车型关联字段：不绑定
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 amount 字段的检查，检查项勾选「空值数」「重复数」，点击「下一步」
+        expected: amount 展示空值数、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 100%，不达标字段数/检查失败数为 0/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示空值数、重复数均显示「达标」
+          3) 关联标准详情与配置内容一致
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：空值数、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0022
+    title: 验证【数据标准】-【落标检查】配置精度倍数与重复数检查并执行，标准达标率 100%(车型关联字段为空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入金额字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0022;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0022 (user_id BIGINT, amount DECIMAL(10,3), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0022 PARTITION (order_date='2026-01-12') VALUES (1000, 265.2, '小米su7'), (102, 140.80, '小米su7'), (1100, 187, '保时捷718');
+         INSERT INTO ${SchemaA}.test_table_15862_c0022 PARTITION (order_date='2026-01-13') SELECT id + 1000, CAST(id + 99 AS DECIMAL(10,3)), '小米su7' FROM range(1, 4);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardB」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          1）小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=10且<=280
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          2）保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=180且<=999
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，两个车型的标准值分别配置完成，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardB」绑定 amount 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0022
+          * 选择已有分区：order_date=2026-01-12
+          * 标准目录：CatalogA
+          车型关联字段：不绑定
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 amount 字段的检查，检查项勾选「精度倍数」「重复数」，点击「下一步」
+        expected: amount 展示精度倍数、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 100%，不达标字段数/检查失败数为 0/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示精度倍数、重复数均显示「达标」
+          3) 关联标准详情与配置内容一致
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：精度倍数、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0023
+    title: 验证【数据标准】-【落标检查】配置数据精度与重复数检查并执行，数据精度和重复数未达标(车型关联字段为空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入金额字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0023;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0023 (user_id BIGINT, amount DECIMAL(10,3), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0023 PARTITION (order_date='2026-01-12') VALUES (1000, 265.2, '小米su7'), (102, 140.80, '小米su7'), (1100, 187, '保时捷718');
+         INSERT INTO ${SchemaA}.test_table_15862_c0023 PARTITION (order_date='2026-01-13') SELECT id, CASE WHEN id % 3 = 1 THEN CAST(265 AS DECIMAL(10,5)) WHEN id % 3 = 2 THEN CAST(80.55485 AS DECIMAL(10,5)) ELSE CAST(15483.568 AS DECIMAL(10,5)) END, '小米su7' FROM range(1, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardB」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          1）小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=10且<=280
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          2）保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=180且<=999
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，两个车型的标准值分别配置完成，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardB」绑定 amount 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0023
+          * 选择已有分区：order_date=2026-01-13
+          * 标准目录：CatalogA
+          车型关联字段：不绑定
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 amount 字段的检查，检查项勾选「数据精度」「重复数」，点击「下一步」
+        expected: amount 展示数据精度、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 0%，不达标字段数/检查失败数为 1/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「未达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示数据精度、重复数均显示「未达标」，操作为「查看详情」
+          3) 关联标准详情与配置内容一致
+      - action: 点击未达标检查项的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，行数不超过 100
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：数据精度、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0024
+    title: 验证【数据标准】-【落标检查】配置字符串长度与重复数检查并执行，字符串长度和重复数未达标(车型关联字段为空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入金额字段数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0024;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0024 (user_id BIGINT, amount DECIMAL(10,3), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0024 PARTITION (order_date='2026-01-12') VALUES (1000, 265.2, '小米su7'), (102, 140.80, '小米su7'), (1100, 187, '保时捷718');
+         INSERT INTO ${SchemaA}.test_table_15862_c0024 PARTITION (order_date='2026-01-13') SELECT id, CASE WHEN id % 3 = 1 THEN CAST(265 AS DECIMAL(10,5)) WHEN id % 3 = 2 THEN CAST(80.55485 AS DECIMAL(10,5)) ELSE CAST(15483.568 AS DECIMAL(10,5)) END, '小米su7' FROM range(1, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardB」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          1）小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=10且<=280
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          2）保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=180且<=999
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，两个车型的标准值分别配置完成，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardB」绑定 amount 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0024
+          * 选择已有分区：order_date=2026-01-13
+          * 标准目录：CatalogA
+          车型关联字段：不绑定
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 amount 字段的检查，检查项勾选「字符串长度」「重复数」，点击「下一步」
+        expected: amount 展示字符串长度、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 0%，不达标字段数/检查失败数为 1/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「未达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示字符串长度、重复数均显示「未达标」，操作为「查看详情」
+          3) 关联标准详情与配置内容一致
+      - action: 点击未达标检查项的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，行数不超过 100
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：字符串长度、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0025
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段配置金额字段全部检查项并执行，展示 6 项检查结果且标准达标率 100%(车型关联字段非空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入两个分区车型数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0025;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0025 (user_id BIGINT, amount DECIMAL(10,3), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0025 PARTITION (order_date='2026-01-12') VALUES (1000, 265.2, '小米su7'), (102, 140.80, '小米su7'), (1100, 187, '保时捷718');
+         INSERT INTO ${SchemaA}.test_table_15862_c0025 PARTITION (order_date='2026-01-13') SELECT id + 1000, CAST(id + 99 AS DECIMAL(10,3)), '小米su7' FROM range(1, 4);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardB」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          1）小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=10且<=280
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          2）保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=180且<=999
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，两个车型的标准值分别配置完成，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardB」绑定 amount 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0025
+          * 选择已有分区：order_date=2026-01-12
+          * 标准目录：CatalogA
+          车型关联字段：car_model
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 amount 字段的检查，检查项勾选「字符串长度」「数据精度」「空值数」「取值范围」「精度倍数」「重复数」，点击「下一步」
+        expected: amount 展示 6 个检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 100%，不达标字段数/检查失败数为 0/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示字符串长度、数据精度、空值数、取值范围、精度倍数、重复数均显示「达标」
+          3) 关联标准详情与配置内容一致
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) 字符串长度、数据精度、空值数、取值范围、精度倍数规则 SQL 合并：源表只扫描一次，可合并规则写在同一个 SELECT 中用 SUM(CASE WHEN) 并行计算，计算结果拆成多行插入同一张脏数据表
+          2) 重复数规则 SQL 不合并：单独一个 SELECT 计算，不参与 SUM(CASE WHEN) 并行计算逻辑，脏数据存储于另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0026
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段配置取值范围与重复数检查并执行，取值范围和重复数未达标(车型关联字段非空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入两个分区车型数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0026;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0026 (user_id BIGINT, amount DECIMAL(10,3), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0026 PARTITION (order_date='2026-01-12') VALUES (1000, 265.2, '小米su7'), (102, 140.80, '小米su7'), (1100, 187, '保时捷718');
+         INSERT INTO ${SchemaA}.test_table_15862_c0026 PARTITION (order_date='2026-01-13') SELECT id, CASE WHEN id % 3 = 1 THEN CAST(265 AS DECIMAL(10,3)) WHEN id % 3 = 2 THEN CAST(80.55485 AS DECIMAL(10,3)) ELSE CAST(15483.568 AS DECIMAL(10,3)) END, '小米su7' FROM range(1, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardB」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          1）小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=10且<=280
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          2）保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=180且<=999
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，两个车型的标准值分别配置完成，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardB」绑定 amount 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0026
+          * 选择已有分区：order_date=2026-01-13
+          * 标准目录：CatalogA
+          车型关联字段：car_model
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 amount 字段的检查，检查项勾选「取值范围」「重复数」，点击「下一步」
+        expected: amount 展示取值范围、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 0%，不达标字段数/检查失败数为 1/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「未达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示取值范围、重复数均显示「未达标」，操作为「查看详情」
+          3) 关联标准详情与配置内容一致
+      - action: 点击未达标检查项的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，行数不超过 100
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：取值范围、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0027
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段配置空值数与重复数检查并执行，空值数和重复数达标且标准达标率 100%(车型关联字段非空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入两个分区车型数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0027;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0027 (user_id BIGINT, amount DECIMAL(10,3), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0027 PARTITION (order_date='2026-01-12') VALUES (1000, 265.2, '小米su7'), (102, 140.80, '小米su7'), (1100, 187, '保时捷718');
+         INSERT INTO ${SchemaA}.test_table_15862_c0027 PARTITION (order_date='2026-01-13') SELECT id + 1000, CAST(id + 99 AS DECIMAL(10,3)), '小米su7' FROM range(1, 4);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardB」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          1）小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=10且<=280
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          2）保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=180且<=999
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，两个车型的标准值分别配置完成，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardB」绑定 amount 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0027
+          * 选择已有分区：order_date=2026-01-12
+          * 标准目录：CatalogA
+          车型关联字段：car_model
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 amount 字段的检查，检查项勾选「空值数」「重复数」，点击「下一步」
+        expected: amount 展示空值数、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 100%，不达标字段数/检查失败数为 0/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示空值数、重复数均显示「达标」
+          3) 关联标准详情与配置内容一致
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：空值数、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0028
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段配置精度倍数与重复数检查并执行，精度倍数和重复数未达标(车型关联字段非空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入两个分区车型数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0028;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0028 (user_id BIGINT, amount DECIMAL(10,5), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0028 PARTITION (order_date='2026-01-12') VALUES (1000, 265.2, '小米su7'), (102, 140.80, '小米su7'), (1100, 187, '保时捷718');
+         INSERT INTO ${SchemaA}.test_table_15862_c0028 PARTITION (order_date='2026-01-13') SELECT id, CASE WHEN id % 3 = 1 THEN CAST(265 AS DECIMAL(10,5)) WHEN id % 3 = 2 THEN CAST(80.55485 AS DECIMAL(10,5)) ELSE CAST(15483.568 AS DECIMAL(10,5)) END, '小米su7' FROM range(1, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardB」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          1）小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=10且<=280
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          2）保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=180且<=999
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，两个车型的标准值分别配置完成，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardB」绑定 amount 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0028
+          是否设置分区：不设置
+          * 标准目录：CatalogA
+          车型关联字段：car_model
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 amount 字段的检查，检查项勾选「精度倍数」「重复数」，点击「下一步」
+        expected: amount 展示精度倍数、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 0%，不达标字段数/检查失败数为 1/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「未达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示精度倍数、重复数均显示「未达标」，操作为「查看详情」
+          3) 关联标准详情与配置内容一致
+      - action: 点击未达标检查项的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，行数不超过 100
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：精度倍数、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0029
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段配置数据精度与重复数检查并执行，数据精度和重复数未达标(车型关联字段非空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入两个分区车型数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0029;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0029 (user_id BIGINT, amount DECIMAL(10,5), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0029 PARTITION (order_date='2026-01-12') VALUES (1000, 265.2, '小米su7'), (102, 140.80, '小米su7'), (1100, 187, '保时捷718');
+         INSERT INTO ${SchemaA}.test_table_15862_c0029 PARTITION (order_date='2026-01-13') SELECT id, CASE WHEN id % 3 = 1 THEN CAST(265 AS DECIMAL(10,5)) WHEN id % 3 = 2 THEN CAST(80.55485 AS DECIMAL(10,5)) ELSE CAST(15483.568 AS DECIMAL(10,5)) END, '小米su7' FROM range(1, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardB」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          1）小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=10且<=280
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          2）保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=180且<=999
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，两个车型的标准值分别配置完成，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardB」绑定 amount 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0029
+          * 选择已有分区：order_date=2026-01-13
+          * 标准目录：CatalogA
+          车型关联字段：car_model
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 amount 字段的检查，检查项勾选「数据精度」「重复数」，点击「下一步」
+        expected: amount 展示数据精度、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 0%，不达标字段数/检查失败数为 1/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「未达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示数据精度、重复数均显示「未达标」，操作为「查看详情」
+          3) 关联标准详情与配置内容一致
+      - action: 点击未达标检查项的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，行数不超过 100
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：数据精度、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0030
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段配置字符串长度与重复数检查并执行，字符串长度和重复数达标且标准达标率 100%(车型关联字段非空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入两个分区车型数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0030;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0030 (user_id BIGINT, amount DECIMAL(10,3), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0030 PARTITION (order_date='2026-01-12') VALUES (1000, 265.2, '小米su7'), (102, 140.80, '小米su7'), (1100, 187, '保时捷718');
+         INSERT INTO ${SchemaA}.test_table_15862_c0030 PARTITION (order_date='2026-01-13') SELECT id + 1000, CAST(id + 99 AS DECIMAL(10,3)), '小米su7' FROM range(1, 4);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardB」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          1）小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=10且<=280
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          2）保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>=180且<=999
+          * 初始值：2
+          * 无效值：0.1
+          * 精度倍数：2.2
+          * 偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，两个车型的标准值分别配置完成，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardB」绑定 amount 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0030
+          * 选择已有分区：order_date=2026-01-12
+          * 标准目录：CatalogA
+          车型关联字段：car_model
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 amount 字段的检查，检查项勾选「字符串长度」「重复数」，点击「下一步」
+        expected: amount 展示字符串长度、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 100%，不达标字段数/检查失败数为 0/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示字符串长度、重复数均显示「达标」
+          3) 关联标准详情与配置内容一致
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：字符串长度、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0031
+    title: 验证【数据标准】-【落标检查】配置金额字段全部检查项并执行，展示 6 项检查结果且标准达标率 100%(车型关联字段为空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0031;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0031 (id BIGINT, money DOUBLE, dt STRING) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0031 PARTITION (dt='2026-05-27') VALUES (2, 4.00), (4, 6.00), (6, 10.00);
+         INSERT INTO ${SchemaA}.test_table_15862_c0031 PARTITION (dt='2026-05-28') SELECT id, CAST(id * 2 AS DOUBLE) FROM range(4, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=20
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardA」绑定 money 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0031
+          * 选择已有分区：dt=2026-05-27
+          * 标准目录：CatalogA
+          车型关联字段：不配置
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 money 字段的检查，检查项勾选「字符串长度」「数据精度」「空值数」「取值范围」「精度倍数」「重复数」，点击「下一步」
+        expected: money 展示 6 个检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 100%，不达标字段数/检查失败数为 0/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示字符串长度、数据精度、空值数、取值范围、精度倍数、重复数均显示「达标」
+          3) 关联标准详情与配置内容一致
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) 字符串长度、数据精度、空值数、取值范围、精度倍数规则 SQL 合并：源表只扫描一次，可合并规则写在同一个 SELECT 中用 SUM(CASE WHEN) 并行计算，计算结果拆成多行插入同一张脏数据表
+          2) 重复数规则 SQL 不合并：单独一个 SELECT 计算，不参与 SUM(CASE WHEN) 并行计算逻辑，脏数据存储于另一张脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0032
+    title: 验证【数据标准】-【落标检查】配置取值范围与重复数检查并执行，取值范围未达标且重复数达标(车型关联字段为空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0032;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0032 (id BIGINT, money DOUBLE, dt STRING) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0032 PARTITION (dt='2026-05-27') VALUES (2, 4.00), (4, 6.00), (6, 55.00);
+         INSERT INTO ${SchemaA}.test_table_15862_c0032 PARTITION (dt='2026-05-28') SELECT id, CAST(id * 10 AS DOUBLE) FROM range(4, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=20
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardA」绑定 money 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0032
+          是否设置分区：不设置
+          * 标准目录：CatalogA
+          车型关联字段：不配置
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 money 字段的检查，检查项勾选「取值范围」「重复数」，点击「下一步」
+        expected: money 展示取值范围、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 0%，不达标字段数/检查失败数为 1/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「未达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示取值范围显示「未达标」，重复数显示「达标」，操作为「查看详情」
+          3) 关联标准详情与配置内容一致
+      - action: 点击未达标检查项的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，行数不超过 100
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：取值范围、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0033
+    title: 验证【数据标准】-【落标检查】配置空值数与重复数检查并执行，空值数和重复数未达标(车型关联字段为空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0033;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0033 (id BIGINT, money DOUBLE, dt STRING) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0033 PARTITION (dt='2026-05-27') VALUES (2, 4.00), (4, 6.00), (6, 10.00);
+         INSERT INTO ${SchemaA}.test_table_15862_c0033 PARTITION (dt='2026-05-28') SELECT id, CASE WHEN id IN (102, 104) THEN NULL ELSE 123.45 END FROM range(101, 106);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=20
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardA」绑定 money 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0033
+          * 手动输入分区：dt=2026-05-28
+          * 标准目录：CatalogA
+          车型关联字段：不配置
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 money 字段的检查，检查项勾选「空值数」「重复数」，点击「下一步」
+        expected: money 展示空值数、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 0%，不达标字段数/检查失败数为 1/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「未达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示空值数、重复数均显示「未达标」，操作为「查看详情」
+          3) 关联标准详情与配置内容一致
+      - action: 点击未达标检查项的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，行数不超过 100
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：空值数、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0034
+    title: 验证【数据标准】-【落标检查】配置精度倍数与重复数检查并执行，精度倍数和重复数达标且标准达标率 100%(车型关联字段为空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0034;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0034 (id BIGINT, money DOUBLE, dt STRING) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0034 PARTITION (dt='2026-05-27') VALUES (2, 4.00), (4, 6.00), (6, 10.00);
+         INSERT INTO ${SchemaA}.test_table_15862_c0034 PARTITION (dt='2026-05-28') SELECT id, CAST(id * 2 AS DOUBLE) FROM range(4, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=20
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardA」绑定 money 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0034
+          * 选择已有分区：dt=2026-05-27
+          * 标准目录：CatalogA
+          车型关联字段：不配置
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 money 字段的检查，检查项勾选「精度倍数」「重复数」，点击「下一步」
+        expected: money 展示精度倍数、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 100%，不达标字段数/检查失败数为 0/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示精度倍数、重复数均显示「达标」
+          3) 关联标准详情与配置内容一致
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：精度倍数、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0035
+    title: 验证【数据标准】-【落标检查】配置数据精度与重复数检查并执行，数据精度和重复数达标且标准达标率 100%(车型关联字段为空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0035;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0035 (id BIGINT, money DOUBLE, dt STRING) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0035 PARTITION (dt='2026-05-27') VALUES (2, 4.00), (4, 6.00), (6, 10.00);
+         INSERT INTO ${SchemaA}.test_table_15862_c0035 PARTITION (dt='2026-05-28') SELECT id, CAST(id * 2 AS DOUBLE) FROM range(4, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=20
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardA」绑定 money 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0035
+          * 选择已有分区：dt=2026-05-27
+          * 标准目录：CatalogA
+          车型关联字段：不配置
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 money 字段的检查，检查项勾选「数据精度」「重复数」，点击「下一步」
+        expected: money 展示数据精度、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 100%，不达标字段数/检查失败数为 0/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示数据精度、重复数均显示「达标」
+          3) 关联标准详情与配置内容一致
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：数据精度、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0036
+    title: 验证【数据标准】-【落标检查】配置字符串长度与重复数检查并执行，字符串长度和重复数未达标(车型关联字段为空)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0036;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0036 (id BIGINT, money DOUBLE, dt STRING) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0036 PARTITION (dt='2026-05-27') VALUES (2, 4.00), (4, 6.00), (6, 10.00);
+         INSERT INTO ${SchemaA}.test_table_15862_c0036 PARTITION (dt='2026-05-28') SELECT id, CASE WHEN id IN (5, 6) THEN 12345678901234567890.5 ELSE CAST(id AS DOUBLE) END FROM range(4, 7);
+      5) 标准目录「CatalogA」已存在，且不存在标准「StandardA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准信息：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=20
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          * 默认值：1
+          * 取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击「上线」
+        expected: 标准配置成功，标准上线成功
+      - action: 点击「标准映射」，给标准「StandardA」绑定 money 字段
+        expected: 字段绑定成功，标准映射列表新增该标准
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0036
+          是否设置分区：不设置
+          * 标准目录：CatalogA
+          车型关联字段：不配置
+          点击「下一步」
+        expected: 检查内容配置成功，进入选择字段页面
+      - action: 开启 money 字段的检查，检查项勾选「字符串长度」「重复数」，点击「下一步」
+        expected: money 展示字符串长度、重复数检查项，进入调度配置页面
+      - action: |-
+          配置调度属性：
+          * 调度周期：按天运行
+          * 规则拼接包：空
+          * 资源组：空
+          * 超时时间：空
+          * 告警方式：空
+          * 无需生成报告：不勾选
+          * 报告名称：空
+          点击「新增并立即执行」
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: |-
+          1) 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间、操作
+          2) 标准达标率为 0%，不达标字段数/检查失败数为 1/0
+      - action: 点击该检查任务的【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: |-
+          1) 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间、操作
+          2) 检查状态为「检查完成」，是否达标为「未达标」
+      - action: 点击检查任务的【操作-查看详情】
+        expected: |-
+          1) 检查信息展示检查数据源、数据库、数据表、字段，与配置内容一致
+          2) 检查结果列表展示字符串长度、重复数均显示「未达标」，操作为「查看详情」
+          3) 关联标准详情与配置内容一致
+      - action: 点击未达标检查项的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，行数不超过 100
+      - action: 查看该检查任务生成的 SQL
+        expected: |-
+          1) SQL 未合并：字符串长度、重复数规则各自单独读取一遍源数据表
+          2) 一条规则对应一个 SELECT 计算语句，无 SUM(CASE WHEN) 并行计算逻辑
+          3) 不同规则的脏数据分开存入不同的脏数据表
+      - action: 等待该检查任务按周期运行完成，再次查看结果详情
+        expected: 结果详情展示周期运行的检查项达标情况、检查时间和脏数据明细，与配置内容一致
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0037
+    title: 验证【数据标准】-【落标检查】不绑定车型关联字段执行重复数检查，重复数达标且标准达标率 100%(车型关联字段为空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0037;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0037 (id BIGINT, car_model STRING, amount DECIMAL(10,3), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0037 VALUES
+         (1000, '小米su7', 265.200, DATE '2026-01-12'),
+         (102, '小米su7', 140.800, DATE '2026-01-12'),
+         (1100, '保时捷718', 187.000, DATE '2026-01-12');
+         INSERT INTO ${SchemaA}.test_table_15862_c0037 VALUES
+         (1001, '小米su7', 265.000, DATE '2026-01-13'),
+         (102, '小米su7', 15483.568, DATE '2026-01-13'),
+         (110030, '保时捷718', 80.555, DATE '2026-01-13');
+      5) 已存在标准目录「CatalogA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          小米su7：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准状态展示为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 页面打开成功
+      - action: 新建标准映射，为该标准绑定 amount 字段
+        expected: 标准映射列表新增该标准，展示绑定字段 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 页面打开成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0037
+          选择已有分区：dt=2026-01-12
+          * 标准目录：CatalogA
+          车型关联字段：保持未选择
+          点击【下一步】
+        expected: 检查对象展示数据源、数据库、数据表和标准目录，车型关联字段为空，进入字段选择页面
+      - action: 启用 amount 字段的检查，检查项选择「重复数」，点击【下一步】
+        expected: amount 展示检查项「重复数」，进入调度配置页面
+      - action: |-
+          配置调度配置：
+          * 检查周期：按天运行
+          点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间和最近检查时间，其中标准达标率为 100%、不达标字段数/检查失败数为 0/0
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间和检查结束时间，其中检查状态为「检查完成」、是否达标为「达标」
+      - action: 点击【操作-查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，重复数检查项状态为「达标」、开始检查时间与结束检查时间已生成、操作为「--」
+      - action: 查看该检查任务生成的 SQL
+        expected: 任务 SQL 未合并，只有单个 select 语句，无 SUM(CASE WHEN) 并行计算逻辑，重复数异常记录写入独立脏数据表
+      - action: 等待该检查任务按天周期运行完成，查看最新结果详情
+        expected: 最新执行记录展示检查状态为「检查完成」，重复数检查项展示「达标」
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0038
+    title: 验证【数据标准】-【落标检查】不绑定车型关联字段执行取值范围检查，取值范围达标且 SQL 合并单次扫描(车型关联字段为空)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0038;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0038 (id BIGINT, car_model STRING, amount DECIMAL(10,3), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0038 VALUES
+         (1000, '小米su7', 265.200, DATE '2026-01-12'),
+         (102, '小米su7', 140.800, DATE '2026-01-12'),
+         (1100, '保时捷718', 187.000, DATE '2026-01-12');
+         INSERT INTO ${SchemaA}.test_table_15862_c0038 VALUES
+         (1001, '小米su7', 265.000, DATE '2026-01-13'),
+         (102, '小米su7', 15483.568, DATE '2026-01-13'),
+         (110030, '保时捷718', 80.555, DATE '2026-01-13');
+      5) 已存在标准目录「CatalogA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          小米su7：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准状态展示为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 页面打开成功
+      - action: 新建标准映射，为该标准绑定 amount 字段
+        expected: 标准映射列表新增该标准，展示绑定字段 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 页面打开成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0038
+          选择已有分区：dt=2026-01-12
+          * 标准目录：CatalogA
+          车型关联字段：保持未选择
+          点击【下一步】
+        expected: 检查对象展示数据源、数据库、数据表和标准目录，车型关联字段为空，进入字段选择页面
+      - action: 启用 amount 字段的检查，检查项选择「取值范围」，点击【下一步】
+        expected: amount 展示检查项「取值范围」，进入调度配置页面
+      - action: |-
+          配置调度配置：
+          * 检查周期：按天运行
+          点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间和最近检查时间，其中标准达标率为 100%、不达标字段数/检查失败数为 0/0
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间和检查结束时间，其中检查状态为「检查完成」、是否达标为「达标」
+      - action: 点击【操作-查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，取值范围检查项状态为「达标」、开始检查时间与结束检查时间已生成、操作为「--」
+      - action: 查看该检查任务生成的 SQL
+        expected: 任务 SQL 已合并，源表单次扫描，使用 SUM(CASE WHEN) 并行计算，取值范围异常记录写入同一张脏数据表
+      - action: 等待该检查任务按天周期运行完成，查看最新结果详情
+        expected: 最新执行记录展示检查状态为「检查完成」，取值范围检查项展示「达标」
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0039
+    title: 验证【数据标准】-【落标检查】不绑定车型关联字段执行空值数检查，空值数达标且标准达标率 100%(车型关联字段为空)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0039;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0039 (id BIGINT, car_model STRING, amount DECIMAL(10,3), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0039 VALUES
+         (1000, '小米su7', 265.200, DATE '2026-01-12'),
+         (102, '小米su7', 140.800, DATE '2026-01-12'),
+         (1100, '保时捷718', 187.000, DATE '2026-01-12');
+         INSERT INTO ${SchemaA}.test_table_15862_c0039 VALUES
+         (1001, '小米su7', 265.000, DATE '2026-01-13'),
+         (102, '小米su7', 15483.568, DATE '2026-01-13'),
+         (110030, '保时捷718', 80.555, DATE '2026-01-13');
+      5) 已存在标准目录「CatalogA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          小米su7：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准状态展示为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 页面打开成功
+      - action: 新建标准映射，为该标准绑定 amount 字段
+        expected: 标准映射列表新增该标准，展示绑定字段 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 页面打开成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0039
+          选择已有分区：dt=2026-01-12
+          * 标准目录：CatalogA
+          车型关联字段：保持未选择
+          点击【下一步】
+        expected: 检查对象展示数据源、数据库、数据表和标准目录，车型关联字段为空，进入字段选择页面
+      - action: 启用 amount 字段的检查，检查项选择「空值数」，点击【下一步】
+        expected: amount 展示检查项「空值数」，进入调度配置页面
+      - action: |-
+          配置调度配置：
+          * 检查周期：按天运行
+          点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间和最近检查时间，其中标准达标率为 100%、不达标字段数/检查失败数为 0/0
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间和检查结束时间，其中检查状态为「检查完成」、是否达标为「达标」
+      - action: 点击【操作-查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，空值数检查项状态为「达标」、开始检查时间与结束检查时间已生成、操作为「--」
+      - action: 查看该检查任务生成的 SQL
+        expected: 任务 SQL 已合并，源表单次扫描，使用 SUM(CASE WHEN) 并行计算，空值数异常记录写入同一张脏数据表
+      - action: 等待该检查任务按天周期运行完成，查看最新结果详情
+        expected: 最新执行记录展示检查状态为「检查完成」，空值数检查项展示「达标」
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0040
+    title: 验证【数据标准】-【落标检查】不绑定车型关联字段执行精度倍数检查，精度倍数达标且标准达标率 100%(车型关联字段为空)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0040;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0040 (id BIGINT, car_model STRING, amount DECIMAL(10,3), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0040 VALUES
+         (1000, '小米su7', 265.200, DATE '2026-01-12'),
+         (102, '小米su7', 140.800, DATE '2026-01-12'),
+         (1100, '保时捷718', 187.000, DATE '2026-01-12');
+         INSERT INTO ${SchemaA}.test_table_15862_c0040 VALUES
+         (1001, '小米su7', 265.000, DATE '2026-01-13'),
+         (102, '小米su7', 15483.568, DATE '2026-01-13'),
+         (110030, '保时捷718', 80.555, DATE '2026-01-13');
+      5) 已存在标准目录「CatalogA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          小米su7：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准状态展示为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 页面打开成功
+      - action: 新建标准映射，为该标准绑定 amount 字段
+        expected: 标准映射列表新增该标准，展示绑定字段 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 页面打开成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0040
+          选择已有分区：dt=2026-01-12
+          * 标准目录：CatalogA
+          车型关联字段：保持未选择
+          点击【下一步】
+        expected: 检查对象展示数据源、数据库、数据表和标准目录，车型关联字段为空，进入字段选择页面
+      - action: 启用 amount 字段的检查，检查项选择「精度倍数」，点击【下一步】
+        expected: amount 展示检查项「精度倍数」，进入调度配置页面
+      - action: |-
+          配置调度配置：
+          * 检查周期：按天运行
+          点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间和最近检查时间，其中标准达标率为 100%、不达标字段数/检查失败数为 0/0
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间和检查结束时间，其中检查状态为「检查完成」、是否达标为「达标」
+      - action: 点击【操作-查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，精度倍数检查项状态为「达标」、开始检查时间与结束检查时间已生成、操作为「--」
+      - action: 查看该检查任务生成的 SQL
+        expected: 任务 SQL 已合并，源表单次扫描，使用 SUM(CASE WHEN) 并行计算，精度倍数异常记录写入同一张脏数据表
+      - action: 等待该检查任务按天周期运行完成，查看最新结果详情
+        expected: 最新执行记录展示检查状态为「检查完成」，精度倍数检查项展示「达标」
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0041
+    title: 验证【数据标准】-【落标检查】不绑定车型关联字段执行数据精度检查，数据精度未达标且脏数据明细标红展示(车型关联字段为空)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0041;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0041 (id BIGINT, car_model STRING, amount DECIMAL(10,3), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0041 VALUES
+         (1000, '小米su7', 265.200, DATE '2026-01-12'),
+         (102, '小米su7', 140.800, DATE '2026-01-12'),
+         (1100, '保时捷718', 187.000, DATE '2026-01-12');
+         INSERT INTO ${SchemaA}.test_table_15862_c0041 VALUES
+         (1001, '小米su7', 265.000, DATE '2026-01-13'),
+         (102, '小米su7', 15483.568, DATE '2026-01-13'),
+         (110030, '保时捷718', 80.555, DATE '2026-01-13');
+      5) 已存在标准目录「CatalogA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          小米su7：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准状态展示为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 页面打开成功
+      - action: 新建标准映射，为该标准绑定 amount 字段
+        expected: 标准映射列表新增该标准，展示绑定字段 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 页面打开成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0041
+          选择已有分区：dt=2026-01-13
+          * 标准目录：CatalogA
+          车型关联字段：保持未选择
+          点击【下一步】
+        expected: 检查对象展示数据源、数据库、数据表和标准目录，车型关联字段为空，进入字段选择页面
+      - action: 启用 amount 字段的检查，检查项选择「数据精度」，点击【下一步】
+        expected: amount 展示检查项「数据精度」，进入调度配置页面
+      - action: |-
+          配置调度配置：
+          * 检查周期：按天运行
+          点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间和最近检查时间，其中标准达标率为 0%、不达标字段数/检查失败数为 1/0
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间和检查结束时间，其中检查状态为「检查完成」、是否达标为「未达标」
+      - action: 点击【操作-查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，数据精度检查项状态为「未达标」、开始检查时间与结束检查时间已生成、操作为「查看详情」
+      - action: 点击数据精度检查项对应的【操作-查看详情】
+        expected: 脏数据明细展示不符合检查项的数据并标红，明细行数 ≤ 100
+      - action: 查看该检查任务生成的 SQL
+        expected: 任务 SQL 已合并，源表单次扫描，使用 SUM(CASE WHEN) 并行计算，数据精度异常记录写入同一张脏数据表
+      - action: 等待该检查任务按天周期运行完成，查看最新结果详情
+        expected: 最新执行记录展示检查状态为「检查完成」，数据精度检查项展示「未达标」
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0042
+    title: 验证【数据标准】-【落标检查】不绑定车型关联字段执行字符串长度检查，字符串长度未达标且脏数据明细标红展示(车型关联字段为空)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0042;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0042 (id BIGINT, car_model STRING, amount DECIMAL(10,3), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0042 VALUES
+         (1000, '小米su7', 265.200, DATE '2026-01-12'),
+         (102, '小米su7', 140.800, DATE '2026-01-12'),
+         (1100, '保时捷718', 187.000, DATE '2026-01-12');
+         INSERT INTO ${SchemaA}.test_table_15862_c0042 VALUES
+         (1001, '小米su7', 265.000, DATE '2026-01-13'),
+         (102, '小米su7', 15483.568, DATE '2026-01-13'),
+         (110030, '保时捷718', 80.555, DATE '2026-01-13');
+      5) 已存在标准目录「CatalogA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          小米su7：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准状态展示为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 页面打开成功
+      - action: 新建标准映射，为该标准绑定 amount 字段
+        expected: 标准映射列表新增该标准，展示绑定字段 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 页面打开成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0042
+          选择已有分区：dt=2026-01-13
+          * 标准目录：CatalogA
+          车型关联字段：保持未选择
+          点击【下一步】
+        expected: 检查对象展示数据源、数据库、数据表和标准目录，车型关联字段为空，进入字段选择页面
+      - action: 启用 amount 字段的检查，检查项选择「字符串长度」，点击【下一步】
+        expected: amount 展示检查项「字符串长度」，进入调度配置页面
+      - action: |-
+          配置调度配置：
+          * 检查周期：按天运行
+          点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间和最近检查时间，其中标准达标率为 0%、不达标字段数/检查失败数为 1/0
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间和检查结束时间，其中检查状态为「检查完成」、是否达标为「未达标」
+      - action: 点击【操作-查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，字符串长度检查项状态为「未达标」、开始检查时间与结束检查时间已生成、操作为「查看详情」
+      - action: 点击字符串长度检查项对应的【操作-查看详情】
+        expected: 脏数据明细展示不符合检查项的数据并标红，明细行数 ≤ 100
+      - action: 查看该检查任务生成的 SQL
+        expected: 任务 SQL 已合并，源表单次扫描，使用 SUM(CASE WHEN) 并行计算，字符串长度异常记录写入同一张脏数据表
+      - action: 等待该检查任务按天周期运行完成，查看最新结果详情
+        expected: 最新执行记录展示检查状态为「检查完成」，字符串长度检查项展示「未达标」
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0043
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段执行重复数检查，重复数达标且 SQL 保持独立查询(车型关联字段非空)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0043;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0043 (id BIGINT, car_model STRING, amount DECIMAL(10,3), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0043 VALUES
+         (1000, '小米su7', 265.200, DATE '2026-01-12'),
+         (102, '小米su7', 140.800, DATE '2026-01-12'),
+         (1100, '保时捷718', 187.000, DATE '2026-01-12');
+         INSERT INTO ${SchemaA}.test_table_15862_c0043 VALUES
+         (1001, '小米su7', 265.000, DATE '2026-01-13'),
+         (102, '小米su7', 15483.568, DATE '2026-01-13'),
+         (110030, '保时捷718', 80.555, DATE '2026-01-13');
+      5) 已存在标准目录「CatalogA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          小米su7：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准状态展示为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 页面打开成功
+      - action: 新建标准映射，为该标准绑定 amount 字段
+        expected: 标准映射列表新增该标准，展示绑定字段 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 页面打开成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0043
+          选择已有分区：dt=2026-01-12
+          * 标准目录：CatalogA
+          车型关联字段：car_model
+          点击【下一步】
+        expected: 检查对象展示数据源、数据库、数据表和标准目录，车型关联字段为 car_model，进入字段选择页面
+      - action: 启用 amount 字段的检查，检查项选择「重复数」，点击【下一步】
+        expected: amount 展示检查项「重复数」，进入调度配置页面
+      - action: |-
+          配置调度配置：
+          * 检查周期：按天运行
+          点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间和最近检查时间，其中标准达标率为 100%、不达标字段数/检查失败数为 0/0
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间和检查结束时间，其中检查状态为「检查完成」、是否达标为「达标」
+      - action: 点击【操作-查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，重复数检查项状态为「达标」、开始检查时间与结束检查时间已生成、操作为「--」
+      - action: 查看该检查任务生成的 SQL
+        expected: 任务 SQL 未合并，只有单个 select 语句，无 SUM(CASE WHEN) 并行计算逻辑，重复数异常记录写入独立脏数据表
+      - action: 等待该检查任务按天周期运行完成，查看最新结果详情
+        expected: 最新执行记录展示检查状态为「检查完成」，重复数检查项展示「达标」
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0044
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段执行取值范围检查，取值范围未达标且脏数据明细标红展示(车型关联字段非空)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0044;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0044 (id BIGINT, car_model STRING, amount DECIMAL(10,3), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0044 VALUES
+         (1000, '小米su7', 265.200, DATE '2026-01-12'),
+         (102, '小米su7', 140.800, DATE '2026-01-12'),
+         (1100, '保时捷718', 187.000, DATE '2026-01-12');
+         INSERT INTO ${SchemaA}.test_table_15862_c0044 VALUES
+         (1001, '小米su7', 265.000, DATE '2026-01-13'),
+         (102, '小米su7', 15483.568, DATE '2026-01-13'),
+         (110030, '保时捷718', 80.555, DATE '2026-01-13');
+      5) 已存在标准目录「CatalogA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          小米su7：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准状态展示为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 页面打开成功
+      - action: 新建标准映射，为该标准绑定 amount 字段
+        expected: 标准映射列表新增该标准，展示绑定字段 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 页面打开成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0044
+          选择已有分区：dt=2026-01-13
+          * 标准目录：CatalogA
+          车型关联字段：car_model
+          点击【下一步】
+        expected: 检查对象展示数据源、数据库、数据表和标准目录，车型关联字段为 car_model，进入字段选择页面
+      - action: 启用 amount 字段的检查，检查项选择「取值范围」，点击【下一步】
+        expected: amount 展示检查项「取值范围」，进入调度配置页面
+      - action: |-
+          配置调度配置：
+          * 检查周期：按天运行
+          点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间和最近检查时间，其中标准达标率为 0%、不达标字段数/检查失败数为 1/0
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间和检查结束时间，其中检查状态为「检查完成」、是否达标为「未达标」
+      - action: 点击【操作-查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，取值范围检查项状态为「未达标」、开始检查时间与结束检查时间已生成、操作为「查看详情」
+      - action: 点击取值范围检查项对应的【操作-查看详情】
+        expected: 脏数据明细展示不符合检查项的数据并标红，明细行数 ≤ 100
+      - action: 查看该检查任务生成的 SQL
+        expected: 任务 SQL 已合并，源表单次扫描，使用 SUM(CASE WHEN) 并行计算，取值范围异常记录写入同一张脏数据表
+      - action: 等待该检查任务按天周期运行完成，查看最新结果详情
+        expected: 最新执行记录展示检查状态为「检查完成」，取值范围检查项展示「未达标」
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0045
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段执行空值数检查，空值数达标且标准达标率 100%(车型关联字段非空)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0045;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0045 (id BIGINT, car_model STRING, amount DECIMAL(10,3), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0045 VALUES
+         (1000, '小米su7', 265.200, DATE '2026-01-12'),
+         (102, '小米su7', 140.800, DATE '2026-01-12'),
+         (1100, '保时捷718', 187.000, DATE '2026-01-12');
+         INSERT INTO ${SchemaA}.test_table_15862_c0045 VALUES
+         (1001, '小米su7', 265.000, DATE '2026-01-13'),
+         (102, '小米su7', 15483.568, DATE '2026-01-13'),
+         (110030, '保时捷718', 80.555, DATE '2026-01-13');
+      5) 已存在标准目录「CatalogA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          小米su7：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准状态展示为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 页面打开成功
+      - action: 新建标准映射，为该标准绑定 amount 字段
+        expected: 标准映射列表新增该标准，展示绑定字段 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 页面打开成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0045
+          选择已有分区：dt=2026-01-12
+          * 标准目录：CatalogA
+          车型关联字段：car_model
+          点击【下一步】
+        expected: 检查对象展示数据源、数据库、数据表和标准目录，车型关联字段为 car_model，进入字段选择页面
+      - action: 启用 amount 字段的检查，检查项选择「空值数」，点击【下一步】
+        expected: amount 展示检查项「空值数」，进入调度配置页面
+      - action: |-
+          配置调度配置：
+          * 检查周期：按天运行
+          点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间和最近检查时间，其中标准达标率为 100%、不达标字段数/检查失败数为 0/0
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间和检查结束时间，其中检查状态为「检查完成」、是否达标为「达标」
+      - action: 点击【操作-查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，空值数检查项状态为「达标」、开始检查时间与结束检查时间已生成、操作为「--」
+      - action: 查看该检查任务生成的 SQL
+        expected: 任务 SQL 已合并，源表单次扫描，使用 SUM(CASE WHEN) 并行计算，空值数异常记录写入同一张脏数据表
+      - action: 等待该检查任务按天周期运行完成，查看最新结果详情
+        expected: 最新执行记录展示检查状态为「检查完成」，空值数检查项展示「达标」
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0046
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段不设置分区执行精度倍数检查，精度倍数未达标且脏数据明细标红展示(分区未配置且车型关联字段非空)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0046;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0046 (id BIGINT, car_model STRING, amount DECIMAL(10,3), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0046 VALUES
+         (1000, '小米su7', 265.200, DATE '2026-01-12'),
+         (102, '小米su7', 140.800, DATE '2026-01-12'),
+         (1100, '保时捷718', 187.000, DATE '2026-01-12');
+         INSERT INTO ${SchemaA}.test_table_15862_c0046 VALUES
+         (1001, '小米su7', 265.000, DATE '2026-01-13'),
+         (102, '小米su7', 15483.568, DATE '2026-01-13'),
+         (110030, '保时捷718', 80.555, DATE '2026-01-13');
+      5) 已存在标准目录「CatalogA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          小米su7：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准状态展示为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 页面打开成功
+      - action: 新建标准映射，为该标准绑定 amount 字段
+        expected: 标准映射列表新增该标准，展示绑定字段 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 页面打开成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0046
+          不设置分区
+          * 标准目录：CatalogA
+          车型关联字段：car_model
+          点击【下一步】
+        expected: 检查对象展示数据源、数据库、数据表和标准目录，分区未设置，车型关联字段为 car_model，进入字段选择页面
+      - action: 启用 amount 字段的检查，检查项选择「精度倍数」，点击【下一步】
+        expected: amount 展示检查项「精度倍数」，进入调度配置页面
+      - action: |-
+          配置调度配置：
+          * 检查周期：按天运行
+          点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间和最近检查时间，其中标准达标率为 0%、不达标字段数/检查失败数为 1/0
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间和检查结束时间，其中检查状态为「检查完成」、是否达标为「未达标」
+      - action: 点击【操作-查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，精度倍数检查项状态为「未达标」、开始检查时间与结束检查时间已生成、操作为「查看详情」
+      - action: 点击精度倍数检查项对应的【操作-查看详情】
+        expected: 脏数据明细展示不符合检查项的数据并标红，明细行数 ≤ 100
+      - action: 查看该检查任务生成的 SQL
+        expected: 任务 SQL 已合并，源表单次扫描，使用 SUM(CASE WHEN) 并行计算，精度倍数异常记录写入同一张脏数据表
+      - action: 等待该检查任务按天周期运行完成，查看最新结果详情
+        expected: 最新执行记录展示检查状态为「检查完成」，精度倍数检查项展示「未达标」
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0047
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段执行数据精度检查，数据精度未达标且脏数据明细标红展示(车型关联字段非空)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0047;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0047 (id BIGINT, car_model STRING, amount DECIMAL(10,3), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0047 VALUES
+         (1000, '小米su7', 265.200, DATE '2026-01-12'),
+         (102, '小米su7', 140.800, DATE '2026-01-12'),
+         (1100, '保时捷718', 187.000, DATE '2026-01-12');
+         INSERT INTO ${SchemaA}.test_table_15862_c0047 VALUES
+         (1001, '小米su7', 265.000, DATE '2026-01-13'),
+         (102, '小米su7', 15483.568, DATE '2026-01-13'),
+         (110030, '保时捷718', 80.555, DATE '2026-01-13');
+      5) 已存在标准目录「CatalogA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          小米su7：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准状态展示为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 页面打开成功
+      - action: 新建标准映射，为该标准绑定 amount 字段
+        expected: 标准映射列表新增该标准，展示绑定字段 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 页面打开成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0047
+          选择已有分区：dt=2026-01-13
+          * 标准目录：CatalogA
+          车型关联字段：car_model
+          点击【下一步】
+        expected: 检查对象展示数据源、数据库、数据表和标准目录，车型关联字段为 car_model，进入字段选择页面
+      - action: 启用 amount 字段的检查，检查项选择「数据精度」，点击【下一步】
+        expected: amount 展示检查项「数据精度」，进入调度配置页面
+      - action: |-
+          配置调度配置：
+          * 检查周期：按天运行
+          点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间和最近检查时间，其中标准达标率为 0%、不达标字段数/检查失败数为 1/0
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间和检查结束时间，其中检查状态为「检查完成」、是否达标为「未达标」
+      - action: 点击【操作-查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，数据精度检查项状态为「未达标」、开始检查时间与结束检查时间已生成、操作为「查看详情」
+      - action: 点击数据精度检查项对应的【操作-查看详情】
+        expected: 脏数据明细展示不符合检查项的数据并标红，明细行数 ≤ 100
+      - action: 查看该检查任务生成的 SQL
+        expected: 任务 SQL 已合并，源表单次扫描，使用 SUM(CASE WHEN) 并行计算，数据精度异常记录写入同一张脏数据表
+      - action: 等待该检查任务按天周期运行完成，查看最新结果详情
+        expected: 最新执行记录展示检查状态为「检查完成」，数据精度检查项展示「未达标」
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0048
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段执行字符串长度检查，字符串长度达标且标准达标率 100%(车型关联字段非空)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并插入两个分区数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0048;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0048 (id BIGINT, car_model STRING, amount DECIMAL(10,3), dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0048 VALUES
+         (1000, '小米su7', 265.200, DATE '2026-01-12'),
+         (102, '小米su7', 140.800, DATE '2026-01-12'),
+         (1100, '保时捷718', 187.000, DATE '2026-01-12');
+         INSERT INTO ${SchemaA}.test_table_15862_c0048 VALUES
+         (1001, '小米su7', 265.000, DATE '2026-01-13'),
+         (102, '小米su7', 15483.568, DATE '2026-01-13'),
+         (110030, '保时捷718', 80.555, DATE '2026-01-13');
+      5) 已存在标准目录「CatalogA」
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置基础信息：
+          * 中文名称：总额
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          * 车型：小米su7、保时捷718
+          小米su7：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          数据类型：数值型
+          数据长度：<=5
+          数据精度：3/2
+          是否允许为空：不可空
+          是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准状态展示为「已上线」
+      - action: 进入【数据标准 → 标准映射】页面
+        expected: 页面打开成功
+      - action: 新建标准映射，为该标准绑定 amount 字段
+        expected: 标准映射列表新增该标准，展示绑定字段 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 页面打开成功
+      - action: |-
+          点击【新增检查任务】，配置检查内容：
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15862_c0048
+          选择已有分区：dt=2026-01-12
+          * 标准目录：CatalogA
+          车型关联字段：car_model
+          点击【下一步】
+        expected: 检查对象展示数据源、数据库、数据表和标准目录，车型关联字段为 car_model，进入字段选择页面
+      - action: 启用 amount 字段的检查，检查项选择「字符串长度」，点击【下一步】
+        expected: amount 展示检查项「字符串长度」，进入调度配置页面
+      - action: |-
+          配置调度配置：
+          * 检查周期：按天运行
+          点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、所属数据源、所属数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间和最近检查时间，其中标准达标率为 100%、不达标字段数/检查失败数为 0/0
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab
+      - action: 查看【落标检查结果】tab 列表
+        expected: 列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间和检查结束时间，其中检查状态为「检查完成」、是否达标为「达标」
+      - action: 点击【操作-查看详情】
+        expected: 结果详情展示检查信息、检查结果列表和关联标准详情，字符串长度检查项状态为「达标」、开始检查时间与结束检查时间已生成、操作为「--」
+      - action: 查看该检查任务生成的 SQL
+        expected: 任务 SQL 已合并，源表单次扫描，使用 SUM(CASE WHEN) 并行计算，字符串长度异常记录写入同一张脏数据表
+      - action: 等待该检查任务按天周期运行完成，查看最新结果详情
+        expected: 最新执行记录展示检查状态为「检查完成」，字符串长度检查项展示「达标」
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0049
+    title: 验证【数据标准】-【落标检查】仅配置重复数检查项并执行，展示重复数达标且 SQL 未合并(重复数 = 0)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入测试记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0049;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0049 (id INT, string_num STRING, name STRING, money DOUBLE, dt STRING) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0049 PARTITION (dt='2026-05-27') SELECT id, CONCAT('A', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('用户', CAST(id AS STRING)), CAST(id * 2 AS DECIMAL(10,2)) FROM range(1, 7);
+         INSERT INTO ${SchemaA}.test_table_15862_c0049 PARTITION (dt='2026-05-28') SELECT id, CONCAT('B', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('客户', CAST(id AS STRING)), CAST(id * 2 AS DECIMAL(10,2)) FROM range(1, 7);
+      5) 存在标准目录：CatalogA
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准定义：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=20
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准「StandardA」上线成功，标准定义列表展示该标准
+      - action: 进入【数据标准 → 标准映射】页面，为「StandardA」绑定字段 money
+        expected: 标准映射列表新增标准「StandardA」，映射字段展示 money
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: 点击【新增检查任务】，选择 ${DataSourceA}、${SchemaA}.test_table_15862_c0049 和标准目录「CatalogA」，选择已有分区 dt=2026-05-27，车型关联字段保持未选择，点击【下一步】
+        expected: 进入选择字段页面，检查对象展示数据源、数据库、数据表、标准目录和分区 dt=2026-05-27，车型关联字段为空
+      - action: 开启 money 字段检查，检查项选择「重复数」，点击【下一步】
+        expected: 进入调度配置页面，检查项展示重复数
+      - action: 选择按天执行并点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、数据源、数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间和操作；检查状态为「检查完成」，标准达标率为「100%」，不达标字段数/检查失败数为「0/0」
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作；检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击【操作-查看详情】
+        expected: 检查结果详情展示检查信息（数据源、数据库、数据表、字段），重复数结果为「达标」，检查开始时间和结束时间展示，操作为「--」，关联标准详情展示标准「StandardA」的配置内容
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: SQL 未进行合并，仅单个 SELECT 语句，无 SUM(CASE WHEN) 并行计算逻辑
+      - action: 等待该检查任务按周期运行完成后，再次查看结果详情
+        expected: 重复数检查项保持「达标」，结果详情展示本次执行的开始时间和结束时间
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0050
+    title: 验证【数据标准】-【落标检查】仅配置取值范围检查项并执行，展示取值范围未达标及脏数据明细(达标率 = 0%)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入测试记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0050;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0050 (id INT, string_num STRING, name STRING, money DOUBLE, dt STRING) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0050 PARTITION (dt='2026-05-27') SELECT id, CONCAT('A', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('用户', CAST(id AS STRING)), CAST(id * 2 AS DECIMAL(10,2)) FROM range(1, 7);
+         INSERT INTO ${SchemaA}.test_table_15862_c0050 PARTITION (dt='2026-05-28') SELECT id, CONCAT('B', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('客户', CAST(id AS STRING)), CASE WHEN id = 1 THEN 55.0 WHEN id = 2 THEN NULL ELSE CAST(id * 7 AS DECIMAL(10,2)) END FROM range(1, 7);
+      5) 存在标准目录：CatalogA
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准定义：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=20
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准「StandardA」上线成功，标准定义列表展示该标准
+      - action: 进入【数据标准 → 标准映射】页面，为「StandardA」绑定字段 money
+        expected: 标准映射列表新增标准「StandardA」，映射字段展示 money
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: 点击【新增检查任务】，选择 ${DataSourceA}、${SchemaA}.test_table_15862_c0050 和标准目录「CatalogA」，分区保持未选择，车型关联字段保持未选择，点击【下一步】
+        expected: 进入选择字段页面，检查对象展示数据源、数据库、数据表和标准目录，分区过滤条件为空，车型关联字段为空
+      - action: 开启 money 字段检查，检查项选择「取值范围」，点击【下一步】
+        expected: 进入调度配置页面，检查项展示取值范围
+      - action: 选择按天执行并点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、数据源、数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间和操作；检查状态为「检查完成」，标准达标率为「0%」，不达标字段数/检查失败数为「1/0」
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作；检查状态为「检查完成」，是否达标为「未达标」
+      - action: 点击【操作-查看详情】
+        expected: 检查结果详情展示检查信息（数据源、数据库、数据表、字段），取值范围结果为「未达标」，检查开始时间和结束时间展示，操作为「查看详情」，关联标准详情展示标准「StandardA」的配置内容
+      - action: 点击检查项对应的【操作-查看详情】
+        expected: 展示脏数据明细，不符合取值范围的数据标红展示，明细行数不超过 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: SQL 未进行合并，仅单个 SELECT 语句，无 SUM(CASE WHEN) 并行计算逻辑
+      - action: 等待该检查任务按周期运行完成后，再次查看结果详情
+        expected: 取值范围检查项保持「未达标」，脏数据明细继续展示不符合取值范围的数据
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0051
+    title: 验证【数据标准】-【落标检查】仅配置空值数检查项并执行，展示空值数未达标及脏数据明细(空值数 > 0)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入测试记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0051;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0051 (id INT, string_num STRING, name STRING, money DOUBLE, dt STRING) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0051 PARTITION (dt='2026-05-27') SELECT id, CONCAT('A', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('用户', CAST(id AS STRING)), CAST(id * 2 AS DECIMAL(10,2)) FROM range(1, 7);
+         INSERT INTO ${SchemaA}.test_table_15862_c0051 PARTITION (dt='2026-05-28') SELECT id, CONCAT('B', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('客户', CAST(id AS STRING)), CASE WHEN id IN (2, 4) THEN NULL ELSE CAST(id * 7 AS DECIMAL(10,2)) END FROM range(1, 7);
+      5) 存在标准目录：CatalogA
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准定义：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=20
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准「StandardA」上线成功，标准定义列表展示该标准
+      - action: 进入【数据标准 → 标准映射】页面，为「StandardA」绑定字段 money
+        expected: 标准映射列表新增标准「StandardA」，映射字段展示 money
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: 点击【新增检查任务】，选择 ${DataSourceA}、${SchemaA}.test_table_15862_c0051 和标准目录「CatalogA」，手动输入分区 dt=2026-05-28，车型关联字段保持未选择，点击【下一步】
+        expected: 进入选择字段页面，检查对象展示数据源、数据库、数据表、标准目录和分区 dt=2026-05-28，车型关联字段为空
+      - action: 开启 money 字段检查，检查项选择「空值数」，点击【下一步】
+        expected: 进入调度配置页面，检查项展示空值数
+      - action: 选择按天执行并点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、数据源、数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间和操作；检查状态为「检查完成」，标准达标率为「0%」，不达标字段数/检查失败数为「1/0」
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作；检查状态为「检查完成」，是否达标为「未达标」
+      - action: 点击【操作-查看详情】
+        expected: 检查结果详情展示检查信息（数据源、数据库、数据表、字段），空值数结果为「未达标」，检查开始时间和结束时间展示，操作为「查看详情」，关联标准详情展示标准「StandardA」的配置内容
+      - action: 点击检查项对应的【操作-查看详情】
+        expected: 展示脏数据明细，不符合空值数检查项的数据标红展示，明细行数不超过 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: SQL 未进行合并，仅单个 SELECT 语句，无 SUM(CASE WHEN) 并行计算逻辑
+      - action: 等待该检查任务按周期运行完成后，再次查看结果详情
+        expected: 空值数检查项保持「未达标」，脏数据明细继续展示不符合空值数检查项的数据
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0052
+    title: 验证【数据标准】-【落标检查】仅配置精度倍数检查项并执行，展示精度倍数达标且 SQL 未合并(达标率 = 100%)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入测试记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0052;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0052 (id INT, string_num STRING, name STRING, money DOUBLE, dt STRING) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0052 PARTITION (dt='2026-05-27') SELECT id, CONCAT('A', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('用户', CAST(id AS STRING)), CAST(id * 2 AS DECIMAL(10,2)) FROM range(1, 7);
+         INSERT INTO ${SchemaA}.test_table_15862_c0052 PARTITION (dt='2026-05-28') SELECT id, CONCAT('B', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('客户', CAST(id AS STRING)), CAST(id * 7 AS DECIMAL(10,2)) FROM range(1, 7);
+      5) 存在标准目录：CatalogA
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准定义：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=20
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准「StandardA」上线成功，标准定义列表展示该标准
+      - action: 进入【数据标准 → 标准映射】页面，为「StandardA」绑定字段 money
+        expected: 标准映射列表新增标准「StandardA」，映射字段展示 money
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: 点击【新增检查任务】，选择 ${DataSourceA}、${SchemaA}.test_table_15862_c0052 和标准目录「CatalogA」，选择已有分区 dt=2026-05-27，车型关联字段保持未选择，点击【下一步】
+        expected: 进入选择字段页面，检查对象展示数据源、数据库、数据表、标准目录和分区 dt=2026-05-27，车型关联字段为空
+      - action: 开启 money 字段检查，检查项选择「精度倍数」，点击【下一步】
+        expected: 进入调度配置页面，检查项展示精度倍数
+      - action: 选择按天执行并点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、数据源、数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间和操作；检查状态为「检查完成」，标准达标率为「100%」，不达标字段数/检查失败数为「0/0」
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作；检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击【操作-查看详情】
+        expected: 检查结果详情展示检查信息（数据源、数据库、数据表、字段），精度倍数结果为「达标」，检查开始时间和结束时间展示，操作为「--」，关联标准详情展示标准「StandardA」的配置内容
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: SQL 未进行合并，仅单个 SELECT 语句，无 SUM(CASE WHEN) 并行计算逻辑
+      - action: 等待该检查任务按周期运行完成后，再次查看结果详情
+        expected: 精度倍数检查项保持「达标」，结果详情展示本次执行的开始时间和结束时间
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0053
+    title: 验证【数据标准】-【落标检查】仅配置数据精度检查项并执行，展示数据精度达标且 SQL 未合并(达标率 = 100%)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入测试记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0053;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0053 (id INT, string_num STRING, name STRING, money DOUBLE, dt STRING) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0053 PARTITION (dt='2026-05-27') SELECT id, CONCAT('A', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('用户', CAST(id AS STRING)), CAST(id * 2 AS DECIMAL(10,2)) FROM range(1, 7);
+         INSERT INTO ${SchemaA}.test_table_15862_c0053 PARTITION (dt='2026-05-28') SELECT id, CONCAT('B', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('客户', CAST(id AS STRING)), CAST(id * 7 AS DECIMAL(10,2)) FROM range(1, 7);
+      5) 存在标准目录：CatalogA
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准定义：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=20
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准「StandardA」上线成功，标准定义列表展示该标准
+      - action: 进入【数据标准 → 标准映射】页面，为「StandardA」绑定字段 money
+        expected: 标准映射列表新增标准「StandardA」，映射字段展示 money
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: 点击【新增检查任务】，选择 ${DataSourceA}、${SchemaA}.test_table_15862_c0053 和标准目录「CatalogA」，选择已有分区 dt=2026-05-27，车型关联字段保持未选择，点击【下一步】
+        expected: 进入选择字段页面，检查对象展示数据源、数据库、数据表、标准目录和分区 dt=2026-05-27，车型关联字段为空
+      - action: 开启 money 字段检查，检查项选择「数据精度」，点击【下一步】
+        expected: 进入调度配置页面，检查项展示数据精度
+      - action: 选择按天执行并点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、数据源、数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间和操作；检查状态为「检查完成」，标准达标率为「100%」，不达标字段数/检查失败数为「0/0」
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作；检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击【操作-查看详情】
+        expected: 检查结果详情展示检查信息（数据源、数据库、数据表、字段），数据精度结果为「达标」，检查开始时间和结束时间展示，操作为「--」，关联标准详情展示标准「StandardA」的配置内容
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: SQL 未进行合并，仅单个 SELECT 语句，无 SUM(CASE WHEN) 并行计算逻辑
+      - action: 等待该检查任务按周期运行完成后，再次查看结果详情
+        expected: 数据精度检查项保持「达标」，结果详情展示本次执行的开始时间和结束时间
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0054
+    title: 验证【数据标准】-【落标检查】仅配置字符串长度检查项并执行，展示字符串长度未达标及脏数据明细(达标率 = 0%)
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入测试记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0054;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0054 (id INT, string_num STRING, name STRING, money DOUBLE, dt STRING) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0054 PARTITION (dt='2026-05-27') SELECT id, CONCAT('A', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('用户', CAST(id AS STRING)), CAST(id * 2 AS DECIMAL(10,2)) FROM range(1, 7);
+         INSERT INTO ${SchemaA}.test_table_15862_c0054 PARTITION (dt='2026-05-28') SELECT id, CONCAT('B', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('客户', CAST(id AS STRING)), CASE WHEN id = 3 THEN 123456789012345678901.23 ELSE CAST(id * 7 AS DECIMAL(10,2)) END FROM range(1, 7);
+      5) 存在标准目录：CatalogA
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准定义：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=20
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准「StandardA」上线成功，标准定义列表展示该标准
+      - action: 进入【数据标准 → 标准映射】页面，为「StandardA」绑定字段 money
+        expected: 标准映射列表新增标准「StandardA」，映射字段展示 money
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: 点击【新增检查任务】，选择 ${DataSourceA}、${SchemaA}.test_table_15862_c0054 和标准目录「CatalogA」，分区保持未选择，车型关联字段保持未选择，点击【下一步】
+        expected: 进入选择字段页面，检查对象展示数据源、数据库、数据表和标准目录，分区过滤条件为空，车型关联字段为空
+      - action: 开启 money 字段检查，检查项选择「字符串长度」，点击【下一步】
+        expected: 进入调度配置页面，检查项展示字符串长度
+      - action: 选择按天执行并点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、数据源、数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间和操作；检查状态为「检查完成」，标准达标率为「0%」，不达标字段数/检查失败数为「1/0」
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作；检查状态为「检查完成」，是否达标为「未达标」
+      - action: 点击【操作-查看详情】
+        expected: 检查结果详情展示检查信息（数据源、数据库、数据表、字段），字符串长度结果为「未达标」，检查开始时间和结束时间展示，操作为「查看详情」，关联标准详情展示标准「StandardA」的配置内容
+      - action: 点击检查项对应的【操作-查看详情】
+        expected: 展示脏数据明细，不符合字符串长度检查项的数据标红展示，明细行数不超过 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: SQL 未进行合并，仅单个 SELECT 语句，无 SUM(CASE WHEN) 并行计算逻辑
+      - action: 等待该检查任务按周期运行完成后，再次查看结果详情
+        expected: 字符串长度检查项保持「未达标」，脏数据明细继续展示不符合字符串长度检查项的数据
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0055
+    title: 验证【数据标准】-【落标检查】配置 5 个检查项且不绑定车型关联字段执行，5 项均未达标且 SQL 合并(达标率 = 0% 且 SQL 合并)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入测试记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0055;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0055 (user_id INT, amount DECIMAL(10,3), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0055 PARTITION (order_date='2026-01-12') SELECT 1000 + id, CASE WHEN id <= 3 THEN CAST(id * 22 AS DECIMAL(10,3)) ELSE CAST(id * 110 AS DECIMAL(10,3)) END, CASE WHEN id <= 3 THEN '小米su7' ELSE '保时捷718' END FROM range(1, 7);
+         INSERT INTO ${SchemaA}.test_table_15862_c0055 PARTITION (order_date='2026-01-13') SELECT 1000 + id, CASE WHEN id IN (2, 5) THEN NULL WHEN id = 3 THEN 15483.568 WHEN id = 6 THEN 80.55485 ELSE CAST(id * 3.7 AS DECIMAL(10,3)) END, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END FROM range(1, 7);
+      5) 存在标准目录：CatalogA
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准定义：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          车型：小米su7，保时捷718
+          小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准「StandardB」上线成功，标准定义列表展示该标准
+      - action: 进入【数据标准 → 标准映射】页面，为「StandardB」绑定字段 amount
+        expected: 标准映射列表新增标准「StandardB」，映射字段展示 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: 点击【新增检查任务】，选择 ${DataSourceA}、${SchemaA}.test_table_15862_c0055 和标准目录「CatalogA」，选择已有分区 order_date=2026-01-13，车型关联字段保持未选择，点击【下一步】
+        expected: 进入选择字段页面，检查对象展示数据源、数据库、数据表、标准目录和分区 order_date=2026-01-13，车型关联字段为空
+      - action: 开启 amount 字段检查，检查项选择「字符串长度、数据精度、空值数、取值范围、精度倍数」，点击【下一步】
+        expected: 进入调度配置页面，检查项展示字符串长度、数据精度、空值数、取值范围和精度倍数
+      - action: 选择按天执行并点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、数据源、数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间和操作；检查状态为「检查完成」，标准达标率为「0%」，不达标字段数/检查失败数为「1/0」
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作；检查状态为「检查完成」，是否达标为「未达标」
+      - action: 点击【操作-查看详情】
+        expected: 检查结果详情展示检查信息（数据源、数据库、数据表、字段），字符串长度、数据精度、空值数、取值范围、精度倍数 5 个检查项均为「未达标」，检查开始时间和结束时间展示，操作为「查看详情」，关联标准详情展示标准「StandardB」的配置内容
+      - action: 点击检查项对应的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，明细行数不超过 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          SQL 进行合并：
+          1) 源表只扫描一次：FROM 后面的源表只出现 1 次
+          2) 可合并规则写在同一个 SELECT 中：用 SUM(CASE WHEN) 并行计算
+          3) 计算后把结果拆成多行，每行代表单个规则输出，最终插入同一张脏数据表
+      - action: 等待该检查任务按周期运行完成后，再次查看结果详情
+        expected: 5 个检查项均保持「未达标」，脏数据明细继续展示不符合检查项的数据
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0056
+    title: 验证【数据标准】-【落标检查】配置 5 个检查项且不绑定车型关联字段执行，5 项均达标且 SQL 合并(达标率 = 100% 且 SQL 合并)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入测试记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0056;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0056 (user_id INT, amount DECIMAL(10,3), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0056 PARTITION (order_date='2026-01-12') SELECT 1000 + id, CASE WHEN id <= 3 THEN CAST(id * 22 AS DECIMAL(10,3)) ELSE CAST(id * 110 AS DECIMAL(10,3)) END, CASE WHEN id <= 3 THEN '小米su7' ELSE '保时捷718' END FROM range(1, 7);
+         INSERT INTO ${SchemaA}.test_table_15862_c0056 PARTITION (order_date='2026-01-13') SELECT 1000 + id, CAST(id * 3.7 AS DECIMAL(10,3)), CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END FROM range(1, 7);
+      5) 存在标准目录：CatalogA
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准定义：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          车型：小米su7，保时捷718
+          小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准「StandardB」上线成功，标准定义列表展示该标准
+      - action: 进入【数据标准 → 标准映射】页面，为「StandardB」绑定字段 amount
+        expected: 标准映射列表新增标准「StandardB」，映射字段展示 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: 点击【新增检查任务】，选择 ${DataSourceA}、${SchemaA}.test_table_15862_c0056 和标准目录「CatalogA」，选择已有分区 order_date=2026-01-12，车型关联字段保持未选择，点击【下一步】
+        expected: 进入选择字段页面，检查对象展示数据源、数据库、数据表、标准目录和分区 order_date=2026-01-12，车型关联字段为空
+      - action: 开启 amount 字段检查，检查项选择「字符串长度、数据精度、空值数、取值范围、精度倍数」，点击【下一步】
+        expected: 进入调度配置页面，检查项展示字符串长度、数据精度、空值数、取值范围和精度倍数
+      - action: 选择按天执行并点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、数据源、数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间和操作；检查状态为「检查完成」，标准达标率为「100%」，不达标字段数/检查失败数为「0/0」
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作；检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击【操作-查看详情】
+        expected: 检查结果详情展示检查信息（数据源、数据库、数据表、字段），字符串长度、数据精度、空值数、取值范围、精度倍数 5 个检查项均为「达标」，检查开始时间和结束时间展示，操作为「--」，关联标准详情展示标准「StandardB」的配置内容
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          SQL 进行合并：
+          1) 源表只扫描一次：FROM 后面的源表只出现 1 次
+          2) 可合并规则写在同一个 SELECT 中：用 SUM(CASE WHEN) 并行计算
+          3) 计算后把结果拆成多行，每行代表单个规则输出，最终插入同一张脏数据表
+      - action: 等待该检查任务按周期运行完成后，再次查看结果详情
+        expected: 5 个检查项均保持「达标」，结果详情展示本次执行的开始时间和结束时间
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0057
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段并配置 5 个检查项执行，5 项均未达标且 SQL 合并(达标率 = 0% 且绑定车型关联字段)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入测试记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0057;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0057 (user_id INT, amount DECIMAL(10,3), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0057 PARTITION (order_date='2026-01-12') SELECT 1000 + id, CASE WHEN id <= 3 THEN CAST(id * 22 AS DECIMAL(10,3)) ELSE CAST(id * 110 AS DECIMAL(10,3)) END, CASE WHEN id <= 3 THEN '小米su7' ELSE '保时捷718' END FROM range(1, 7);
+         INSERT INTO ${SchemaA}.test_table_15862_c0057 PARTITION (order_date='2026-01-13') SELECT 1000 + id, CASE WHEN id IN (2, 5) THEN NULL WHEN id = 3 THEN 15483.568 WHEN id = 6 THEN 80.55485 ELSE CAST(id * 3.7 AS DECIMAL(10,3)) END, CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END FROM range(1, 7);
+      5) 存在标准目录：CatalogA
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准定义：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          车型：小米su7，保时捷718
+          小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=5
+          * 数据精度：3/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准「StandardB」上线成功，标准定义列表展示该标准
+      - action: 进入【数据标准 → 标准映射】页面，为「StandardB」绑定字段 amount
+        expected: 标准映射列表新增标准「StandardB」，映射字段展示 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: 点击【新增检查任务】，选择 ${DataSourceA}、${SchemaA}.test_table_15862_c0057 和标准目录「CatalogA」，选择已有分区 order_date=2026-01-13，车型关联字段选择 car_model，点击【下一步】
+        expected: 进入选择字段页面，检查对象展示数据源、数据库、数据表、标准目录和分区 order_date=2026-01-13，车型关联字段展示 car_model
+      - action: 开启 amount 字段检查，检查项选择「字符串长度、数据精度、空值数、取值范围、精度倍数」，点击【下一步】
+        expected: 进入调度配置页面，检查项展示字符串长度、数据精度、空值数、取值范围和精度倍数
+      - action: 选择按天执行并点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、数据源、数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间和操作；检查状态为「检查完成」，标准达标率为「0%」，不达标字段数/检查失败数为「1/0」
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作；检查状态为「检查完成」，是否达标为「未达标」
+      - action: 点击【操作-查看详情】
+        expected: 检查结果详情展示检查信息（数据源、数据库、数据表、字段），字符串长度、数据精度、空值数、取值范围、精度倍数 5 个检查项均为「未达标」，检查开始时间和结束时间展示，操作为「查看详情」，关联标准详情展示标准「StandardB」的配置内容
+      - action: 点击检查项对应的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          SQL 进行合并：
+          1) 源表只扫描一次：FROM 后面的源表只出现 1 次
+          2) 可合并规则写在同一个 SELECT 中：用 SUM(CASE WHEN) 并行计算
+          3) 计算后把结果拆成多行，每行代表单个规则输出，最终插入同一张脏数据表
+      - action: 等待该检查任务按周期运行完成后，再次查看结果详情
+        expected: 5 个检查项均保持「未达标」，脏数据明细继续展示不符合检查项的数据
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0058
+    title: 验证【数据标准】-【落标检查】绑定车型关联字段并配置 5 个检查项执行，5 项均达标且 SQL 合并(达标率 = 100% 且绑定车型关联字段)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入测试记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0058;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0058 (user_id INT, amount DECIMAL(10,3), car_model STRING, order_date STRING) PARTITIONED BY (order_date);
+         INSERT INTO ${SchemaA}.test_table_15862_c0058 PARTITION (order_date='2026-01-12') SELECT 1000 + id, CASE WHEN id <= 3 THEN CAST(id * 50 AS DECIMAL(10,3)) ELSE CAST(id * 110 AS DECIMAL(10,3)) END, CASE WHEN id <= 3 THEN '小米su7' ELSE '保时捷718' END FROM range(1, 7);
+         INSERT INTO ${SchemaA}.test_table_15862_c0058 PARTITION (order_date='2026-01-13') SELECT 1000 + id, CAST(id * 3.7 AS DECIMAL(10,3)), CASE WHEN id % 2 = 0 THEN '小米su7' ELSE '保时捷718' END FROM range(1, 7);
+      5) 存在标准目录：CatalogA
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准定义：
+          * 中文名称：StandardB
+          * 英文名称：amount
+          * 英文缩写：at
+          * 标准目录：CatalogA
+          车型：小米su7，保时捷718
+          小米su7：
+          * 数据类型：数值型
+          * 数据长度：<=7
+          * 数据精度：3/3
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>=10且<=280
+          初始值：2
+          无效值：0.1
+          精度倍数：0.2
+          偏移量：0.02
+          保时捷718：
+          * 数据类型：数值型
+          * 数据长度：<=7
+          * 数据精度：3/3
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>=180且<=999
+          初始值：2
+          无效值：0.1
+          精度倍数：2.2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准「StandardB」上线成功，标准定义列表展示该标准
+      - action: 进入【数据标准 → 标准映射】页面，为「StandardB」绑定字段 amount
+        expected: 标准映射列表新增标准「StandardB」，映射字段展示 amount
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: 点击【新增检查任务】，选择 ${DataSourceA}、${SchemaA}.test_table_15862_c0058 和标准目录「CatalogA」，选择已有分区 order_date=2026-01-12，车型关联字段选择 car_model，点击【下一步】
+        expected: 进入选择字段页面，检查对象展示数据源、数据库、数据表、标准目录和分区 order_date=2026-01-12，车型关联字段展示 car_model
+      - action: 开启 amount 字段检查，检查项选择「字符串长度、数据精度、空值数、取值范围、精度倍数」，点击【下一步】
+        expected: 进入调度配置页面，检查项展示字符串长度、数据精度、空值数、取值范围和精度倍数
+      - action: 选择按天执行并点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、数据源、数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间和操作；检查状态为「检查完成」，标准达标率为「100%」，不达标字段数/检查失败数为「0/0」
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作；检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击【操作-查看详情】
+        expected: 检查结果详情展示检查信息（数据源、数据库、数据表、字段），字符串长度、数据精度、空值数、取值范围、精度倍数 5 个检查项均为「达标」，检查开始时间和结束时间展示，操作为「--」，关联标准详情展示标准「StandardB」的配置内容
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          SQL 进行合并：
+          1) 源表只扫描一次：FROM 后面的源表只出现 1 次
+          2) 可合并规则写在同一个 SELECT 中：用 SUM(CASE WHEN) 并行计算
+          3) 计算后把结果拆成多行，每行代表单个规则输出，最终插入同一张脏数据表
+      - action: 等待该检查任务按周期运行完成后，再次查看结果详情
+        expected: 5 个检查项均保持「达标」，结果详情展示本次执行的开始时间和结束时间
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0059
+    title: 验证【数据标准】-【落标检查】配置 5 个检查项并执行，5 项均未达标且 SQL 合并(达标率 = 0% 且 SQL 合并)
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入测试记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0059;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0059 (id INT, string_num STRING, name STRING, money DOUBLE, dt STRING) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0059 PARTITION (dt='2026-05-27') SELECT id, CONCAT('A', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('用户', CAST(id AS STRING)), CAST(id * 2 AS DECIMAL(10,2)) FROM range(1, 7);
+         INSERT INTO ${SchemaA}.test_table_15862_c0059 PARTITION (dt='2026-05-28') SELECT id, CONCAT('B', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('客户', CAST(id AS STRING)), CASE WHEN id = 1 THEN 55.0 WHEN id IN (2, 4) THEN NULL WHEN id = 3 THEN 12345678901.23 WHEN id = 5 THEN 25.001 ELSE CAST(id * 3.7 AS DOUBLE) END FROM range(1, 7);
+      5) 存在标准目录：CatalogA
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准定义：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=10
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准「StandardA」上线成功，标准定义列表展示该标准
+      - action: 进入【数据标准 → 标准映射】页面，为「StandardA」绑定字段 money
+        expected: 标准映射列表新增标准「StandardA」，映射字段展示 money
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: 点击【新增检查任务】，选择 ${DataSourceA}、${SchemaA}.test_table_15862_c0059 和标准目录「CatalogA」，手动输入分区 dt=2026-05-28，车型关联字段保持未选择，点击【下一步】
+        expected: 进入选择字段页面，检查对象展示数据源、数据库、数据表、标准目录和分区 dt=2026-05-28，车型关联字段为空
+      - action: 开启 money 字段检查，检查项选择「字符串长度、数据精度、空值数、取值范围、精度倍数」，点击【下一步】
+        expected: 进入调度配置页面，检查项展示字符串长度、数据精度、空值数、取值范围和精度倍数
+      - action: 选择按天执行并点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、数据源、数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间和操作；检查状态为「检查完成」，标准达标率为「0%」，不达标字段数/检查失败数为「1/0」
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作；检查状态为「检查完成」，是否达标为「未达标」
+      - action: 点击【操作-查看详情】
+        expected: 检查结果详情展示检查信息（数据源、数据库、数据表、字段），字符串长度、数据精度、空值数、取值范围、精度倍数 5 个检查项均为「未达标」，检查开始时间和结束时间展示，操作为「查看详情」，关联标准详情展示标准「StandardA」的配置内容
+      - action: 点击检查项对应的【操作-查看详情】
+        expected: 展示脏数据明细，不符合检查项的数据标红展示，明细行数不超过 100
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          SQL 进行合并：
+          1) 源表只扫描一次：FROM 后面的源表只出现 1 次
+          2) 可合并规则写在同一个 SELECT 中：用 SUM(CASE WHEN) 并行计算
+          3) 计算后把结果拆成多行，每行代表单个规则输出，最终插入同一张脏数据表
+      - action: 等待该检查任务按周期运行完成后，再次查看结果详情
+        expected: 5 个检查项均保持「未达标」，脏数据明细继续展示不符合检查项的数据
+    tags:
+      ["数据标准", "落标检查"]
+  - case_id: C0060
+    title: 验证【数据标准】-【落标检查】配置 5 个检查项并执行，5 项均达标且 SQL 合并(达标率 = 100% 且 SQL 合并)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入测试记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0060;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0060 (id INT, string_num STRING, name STRING, money DOUBLE, dt STRING) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15862_c0060 PARTITION (dt='2026-05-27') SELECT id, CONCAT('A', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('用户', CAST(id AS STRING)), CAST(id * 2 AS DECIMAL(10,2)) FROM range(1, 7);
+         INSERT INTO ${SchemaA}.test_table_15862_c0060 PARTITION (dt='2026-05-28') SELECT id, CONCAT('B', LPAD(CAST(id AS STRING), 3, '0')), CONCAT('客户', CAST(id AS STRING)), CASE WHEN id IN (2, 4) THEN NULL ELSE CAST(id * 7 AS DECIMAL(10,2)) END FROM range(1, 7);
+      5) 存在标准目录：CatalogA
+    steps:
+      - action: 进入【数据标准 → 标准定义】页面
+        expected: 进入成功
+      - action: |-
+          新建标准，配置标准定义：
+          * 中文名称：StandardA
+          * 英文名称：money
+          * 英文缩写：my
+          * 标准目录：CatalogA
+          车型：无
+          * 数据类型：字符型
+          * 数据长度：<=10
+          * 数据精度：2/2
+          * 是否允许为空：不可空
+          * 是否允许重复：不可重复
+          默认值：1
+          取值范围：>1且<=50
+          初始值：2
+          无效值：0.1
+          精度倍数：2
+          偏移量：0.02
+          点击【上线】
+        expected: 标准「StandardA」上线成功，标准定义列表展示该标准
+      - action: 进入【数据标准 → 标准映射】页面，为「StandardA」绑定字段 money
+        expected: 标准映射列表新增标准「StandardA」，映射字段展示 money
+      - action: 进入【数据标准 → 落标检查】页面
+        expected: 进入成功
+      - action: 点击【新增检查任务】，选择 ${DataSourceA}、${SchemaA}.test_table_15862_c0060 和标准目录「CatalogA」，选择已有分区 dt=2026-05-27，车型关联字段保持未选择，点击【下一步】
+        expected: 进入选择字段页面，检查对象展示数据源、数据库、数据表、标准目录和分区 dt=2026-05-27，车型关联字段为空
+      - action: 开启 money 字段检查，检查项选择「字符串长度、数据精度、空值数、取值范围、精度倍数」，点击【下一步】
+        expected: 进入调度配置页面，检查项展示字符串长度、数据精度、空值数、取值范围和精度倍数
+      - action: 选择按天执行并点击【新增并立即执行】
+        expected: Toast提示:「新增成功」，任务状态为「检查中」
+      - action: 等待检查完成，查看【落标检查设置】tab 列表
+        expected: 列表展示数据表名称、数据源、数据库、检查字段数/总字段数、检查周期、检查状态、标准达标率、不达标字段数/检查失败数、最近编辑时间、最近检查时间和操作；检查状态为「检查完成」，标准达标率为「100%」，不达标字段数/检查失败数为「0/0」
+      - action: 点击【操作-查看结果详情】
+        expected: 跳转至【落标检查结果】tab，列表展示数据源、数据库、数据表、字段、检查状态、是否达标、检查开始时间、检查结束时间和操作；检查状态为「检查完成」，是否达标为「达标」
+      - action: 点击【操作-查看详情】
+        expected: 检查结果详情展示检查信息（数据源、数据库、数据表、字段），字符串长度、数据精度、空值数、取值范围、精度倍数 5 个检查项均为「达标」，检查开始时间和结束时间展示，操作为「--」，关联标准详情展示标准「StandardA」的配置内容
+      - action: 通过底层数据库查看该检查任务的 SQL
+        expected: |-
+          SQL 进行合并：
+          1) 源表只扫描一次：FROM 后面的源表只出现 1 次
+          2) 可合并规则写在同一个 SELECT 中：用 SUM(CASE WHEN) 并行计算
+          3) 计算后把结果拆成多行，每行代表单个规则输出，最终插入同一张脏数据表
+      - action: 等待该检查任务按周期运行完成后，再次查看结果详情
+        expected: 5 个检查项均保持「达标」，结果详情展示本次执行的开始时间和结束时间
+    tags:
+      ["数据标准", "落标检查"]
