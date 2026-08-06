@@ -1,6 +1,6 @@
 meta:
   title: 数据资产适配 Lindorm
-  requirement_id: "none"
+  requirement_id: "15889"
   case_module_id: ""
   exports:
     - 数据资产适配lindorm.xmind
@@ -13,9 +13,9 @@ cases:
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 3 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0001;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0001 (order_id BIGINT, amount DECIMAL(10,2));
-         INSERT INTO ${SchemaA}.test_table_none_c0001 VALUES (1, 10.5), (2, 20.5), (3, 30.5);
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0001;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0001 (order_id BIGINT, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_15889_c0001 VALUES (1, 10.5), (2, 20.5), (3, 30.5);
       5) ${DataSourceA} 已完成数据源、数据库和数据表的元数据同步
     steps:
       - action: 进入【数据资产 → 盘点任务】页面
@@ -30,42 +30,42 @@ cases:
       - Lindorm
 
   - case_id: C0002
-    title: 验证【数据资产】-【盘点任务】切换数据源类型查看分布图，仅统计所选类型的表数量(负责人分布)
-    priority: P0
+    title: 验证【数据资产】-【盘点任务】切换数据源类型查看分布图，仅统计所选类型的表数量并展示负责人分布
+    priority: P1
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
       2) 数据源 A 类型：Lindorm
       3) 数据源 A 存在数据库：${SchemaA}
       4) 在 ${SchemaA} 创建 4 张数据表并各插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0002_source_01;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0002_source_01 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0002_source_01 VALUES (1, 'A');
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0002_source_02;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0002_source_02 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0002_source_02 VALUES (1, 'A');
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0002_source_03;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0002_source_03 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0002_source_03 VALUES (1, 'A');
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0002_source_04;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0002_source_04 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0002_source_04 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0002_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0002_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0002_source_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0002_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0002_source_02 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0002_source_02 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0002_source_03;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0002_source_03 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0002_source_03 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0002_source_04;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0002_source_04 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0002_source_04 VALUES (1, 'A');
       5) 授权数据源 B：${DataSourceB}
       6) 数据源 B 类型：SparkThrift2.x
       7) 数据源 B 存在数据库：${SchemaB}
       8) 在 ${SchemaB} 创建 2 张数据表并各插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaB}.test_table_none_c0002_source_01;
-         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_none_c0002_source_01 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaB}.test_table_none_c0002_source_01 VALUES (1, 'A');
-         DROP TABLE IF EXISTS ${SchemaB}.test_table_none_c0002_source_02;
-         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_none_c0002_source_02 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaB}.test_table_none_c0002_source_02 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15889_c0002_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15889_c0002_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaB}.test_table_15889_c0002_source_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15889_c0002_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15889_c0002_source_02 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaB}.test_table_15889_c0002_source_02 VALUES (1, 'A');
       9) 授权数据源 C：${DataSourceC}
       10) 数据源 C 类型：Doris3.x
       11) 数据源 C 存在数据库：${SchemaC}
       12) 在 ${SchemaC} 创建 1 张数据表并插入 1 行数据：
-          DROP TABLE IF EXISTS ${SchemaC}.test_table_none_c0002_source_01;
-          CREATE TABLE IF NOT EXISTS ${SchemaC}.test_table_none_c0002_source_01 (id BIGINT, name STRING);
-          INSERT INTO ${SchemaC}.test_table_none_c0002_source_01 VALUES (1, 'A');
+          DROP TABLE IF EXISTS ${SchemaC}.test_table_15889_c0002_source_01;
+          CREATE TABLE IF NOT EXISTS ${SchemaC}.test_table_15889_c0002_source_01 (id BIGINT, name STRING);
+          INSERT INTO ${SchemaC}.test_table_15889_c0002_source_01 VALUES (1, 'A');
       13) 三个数据源均已完成元数据同步，数据表均未分配负责人
     steps:
       - action: 进入【数据资产 → 盘点任务】页面
@@ -80,18 +80,18 @@ cases:
       - 数据源筛选
 
   - case_id: C0003
-    title: 验证【数据资产】-【盘点任务】查看未分配目录的统计模块，数据目录分布与价值排行展示暂无数据(未分配数据目录)
+    title: 验证【数据资产】-【盘点任务】查看未分配目录的统计模块，数据目录分布与价值排行展示暂无数据
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0003;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0003 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0003 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0003;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0003 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0003 VALUES (1, 'A');
       5) ${DataSourceA} 已完成 1 个数据库和 1 张数据表的元数据同步
-      6) test_table_none_c0003 未分配数据目录
+      6) test_table_15889_c0003 未分配数据目录
     steps:
       - action: 进入【数据资产 → 盘点任务】页面
         expected: 进入成功
@@ -105,50 +105,50 @@ cases:
       - 空状态
 
   - case_id: C0004
-    title: 验证【数据资产】-【数据地图】搜索数据表名称，结果仅展示名称匹配的数据表(前缀匹配)
+    title: 验证【数据资产】-【数据地图】搜索数据表名称，结果按前缀匹配仅展示命中数据表
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建 2 张数据表并各插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0004_source_01;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0004_source_01 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0004_source_01 VALUES (1, 'orders');
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0004_source_02;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0004_source_02 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0004_source_02 VALUES (1, 'customers');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0004_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0004_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0004_source_01 VALUES (1, 'orders');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0004_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0004_source_02 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0004_source_02 VALUES (1, 'customers');
       5) 两张数据表均已完成元数据同步
     steps:
       - action: 进入【数据资产 → 数据地图】页面
         expected: 进入成功
-      - action: 打开搜索下拉框，选择资产类型「数据表」，输入「test_table_none_c0004_source_01」并点击【搜索】
-        expected: 结果列表仅展示数据表 test_table_none_c0004_source_01，资产类型标识为「数据表」
-      - action: 清空关键词并输入「test_table_none_c0004_」后点击【搜索】
-        expected: 结果列表展示 test_table_none_c0004_source_01、test_table_none_c0004_source_02 两条匹配记录
+      - action: 打开搜索下拉框，选择资产类型「数据表」，输入「test_table_15889_c0004_source_01」并点击【搜索】
+        expected: 结果列表仅展示数据表 test_table_15889_c0004_source_01，资产类型标识为「数据表」
+      - action: 清空关键词并输入「test_table_15889_c0004_」后点击【搜索】
+        expected: 结果列表展示 test_table_15889_c0004_source_01、test_table_15889_c0004_source_02 两条匹配记录
     tags:
       - 数据资产
       - 数据地图
       - Lindorm
 
   - case_id: C0005
-    title: 验证【数据资产】-【数据地图】按资产类型搜索资产，各类型仅展示对应资产(名称匹配)
+    title: 验证【数据资产】-【数据地图】按资产类型搜索资产，各类型按名称匹配仅展示对应资产
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0005;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0005 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0005 VALUES (1, 'order');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0005;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0005 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0005 VALUES (1, 'order');
       5) 数据地图存在离线任务 ${TaskA}、实时任务 ${TaskB} 和 API order_api
       6) 数据表、任务与 API 均已完成元数据同步
     steps:
       - action: 进入【数据资产 → 数据地图】页面
         expected: 进入成功
-      - action: 选择资产类型「数据表」并搜索「test_table_none_c0005」
-        expected: 结果列表仅包含 test_table_none_c0005，类型筛选值为「数据表」
+      - action: 选择资产类型「数据表」并搜索「test_table_15889_c0005」
+        expected: 结果列表仅包含 test_table_15889_c0005，类型筛选值为「数据表」
       - action: 切换资产类型为「离线任务」并搜索「TaskA」
         expected: 结果列表仅展示 ${TaskA}
       - action: 切换资产类型为「实时任务」并搜索「TaskB」
@@ -161,22 +161,22 @@ cases:
       - 资产类型
 
   - case_id: C0006
-    title: 验证【数据资产】-【数据地图】搜索资产后查看最近查询，点击历史关键词回填并展示对应结果(最近查询)
+    title: 验证【数据资产】-【数据地图】搜索资产后查看最近查询，点击历史关键词回填并展示对应结果
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0006;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0006 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0006 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0006;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0006 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0006 VALUES (1, 'A');
       5) 数据地图存在离线任务 ${TaskA} 和 API order_api，且已完成元数据同步
       6) 数据地图搜索记录为空
     steps:
       - action: 进入【数据资产 → 数据地图】页面
         expected: 进入成功
-      - action: 依次搜索「test_table_none_c0006」「TaskA」「order_api」
+      - action: 依次搜索「test_table_15889_c0006」「TaskA」「order_api」
         expected: 每次搜索均生成对应结果，最近查询区域按最新搜索时间排序
       - action: 打开「最近查询」并点击「TaskA」
         expected: 搜索框回填 TaskA，结果列表展示对应离线任务
@@ -186,42 +186,42 @@ cases:
       - 最近查询
 
   - case_id: C0007
-    title: 验证【数据资产】-【数据地图】按表数量排序查看数据源统计，刷新后排序与顺序保持不变(按表数量排序)
+    title: 验证【数据资产】-【数据地图】按表数量排序查看数据源统计，刷新后排序与顺序保持不变
     priority: P1
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
       2) 数据源 A 类型：Lindorm
       3) 数据源 A 存在数据库：${SchemaA}
       4) 在 ${SchemaA} 创建 4 张数据表并各插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0007_source_01;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0007_source_01 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0007_source_01 VALUES (1, 'A');
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0007_source_02;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0007_source_02 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0007_source_02 VALUES (1, 'A');
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0007_source_03;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0007_source_03 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0007_source_03 VALUES (1, 'A');
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0007_source_04;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0007_source_04 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0007_source_04 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0007_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0007_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0007_source_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0007_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0007_source_02 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0007_source_02 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0007_source_03;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0007_source_03 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0007_source_03 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0007_source_04;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0007_source_04 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0007_source_04 VALUES (1, 'A');
       5) 授权数据源 B：${DataSourceB}
       6) 数据源 B 类型：Doris3.x
       7) 数据源 B 存在数据库：${SchemaB}
       8) 在 ${SchemaB} 创建 2 张数据表并各插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaB}.test_table_none_c0007_source_01;
-         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_none_c0007_source_01 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaB}.test_table_none_c0007_source_01 VALUES (1, 'A');
-         DROP TABLE IF EXISTS ${SchemaB}.test_table_none_c0007_source_02;
-         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_none_c0007_source_02 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaB}.test_table_none_c0007_source_02 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15889_c0007_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15889_c0007_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaB}.test_table_15889_c0007_source_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15889_c0007_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15889_c0007_source_02 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaB}.test_table_15889_c0007_source_02 VALUES (1, 'A');
       9) 授权数据源 C：${DataSourceC}
       10) 数据源 C 类型：SparkThrift2.x
       11) 数据源 C 存在数据库：${SchemaC}
       12) 在 ${SchemaC} 创建 1 张数据表并插入 1 行数据：
-          DROP TABLE IF EXISTS ${SchemaC}.test_table_none_c0007_source_01;
-          CREATE TABLE IF NOT EXISTS ${SchemaC}.test_table_none_c0007_source_01 (id BIGINT, name STRING);
-          INSERT INTO ${SchemaC}.test_table_none_c0007_source_01 VALUES (1, 'A');
+          DROP TABLE IF EXISTS ${SchemaC}.test_table_15889_c0007_source_01;
+          CREATE TABLE IF NOT EXISTS ${SchemaC}.test_table_15889_c0007_source_01 (id BIGINT, name STRING);
+          INSERT INTO ${SchemaC}.test_table_15889_c0007_source_01 VALUES (1, 'A');
       13) 三个数据源的数据源统计模块均处于有数据状态
     steps:
       - action: 进入【数据资产 → 数据地图】页面
@@ -236,16 +236,16 @@ cases:
       - 排序
 
   - case_id: C0008
-    title: 验证【数据资产】-【数据地图】翻页查看数据源统计，页码与列表内容随翻页更新(25 个数据源)
+    title: 验证【数据资产】-【数据地图】翻页查看 25 个数据源统计，页码与列表内容随翻页更新
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0008;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0008 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0008 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0008;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0008 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0008 VALUES (1, 'A');
       5) 数据地图数据源统计共有 25 个数据源，分页大小为 20
       6) 第 1 页包含 ${DataSourceA}，第 2 页包含 ${DataSourceB}
     steps:
@@ -261,22 +261,22 @@ cases:
       - 分页
 
   - case_id: C0009
-    title: 验证【数据资产】-【数据地图】打开数据表详情，技术属性与字段列表展示同步结果(带表标签)
+    title: 验证【数据资产】-【数据地图】打开带表标签的数据表详情，技术属性与字段列表展示同步结果
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 2 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0009;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0009 (order_id STRING, amount DECIMAL(10,2));
-         INSERT INTO ${SchemaA}.test_table_none_c0009 VALUES ('1001', 88.50), ('1002', 99.90);
-      5) test_table_none_c0009 已配置表标签「订单表」和字段标签「金额字段」
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0009;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0009 (order_id STRING, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_15889_c0009 VALUES ('1001', 88.50), ('1002', 99.90);
+      5) test_table_15889_c0009 已配置表标签「订单表」和字段标签「金额字段」
     steps:
       - action: 进入【数据资产 → 数据地图】页面
         expected: 进入成功
-      - action: 搜索并打开数据表「test_table_none_c0009」详情
-        expected: 详情页展示数据源 ${DataSourceA}、数据库 ${SchemaA}、表名 test_table_none_c0009 和表标签「订单表」
+      - action: 搜索并打开数据表「test_table_15889_c0009」详情
+        expected: 详情页展示数据源 ${DataSourceA}、数据库 ${SchemaA}、表名 test_table_15889_c0009 和表标签「订单表」
       - action: 查看「技术属性」和字段列表
         expected: 技术属性展示 Lindorm 数据源类型，字段列表展示 order_id STRING、amount DECIMAL(10,2) 及字段标签「金额字段」
     tags:
@@ -285,21 +285,21 @@ cases:
       - 表详情
 
   - case_id: C0010
-    title: 验证【数据资产】-【数据地图】新增表标签并刷新详情页，标签保留且使用次数为 1(持久化)
+    title: 验证【数据资产】-【数据地图】新增表标签并刷新详情页，标签保留且使用次数为 1
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0010;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0010 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0010 VALUES (1, 'A');
-      5) test_table_none_c0010 当前没有表标签「订单主题」
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0010;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0010 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0010 VALUES (1, 'A');
+      5) test_table_15889_c0010 当前没有表标签「订单主题」
     steps:
       - action: 进入【数据资产 → 数据地图】页面
         expected: 进入成功
-      - action: 打开 test_table_none_c0010 详情，在表标签区域新增「订单主题」并保存
+      - action: 打开 test_table_15889_c0010 详情，在表标签区域新增「订单主题」并保存
         expected: Toast提示:「保存成功」，表标签区域新增「订单主题」
       - action: 刷新详情页并重新打开表标签区域
         expected: 「订单主题」仍存在，标签使用次数为 1
@@ -309,7 +309,7 @@ cases:
       - 表标签
 
   - case_id: C0011
-    title: 验证【元数据】-【数据目录】新增目录并刷新目录树，新目录保留在根节点(目录维护)
+    title: 验证【元数据】-【数据目录】新增目录并刷新目录树，新目录保留在根节点
     priority: P1
     precondition: |-
       1) 数据目录树不存在目录 CatalogA
@@ -328,17 +328,17 @@ cases:
       - 新增
 
   - case_id: C0012
-    title: 验证【元数据】-【数据目录】编辑目录名称并保存，树节点更新且目录内容保留(编辑目录)
+    title: 验证【元数据】-【数据目录】编辑目录名称并保存，树节点更新且目录内容保留
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0012;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0012 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0012 VALUES (1, 'A');
-      5) 目录 CatalogA 存在且包含数据表 test_table_none_c0012，目录名称 CatalogB 尚未使用
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0012;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0012 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0012 VALUES (1, 'A');
+      5) 目录 CatalogA 存在且包含数据表 test_table_15889_c0012，目录名称 CatalogB 尚未使用
       6) 当前用户具有数据目录维护权限
     steps:
       - action: 进入【元数据 → 数据目录 → 目录管理】页面
@@ -346,7 +346,7 @@ cases:
       - action: 编辑目录 CatalogA，将名称改为「CatalogB」并保存
         expected: Toast提示:「保存成功」，树节点名称更新为 CatalogB
       - action: 打开目录 CatalogB
-        expected: 目录内容仍包含数据表 test_table_none_c0012
+        expected: 目录内容仍包含数据表 test_table_15889_c0012
     tags:
       - 元数据
       - 数据目录
@@ -354,25 +354,25 @@ cases:
       - 编辑
 
   - case_id: C0013
-    title: 验证【元数据】-【数据目录】移动数据表至目标目录，源目录移除且目标目录新增(移动表)
+    title: 验证【元数据】-【数据目录】移动数据表至目标目录，源目录移除且目标目录新增
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0013;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0013 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0013 VALUES (1, 'A');
-      5) 目录 CatalogA 包含数据表 test_table_none_c0013，目录 CatalogB 已存在
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0013;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0013 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0013 VALUES (1, 'A');
+      5) 目录 CatalogA 包含数据表 test_table_15889_c0013，目录 CatalogB 已存在
       6) 当前用户具有数据目录维护权限
     steps:
       - action: 进入【元数据 → 数据目录 → 目录管理】页面
         expected: 进入成功
-      - action: 将数据表 test_table_none_c0013 移动至目录 CatalogB 并确认
-        expected: Toast提示:「移动成功」，test_table_none_c0013 从 CatalogA 移除
+      - action: 将数据表 test_table_15889_c0013 移动至目录 CatalogB 并确认
+        expected: Toast提示:「移动成功」，test_table_15889_c0013 从 CatalogA 移除
       - action: 打开目录 CatalogB
-        expected: 目录内容包含数据表 test_table_none_c0013
+        expected: 目录内容包含数据表 test_table_15889_c0013
     tags:
       - 元数据
       - 数据目录
@@ -380,28 +380,28 @@ cases:
       - 移动
 
   - case_id: C0014
-    title: 验证【元数据】-【数据目录】批量指定数据表目录，目录列与目录内容均更新(批量指定)
+    title: 验证【元数据】-【数据目录】批量指定数据表目录，目录列与目录内容均更新
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建 2 张数据表并各插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0014_source_01;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0014_source_01 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0014_source_01 VALUES (1, 'A');
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0014_source_02;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0014_source_02 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0014_source_02 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0014_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0014_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0014_source_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0014_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0014_source_02 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0014_source_02 VALUES (1, 'A');
       5) 两张数据表当前均未分配目录
       6) 目录 CatalogA 已存在，当前用户具有数据目录维护权限
     steps:
       - action: 进入【元数据 → 数据目录 → 目录管理】页面
         expected: 进入成功
-      - action: 勾选 test_table_none_c0014_source_01、test_table_none_c0014_source_02，选择目录 CatalogA 并点击【批量指定】
+      - action: 勾选 test_table_15889_c0014_source_01、test_table_15889_c0014_source_02，选择目录 CatalogA 并点击【批量指定】
         expected: Toast提示:「保存成功」，两张表的目录列均显示 CatalogA
       - action: 刷新目录 CatalogA
-        expected: 目录下展示 test_table_none_c0014_source_01、test_table_none_c0014_source_02 两条记录
+        expected: 目录下展示 test_table_15889_c0014_source_01、test_table_15889_c0014_source_02 两条记录
     tags:
       - 元数据
       - 数据目录
@@ -409,32 +409,32 @@ cases:
       - 批量操作
 
   - case_id: C0015
-    title: 验证【元数据】-【数据目录】按数据源筛选数据表并重置，列表记录数恢复为 3(筛选)
-    priority: P0
+    title: 验证【元数据】-【数据目录】按数据源筛选数据表并重置，列表记录数恢复为 3
+    priority: P1
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
       2) 数据源 A 类型：Lindorm
       3) 数据源 A 存在数据库：${SchemaA}
       4) 在 ${SchemaA} 创建 2 张数据表并各插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0015_source_01;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0015_source_01 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0015_source_01 VALUES (1, 'A');
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0015_source_02;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0015_source_02 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0015_source_02 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0015_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0015_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0015_source_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0015_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0015_source_02 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0015_source_02 VALUES (1, 'A');
       5) 授权数据源 B：${DataSourceB}
       6) 数据源 B 类型：Doris3.x
       7) 数据源 B 存在数据库：${SchemaB}
       8) 在 ${SchemaB} 创建 1 张数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaB}.test_table_none_c0015_source_03;
-         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_none_c0015_source_03 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaB}.test_table_none_c0015_source_03 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15889_c0015_source_03;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15889_c0015_source_03 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaB}.test_table_15889_c0015_source_03 VALUES (1, 'A');
       9) 三张数据表均已完成元数据同步
     steps:
       - action: 进入【元数据 → 数据目录 → 数据表】页面
         expected: 进入成功
       - action: 数据源筛选选择「${DataSourceA}」并点击【查询】
-        expected: 列表仅展示 test_table_none_c0015_source_01、test_table_none_c0015_source_02，数据源列均为 ${DataSourceA}
+        expected: 列表仅展示 test_table_15889_c0015_source_01、test_table_15889_c0015_source_02，数据源列均为 ${DataSourceA}
       - action: 点击【重置】
         expected: 数据源筛选清空，列表恢复展示三张数据表
     tags:
@@ -444,27 +444,27 @@ cases:
       - 筛选
 
   - case_id: C0016
-    title: 验证【元数据】-【数据目录】按修改时间升降序排序数据表，排序顺序按点击切换(修改时间排序)
+    title: 验证【元数据】-【数据目录】按修改时间升降序排序数据表，排序顺序按点击切换
     priority: P2
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建 2 张数据表并各插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0016_source_01;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0016_source_01 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0016_source_01 VALUES (1, 'A');
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0016_source_02;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0016_source_02 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0016_source_02 VALUES (1, 'A');
-      5) test_table_none_c0016_source_01 修改时间为 2026-02-01 09:00，test_table_none_c0016_source_02 修改时间为 2026-02-02 09:00
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0016_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0016_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0016_source_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0016_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0016_source_02 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0016_source_02 VALUES (1, 'A');
+      5) test_table_15889_c0016_source_01 修改时间为 2026-02-01 09:00，test_table_15889_c0016_source_02 修改时间为 2026-02-02 09:00
     steps:
       - action: 进入【元数据 → 数据目录 → 数据表】页面
         expected: 进入成功
       - action: 点击「修改时间」排序
-        expected: 列表按升序排列，test_table_none_c0016_source_01 位于 test_table_none_c0016_source_02 之前
+        expected: 列表按升序排列，test_table_15889_c0016_source_01 位于 test_table_15889_c0016_source_02 之前
       - action: 再次点击「修改时间」排序
-        expected: 列表按降序排列，test_table_none_c0016_source_02 位于首行
+        expected: 列表按降序排列，test_table_15889_c0016_source_02 位于首行
     tags:
       - 元数据
       - 数据目录
@@ -472,21 +472,21 @@ cases:
       - 排序
 
   - case_id: C0017
-    title: 验证【元数据】-【数据目录】查看数据表结构，字段类型与中文名列展示(表结构)
+    title: 验证【元数据】-【数据目录】查看数据表结构，字段类型与中文名列展示
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0017;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0017 (order_id VARCHAR(32), amount DECIMAL(10,2), created_at TIMESTAMP);
-         INSERT INTO ${SchemaA}.test_table_none_c0017 VALUES ('1001', 88.50, CURRENT_TIMESTAMP());
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0017;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0017 (order_id VARCHAR(32), amount DECIMAL(10,2), created_at TIMESTAMP);
+         INSERT INTO ${SchemaA}.test_table_15889_c0017 VALUES ('1001', 88.50, CURRENT_TIMESTAMP());
       5) 数据表详情字段分页大小为 20
     steps:
       - action: 进入【元数据 → 数据目录 → 数据表】页面
         expected: 进入成功
-      - action: 打开数据表 test_table_none_c0017 详情并查看「表结构」
+      - action: 打开数据表 test_table_15889_c0017 详情并查看「表结构」
         expected: 字段列表展示 order_id VARCHAR、amount DECIMAL、created_at TIMESTAMP 及字段中文名列
       - action: 点击字段「amount」的标签操作
         expected: 展示字段标签弹窗，当前字段为 amount
@@ -497,22 +497,22 @@ cases:
       - 表结构
 
   - case_id: C0018
-    title: 验证【元数据】-【数据目录】导出数据表元数据，下载文件包含表与字段信息(导出)
+    title: 验证【元数据】-【数据目录】导出数据表元数据，下载文件包含表与字段信息
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0018;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0018 (id BIGINT, name STRING, amount DECIMAL(10,2));
-         INSERT INTO ${SchemaA}.test_table_none_c0018 VALUES (1, 'A', 10.5);
-      5) 浏览器下载目录可写
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0018;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0018 (id BIGINT, name STRING, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_15889_c0018 VALUES (1, 'A', 10.5);
+      5) 浏览器已配置下载目录且可写
     steps:
       - action: 进入【元数据 → 数据目录 → 数据表】页面
         expected: 进入成功
-      - action: 打开 test_table_none_c0018 详情，点击【导出元数据】
-        expected: 下载 1 个 Excel 文件，文件名包含 test_table_none_c0018
+      - action: 打开 test_table_15889_c0018 详情，点击【导出元数据】
+        expected: 下载 1 个 Excel 文件，文件名包含 test_table_15889_c0018
       - action: 打开下载文件
         expected: 文件包含数据源、数据库、表名和 3 个字段的名称、类型、中文名
     tags:
@@ -522,21 +522,21 @@ cases:
       - 导出
 
   - case_id: C0019
-    title: 验证【元数据】-【数据目录】预览数据表数据，表格列与首行记录展示(数据预览)
+    title: 验证【元数据】-【数据目录】预览数据表数据，表格列与首行记录展示
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0019;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0019 (order_id BIGINT, amount DECIMAL(10,2), created_at TIMESTAMP);
-         INSERT INTO ${SchemaA}.test_table_none_c0019 VALUES (1001, 88.50, TIMESTAMP '2026-02-01 10:00:00');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0019;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0019 (order_id BIGINT, amount DECIMAL(10,2), created_at TIMESTAMP);
+         INSERT INTO ${SchemaA}.test_table_15889_c0019 VALUES (1001, 88.50, TIMESTAMP '2026-02-01 10:00:00');
       5) 当前用户具有数据预览权限
     steps:
       - action: 进入【元数据 → 数据目录 → 数据表】页面
         expected: 进入成功
-      - action: 打开 test_table_none_c0019 详情并点击【数据预览】
+      - action: 打开 test_table_15889_c0019 详情并点击【数据预览】
         expected: 预览表格展示 order_id、amount、created_at 三列
       - action: 查看首行记录
         expected: 首行显示 1001、88.50、2026-02-01 10:00
@@ -547,27 +547,27 @@ cases:
       - 数据预览
 
   - case_id: C0020
-    title: 验证【元数据】-【数据目录】查看数据表血缘关系，上下游节点与详情展示(血缘)
-    priority: P0
+    title: 验证【元数据】-【数据目录】查看数据表血缘关系，上下游节点与详情展示
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建 2 张数据表并各插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0020_source_01;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0020_source_01 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0020_source_01 VALUES (1, 'A');
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0020_source_02;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0020_source_02 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0020_source_02 VALUES (1, 'A');
-      5) 离线任务 ${TaskA} 写入 test_table_none_c0020_source_01，生成下游数据表 test_table_none_c0020_source_02
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0020_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0020_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0020_source_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0020_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0020_source_02 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0020_source_02 VALUES (1, 'A');
+      5) 离线任务 ${TaskA} 写入 test_table_15889_c0020_source_01，生成下游数据表 test_table_15889_c0020_source_02
     steps:
       - action: 进入【元数据 → 数据目录 → 数据表】页面
         expected: 进入成功
-      - action: 打开 test_table_none_c0020_source_01 详情并切换到「血缘关系」
-        expected: 血缘图展示上游 ${TaskA} 和下游 test_table_none_c0020_source_02 节点
-      - action: 点击下游节点 test_table_none_c0020_source_02
-        expected: 右侧节点详情展示数据源、数据库和表名 test_table_none_c0020_source_02
+      - action: 打开 test_table_15889_c0020_source_01 详情并切换到「血缘关系」
+        expected: 血缘图展示上游 ${TaskA} 和下游 test_table_15889_c0020_source_02 节点
+      - action: 点击下游节点 test_table_15889_c0020_source_02
+        expected: 右侧节点详情展示数据源、数据库和表名 test_table_15889_c0020_source_02
     tags:
       - 元数据
       - 数据目录
@@ -575,27 +575,27 @@ cases:
       - 血缘
 
   - case_id: C0021
-    title: 验证【元数据】-【数据目录】查看视图详情，技术属性与血缘图展示源表(视图详情)
+    title: 验证【元数据】-【数据目录】查看视图详情，技术属性与血缘图展示源表
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建 2 张数据表并各插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0021_source_01;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0021_source_01 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0021_source_01 VALUES (1, 'A');
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0021_source_02;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0021_source_02 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0021_source_02 VALUES (1, 'A');
-      5) ${SchemaA} 下存在视图 order_summary_view，源表为 test_table_none_c0021_source_01、test_table_none_c0021_source_02，视图元数据已同步完成
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0021_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0021_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0021_source_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0021_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0021_source_02 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0021_source_02 VALUES (1, 'A');
+      5) ${SchemaA} 下存在视图 order_summary_view，源表为 test_table_15889_c0021_source_01、test_table_15889_c0021_source_02，视图元数据已同步完成
     steps:
       - action: 进入【元数据 → 数据目录 → 视图】页面
         expected: 进入成功
       - action: 打开视图 order_summary_view 详情并查看「技术属性」
         expected: 展示视图名称、数据源 ${DataSourceA}、数据库 ${SchemaA} 和源表数量 2
       - action: 切换到「血缘关系」
-        expected: 血缘图展示 test_table_none_c0021_source_01、test_table_none_c0021_source_02 两个上游节点
+        expected: 血缘图展示 test_table_15889_c0021_source_01、test_table_15889_c0021_source_02 两个上游节点
     tags:
       - 元数据
       - 数据目录
@@ -603,28 +603,28 @@ cases:
       - 血缘
 
   - case_id: C0022
-    title: 验证【元数据】-【数据目录】导出物化视图元数据，文件包含源表与字段结构(导出)
+    title: 验证【元数据】-【数据目录】导出物化视图元数据，文件包含源表与字段结构
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建 2 张数据表并各插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0022_source_01;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0022_source_01 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0022_source_01 VALUES (1, 'A');
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0022_source_02;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0022_source_02 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0022_source_02 VALUES (1, 'A');
-      5) ${SchemaA} 下存在物化视图 order_summary_mv，源表为 test_table_none_c0022_source_01、test_table_none_c0022_source_02
-      6) 浏览器下载目录可写
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0022_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0022_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0022_source_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0022_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0022_source_02 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0022_source_02 VALUES (1, 'A');
+      5) ${SchemaA} 下存在物化视图 order_summary_mv，源表为 test_table_15889_c0022_source_01、test_table_15889_c0022_source_02
+      6) 浏览器已配置下载目录且可写
     steps:
       - action: 进入【元数据 → 数据目录 → 物化视图】页面
         expected: 进入成功
       - action: 打开 order_summary_mv 详情并点击【导出元数据】
         expected: 下载 1 个 Excel 文件，文件名包含 order_summary_mv
       - action: 打开下载文件
-        expected: 文件包含物化视图名称、源表 test_table_none_c0022_source_01、test_table_none_c0022_source_02 和字段结构
+        expected: 文件包含物化视图名称、源表 test_table_15889_c0022_source_01、test_table_15889_c0022_source_02 和字段结构
     tags:
       - 元数据
       - 数据目录
@@ -632,21 +632,21 @@ cases:
       - 导出
 
   - case_id: C0023
-    title: 验证【元数据】-【元数据同步】新增周期同步任务并执行，同步记录状态为运行成功(周期同步)
+    title: 验证【元数据】-【元数据同步】新增周期同步任务并执行，同步记录状态为运行成功
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0023;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0023 (order_id VARCHAR(32), amount DECIMAL(10,2), created_at TIMESTAMP);
-         INSERT INTO ${SchemaA}.test_table_none_c0023 VALUES ('1001', 88.50, CURRENT_TIMESTAMP());
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0023;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0023 (order_id VARCHAR(32), amount DECIMAL(10,2), created_at TIMESTAMP);
+         INSERT INTO ${SchemaA}.test_table_15889_c0023 VALUES ('1001', 88.50, CURRENT_TIMESTAMP());
     steps:
       - action: 进入【元数据 → 元数据同步】页面
         expected: 进入成功
-      - action: 新增 ${DataSourceA} 的周期同步任务，选择数据库 ${SchemaA} 和表 test_table_none_c0023 后提交
-        expected: Toast提示:「保存成功」，任务列表新增 test_table_none_c0023 同步任务，状态为「启用」
+      - action: 新增 ${DataSourceA} 的周期同步任务，选择数据库 ${SchemaA} 和表 test_table_15889_c0023 后提交
+        expected: Toast提示:「保存成功」，任务列表新增 test_table_15889_c0023 同步任务，状态为「启用」
       - action: 打开同步任务执行记录
         expected: 最新记录状态为「运行成功」，同步表字段数为 3
     tags:
@@ -655,22 +655,22 @@ cases:
       - Lindorm
 
   - case_id: C0024
-    title: 验证【元数据】-【元数据同步】同步多类型字段数据表，字段类型完整保留(四类字段)
+    title: 验证【元数据】-【元数据同步】同步四类字段的数据表，字段类型完整保留
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0024;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0024 (text_col STRING, count_col BIGINT, amount_col DECIMAL(10,2), time_col TIMESTAMP);
-         INSERT INTO ${SchemaA}.test_table_none_c0024 VALUES ('A', 1, 1.5, CURRENT_TIMESTAMP());
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0024;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0024 (text_col STRING, count_col BIGINT, amount_col DECIMAL(10,2), time_col TIMESTAMP);
+         INSERT INTO ${SchemaA}.test_table_15889_c0024 VALUES ('A', 1, 1.5, CURRENT_TIMESTAMP());
     steps:
       - action: 进入【元数据 → 元数据同步】页面
         expected: 进入成功
-      - action: 新增并执行 test_table_none_c0024 同步任务
+      - action: 新增并执行 test_table_15889_c0024 同步任务
         expected: Toast提示:「保存成功」，任务状态为「运行中」
-      - action: 在数据表列表打开 test_table_none_c0024 详情
+      - action: 在数据表列表打开 test_table_15889_c0024 详情
         expected: text_col、count_col、amount_col、time_col 的类型分别为 STRING、BIGINT、DECIMAL、TIMESTAMP
     tags:
       - 元数据
@@ -678,16 +678,16 @@ cases:
       - 字段类型
 
   - case_id: C0025
-    title: 验证【元数据】-【元数据同步】同步分区表，分区字段与前一日当日分区均保留(分区同步)
-    priority: P0
+    title: 验证【元数据】-【元数据同步】同步分区表，分区字段与前一日当日分区均保留
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建分区表并写入前一日和当日两个分区，每个分区 2 条记录：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0025;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0025 (id BIGINT, name STRING) PARTITIONED BY (dt STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0025 PARTITION (dt)
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0025;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0025 (id BIGINT, name STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0025 PARTITION (dt)
          SELECT 1, 'a', date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
          UNION ALL
          SELECT 2, 'b', date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
@@ -698,7 +698,7 @@ cases:
     steps:
       - action: 进入【元数据 → 元数据同步】页面
         expected: 进入成功
-      - action: 新增 test_table_none_c0025 同步任务并执行一次同步
+      - action: 新增 test_table_15889_c0025 同步任务并执行一次同步
         expected: 最新执行记录状态为「运行成功」
       - action: 在数据表详情查看表结构
         expected: 普通字段和分区字段 dt 均已同步，分区信息包含前一日和当日日期
@@ -708,26 +708,26 @@ cases:
       - 分区同步
 
   - case_id: C0026
-    title: 验证【元数据】-【元数据同步】整库同步 100 张表，执行进度递增至 100%(整库同步)
+    title: 验证【元数据】-【元数据同步】整库同步 100 张表，执行进度递增至 100%
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
-      4) 使用以下 Shell 脚本生成 test_table_none_c0026.sql：
+      4) 使用以下 Shell 脚本生成 test_table_15889_c0026.sql：
          #!/usr/bin/env bash
          set -euo pipefail
-         output_file="test_table_none_c0026.sql"
+         output_file="test_table_15889_c0026.sql"
          schema='${SchemaA}'
          {
            for ((seq=1; seq<=100; seq++)); do
-             table="${schema}.test_table_none_c0026_source_$(printf '%04d' "$seq")"
+             table="${schema}.test_table_15889_c0026_source_$(printf '%04d' "$seq")"
              printf 'DROP TABLE IF EXISTS %s;\n' "${table}"
              printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT, name STRING);\n' "${table}"
              printf 'INSERT INTO %s VALUES (1, '\''A'\'');\n' "${table}"
            done
          } > "${output_file}"
-      5) 复制 test_table_none_c0026.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
+      5) 复制 test_table_15889_c0026.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
       6) ${SchemaA} 下共 100 张表，每张表包含字段 id BIGINT、name STRING
     steps:
       - action: 进入【元数据 → 元数据同步】页面
@@ -735,23 +735,23 @@ cases:
       - action: 创建 ${DataSourceA} 整库同步任务并执行
         expected: 执行进度从 0% 递增至 100%，完成数量显示 100 张表
       - action: 在数据表列表按数据源 ${DataSourceA} 筛选
-        expected: 列表展示 100 张表 test_table_none_c0026_source_0001 至 test_table_none_c0026_source_0100，字段 id 和 name 均存在
+        expected: 列表展示 100 张表 test_table_15889_c0026_source_0001 至 test_table_15889_c0026_source_0100，字段 id 和 name 均存在
     tags:
       - 元数据
       - 元数据同步
       - 批量同步
 
   - case_id: C0027
-    title: 验证【元数据】-【元数据同步】输入非法数据库名提交，提示仅支持字母数字下划线(数据库名校验)
+    title: 验证【元数据】-【元数据同步】输入非法数据库名提交，提示仅支持字母数字下划线
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0027;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0027 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0027 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0027;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0027 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0027 VALUES (1, 'A');
       5) 同步任务的数据库输入框仅允许字母、数字和下划线
     steps:
       - action: 进入【元数据 → 元数据同步】页面
@@ -766,22 +766,22 @@ cases:
       - 必填校验
 
   - case_id: C0028
-    title: 验证【元数据】-【数据目录】维护表业务负责人并刷新，属性值与更新时间更新(业务属性)
+    title: 验证【元数据】-【数据目录】维护表业务负责人并刷新，属性值与更新时间更新
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0028;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0028 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0028 VALUES (1, 'A');
-      5) test_table_none_c0028 业务属性「业务负责人」当前为空
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0028;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0028 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0028 VALUES (1, 'A');
+      5) test_table_15889_c0028 业务属性「业务负责人」当前为空
       6) 当前用户具有业务属性维护权限
     steps:
       - action: 进入【元数据 → 数据目录 → 数据表】页面
         expected: 进入成功
-      - action: 打开 test_table_none_c0028 详情，在业务属性中将「业务负责人」设置为「张三」并保存
+      - action: 打开 test_table_15889_c0028 详情，在业务属性中将「业务负责人」设置为「张三」并保存
         expected: Toast提示:「保存成功」，业务属性区域显示「业务负责人：张三」
       - action: 刷新详情页
         expected: 「业务负责人」仍显示「张三」，属性更新时间已更新
@@ -792,24 +792,24 @@ cases:
       - 业务属性
 
   - case_id: C0029
-    title: 验证【元数据】-【数据目录】删除自定义属性，表详情不再展示该属性(属性删除)
+    title: 验证【元数据】-【数据目录】删除自定义属性，表详情不再展示该属性
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0029;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0029 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0029 VALUES (1, 'A');
-      5) 元数据业务属性配置存在自定义属性「订单等级」，已应用于 test_table_none_c0029
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0029;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0029 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0029 VALUES (1, 'A');
+      5) 元数据业务属性存在自定义属性「订单等级」，已应用于 test_table_15889_c0029
       6) 当前用户具有业务属性维护权限
     steps:
       - action: 进入【元数据 → 数据目录 → 属性管理】页面
         expected: 进入成功
       - action: 删除自定义属性「订单等级」并确认
         expected: Toast提示:「删除成功」，属性列表不再展示「订单等级」
-      - action: 打开数据表 test_table_none_c0029 详情
+      - action: 打开数据表 test_table_15889_c0029 详情
         expected: 业务属性区域不再展示「订单等级」字段，其他属性保持不变
     tags:
       - 元数据
@@ -818,7 +818,7 @@ cases:
       - 删除
 
   - case_id: C0030
-    title: 验证【元数据】-【元模型管理】新增子模型并刷新模型树，子模型挂载于父模型下(子模型新增)
+    title: 验证【元数据】-【元模型管理】新增子模型并刷新模型树，子模型挂载于父模型下
     priority: P2
     precondition: |-
       1) 元模型管理存在模型「Lindorm订单模型」
@@ -836,23 +836,23 @@ cases:
       - 子模型
 
   - case_id: C0031
-    title: 验证【元数据】-【数据源管理】按类型和名称筛选数据源，列表仅展示匹配记录(筛选)
+    title: 验证【元数据】-【数据源管理】按类型和名称筛选数据源，列表仅展示匹配记录
     priority: P1
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
       2) 数据源 A 类型：Lindorm
       3) 数据源 A 存在数据库：${SchemaA}
       4) 在 ${SchemaA} 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0031_source_01;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0031_source_01 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0031_source_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0031_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0031_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0031_source_01 VALUES (1, 'A');
       5) 授权数据源 B：${DataSourceB}
       6) 数据源 B 类型：Doris3.x
       7) 数据源 B 存在数据库：${SchemaB}
       8) 在 ${SchemaB} 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaB}.test_table_none_c0031_source_02;
-         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_none_c0031_source_02 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaB}.test_table_none_c0031_source_02 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15889_c0031_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15889_c0031_source_02 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaB}.test_table_15889_c0031_source_02 VALUES (1, 'A');
       9) 当前用户具有数据源查看权限
     steps:
       - action: 进入【元数据 → 数据源管理】页面
@@ -867,16 +867,16 @@ cases:
       - 筛选
 
   - case_id: C0032
-    title: 验证【元数据】-【数据源管理】编辑数据源显示名称并刷新，名称更新且类型连接状态不变(编辑)
+    title: 验证【元数据】-【数据源管理】编辑数据源显示名称并刷新，名称更新且类型连接状态不变
     priority: P1
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
       2) 数据源 A 类型：Lindorm
       3) 数据源 A 存在数据库：${SchemaA}
       4) 在 ${SchemaA} 创建数据表并插入 1 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0032;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0032 (id BIGINT, name STRING);
-         INSERT INTO ${SchemaA}.test_table_none_c0032 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15889_c0032;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15889_c0032 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15889_c0032 VALUES (1, 'A');
       5) ${DataSourceA} 连接地址和端口已配置
       6) 当前用户具有数据源编辑权限
     steps:
