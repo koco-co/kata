@@ -7,6 +7,8 @@ import {
   finalizePrd,
   lintPrdFeature,
   migrateLegacyPrdLayout,
+  PRD_CHECKLIST_SEED,
+  type PrdChecklistVerdict,
   type PrdSession,
 } from "../../cli/lib/prd.ts";
 
@@ -64,7 +66,11 @@ function session(): PrdSession {
       ],
       omission_scans: [
         { round: 1, summary: "覆盖需求明确范围、字段和验收。" },
-        { round: 2, summary: "补查权限、兼容和失败恢复。" },
+        {
+          round: 2,
+          summary: "补查权限、兼容和失败恢复。",
+          checklist_verdicts: validVerdicts(),
+        },
       ],
     },
     questions: [
@@ -109,6 +115,29 @@ function session(): PrdSession {
       images: [{ asset: "p1-overview.png", alt: "字符限制配置页" }],
     },
   };
+}
+
+/** 覆盖全部清单 ID 的合法判定：CL-002 链到 Q-001，其余按适用条件跳过。 */
+function validVerdicts(): PrdChecklistVerdict[] {
+  return PRD_CHECKLIST_SEED.map((item) => {
+    if (item.id === "CL-002") {
+      return { checklist_id: item.id, verdict: "asked" as const, question_id: "Q-001" };
+    }
+    return { checklist_id: item.id, verdict: "skipped" as const, reason: "对照适用条件跳过" };
+  });
+}
+
+/** 写入 evidence 与 session 后返回一个触发 finalize 的闭包。 */
+function runFinalize(state: PrdSession): () => void {
+  const dir = feature();
+  const evidenceText = `${JSON.stringify(evidence(), null, 2)}\n`;
+  writeFileSync(join(dir, "prd", "evidence", "lanhu.json"), evidenceText);
+  state.evidence_digest = computePrdDigest(evidenceText);
+  writeFileSync(
+    join(dir, "prd", ".process", "session.json"),
+    `${JSON.stringify(state, null, 2)}\n`,
+  );
+  return () => finalizePrd(dir);
 }
 
 describe("PRD finalize and lint", () => {
@@ -224,6 +253,53 @@ evidence_digest: "sha256:deadbeef"
     expect(rules).toContain("unresolved");
     expect(rules).toContain("asset_path");
     expect(rules).toContain("asset_missing");
+  });
+});
+
+describe("PRD checklist verdicts", () => {
+  it("blocks finalize when round-2 omission scan lacks checklist_verdicts", () => {
+    const state = session();
+    state.preparation.omission_scans[1].checklist_verdicts = undefined;
+    expect(runFinalize(state)).toThrow(/checklist_verdicts/);
+  });
+
+  it("blocks finalize when any seed checklist item lacks a verdict", () => {
+    const state = session();
+    state.preparation.omission_scans[1].checklist_verdicts = validVerdicts().slice(1);
+    expect(runFinalize(state)).toThrow(/CL-001.*缺少判定/);
+  });
+
+  it("blocks finalize when asked verdict is not linked to a known question", () => {
+    const state = session();
+    const verdicts = validVerdicts();
+    verdicts[1].question_id = "Q-999";
+    state.preparation.omission_scans[1].checklist_verdicts = verdicts;
+    expect(runFinalize(state)).toThrow(/question_id 未链接/);
+  });
+
+  it("blocks finalize when asked verdict links to an unanswered question", () => {
+    const state = session();
+    state.questions[0].answer = "";
+    expect(runFinalize(state)).toThrow(/CL-002 链到的问题.*尚未回答/);
+  });
+
+  it("blocks finalize when skipped verdict lacks reason", () => {
+    const state = session();
+    const verdicts = validVerdicts();
+    verdicts[2].reason = "";
+    state.preparation.omission_scans[1].checklist_verdicts = verdicts;
+    expect(runFinalize(state)).toThrow(/CL-003 判定为 skipped 但缺少 reason/);
+  });
+
+  it("blocks finalize when self-resolved verdict lacks answer", () => {
+    const state = session();
+    const verdicts = validVerdicts().map((verdict) =>
+      verdict.verdict === "skipped"
+        ? { checklist_id: verdict.checklist_id, verdict: "self-resolved" as const, answer: "" }
+        : verdict,
+    );
+    state.preparation.omission_scans[1].checklist_verdicts = verdicts;
+    expect(runFinalize(state)).toThrow(/self-resolved 但缺少 answer/);
   });
 });
 

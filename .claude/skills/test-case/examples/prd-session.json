@@ -18,7 +18,39 @@
       },
       {
         "round": 2,
-        "summary": "补查权限、兼容和失败恢复。"
+        "summary": "补查权限、兼容和失败恢复。",
+        "checklist_verdicts": [
+          {
+            "checklist_id": "CL-001",
+            "verdict": "self-resolved",
+            "answer": "纯新增配置，无存量数据、既有任务与旧接口，源码无迁移路径。"
+          },
+          {
+            "checklist_id": "CL-002",
+            "verdict": "asked",
+            "question_id": "Q-001"
+          },
+          {
+            "checklist_id": "CL-003",
+            "verdict": "skipped",
+            "reason": "无权限区分，所有角色同权，对照适用条件跳过。"
+          },
+          {
+            "checklist_id": "CL-004",
+            "verdict": "skipped",
+            "reason": "单次配置类操作，无异步执行，对照适用条件跳过。"
+          },
+          {
+            "checklist_id": "CL-005",
+            "verdict": "skipped",
+            "reason": "无写入型异步任务、无重复触发路径，对照适用条件跳过。"
+          },
+          {
+            "checklist_id": "CL-006",
+            "verdict": "skipped",
+            "reason": "无跨模块/跨任务依赖，对照适用条件跳过。"
+          }
+        ]
       }
     ]
   },

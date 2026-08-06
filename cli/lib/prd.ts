@@ -34,6 +34,19 @@ const PROMPT_POLLUTION =
   /二狗工作指引|STAGE\s*[1-4]|Return Format|Your Mission|Building God's View|分析完本组页面后，必须按以下格式输出/i;
 const UNRESOLVED = /(?<!等)待确认|用户确认补充|TODO|TBD|待补充/;
 
+/**
+ * PRD 澄清遗漏问题清单稳定集合。
+ * 与 `.claude/skills/test-case/checklists/clarify.md` 保持一致；新增条目须双处同步。
+ */
+export const PRD_CHECKLIST_SEED = [
+  { id: "CL-001", title: "兼容与迁移" },
+  { id: "CL-002", title: "边界值与枚举" },
+  { id: "CL-003", title: "权限与角色" },
+  { id: "CL-004", title: "失败与恢复" },
+  { id: "CL-005", title: "并发与幂等" },
+  { id: "CL-006", title: "依赖影响" },
+] as const;
+
 export interface PrdEvidencePage {
   id: string;
   name: string;
@@ -63,6 +76,19 @@ export interface PrdQuestion {
   recommendation: string;
 }
 
+export type PrdChecklistVerdictValue = "asked" | "skipped" | "self-resolved";
+
+export interface PrdChecklistVerdict {
+  checklist_id: string;
+  verdict: PrdChecklistVerdictValue;
+  /** verdict = asked 时必填，指向 questions[].id 且该问题必须已答（「不涉及/范围外」也算答）。 */
+  question_id?: string;
+  /** verdict = skipped 时必填，写明对应的适用条件。 */
+  reason?: string;
+  /** verdict = self-resolved 时必填，写入自查结论。 */
+  answer?: string;
+}
+
 export interface PrdDecision {
   id: string;
   title: string;
@@ -83,7 +109,12 @@ export interface PrdSession {
   preparation: {
     knowledge_queries: string[];
     source_repos: { repo: string; branch: string; commit: string }[];
-    omission_scans: { round: 1 | 2; summary: string }[];
+    omission_scans: {
+      round: 1 | 2;
+      summary: string;
+      /** 第 2 轮遗漏扫描的澄清清单判定；ID 集合见 PRD_CHECKLIST_SEED。 */
+      checklist_verdicts?: PrdChecklistVerdict[];
+    }[];
   };
   questions: PrdQuestion[];
   decisions: PrdDecision[];
@@ -121,6 +152,44 @@ function renderSources(sources: string[]): string {
   return sources.map((source) => `\`${source}\``).join("、");
 }
 
+/** finalize 硬门：澄清清单每条必有判定，asked 必须链到已回答问题。 */
+function assertChecklistVerdicts(session: PrdSession): void {
+  const round2 = session.preparation.omission_scans.find((scan) => scan.round === 2);
+  const verdicts = round2?.checklist_verdicts;
+  if (!verdicts || verdicts.length === 0) {
+    throw new Error("session 第 2 轮遗漏扫描缺少 checklist_verdicts");
+  }
+  const seedIds = new Set(PRD_CHECKLIST_SEED.map((item) => item.id));
+  const questionById = new Map(session.questions.map((question) => [question.id, question]));
+  const seen = new Set<string>();
+  for (const verdict of verdicts) {
+    if (!seedIds.has(verdict.checklist_id)) throw new Error(`非法清单 ID: ${verdict.checklist_id}`);
+    if (seen.has(verdict.checklist_id)) throw new Error(`重复清单判定: ${verdict.checklist_id}`);
+    seen.add(verdict.checklist_id);
+    if (!["asked", "skipped", "self-resolved"].includes(verdict.verdict)) {
+      throw new Error(`${verdict.checklist_id} 非法判定状态: ${verdict.verdict}`);
+    }
+    if (verdict.verdict === "asked") {
+      const question = verdict.question_id ? questionById.get(verdict.question_id) : undefined;
+      if (!question) {
+        throw new Error(`${verdict.checklist_id} 判定为 asked 但 question_id 未链接到已登记问题`);
+      }
+      if (!question.answer.trim()) {
+        throw new Error(`${verdict.checklist_id} 链到的问题 ${question.id} 尚未回答`);
+      }
+    }
+    if (verdict.verdict === "skipped" && !verdict.reason?.trim()) {
+      throw new Error(`${verdict.checklist_id} 判定为 skipped 但缺少 reason`);
+    }
+    if (verdict.verdict === "self-resolved" && !verdict.answer?.trim()) {
+      throw new Error(`${verdict.checklist_id} 判定为 self-resolved 但缺少 answer`);
+    }
+  }
+  for (const item of PRD_CHECKLIST_SEED) {
+    if (!seen.has(item.id)) throw new Error(`清单 ${item.id} ${item.title} 缺少判定`);
+  }
+}
+
 function assertFinalizable(
   featureDir: string,
   evidence: PrdEvidence,
@@ -152,6 +221,7 @@ function assertFinalizable(
   if (!scanRounds.has(1) || !scanRounds.has(2)) {
     throw new Error("session 必须记录两轮遗漏扫描");
   }
+  assertChecklistVerdicts(session);
   const digest = computePrdDigest(evidenceText);
   if (session.evidence_digest !== digest) {
     throw new Error(`session evidence_digest 已过期: 期望 ${digest}`);
