@@ -2,6 +2,7 @@
 
 - [ ] 每条用例标题符合统一公式「验证【模块】-【功能点】<操作>，<可观测结果>(条件)」；结果可观测、条件尾随括号，无「在…时」/下划线/通用断言词。
 - [ ] `kata prd lint --exit-code` 通过
+- [ ] 澄清清单每条判定落 `session.json`：`asked` 已答、`skipped`/`self-resolved` 有理由或结论
 - [ ] `kata cases build` 通过
 - [ ] `kata cases lint --exit-code` 通过
 - [ ] `cases/test-points.md` 逐项引用 PRD 稳定 ID

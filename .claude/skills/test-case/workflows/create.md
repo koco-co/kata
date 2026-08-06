@@ -45,14 +45,18 @@
      ```
    - 完成条件：客户身份确定，规范与知识已加载，客户专属文件存在且时效满足需求
 
-4. 扫描遗漏与冲突
+4. 扫描遗漏与清单判定
    - 第一轮：需求明确写出的目标、范围、角色、字段、状态、异常、兼容和验收。
-   - 第二轮：遗漏、来源冲突、权限、边界值、枚举全集、历史数据、失败恢复、并发和依赖影响。
+   - 第二轮：按 [../checklists/clarify.md](../checklists/clarify.md) 的 6 条清单逐条判定
+     `skipped`（不涉及，reason 写明适用条件）/ `self-resolved`（代码/知识自查出答案，answer 落自查结论）/ `asked`（需要用户裁决）。
+   - 判定前先自查：纯增删改查、代码/知识库能明确、明显不涉及的条目**禁止提问**。
    - Lanhu 表预期变更，verified 知识表既有规则，release 源码表当前实现；目标行为冲突由用户决策。
-   - 完成条件：两轮扫描均已记录，所有会改变范围的冲突已转成待决策问题。
+   - 判定结果写入 `prd/.process/session.json` 的 `preparation.omission_scans` 第 2 轮 `checklist_verdicts`（结构见 [../examples/prd-session.json](../examples/prd-session.json)）。
+   - 完成条件：6 条清单全部有判定且已记录，所有会改变范围的冲突已转成待决策问题。
 
 5. 逐问确认并记录
    - 一次一个问题，给出当前证据、业务影响、风险、推荐答案和用户最终答案。
+   - 只问第 4 步判定为 `asked` 的问题；每个问题记录其 `checklist_id` 归属。
    - 将知识、仓库、扫描、问答、证据和决策写入 `prd/.process/session.json`；结构见 [../examples/prd-session.json](../examples/prd-session.json)。
    - 全部问题后展示决策摘要，单独取得发布确认。正式 PRD 使用 `PD-001` 等稳定 ID，「待确认」等状态只保留在 session。
    - 完成条件：无未回答的关键问题，用户已确认发布。

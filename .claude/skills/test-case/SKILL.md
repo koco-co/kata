@@ -44,6 +44,7 @@ description: 编写、更新、导入、同步或标准化 Kata 测试用例。L
        5) 重新加载后写用例
      - 完成条件：客户身份确定，规范与知识已加载，客户专属文件存在且时效满足需求
    - create/update workflow 按确认范围维护 PRD、测试点和 YAML；派生产物仅由 `kata cases build` 生成。
+   - **PRD 需求澄清阶段按 [checklists/clarify.md](checklists/clarify.md) 逐条判定遗漏问题；`asked` 才进入逐问，`skipped`/`self-resolved` 写明理由与自查结论。**
    - **写 YAML 必须严格遵循 [examples/cases.yaml](examples/cases.yaml) 及 [examples/best-practices.md](examples/best-practices.md)。超出两份文件明确范围的禁止自行创建规范，必须给出建议并取得用户确认。** cases.yaml 是用例编写框架，best-practices.md 是各字段值通用填写规范；客户专属表单配置细节从 `kata knowledge read --type standard --customer` 加载，无客户文件时按 [templates/standard-template.md](templates/standard-template.md) 结构先创建再写用例。
    - **前置条件只声明环境与数据准备（数据源授权、建表、插数、账号、已存在对象）；任何配置操作（配置监控对象/监控规则、新建规则集/规则任务、点击保存、立即执行等）必须写进 `steps[].action`。**
    - **表单配置通用规则：每条规则/表单一个完整 action，按前端表单顺序逐行列出全部配置项（必填项带 `*`，可空项如过滤条件/维度字段也占位列出值为「空」）；不得省略、概括、改字段名。具体配置项、顺序、级联以客户专属 `standards/<customer>/` 文件为准。**
@@ -76,4 +77,5 @@ description: 编写、更新、导入、同步或标准化 Kata 测试用例。L
 - update 分支：完整读取 [workflows/update.md](workflows/update.md)。
 - 写 YAML：按 [examples/cases.yaml](examples/cases.yaml) 顶部索引按需读取 [examples/best-practices.md](examples/best-practices.md) 对应章节。
 - 客户专属表单配置模板：[templates/standard-template.md](templates/standard-template.md)。
+- 需求澄清遗漏清单：[checklists/clarify.md](checklists/clarify.md)。
 - 交付前自审：[checklists/review.md](checklists/review.md)。
