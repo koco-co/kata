@@ -97,17 +97,39 @@ cases:
     ).toBe(false);
   });
 
-  it("enforces authored active-case P0 ratio rules", () => {
-    const root = ws();
-    const cases = Array.from({ length: 8 }, (_, index) => {
-      const priority = index === 0 ? "P0" : "P1";
-      return `  - case_id: C${String(index + 1).padStart(4, "0")}\n    title: ${index === 0 ? "" : `验证场景${index + 1}在执行时展示确定结果`}\n    priority: ${priority}\n    precondition: 无\n    steps:\n      - action: 进入【资产盘点】页面\n        expected: 进入成功`;
+  function authoredCases(p0Count: number, total = 8): string {
+    const cases = Array.from({ length: total }, (_, index) => {
+      const priority = index < p0Count ? "P0" : "P1";
+      return `  - case_id: C${String(index + 1).padStart(4, "0")}\n    title: 验证场景${index + 1}在执行时展示确定结果\n    priority: ${priority}\n    precondition: 无\n    steps:\n      - action: 进入【资产盘点】页面\n        expected: 进入成功`;
     }).join("\n");
-    mkValidActive(root, `meta: { title: 需求, case_module_id: "" }\ncases:\n${cases}\n`);
+    return `meta: { title: 需求, case_module_id: "" }\ncases:\n${cases}\n`;
+  }
+
+  it("enforces the lower bound of authored active-case P0 ratio", () => {
+    const root = ws();
+    mkValidActive(root, authoredCases(1));
     const rules = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.map(
       (v) => v.rule,
     );
     expect(rules).toContain("p0_ratio");
+  });
+
+  it("enforces the upper bound of authored active-case P0 ratio at 30%", () => {
+    const root = ws();
+    mkValidActive(root, authoredCases(3));
+    const violations = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations;
+    const p0 = violations.find((violation) => violation.rule === "p0_ratio");
+    expect(p0?.message).toContain("[20%,30%]");
+  });
+
+  it("accepts an authored active-case P0 ratio inside [20%,30%]", () => {
+    const root = ws();
+    mkValidActive(root, authoredCases(2));
+    expect(
+      runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.some(
+        (violation) => violation.rule === "p0_ratio",
+      ),
+    ).toBe(false);
   });
 
   it("does not apply subjective case rules to standing features", () => {

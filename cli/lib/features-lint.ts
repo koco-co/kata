@@ -40,7 +40,23 @@ export interface FeatureLintViolation {
 const PENDING_CONFIRM_RE = /(?<!等)待确认/;
 const P0_MIN_CASES = 8;
 const P0_RATIO_MIN = 0.2;
-const P0_RATIO_MAX = 0.4;
+const P0_RATIO_MAX = 0.3;
+
+export function p0RatioViolation(
+  cases: Array<{ priority?: unknown }>,
+  filename: string,
+): { rule: "p0_ratio"; message: string } | undefined {
+  if (cases.length < P0_MIN_CASES) return undefined;
+  const p0 = cases.filter((item) => item.priority === "P0").length;
+  const ratio = p0 / cases.length;
+  if (ratio < P0_RATIO_MIN || ratio > P0_RATIO_MAX) {
+    return {
+      rule: "p0_ratio",
+      message: `cases/${filename} P0 占比 ${p0}/${cases.length} (${Math.round(ratio * 100)}%) 超出 [20%,30%]`,
+    };
+  }
+  return undefined;
+}
 
 function loadEnum(sharedRoot: string, file: string): string[] {
   const path = join(sharedRoot, "_meta", file);
@@ -179,16 +195,9 @@ function lintCaseSources(
     const historicalImport =
       Array.isArray(doc.meta?.imports) &&
       doc.meta.imports.some((value) => typeof value === "string");
-    if (cases.length >= P0_MIN_CASES && !historicalImport) {
-      const p0 = cases.filter((item) => item.priority === "P0").length;
-      const ratio = p0 / cases.length;
-      if (ratio < P0_RATIO_MIN || ratio > P0_RATIO_MAX) {
-        violations.push({
-          feature,
-          rule: "p0_ratio",
-          message: `cases/${filename} P0 占比 ${p0}/${cases.length} (${Math.round(ratio * 100)}%) 超出 [20%,40%]`,
-        });
-      }
+    if (!historicalImport) {
+      const p0 = p0RatioViolation(cases, filename);
+      if (p0) violations.push({ feature, ...p0 });
     }
   }
 }

@@ -5,7 +5,7 @@
 
 import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import type { Command } from "commander";
 import {
   emitBusinessNotificationSafely,
@@ -33,6 +33,7 @@ import {
   projectRootFromFeatureDir,
   resolveFeatureEntry,
 } from "../lib/features-layout.ts";
+import { p0RatioViolation } from "../lib/features-lint.ts";
 import { assertWritable } from "../lib/path-policy.ts";
 import { assertCaseDigestChain } from "../lib/prd.ts";
 import type { ProjectPaths } from "../lib/types.ts";
@@ -248,6 +249,10 @@ function preflightFeature(featureDir: string): {
         .join("\n")}`,
     );
   }
+  const p0Problem = p0RatioViolation(file.cases, basename(yamlPath));
+  if (p0Problem) {
+    throw new Error(`用例硬校验未通过:\n  - [${p0Problem.rule}] ${p0Problem.message}`);
+  }
   return { yamlPath, name, file };
 }
 
@@ -264,7 +269,7 @@ export function registerCasesBuild(cases: Command): void {
   cases
     .command("build")
     .description(
-      "用例内容 lint 通过后按 YAML meta.exports 生成派生产物；缺省生成同名 XMind；requirements 布局生成多个 L1；传需求 id 简写定位 feature",
+      "用例内容 lint 与 P0 占比硬校验通过后按 YAML meta.exports 生成派生产物；缺省生成同名 XMind；requirements 布局生成多个 L1；传需求 id 简写定位 feature",
     )
     .argument("[requirementId]", "需求 id；按 cases YAML 中 requirement_id 字段定位 feature")
     .option("--feature <dir>", "feature 目录路径；与 <requirementId> 二选一")

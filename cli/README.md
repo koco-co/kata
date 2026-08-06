@@ -62,7 +62,7 @@ Options:
   -h, --help                       display help for command
 
 Commands:
-  build [options] [requirementId]  用例内容 lint 通过后按 YAML meta.exports
+  build [options] [requirementId]  用例内容 lint 与 P0 占比硬校验通过后按 YAML meta.exports
                                    生成派生产物；缺省生成同名 XMind；requirements 布局生成多个
                                    L1；传需求 id 简写定位 feature
   import [options]                 将 CSV/XLSX/MD/XMind 转为 YAML；XMind 可按 L1 拆分(默认
@@ -70,7 +70,7 @@ Commands:
   sync [options]                   按 YAML 中已声明的 Playwright spec_file 同步文件名和
                                    generated runner；API executor 单独报告(默认
                                    dry-run)
-  lint [options]                   检查 feature 目录、命名、YAML 来源、用例内容与历史导入文件
+  lint [options]                   检查 feature 目录、命名、YAML 来源、用例内容、P0 占比与历史导入文件
   help [command]                   display help for command
 ```
 
@@ -386,8 +386,8 @@ Options:
 ```text
 Usage: kata cases build [options] [requirementId]
 
-用例内容 lint 通过后按 YAML meta.exports 生成派生产物；缺省生成同名 XMind；requirements 布局生成多个 L1；传需求
-id 简写定位 feature
+用例内容 lint 与 P0 占比硬校验通过后按 YAML meta.exports 生成派生产物；缺省生成同名 XMind；requirements
+布局生成多个 L1；传需求 id 简写定位 feature
 
 Arguments:
   requirementId     需求 id；按 cases YAML 中 requirement_id 字段定位 feature
@@ -439,7 +439,7 @@ Options:
 ```text
 Usage: kata cases lint [options]
 
-检查 feature 目录、命名、YAML 来源、用例内容与历史导入文件
+检查 feature 目录、命名、YAML 来源、用例内容、P0 占比与历史导入文件
 
 Options:
   --project <name>  项目名；与 --all-projects 二选一

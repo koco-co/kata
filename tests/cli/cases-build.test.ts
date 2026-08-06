@@ -83,6 +83,24 @@ cases:
     expect(r.stderr).toContain("case_first_step_navigation");
     expect(existsSync(join(d, "cases", "exports", "需求名.xmind"))).toBe(false);
   });
+  it("blocks derived artifacts when authored P0 ratio exceeds 30%", () => {
+    const d = feature();
+    const cases = Array.from({ length: 8 }, (_, index) => {
+      const priority = index < 3 ? "P0" : "P1";
+      return `  - case_id: C${String(index + 1).padStart(4, "0")}\n    title: 验证【数据质量】-【规则库配置】进入页面，展示规则列表${index + 1}\n    priority: ${priority}\n    precondition: 无\n    steps:\n      - action: 进入【数据质量 → 规则库配置】页面\n        expected: 进入成功`;
+    }).join("\n");
+    writeFileSync(
+      join(d, "cases", "需求名.yaml"),
+      `meta: { title: 需求名, case_module_id: "" }\ncases:\n${cases}\n`,
+    );
+    const r = spawnSync("bun", ["cli/bin/kata.ts", "cases", "build", "--feature", d], {
+      encoding: "utf8",
+    });
+    expect(r.status).not.toBe(0);
+    expect(r.stderr).toContain("p0_ratio");
+    expect(r.stderr).toContain("[20%,30%]");
+    expect(existsSync(join(d, "cases", "exports", "需求名.xmind"))).toBe(false);
+  });
   it("blocks stale cases when test-points no longer matches the PRD digest chain", () => {
     const d = feature();
     mkdirSync(join(d, "prd"), { recursive: true });
