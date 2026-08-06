@@ -268,11 +268,13 @@ async function pickProjectFeature(): Promise<FeatureRef | undefined> {
   for (;;) {
     const project = await pickProject();
     if (!project) return undefined;
-    const version = await pickVersion(project);
-    if (!version) continue;
-    const ref = await pickFeature(project, version);
-    if (!ref) return undefined;
-    return ref;
+    for (;;) {
+      const version = await pickVersion(project);
+      if (!version) break;
+      const ref = await pickFeature(project, version);
+      if (!ref) continue;
+      return ref;
+    }
   }
 }
 
