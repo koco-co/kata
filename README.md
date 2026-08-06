@@ -25,6 +25,7 @@
 - [工作流](#工作流)
 - [能力地图](#能力地图)
 - [快速开始](#快速开始)
+- [交互式 TUI](#交互式-tui)
 - [项目结构](#项目结构)
 - [开发与验证](#开发与验证)
 
@@ -73,6 +74,19 @@ Kata 的价值不在生成更多文本，而在于每个结果都能回溯到输
    test-case skill 流程（推荐）；
 5. 其余 skill 流程由用户决定是否继续；若不继续，结束本次本地引导任务。
 ```
+
+## 交互式 TUI
+
+人类可以直接在终端进入交互界面，浏览项目、迭代版本与 Feature，并对用例执行 `Lint/Build`：
+
+```bash
+kata                              # TTY 下进入 TUI
+kata tui                          # 显式进入 TUI
+kata --no-interactive <command>   # 脚本、CI 或模型调用保持纯 CLI
+kata cases build 16212 --project dataAssets
+```
+
+`kata cases build <requirementId>` 在 TTY 下会直接进入对应 Feature 的构建页面。TUI 入口契约和开放范围见 [docs/kata-tui-architecture.md](docs/kata-tui-architecture.md)。
 
 ## 项目结构
 

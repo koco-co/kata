@@ -33,6 +33,17 @@ bun run ci
 
 `bun link` 把 `kata` 注册到 Bun 全局 bin 目录（通常 `~/.bun/bin`），需确认该目录已在 `PATH` 中；不执行 `bun link` 时 `kata` 不在 `PATH` 上，可改用 `bun run cli/bin/kata.ts <command>` 直接调用。
 
+### 使用 TUI
+
+安装完成后，人类用户可直接进入交互界面：
+
+```bash
+kata
+kata tui
+```
+
+脚本、CI 或模型调用保持纯 CLI，使用 `--no-interactive` 强制跳过 TUI；例如 `kata --no-interactive cases build <requirementId> --format xmind`。TUI 入口契约和开放范围见 `docs/kata-tui-architecture.md`。
+
 Windows 克隆必须启用符号链接（`git config --global core.symlinks true`，并在开启开发者模式或管理员权限的终端中克隆），否则 `.agents/skills/` 的 symlink 会退化为普通文本文件，Codex 侧无法加载 Skill。
 
 ## 4. 平台环境
@@ -143,4 +154,3 @@ bun run test
 1. 使用 `kata project scan --project <name>` 扫描或创建项目目录。
 2. 走完一次 `/test-case` skill 流程：从 PRD、设计稿等需求来源编写、编辑和同步用例，产出 YAML / XMind / SourceRef。
 3. 其余 skill（`/ui-automation`、`/defect-analyze`、`/infra-diagnose`、`/domain-knowledge`、`/workspace-management`）由用户决定是否继续；若不继续，结束本次本地引导任务。
-

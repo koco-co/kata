@@ -90,6 +90,19 @@ cp config/examples/infrastructure/credentials.example.yaml config/private/infras
 kata config doctor
 ```
 
+## Interactive TUI
+
+You can open an interactive terminal UI to browse projects, versions, and features, then run `Lint/Build` on a feature:
+
+```bash
+kata                              # enter TUI on a TTY
+kata tui                          # explicit TUI entry
+kata --no-interactive <command>   # scripts, CI, or model calls keep plain CLI output
+kata cases build 16212 --project dataAssets
+```
+
+`kata cases build <requirementId>` opens the matching feature build page on a TTY. Entry contract and approved scope are documented in [docs/kata-tui-architecture.md](docs/kata-tui-architecture.md).
+
 ## Configuration boundaries
 
 | Directory | Contents | Tracked |
