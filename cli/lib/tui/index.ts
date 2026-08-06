@@ -17,17 +17,23 @@ import { runFeaturesList } from "../../commands/features.ts";
 import type { CaseExportFormat } from "../cases/formats.ts";
 import { listWorkspaceProjects } from "../workspace-locator.ts";
 import { recentHistory, recordFeature } from "./history.ts";
+import {
+  LINT_PAGE_SIZE,
+  lintDetail,
+  lintLabel,
+  lintPageCount,
+  lintPageSlice,
+  lintSummary,
+  type TuiLintViolation,
+} from "./lint-result.ts";
 import { existingCaseModuleId, featureRefByProjectPath, formatBuildReport } from "./registry.ts";
 import type { FeatureRef } from "./types.ts";
 
-const TUI_BANNER = [
-  "#     #  #####   #    #   #####",
-  "#     # #     #  ##  ##  #     #",
-  "#     # #     #  # ## #  #",
-  " #   #  #     #  #    #  #  ####",
-  "  # #   #     #  #    #  #     #",
-  "   #     #####   #    #   #####",
-].join("\n");
+const TUI_BANNER = String.raw` _  __      _        _
+| |/ /_ __ | |_ __ *| |*
+| ' /| '_ \| __/ _| | __|
+| . \| | | | || (*| | |*
+|*|\_\_| |*|\__\__,_|\__|`;
 
 export interface TuiInitialFeature {
   project: string;
@@ -122,19 +128,13 @@ async function casesLint(): Promise<void> {
   try {
     if (scope === "all") {
       const result = runAllCasesLint();
-      note(
-        formatViolations(result.violations),
-        `All projects lint · ${result.violations.length} violation(s)`,
-      );
+      await showLintViolations("All projects lint", result.violations);
       return;
     }
     const project = await pickProject();
     if (!project) return;
     const result = runCasesLint({ project });
-    note(
-      formatViolations(result.violations),
-      `${project} lint · ${result.violations.length} violation(s)`,
-    );
+    await showLintViolations(`${project} lint`, result.violations);
   } catch (error) {
     log.error(`Lint failed: ${errorMessage(error)}`);
   }
@@ -195,7 +195,7 @@ async function featureMenu(ref: FeatureRef): Promise<void> {
 async function lintFeature(ref: FeatureRef): Promise<void> {
   try {
     const result = runCasesLint({ project: ref.project, feature: ref.relativePath });
-    note(formatViolations(result.violations), `Lint · ${result.violations.length} violation(s)`);
+    await showLintViolations(`Lint · ${ref.title}`, result.violations);
   } catch (error) {
     log.error(`Lint failed: ${errorMessage(error)}`);
   }
@@ -205,8 +205,8 @@ async function buildFeature(ref: FeatureRef): Promise<void> {
   const formatChoice = await multiselect({
     message: "Select export formats (multi-select)",
     options: [
-      { value: "xmind", label: "XMind", hint: "cases/exports/*.xmind" },
-      { value: "csv", label: "CSV", hint: "ZenTao import format" },
+      { value: "xmind", label: "XMind" },
+      { value: "csv", label: "CSV" },
     ],
     required: false,
   });
@@ -299,11 +299,11 @@ async function pickFeature(project: string, version: string): Promise<FeatureRef
     return undefined;
   }
   const choice = await select({
-    message: `Features · ${project} · ${version}`,
+    message: `Features · ${project}`,
     options: rows.map((row) => ({
       value: row.relative_path,
       label: row.title,
-      hint: `${row.version} · ${row.relative_path}`,
+      hint: row.dir_name,
     })),
   });
   if (isCancel(choice)) return undefined;
@@ -312,12 +312,55 @@ async function pickFeature(project: string, version: string): Promise<FeatureRef
   return ref;
 }
 
-function formatViolations(violations: readonly { rule?: string; message: string }[]): string {
-  if (violations.length === 0) return "No violations";
-  return violations
-    .slice(0, 20)
-    .map((violation) => `- [${violation.rule ?? "-"}] ${violation.message}`)
-    .join("\n");
+async function showLintViolations(
+  title: string,
+  violations: readonly TuiLintViolation[],
+): Promise<void> {
+  if (violations.length === 0) {
+    note("No violations", title);
+    return;
+  }
+  const totalPages = lintPageCount(violations.length);
+  let page = 0;
+  for (;;) {
+    const pageViolations = lintPageSlice(violations, page);
+    const options = pageViolations.map((violation, index) => ({
+      value: `violation:${page * LINT_PAGE_SIZE + index}`,
+      label: lintLabel(violation),
+      hint: lintSummary(violation),
+    }));
+    if (page > 0) {
+      options.push({
+        value: "previous",
+        label: "Previous page",
+        hint: `Page ${page}/${totalPages}`,
+      });
+    }
+    if (page < totalPages - 1) {
+      options.push({
+        value: "next",
+        label: "Next page",
+        hint: `${violations.length - (page + 1) * LINT_PAGE_SIZE} more`,
+      });
+    }
+    options.push({ value: "back", label: "Back", hint: "Return to previous menu" });
+    const choice = await select({
+      message: `${title} · ${violations.length} violation(s) · page ${page + 1}/${totalPages}`,
+      options,
+    });
+    if (isCancel(choice) || choice === "back") return;
+    if (choice === "previous") {
+      page -= 1;
+      continue;
+    }
+    if (choice === "next") {
+      page += 1;
+      continue;
+    }
+    const index = Number(String(choice).slice("violation:".length));
+    const violation = violations[index];
+    if (violation) note(lintDetail(violation), `${lintLabel(violation)} · detail`);
+  }
 }
 
 function errorMessage(error: unknown): string {

@@ -1,7 +1,7 @@
 import { dirname } from "node:path";
 import type { Command } from "commander";
 import { resolveFeatureEntry } from "../lib/features-layout.ts";
-import { runFeaturesLint } from "../lib/features-lint.ts";
+import { type FeatureLintViolation, runFeaturesLint } from "../lib/features-lint.ts";
 import { listWorkspaceProjects, locateProject } from "../lib/workspace-locator.ts";
 import { registerCasesBuild } from "./cases-build.ts";
 import { registerCasesImport } from "./cases-import.ts";
@@ -9,7 +9,7 @@ import { registerCasesSync } from "./cases-sync.ts";
 
 /** Run case-related structural lint: feature dir layout + naming + YAML source contract. */
 export function runCasesLint(opts: { project: string; feature?: string }): {
-  violations: { feature: string; rule: string; message: string }[];
+  violations: FeatureLintViolation[];
 } {
   const project = locateProject(opts.project);
   if (opts.feature) resolveFeatureEntry(project.featuresDir, opts.feature);
@@ -23,7 +23,7 @@ export function runCasesLint(opts: { project: string; feature?: string }): {
 
 /** Run authored-case lint across every canonical workspace project. */
 export function runAllCasesLint(): {
-  violations: { feature: string; rule: string; message: string }[];
+  violations: FeatureLintViolation[];
 } {
   return {
     violations: listWorkspaceProjects().flatMap((project) =>
@@ -59,7 +59,8 @@ export function registerCases(program: Command): void {
           ? runAllCasesLint()
           : runCasesLint({ project: opts.project as string, feature: opts.feature });
         for (const v of violations) {
-          console.log(`${v.feature} [${v.rule}] ${v.message}`);
+          const scope = v.case_id ? `${v.feature} ${v.case_id}` : v.feature;
+          console.log(`${scope} [${v.rule}] ${v.message}`);
         }
         console.log(`cases lint: ${violations.length} violation(s)`);
         if (opts.exitCode && violations.length > 0) process.exitCode = 1;

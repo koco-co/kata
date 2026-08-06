@@ -33,6 +33,10 @@ export interface FeatureLintViolation {
   feature: string;
   rule: string;
   message: string;
+  /** 可定位到具体用例时填稳定 case_id，如 C0359。 */
+  case_id?: string;
+  /** 与 case_id 对应的用例标题，便于 TUI/CLI 展示上下文。 */
+  case_title?: string;
 }
 
 // 未确认点必须在写 yaml 前清零，产物里不允许出现「待确认」标记；
@@ -173,6 +177,8 @@ function lintCaseSources(
           feature,
           rule: violation.rule,
           message: violation.message,
+          ...(violation.case_id ? { case_id: violation.case_id } : {}),
+          ...(violation.case_title ? { case_title: violation.case_title } : {}),
         });
       }
       const authored = parseCasesYaml(text);
@@ -181,6 +187,8 @@ function lintCaseSources(
           feature,
           rule: violation.rule,
           message: violation.message,
+          ...(violation.case_id ? { case_id: violation.case_id } : {}),
+          ...(violation.case_title ? { case_title: violation.case_title } : {}),
         });
       }
     } catch (error) {

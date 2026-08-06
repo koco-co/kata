@@ -33,6 +33,10 @@ export interface CasesLintConfig {
 export interface CaseContentViolation {
   rule: string;
   message: string;
+  /** 可定位到具体用例时填稳定 case_id，如 C0359。 */
+  case_id?: string;
+  /** 与 case_id 对应的用例标题，便于 TUI/CLI 展示上下文。 */
+  case_title?: string;
 }
 
 interface DatasourceBlock {
@@ -162,6 +166,24 @@ function makeViolation(
   };
 }
 
+function yamlScalarString(node: unknown, key: string): string | undefined {
+  if (!isMap(node)) return undefined;
+  const value = node.get(key, true);
+  return isScalar(value) && typeof value.value === "string" ? value.value : undefined;
+}
+
+function withCaseContext(
+  violation: CaseContentViolation,
+  caseId: string | undefined,
+  caseTitle: string | undefined,
+): CaseContentViolation {
+  return {
+    ...violation,
+    ...(caseId && !violation.case_id ? { case_id: caseId } : {}),
+    ...(caseTitle && !violation.case_title ? { case_title: caseTitle } : {}),
+  };
+}
+
 /** Block semicolon-packed preconditions before parse-time normalization hides the source defect. */
 export function lintCaseYamlSource(yamlText: string): CaseContentViolation[] {
   const document = parseDocument(yamlText);
@@ -175,6 +197,8 @@ export function lintCaseYamlSource(yamlText: string): CaseContentViolation[] {
     if (!isMap(item)) continue;
     const precondition = item.get("precondition", true);
     if (!isScalar(precondition) || typeof precondition.value !== "string") continue;
+    const caseId = yamlScalarString(item, "case_id");
+    const caseTitle = yamlScalarString(item, "title");
 
     const packedLine = precondition.value.split("\n").find((line) => {
       if (!/[；;]/.test(line)) return false;
@@ -191,11 +215,15 @@ export function lintCaseYamlSource(yamlText: string): CaseContentViolation[] {
     });
     if (packedLine) {
       violations.push(
-        makeViolation(
-          "case_precondition_semicolon",
-          "前置条件含分号时，每个独立条件必须单独换行并使用连续编号；未编号的分号串必须阻断",
-          packedLine,
-          "将分号分隔的独立条件拆到多行，并按 1)、2)、3) 连续编号；引号内作为测试数据的分号无需拆分",
+        withCaseContext(
+          makeViolation(
+            "case_precondition_semicolon",
+            "前置条件含分号时，每个独立条件必须单独换行并使用连续编号；未编号的分号串必须阻断",
+            packedLine,
+            "将分号分隔的独立条件拆到多行，并按 1)、2)、3) 连续编号；引号内作为测试数据的分号无需拆分",
+          ),
+          caseId,
+          caseTitle,
         ),
       );
     }
@@ -1681,8 +1709,9 @@ export function lintCaseContent(
   const forbiddenByCategory = new Map<string, Set<string>>();
 
   for (const item of file.cases) {
+    const itemViolations: CaseContentViolation[] = [];
     if (!CASE_TITLE_RE.test(item.title)) {
-      violations.push(
+      itemViolations.push(
         makeViolation(
           "case_title_format",
           "标题必须使用统一公式「验证【模块】-【功能点】<操作>，<可观测结果>(条件)」；" +
@@ -1698,7 +1727,7 @@ export function lintCaseContent(
     if (parenMatch) {
       const condition = parenMatch[1].trim();
       if (!TITLE_CONDITION_OPERATOR_RE.test(condition)) {
-        violations.push(
+        itemViolations.push(
           makeViolation(
             "case_title_condition",
             `标题末尾括号必须是可判断的条件表达式，必须含比较/算术操作符（= ≠ ≥ ≤ > < + - * ÷）、连接词（且、或）或状态断言（为空、非空）等判定关键字，如「行数 ≥ 10000」「期望值 ≠ 0」「数据源 = Hive2.x」「密码为空」；"${condition}" 不含判定关键字，无真条件时去掉括号，有用信息合并到标题正文`,
@@ -1721,7 +1750,7 @@ export function lintCaseContent(
     const precondition = item.precondition?.trim() ?? "";
     const preconditionProblem = validateNumberedBlock(precondition);
     if (!precondition || preconditionProblem) {
-      violations.push(
+      itemViolations.push(
         makeViolation(
           "case_precondition_format",
           "无前置条件写“无”；一条或多条前置条件均从 1) 开始并使用连续半角编号，SQL、脚本和文件内容作为对应编号的缩进行",
@@ -1736,7 +1765,7 @@ export function lintCaseContent(
       if (!step.expected.trim()) emptyCells.push("expected 为空");
     }
     if (emptyCells.length > 0) {
-      violations.push(
+      itemViolations.push(
         makeViolation(
           "case_step_empty",
           "每个步骤的 action 和 expected 都写明完整内容；历史空续行合并到相邻步骤",
@@ -1747,7 +1776,7 @@ export function lintCaseContent(
 
     for (const step of item.steps) {
       if (numberedActionItemCount(step.action) < 2) continue;
-      violations.push(
+      itemViolations.push(
         makeViolation(
           "case_action_atomicity",
           "每个 action 只描述一个可独立验收的操作阶段；同一表单的多个字段可合并配置并一次提交，页面切换、提交、下载、核对、再次操作或状态变更必须拆成独立步骤",
@@ -1757,7 +1786,7 @@ export function lintCaseContent(
     }
 
     if (item.steps.length < 3) {
-      violations.push(
+      itemViolations.push(
         makeViolation(
           "case_min_steps",
           "步骤数 ≥ 3；步骤 < 3 时建议与其它用例合并或补充步骤，避免用例碎片化",
@@ -1769,16 +1798,16 @@ export function lintCaseContent(
 
     const formFields = CUSTOMER_FORM_FIELDS[customer];
     for (const step of item.steps) {
-      violations.push(...lintRuleSetForm(step.action, formFields.ruleSet));
-      violations.push(...lintScheduleForm(step.action, formFields.schedule));
-      violations.push(...lintMonitorObjectForm(step.action, formFields.monitorObject));
-      violations.push(...lintMonitorTaskForm(step.action, formFields.monitorTask));
-      violations.push(...lintRulePackageImportForm(step.action, formFields.rulePackageImport));
+      itemViolations.push(...lintRuleSetForm(step.action, formFields.ruleSet));
+      itemViolations.push(...lintScheduleForm(step.action, formFields.schedule));
+      itemViolations.push(...lintMonitorObjectForm(step.action, formFields.monitorObject));
+      itemViolations.push(...lintMonitorTaskForm(step.action, formFields.monitorTask));
+      itemViolations.push(...lintRulePackageImportForm(step.action, formFields.rulePackageImport));
     }
 
     const actual = item.steps[0]?.action.trim() || "<空步骤>";
     if (!firstStep.test(actual)) {
-      violations.push(
+      itemViolations.push(
         makeViolation(
           "case_first_step_navigation",
           `${config.first_step_expected}, e.g. ${config.first_step_example}.`,
@@ -1789,7 +1818,7 @@ export function lintCaseContent(
     }
     const firstExpected = item.steps[0]?.expected.trim() || "<空预期>";
     if (firstExpected !== config.first_step_result) {
-      violations.push(
+      itemViolations.push(
         makeViolation(
           "case_first_step_expected",
           `首步骤预期只写“${config.first_step_result}”`,
@@ -1798,22 +1827,22 @@ export function lintCaseContent(
         ),
       );
     }
-    violations.push(...lintDatasourceSql(file, item, config));
-    violations.push(...lintEnvironmentPlaceholders(item, config));
-    violations.push(...lintBusinessPlaceholders(item));
-    violations.push(...lintTagsFlatModules(item));
-    violations.push(...lintTagNavConsistency(item, leafPages));
+    itemViolations.push(...lintDatasourceSql(file, item, config));
+    itemViolations.push(...lintEnvironmentPlaceholders(item, config));
+    itemViolations.push(...lintBusinessPlaceholders(item));
+    itemViolations.push(...lintTagsFlatModules(item));
+    itemViolations.push(...lintTagNavConsistency(item, leafPages));
     const generatorProblem = generatorViolation(precondition);
-    if (generatorProblem) violations.push(generatorProblem);
-    violations.push(...lintImportFixture(precondition, config.bulk_row_threshold));
-    violations.push(...lintPreconditionConfigAction(precondition));
-    violations.push(...lintPreconditionDependencyNote(precondition));
+    if (generatorProblem) itemViolations.push(generatorProblem);
+    itemViolations.push(...lintImportFixture(precondition, config.bulk_row_threshold));
+    itemViolations.push(...lintPreconditionConfigAction(precondition));
+    itemViolations.push(...lintPreconditionDependencyNote(precondition));
     const partitionProblem = lintPartitionFixture(item, config);
-    if (partitionProblem) violations.push(partitionProblem);
-    violations.push(...lintPartitionDataSplit(item));
-    violations.push(...lintSqlExpected(item));
+    if (partitionProblem) itemViolations.push(partitionProblem);
+    itemViolations.push(...lintPartitionDataSplit(item));
+    itemViolations.push(...lintSqlExpected(item));
     if (item.automation?.executor === "api") {
-      violations.push(
+      itemViolations.push(
         makeViolation(
           "case_pure_api",
           "功能用例集只保留可由用户功能路径执行的用例；纯接口用例不纳入当前用例集",
@@ -1821,6 +1850,9 @@ export function lintCaseContent(
         ),
       );
     }
+    violations.push(
+      ...itemViolations.map((violation) => withCaseContext(violation, item.id, item.title)),
+    );
   }
 
   for (const [category, matches] of forbiddenByCategory) {

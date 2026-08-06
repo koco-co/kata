@@ -1442,4 +1442,32 @@ cases:
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  it("attaches case id and title to per-case content violations", () => {
+    const item = testCase({
+      steps: [{ action: "点击新增按钮", expected: "打开新增弹窗" }],
+    });
+    const violation = lintCaseContent(doc(item), config).find(
+      (entry) => entry.rule === "case_first_step_navigation",
+    );
+    expect(violation?.case_id).toBe("C0001");
+    expect(violation?.case_title).toBe(item.title);
+  });
+
+  it("attaches case id to source-level precondition violations", () => {
+    const source = `meta:
+  title: 示例需求
+  case_module_id: ''
+cases:
+- case_id: C0359
+  title: 验证【模块】-【功能点】查看数据，列表展示结果
+  priority: P0
+  precondition: 1) UserA 已登录；UserB 已登录
+  steps: []
+`;
+    const violation = lintCaseYamlSource(source).find(
+      (entry) => entry.rule === "case_precondition_semicolon",
+    );
+    expect(violation?.case_id).toBe("C0359");
+  });
 });
