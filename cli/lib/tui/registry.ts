@@ -1,8 +1,9 @@
 import { readFileSync } from "node:fs";
-import { relative } from "node:path";
+import { basename, dirname, relative, resolve } from "node:path";
 import { findCasesYaml } from "../../commands/cases-build.ts";
 import { runFeaturesShow } from "../../commands/features.ts";
 import { parseCasesYaml } from "../cases/parse.ts";
+import { projectRootFromFeatureDir } from "../features-layout.ts";
 import type { FeatureRef } from "./types.ts";
 
 export function featureRefByProjectPath(
@@ -39,16 +40,31 @@ export function formatBuildReport(report: {
   unchanged: string[];
   deleted: string[];
 }): string {
-  return [
-    "构建完成",
-    `created:\n${formatPaths(report.created)}`,
-    `updated:\n${formatPaths(report.updated)}`,
-    `unchanged:\n${formatPaths(report.unchanged)}`,
-    `deleted:\n${formatPaths(report.deleted)}`,
-  ].join("\n\n");
+  const sections = [
+    buildSection("Created", report.created),
+    buildSection("Updated", report.updated),
+    buildSection("Unchanged", report.unchanged),
+    buildSection("Deleted", report.deleted),
+  ].filter((section): section is string => Boolean(section));
+  return ["Build complete", ...sections].join("\n\n");
+}
+
+function buildSection(label: string, paths: readonly string[]): string | undefined {
+  if (paths.length === 0) return undefined;
+  return `${label}:\n${formatPaths(paths)}`;
 }
 
 function formatPaths(paths: readonly string[]): string {
-  if (paths.length === 0) return "(无)";
-  return paths.map((path) => relative(process.cwd(), path) || path).join("\n");
+  return paths.map((path) => `  ${formatPath(path)}`).join("\n");
+}
+
+function formatPath(path: string): string {
+  const resolvedPath = resolve(path);
+  const featureDir = resolve(dirname(resolvedPath), "..", "..");
+  try {
+    projectRootFromFeatureDir(featureDir);
+    return relative(featureDir, resolvedPath).split("\\").join("/") || path;
+  } catch {
+    return basename(resolvedPath);
+  }
 }

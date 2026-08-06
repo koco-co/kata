@@ -601,7 +601,7 @@ const BUSINESS_FIXTURE_RULES: BusinessFixtureRule[] = [
   {
     label: "标准目录",
     placeholderPrefix: "Catalog",
-    patterns: [businessPattern("(?:末级)?(?:标准)?目录(?:名称)?")],
+    patterns: [businessPattern("(?<!级|据|准)(?:末级)?(?:标准)?目录(?:名称)?")],
   },
   {
     label: "标准",
@@ -1737,9 +1737,12 @@ export function lintCaseContent(
       }
     }
     const fields = semanticText(item);
+    const forbiddenFields = fields.map((field) =>
+      field.replaceAll("多个标签用英文分号分隔", "英文分号分隔标签"),
+    );
     for (const [category, terms] of Object.entries(config.forbidden_terms)) {
       for (const term of terms) {
-        const matched = fields.some((field) => field.includes(term));
+        const matched = forbiddenFields.some((field) => field.includes(term));
         if (!matched) continue;
         const matches = forbiddenByCategory.get(category) ?? new Set<string>();
         matches.add(term);

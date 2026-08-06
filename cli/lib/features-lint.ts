@@ -9,7 +9,7 @@ import {
   resolveCaseCustomer,
 } from "./cases/content-lint.ts";
 import { parseCaseExportName } from "./cases/formats.ts";
-import { parseCasesYaml } from "./cases/parse.ts";
+import { parseCasesYaml, validateCases } from "./cases/parse.ts";
 import { environmentsDir } from "./config-paths.ts";
 import {
   featureRelativePath,
@@ -182,6 +182,15 @@ function lintCaseSources(
         });
       }
       const authored = parseCasesYaml(text);
+      for (const problem of validateCases(authored)) {
+        const caseId = problem.match(/^用例\s+(C\d+)\s/)?.[1];
+        violations.push({
+          feature,
+          rule: "case_validate",
+          message: problem,
+          ...(caseId ? { case_id: caseId } : {}),
+        });
+      }
       for (const violation of lintCaseContent(authored, contentConfig, resolveCaseCustomer(dir))) {
         violations.push({
           feature,

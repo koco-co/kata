@@ -15,16 +15,18 @@ import { runAllCasesLint, runCasesLint } from "../../commands/cases.ts";
 import { findCasesYaml, runCasesBuild } from "../../commands/cases-build.ts";
 import { runFeaturesList } from "../../commands/features.ts";
 import type { CaseExportFormat } from "../cases/formats.ts";
+import { parseCasesYaml } from "../cases/parse.ts";
 import { listWorkspaceProjects } from "../workspace-locator.ts";
 import { browseProjectFeature } from "./browse.ts";
+import { caseDetail, caseListLabel } from "./case-view.ts";
 import { recentHistory, recordFeature } from "./history.ts";
 import {
-  LINT_PAGE_SIZE,
   lintDetail,
   lintLabel,
   lintPageCount,
   lintPageSlice,
   lintSummary,
+  PAGE_SIZE,
   type TuiLintViolation,
 } from "./lint-result.ts";
 import { existingCaseModuleId, featureRefByProjectPath, formatBuildReport } from "./registry.ts";
@@ -169,7 +171,7 @@ async function featureMenu(ref: FeatureRef): Promise<void> {
       options: [
         { value: "lint", label: "Lint", hint: "Run cases lint" },
         { value: "build", label: "Build", hint: "Build XMind/CSV" },
-        { value: "yaml", label: "View YAML", hint: "View cases YAML" },
+        { value: "view", label: "View", hint: "View cases" },
         { value: "back", label: "Back", hint: "Go back" },
       ],
     });
@@ -179,7 +181,7 @@ async function featureMenu(ref: FeatureRef): Promise<void> {
     } else if (choice === "build") {
       await buildFeature(ref);
     } else {
-      await viewYaml(ref);
+      await viewCases(ref);
     }
   }
 }
@@ -238,16 +240,42 @@ async function buildFeature(ref: FeatureRef): Promise<void> {
   }
 }
 
-async function viewYaml(ref: FeatureRef): Promise<void> {
+async function viewCases(ref: FeatureRef): Promise<void> {
   try {
     const { yamlPath } = findCasesYaml(ref.featureDir);
-    const content = readFileSync(yamlPath, "utf8");
-    note(
-      content.length > 4000 ? `${content.slice(0, 4000)}\n...(truncated)` : content,
-      `${ref.title} · YAML`,
-    );
+    const file = parseCasesYaml(readFileSync(yamlPath, "utf8"));
+    const caseView: PagedItemView<(typeof file.cases)[number]> = {
+      label: caseListLabel,
+      hint: (item) => `Priority ${item.priority}`,
+      detail: caseDetail,
+      detailTitle: caseListLabel,
+    };
+    if (file.meta.layout === "requirements" && file.requirements?.length) {
+      for (;;) {
+        const requirement = await selectPagedItem(
+          `Requirements · ${ref.title}`,
+          file.requirements,
+          {
+            label: (item) => `【${item.requirement_id}】${item.title}`,
+            hint: (item) =>
+              `${file.cases.filter((c) => c.requirement_id === item.requirement_id).length} case(s)`,
+          },
+          "requirement(s)",
+          "No requirements",
+        );
+        if (!requirement) return;
+        await showPagedItems(
+          `View · ${requirement.title}`,
+          file.cases.filter((item) => item.requirement_id === requirement.requirement_id),
+          caseView,
+          "case(s)",
+          "No cases",
+        );
+      }
+    }
+    await showPagedItems(`View · ${ref.title}`, file.cases, caseView, "case(s)", "No cases");
   } catch (error) {
-    log.error(`Failed to read YAML: ${errorMessage(error)}`);
+    log.error(`Failed to view cases: ${errorMessage(error)}`);
   }
 }
 
@@ -317,39 +345,100 @@ async function showLintViolations(
   title: string,
   violations: readonly TuiLintViolation[],
 ): Promise<void> {
-  if (violations.length === 0) {
-    note("No violations", title);
-    return;
-  }
-  const totalPages = lintPageCount(violations.length);
-  let page = 0;
+  await showPagedItems(
+    title,
+    violations,
+    {
+      label: lintLabel,
+      hint: lintSummary,
+      detail: lintDetail,
+      detailTitle: (violation) => `${lintLabel(violation)} · detail`,
+    },
+    "violation(s)",
+    "No violations",
+  );
+}
+
+interface PagedItemView<T> {
+  label: (item: T) => string;
+  hint: (item: T) => string;
+  detail?: (item: T) => string;
+  detailTitle?: (item: T) => string;
+}
+
+async function showPagedItems<T>(
+  title: string,
+  items: readonly T[],
+  view: PagedItemView<T>,
+  countLabel: string,
+  emptyMessage: string,
+): Promise<void> {
   for (;;) {
-    const pageViolations = lintPageSlice(violations, page);
-    const options = pageViolations.map((violation, index) => ({
-      value: `violation:${page * LINT_PAGE_SIZE + index}`,
-      label: lintLabel(violation),
-      hint: lintSummary(violation),
+    const selected = await selectPagedItem(title, items, view, countLabel, emptyMessage);
+    if (!selected || !view.detail) return;
+    note(
+      view.detail(selected),
+      view.detailTitle ? view.detailTitle(selected) : view.label(selected),
+    );
+  }
+}
+
+async function selectPagedItem<T>(
+  title: string,
+  items: readonly T[],
+  view: PagedItemView<T>,
+  countLabel: string,
+  emptyMessage: string,
+): Promise<T | undefined> {
+  if (items.length === 0) {
+    note(emptyMessage, title);
+    return undefined;
+  }
+  const totalPages = lintPageCount(items.length);
+  let page = 0;
+  let showAll = false;
+  for (;;) {
+    const visible = showAll ? items : lintPageSlice(items, page);
+    const options = visible.map((item, index) => ({
+      value: `item:${showAll ? index : page * PAGE_SIZE + index}`,
+      label: view.label(item),
+      hint: view.hint(item),
     }));
-    if (page > 0) {
+    if (!showAll) {
+      if (page > 0) {
+        options.push({
+          value: "previous",
+          label: "Previous page",
+          hint: `Page ${page}/${totalPages}`,
+        });
+      }
+      if (page < totalPages - 1) {
+        options.push({
+          value: "next",
+          label: "Next page",
+          hint: `${items.length - (page + 1) * PAGE_SIZE} more`,
+        });
+        options.push({
+          value: "show-all",
+          label: "Show All",
+          hint: `${items.length} ${countLabel}`,
+        });
+      }
+    } else {
       options.push({
-        value: "previous",
-        label: "Previous page",
-        hint: `Page ${page}/${totalPages}`,
-      });
-    }
-    if (page < totalPages - 1) {
-      options.push({
-        value: "next",
-        label: "Next page",
-        hint: `${violations.length - (page + 1) * LINT_PAGE_SIZE} more`,
+        value: "back-to-pages",
+        label: "Back to pages",
+        hint: "Return to paged view",
       });
     }
     options.push({ value: "back", label: "Back", hint: "Return to previous menu" });
     const choice = await select({
-      message: `${title} · ${violations.length} violation(s) · page ${page + 1}/${totalPages}`,
+      message: `${title} · ${items.length} ${countLabel} · ${
+        showAll ? "all" : `page ${page + 1}/${totalPages}`
+      }`,
       options,
     });
-    if (isCancel(choice) || choice === "back") return;
+    if (isCancel(choice) || choice === "back") return undefined;
     if (choice === "previous") {
       page -= 1;
       continue;
@@ -358,9 +447,17 @@ async function showLintViolations(
       page += 1;
       continue;
     }
-    const index = Number(String(choice).slice("violation:".length));
-    const violation = violations[index];
-    if (violation) note(lintDetail(violation), `${lintLabel(violation)} · detail`);
+    if (choice === "show-all") {
+      showAll = true;
+      page = 0;
+      continue;
+    }
+    if (choice === "back-to-pages") {
+      showAll = false;
+      continue;
+    }
+    const index = Number(String(choice).slice("item:".length));
+    return items[index];
   }
 }
 

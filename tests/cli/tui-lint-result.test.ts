@@ -45,11 +45,11 @@ describe("TUI lint result", () => {
     expect(compactLintText("abcdef\nghij", 6)).toBe("abc...");
   });
 
-  it("pages lint results five at a time", () => {
+  it("pages lint results ten at a time", () => {
     const items = Array.from({ length: 13 }, (_, index) => `v${index}`);
-    expect(LINT_PAGE_SIZE).toBe(5);
-    expect(lintPageCount(13)).toBe(3);
-    expect(lintPageSlice(items, 0)).toHaveLength(5);
-    expect(lintPageSlice(items, 2)).toEqual(["v10", "v11", "v12"]);
+    expect(LINT_PAGE_SIZE).toBe(10);
+    expect(lintPageCount(13)).toBe(2);
+    expect(lintPageSlice(items, 0)).toHaveLength(10);
+    expect(lintPageSlice(items, 1)).toEqual(["v10", "v11", "v12"]);
   });
 });

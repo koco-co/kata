@@ -24,8 +24,26 @@ describe("TUI registry", () => {
       unchanged: [],
       deleted: [],
     });
-    expect(report).toContain("构建完成");
-    expect(report).toContain("created:");
+    expect(report).toContain("Build complete");
+    expect(report).toContain("Created:");
     expect(report).toContain("example.xmind");
+    expect(report).not.toContain("Unchanged:");
+    expect(report).not.toContain("(无)");
+  });
+
+  it("shows only unchanged exports and shortens paths relative to the project", () => {
+    const root = process.cwd();
+    const report = formatBuildReport({
+      created: [],
+      updated: [],
+      unchanged: [
+        `${root}/workspace/dataAssets/features/v7.0.0/【15911】【泸州老窖】【数据资产】资产定制化代码剥离/cases/exports/资产定制化代码剥离.xmind`,
+      ],
+      deleted: [],
+    });
+    expect(report).toContain("Unchanged:");
+    expect(report).toContain("  cases/exports/资产定制化代码剥离.xmind");
+    expect(report).not.toContain("Created:");
+    expect(report).not.toContain("Deleted:");
   });
 });

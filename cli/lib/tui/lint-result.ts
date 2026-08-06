@@ -1,4 +1,5 @@
-export const LINT_PAGE_SIZE = 5;
+export const PAGE_SIZE = 10;
+export const LINT_PAGE_SIZE = PAGE_SIZE;
 
 export interface TuiLintViolation {
   rule?: string;
@@ -35,10 +36,10 @@ export function lintDetail(violation: TuiLintViolation): string {
 }
 
 export function lintPageCount(count: number): number {
-  return Math.max(1, Math.ceil(count / LINT_PAGE_SIZE));
+  return Math.max(1, Math.ceil(count / PAGE_SIZE));
 }
 
 export function lintPageSlice<T>(items: readonly T[], page: number): T[] {
-  const start = page * LINT_PAGE_SIZE;
-  return items.slice(start, start + LINT_PAGE_SIZE);
+  const start = page * PAGE_SIZE;
+  return items.slice(start, start + PAGE_SIZE);
 }

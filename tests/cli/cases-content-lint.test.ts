@@ -191,6 +191,19 @@ describe("cases content lint", () => {
     ).toBe(false);
   });
 
+  it("does not treat 等级目录 or 数据目录 as standard directory instances", () => {
+    const item = testCase({
+      precondition: `1) 等级目录为「安全等级」；隐私等级目录为「隐私等级」
+2) 数据目录为 CatalogA
+3) 末级标准目录为 CatalogB`,
+    });
+    expect(
+      lintCaseContent(doc(item), config).some(
+        (entry) => entry.rule === "case_business_placeholders",
+      ),
+    ).toBe(false);
+  });
+
   it("does not treat placeholder labels or SQL system schemas as environment instances", () => {
     const item = testCase({
       precondition: `1) 项目标识：\${ProjectA}
@@ -227,6 +240,18 @@ describe("cases content lint", () => {
         /^标题: YAML用例存在违规内容，必须整改\.\n实际：.+\n修复：.+$/s,
       );
     }
+  });
+
+  it("allows the source template label header containing 多个标签", () => {
+    const item = testCase({
+      precondition: `1) 创建导入文件 field_import.xlsx：
+   Sheet: L5
+   Title: * 所属数据源,* 字段名,标签（多个标签用英文分号分隔）,安全等级
+   Line1: ${"${DataSourceA}"},code,tag_a,是`,
+    });
+    expect(
+      lintCaseContent(doc(item), config).map((entry) => entry.rule),
+    ).not.toContain("case_forbidden_term");
   });
 
   it("rejects generic assertion words and the three legacy title formats", () => {

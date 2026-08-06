@@ -300,6 +300,35 @@ cases:
     expect(canonicalRules).not.toContain("case_precondition_semicolon");
   });
 
+  it("flags case ids that do not follow YAML order before build", () => {
+    const root = ws();
+    mkValidActive(
+      root,
+      `meta: { title: 需求, case_module_id: "" }
+cases:
+  - case_id: C0002
+    title: 验证第二个位置写入 C0002
+    priority: P1
+    steps:
+      - action: 进入【资产盘点】页面
+        expected: 进入成功
+  - case_id: C0001
+    title: 验证第一个位置写入 C0001
+    priority: P1
+    steps:
+      - action: 进入【资产盘点】页面
+        expected: 进入成功
+`,
+    );
+    const violations = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations;
+    const orderViolations = violations.filter(
+      (violation) =>
+        violation.rule === "case_validate" && violation.message.includes("必须按 YAML 顺序使用"),
+    );
+    expect(orderViolations.length).toBeGreaterThan(0);
+    expect(orderViolations.some((violation) => violation.case_id === "C0002")).toBe(true);
+  });
+
   it("flags concrete schema names instead of SchemaX placeholders", () => {
     const root = ws();
     mkValidActive(
