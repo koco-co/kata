@@ -20,37 +20,46 @@ import { recentHistory, recordFeature } from "./history.ts";
 import { existingCaseModuleId, featureRefByProjectPath, formatBuildReport } from "./registry.ts";
 import type { FeatureRef } from "./types.ts";
 
+const TUI_BANNER = String.raw` _  __      _        _
+| |/ /_ __ | |_ __ _| |_
+| ' /| '_ \| __/ _| | __|
+| . \| | | | || (_| | |_
+|_|\_\_| |_|\__\__,_|\__|
+
+  𝓚𝓪𝓽𝓪 +`;
+
 export interface TuiInitialFeature {
   project: string;
   relativePath: string;
 }
 
 export async function startTui(initial?: TuiInitialFeature): Promise<void> {
-  intro("kata TUI");
+  process.stdout.write(`${TUI_BANNER}\n\n`);
+  intro("Kata interactive workspace");
   if (initial) {
     const ref = featureRefByProjectPath(initial.project, initial.relativePath);
     if (!ref) {
-      log.error(`未找到 feature: ${initial.project}:${initial.relativePath}`);
-      outro("退出 kata TUI");
+      log.error(`Feature not found: ${initial.project}:${initial.relativePath}`);
+      outro("Goodbye");
       return;
     }
     await featureMenu(ref);
-    outro("退出 kata TUI");
+    outro("Goodbye");
     return;
   }
   await rootMenu();
-  outro("退出 kata TUI");
+  outro("Goodbye");
 }
 
 async function rootMenu(): Promise<void> {
   for (;;) {
     const choice = await select({
-      message: "选择操作",
+      message: "Select an action",
       options: [
-        { value: "features", label: "Features", hint: "按项目浏览 Feature" },
-        { value: "cases", label: "Cases", hint: "用例全局操作" },
-        { value: "history", label: "History", hint: "最近操作 5 个 Feature" },
-        { value: "__exit__", label: "退出", hint: "退出 kata TUI" },
+        { value: "features", label: "Features", hint: "Browse features by project" },
+        { value: "cases", label: "Cases", hint: "Case-level actions" },
+        { value: "history", label: "History", hint: "Recent 5 features" },
+        { value: "__exit__", label: "Exit", hint: "Leave kata TUI" },
       ],
     });
     if (isCancel(choice) || choice === "__exit__") return;
@@ -79,10 +88,10 @@ async function casesMenu(): Promise<void> {
     const choice = await select({
       message: "Cases",
       options: [
-        { value: "list", label: "List", hint: "项目/Feature 列表" },
-        { value: "build", label: "Build", hint: "选择 Feature 构建" },
-        { value: "lint", label: "Lint", hint: "全部或单项目 lint" },
-        { value: "back", label: "返回", hint: "返回主菜单" },
+        { value: "list", label: "List", hint: "Browse projects and features" },
+        { value: "build", label: "Build", hint: "Build a selected feature" },
+        { value: "lint", label: "Lint", hint: "Lint all or one project" },
+        { value: "back", label: "Back", hint: "Return to the main menu" },
       ],
     });
     if (isCancel(choice) || choice === "back") return;
@@ -101,11 +110,11 @@ async function casesMenu(): Promise<void> {
 
 async function casesLint(): Promise<void> {
   const scope = await select({
-    message: "Lint 范围",
+    message: "Lint scope",
     options: [
-      { value: "all", label: "全部项目" },
-      { value: "project", label: "单个项目" },
-      { value: "back", label: "返回" },
+      { value: "all", label: "All projects" },
+      { value: "project", label: "One project" },
+      { value: "back", label: "Back" },
     ],
   });
   if (isCancel(scope) || scope === "back") return;
@@ -114,7 +123,7 @@ async function casesLint(): Promise<void> {
       const result = runAllCasesLint();
       note(
         formatViolations(result.violations),
-        `全部项目 Lint · ${result.violations.length} violation(s)`,
+        `All projects lint · ${result.violations.length} violation(s)`,
       );
       return;
     }
@@ -123,21 +132,21 @@ async function casesLint(): Promise<void> {
     const result = runCasesLint({ project });
     note(
       formatViolations(result.violations),
-      `${project} Lint · ${result.violations.length} violation(s)`,
+      `${project} lint · ${result.violations.length} violation(s)`,
     );
   } catch (error) {
-    log.error(`Lint 失败: ${errorMessage(error)}`);
+    log.error(`Lint failed: ${errorMessage(error)}`);
   }
 }
 
 async function historyMenu(): Promise<void> {
   const entries = recentHistory();
   if (entries.length === 0) {
-    note("打开或操作 Feature 后会记录最近 5 条", "History");
+    note("Opening or acting on a feature records the latest 5", "History");
     return;
   }
   const choice = await select({
-    message: "最近操作",
+    message: "Recent features",
     options: entries.map((entry) => ({
       value: entry.feature_key,
       label: entry.title,
@@ -150,12 +159,12 @@ async function historyMenu(): Promise<void> {
   try {
     const ref = featureRefByProjectPath(entry.project, entry.relative_path);
     if (!ref) {
-      log.error(`Feature 已失效: ${entry.project}:${entry.relative_path}`);
+      log.error(`Feature is no longer available: ${entry.project}:${entry.relative_path}`);
       return;
     }
     await featureMenu(ref);
   } catch (error) {
-    log.error(`Feature 已失效: ${errorMessage(error)}`);
+    log.error(`Feature is no longer available: ${errorMessage(error)}`);
   }
 }
 
@@ -163,12 +172,12 @@ async function featureMenu(ref: FeatureRef): Promise<void> {
   recordFeature(ref);
   for (;;) {
     const choice = await select({
-      message: `${ref.title}（${ref.project} · ${ref.version}）`,
+      message: `${ref.title} (${ref.project} · ${ref.version})`,
       options: [
-        { value: "lint", label: "Lint", hint: "执行 cases lint" },
-        { value: "build", label: "Build", hint: "XMind/CSV 构建" },
-        { value: "yaml", label: "View YAML", hint: "查看 cases YAML" },
-        { value: "back", label: "返回", hint: "返回上一级" },
+        { value: "lint", label: "Lint", hint: "Run cases lint" },
+        { value: "build", label: "Build", hint: "Build XMind/CSV" },
+        { value: "yaml", label: "View YAML", hint: "View cases YAML" },
+        { value: "back", label: "Back", hint: "Go back" },
       ],
     });
     if (isCancel(choice) || choice === "back") return;
@@ -187,22 +196,22 @@ async function lintFeature(ref: FeatureRef): Promise<void> {
     const result = runCasesLint({ project: ref.project, feature: ref.relativePath });
     note(formatViolations(result.violations), `Lint · ${result.violations.length} violation(s)`);
   } catch (error) {
-    log.error(`Lint 失败: ${errorMessage(error)}`);
+    log.error(`Lint failed: ${errorMessage(error)}`);
   }
 }
 
 async function buildFeature(ref: FeatureRef): Promise<void> {
   const formatChoice = await multiselect({
-    message: "选择导出格式（可多选）",
+    message: "Select export formats (multi-select)",
     options: [
       { value: "xmind", label: "XMind", hint: "cases/exports/*.xmind" },
-      { value: "csv", label: "CSV", hint: "ZenTao 导入格式" },
+      { value: "csv", label: "CSV", hint: "ZenTao import format" },
     ],
     required: false,
   });
   if (isCancel(formatChoice)) return;
   if (!formatChoice || formatChoice.length === 0) {
-    log.warn("未选择导出格式");
+    log.warn("No export format selected");
     return;
   }
   const formats = [...formatChoice] as CaseExportFormat[];
@@ -210,21 +219,21 @@ async function buildFeature(ref: FeatureRef): Promise<void> {
   if (formats.includes("csv")) {
     const existing = existingCaseModuleId(ref);
     const input = await text({
-      message: existing ? `禅道模块 ID（当前 ${existing}）` : "禅道模块 ID",
+      message: existing ? `ZenTao module ID (current ${existing})` : "ZenTao module ID",
       initialValue: existing || undefined,
       validate: (value) =>
-        /^\d+$/.test((value ?? "").trim()) ? undefined : "模块 ID 必须为非空数字",
+        /^\d+$/.test((value ?? "").trim()) ? undefined : "Module ID must be a non-empty number",
     });
     if (isCancel(input)) return;
     caseModuleId = input.trim();
   }
   const formatLabel = formats.map((format) => format.toUpperCase()).join(" + ");
   const confirmed = await confirm({
-    message: `确认构建 ${formatLabel} 并写入 cases/exports？`,
+    message: `Build ${formatLabel} and write to cases/exports?`,
     initialValue: true,
   });
   if (isCancel(confirmed) || !confirmed) {
-    cancel("已取消");
+    cancel("Cancelled");
     return;
   }
   recordFeature(ref);
@@ -232,7 +241,7 @@ async function buildFeature(ref: FeatureRef): Promise<void> {
     const report = await runCasesBuild(ref.featureDir, { formats, caseModuleId });
     note(formatBuildReport(report), "Build");
   } catch (error) {
-    log.error(`构建失败: ${errorMessage(error)}`);
+    log.error(`Build failed: ${errorMessage(error)}`);
   }
 }
 
@@ -241,22 +250,22 @@ async function viewYaml(ref: FeatureRef): Promise<void> {
     const { yamlPath } = findCasesYaml(ref.featureDir);
     const content = readFileSync(yamlPath, "utf8");
     note(
-      content.length > 4000 ? `${content.slice(0, 4000)}\n...(截断)` : content,
+      content.length > 4000 ? `${content.slice(0, 4000)}\n...(truncated)` : content,
       `${ref.title} · YAML`,
     );
   } catch (error) {
-    log.error(`读取 YAML 失败: ${errorMessage(error)}`);
+    log.error(`Failed to read YAML: ${errorMessage(error)}`);
   }
 }
 
 async function pickProject(): Promise<string | undefined> {
   const projects = listWorkspaceProjects();
   if (projects.length === 0) {
-    log.warn("workspace 下没有项目");
+    log.warn("No projects under workspace");
     return undefined;
   }
   const choice = await select({
-    message: "选择项目",
+    message: "Select project",
     options: projects.map((project) => ({ value: project, label: project })),
   });
   return isCancel(choice) ? undefined : choice;
@@ -271,12 +280,12 @@ async function pickVersion(project: string): Promise<string | undefined> {
     ),
   ].sort((left, right) => right.localeCompare(left, undefined, { numeric: true }));
   if (versions.length === 0) {
-    log.warn(`${project} 下没有 Feature`);
+    log.warn(`No features under ${project}`);
     return undefined;
   }
   if (versions.length === 1) return versions[0];
   const choice = await select({
-    message: `${project} 的迭代版本`,
+    message: `${project} versions`,
     options: versions.map((version) => ({ value: version, label: version })),
   });
   return isCancel(choice) ? undefined : choice;
@@ -285,11 +294,11 @@ async function pickVersion(project: string): Promise<string | undefined> {
 async function pickFeature(project: string, version: string): Promise<FeatureRef | undefined> {
   const rows = runFeaturesList({ project, version });
   if (rows.length === 0) {
-    log.warn(`${project} ${version} 下没有 Feature`);
+    log.warn(`No features in ${project} ${version}`);
     return undefined;
   }
   const choice = await select({
-    message: `${project} · ${version} 的 Feature`,
+    message: `Features · ${project} · ${version}`,
     options: rows.map((row) => ({
       value: row.relative_path,
       label: row.title,
@@ -298,12 +307,12 @@ async function pickFeature(project: string, version: string): Promise<FeatureRef
   });
   if (isCancel(choice)) return undefined;
   const ref = featureRefByProjectPath(project, choice);
-  if (!ref) log.error(`未找到 Feature: ${choice}`);
+  if (!ref) log.error(`Feature not found: ${choice}`);
   return ref;
 }
 
 function formatViolations(violations: readonly { rule?: string; message: string }[]): string {
-  if (violations.length === 0) return "无违规";
+  if (violations.length === 0) return "No violations";
   return violations
     .slice(0, 20)
     .map((violation) => `- [${violation.rule ?? "-"}] ${violation.message}`)
