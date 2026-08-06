@@ -947,6 +947,43 @@ function lintTagsFlatModules(item: CaseItem): CaseContentViolation[] {
   ];
 }
 
+const NAV_ENTRY_RE = /进入【([^】]+)】/g;
+const NAV_SEG_RE = /[\s→/>·]+/;
+
+/** 文件内所有导航入口的叶页面集合：tags 若命中真实叶页面但用例步骤从未出现该页面名即视为标注错误。 */
+function collectNavLeafPages(file: CasesFile): Set<string> {
+  const leaves = new Set<string>();
+  for (const item of file.cases) {
+    for (const step of item.steps) {
+      for (const match of step.action.matchAll(NAV_ENTRY_RE)) {
+        const segments = match[1].split(NAV_SEG_RE).filter(Boolean);
+        if (segments.length > 0) leaves.add(segments[segments.length - 1]);
+      }
+    }
+  }
+  return leaves;
+}
+
+/**
+ * tags 一致性：tags 只能标注用例实际进入的页面。仅当 tag 命中同文件真实导航叶页面时校验，
+ * 避免把页内 TAB/功能名（如规则任务配置）误判；叶页面名必须出现在该用例步骤 action 中，
+ * 否则说明用例标注了从未进入的页面（常见于导航被修正后 tags 未同步）。
+ */
+function lintTagNavConsistency(item: CaseItem, leafPages: Set<string>): CaseContentViolation[] {
+  if (!item.tags || item.tags.length === 0) return [];
+  const actionsText = item.steps.map((step) => step.action).join("\n");
+  const missing = item.tags.filter((tag) => leafPages.has(tag) && !actionsText.includes(tag));
+  if (missing.length === 0) return [];
+  return [
+    makeViolation(
+      "case_tag_nav_consistency",
+      "tags 只能标注用例实际进入的页面；命中文件内真实导航叶页面的 tag 必须出现在步骤 action 中",
+      `tags 标注了从未进入的页面: ${missing.join("、")}`,
+      "将 tags 改为用例实际断言页面的菜单路径并移除未进入的页面，如进入【元数据 → 数据目录 → 目录管理】应标 [元数据, 数据目录, 目录管理]",
+    ),
+  ];
+}
+
 function lintImportFixture(precondition: string, threshold: number): CaseContentViolation[] {
   if (!/\.(?:csv|xlsx)\b/i.test(precondition)) return [];
   const generated = /使用以下\s+(?:Shell|Python)\s+脚本生成\s+\S+\.(?:csv|xlsx)/i.test(
@@ -1012,6 +1049,20 @@ function lintDatasourceSql(
       ),
     );
   }
+  // 具体库名必须使用 ${SchemaX} 占位符，禁止硬编码 test_schema_xxx；只有占位符才能被运行环境替换。
+  const concreteSchemas = [
+    ...new Set([...allText.matchAll(/\btest_schema_[A-Za-z0-9_]+/g)].map((m) => m[0])),
+  ];
+  if (concreteSchemas.length > 0) {
+    violations.push(
+      makeViolation(
+        "case_sql_schema_placeholder",
+        `前置条件涉及数据库时必须使用 \${SchemaX} 占位符，禁止硬编码具体库名 test_schema_xxx；在数据源块按编号声明「存在数据库：\${SchemaA}」`,
+        `硬编码具体库名: ${concreteSchemas.join("、")}`,
+        `将 test_schema_xxx 改为与授权数据源同字母的 \${SchemaX}，并声明「存在数据库：\${SchemaX}」`,
+      ),
+    );
+  }
   // 数据准备 SQL（编号块标题含建表/初始化语义的缩进建表/写入语句）缺少配对占位符时，
   // 无法执行方言、表名与批量数据契约；任务配置、表解析语句、页面输入 SQL 不属于此列。
   const dataPrepHeading = DATA_PREP_HEADING_RE.test(precondition);
@@ -1025,7 +1076,7 @@ function lintDatasourceSql(
         `缩进 SQL 存在但未声明 \${DataSourceX}/\${SchemaX} 配对: ${compactActual(
           blockSqlLines[0] ?? "",
         )}`,
-        "在数据源前置条件中按编号声明授权数据源、数据源类型、存在数据库与完整 SQL，并复用相同字母的 ${DataSourceX}/${SchemaX}",
+        `在数据源前置条件中按编号声明授权数据源、数据源类型、存在数据库与完整 SQL，并复用相同字母的 \${DataSourceX}/\${SchemaX}`,
       ),
     );
     violations.push(...validateTableNames(file, item, precondition, datasourceLetters, config));
@@ -1626,6 +1677,7 @@ export function lintCaseContent(
 ): CaseContentViolation[] {
   const violations: CaseContentViolation[] = [];
   const firstStep = new RegExp(config.first_step_pattern);
+  const leafPages = collectNavLeafPages(file);
   const forbiddenByCategory = new Map<string, Set<string>>();
 
   for (const item of file.cases) {
@@ -1739,6 +1791,7 @@ export function lintCaseContent(
     violations.push(...lintEnvironmentPlaceholders(item, config));
     violations.push(...lintBusinessPlaceholders(item));
     violations.push(...lintTagsFlatModules(item));
+    violations.push(...lintTagNavConsistency(item, leafPages));
     const generatorProblem = generatorViolation(precondition);
     if (generatorProblem) violations.push(generatorProblem);
     violations.push(...lintImportFixture(precondition, config.bulk_row_threshold));

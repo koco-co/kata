@@ -512,7 +512,6 @@ cases:
     tags:
       - 数据质量
       - 规则库配置
-      - 规则配置
       - StarRocks3.x
 
   - case_id: C0019

@@ -277,6 +277,100 @@ cases:
     expect(canonicalRules).not.toContain("case_precondition_semicolon");
   });
 
+  it("flags concrete schema names instead of SchemaX placeholders", () => {
+    const root = ws();
+    mkValidActive(
+      root,
+      `meta: { title: 需求, case_module_id: "" }
+cases:
+  - case_id: C0001
+    title: 验证【表管理】-【查询】展示查询结果
+    priority: P1
+    precondition: 1) 数据库 test_schema_13180_c0001 中存在已同步表 test_table_13180_c0001
+    steps:
+      - action: 进入【数据地图】页面
+        expected: 进入成功
+`,
+    );
+    const rules = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.map(
+      (item) => item.rule,
+    );
+    expect(rules).toContain("case_sql_schema_placeholder");
+
+    const canonical = ws();
+    mkValidActive(
+      canonical,
+      `meta: { title: 需求, case_module_id: "" }
+cases:
+  - case_id: C0001
+    title: 验证【表管理】-【查询】展示查询结果
+    priority: P1
+    precondition: |-
+      1) 已同步表 test_table_13180_c0001
+    steps:
+      - action: 进入【数据地图】页面
+        expected: 进入成功
+`,
+    );
+    const canonicalRules = runFeaturesLint({
+      project: "dataAssets",
+      workspaceRoot: canonical,
+    }).violations.map((item) => item.rule);
+    expect(canonicalRules).not.toContain("case_sql_schema_placeholder");
+  });
+
+  it("flags tags that reference a real navigation page the case never enters", () => {
+    const root = ws();
+    mkValidActive(
+      root,
+      `meta: { title: 需求, case_module_id: "" }
+cases:
+  - case_id: C0001
+    title: 验证【数据地图】-【字段导入】导入字段文件，展示字段导入结果
+    priority: P1
+    precondition: 无
+    tags: [元数据, 数据地图]
+    steps:
+      - action: 进入【元数据 → 数据目录 → 目录管理】页面
+        expected: 进入成功
+  - case_id: C0002
+    title: 验证【数据地图】-【表详情】查看表详情，展示字段列表
+    priority: P1
+    precondition: 无
+    tags: [元数据, 数据地图]
+    steps:
+      - action: 进入【元数据 → 数据地图】页面
+        expected: 进入成功
+`,
+    );
+    const rules = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.map(
+      (v) => v.rule,
+    );
+    expect(rules).toContain("case_tag_nav_consistency");
+  });
+
+  it("accepts tags matching the entered navigation page", () => {
+    const root = ws();
+    mkValidActive(
+      root,
+      `meta: { title: 需求, case_module_id: "" }
+cases:
+  - case_id: C0001
+    title: 验证【数据地图】-【表详情】查看表详情，展示字段列表
+    priority: P1
+    precondition: 无
+    tags: [元数据, 数据地图]
+    steps:
+      - action: 进入【元数据 → 数据地图】页面
+        expected: 进入成功
+`,
+    );
+    const rules = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.map(
+      (v) => v.rule,
+    );
+    expect(rules).not.toContain("case_tag_nav_consistency");
+  });
+
   it("flags a cases YAML that is not parseable as YAML", () => {
     const root = ws();
     mkValidActive(
