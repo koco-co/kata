@@ -1,13 +1,8 @@
 /**
- * Render CasesFile to CSV text (ZenTao-style subset) for cases/exports/需求名.csv.
+ * Render CasesFile to ZenTao-importable CSV text for cases/exports/需求名.csv.
  */
 
 import type { CasesFile } from "./types.ts";
-import { UNCLASSIFIED } from "./xmind/xmind-render.ts";
-
-function tagCount(file: CasesFile): number {
-  return Math.max(1, ...file.cases.map((item) => item.tags?.length ?? 0));
-}
 
 // RFC 4180:含逗号/引号/换行的字段加引号,引号转双
 function field(v: string): string {
@@ -15,17 +10,22 @@ function field(v: string): string {
   return v;
 }
 
-/** Render CSV text with one row per case; steps numbered inline. */
+/** Render ZenTao CSV text with one row per case; steps numbered inline. */
 export function renderCsv(file: CasesFile): string {
-  const tags = tagCount(file);
+  const moduleId = file.meta.case_module_id.trim();
+  if (!moduleId) {
+    throw new Error("CSV 导出必须提供非空禅道模块 ID(meta.case_module_id)");
+  }
+  const moduleCell = `${file.meta.title}(#${moduleId})`;
   const header = [
-    "用例编号",
-    ...Array.from({ length: tags }, (_, index) => `所属层级${index + 1}`),
+    "所属模块",
     "用例标题",
-    "优先级",
     "前置条件",
     "步骤",
     "预期",
+    "优先级",
+    "用例类型",
+    "适用阶段",
   ];
   const lines = [header.map(field).join(",")];
   for (const c of file.cases) {
@@ -33,16 +33,14 @@ export function renderCsv(file: CasesFile): string {
     const expected = c.steps.map((s, i) => `${i + 1}. ${s.expected}`).join("\n");
     lines.push(
       [
-        c.id,
-        ...Array.from(
-          { length: tags },
-          (_, index) => c.tags?.[index] ?? (index === 0 ? UNCLASSIFIED : ""),
-        ),
+        moduleCell,
         c.title,
-        c.priority,
         c.precondition ?? "",
         steps,
         expected,
+        c.priority,
+        "功能测试",
+        "功能测试阶段",
       ]
         .map(field)
         .join(","),

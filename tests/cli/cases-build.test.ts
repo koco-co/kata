@@ -105,6 +105,78 @@ cases:
     expect(r.stderr).toContain("[20%,30%]");
     expect(existsSync(join(d, "cases", "exports", "需求名.xmind"))).toBe(false);
   });
+  it("generates csv through --format with an explicit module id and persists it", () => {
+    const d = feature();
+    const r = spawnSync(
+      "bun",
+      [
+        "cli/bin/kata.ts",
+        "cases",
+        "build",
+        "--feature",
+        d,
+        "--format",
+        "xmind,csv",
+        "--case-module-id",
+        "12345",
+      ],
+      { encoding: "utf8" },
+    );
+    expect(r.status).toBe(0);
+    expect(existsSync(join(d, "cases", "exports", "需求名.xmind"))).toBe(true);
+    expect(existsSync(join(d, "cases", "exports", "需求名.csv"))).toBe(true);
+    expect(readFileSync(join(d, "cases", "exports", "需求名.csv"), "utf8")).toContain(
+      "需求名(#12345)",
+    );
+    expect(readFileSync(join(d, "cases", "需求名.yaml"), "utf8")).toMatch(
+      /case_module_id:\s*["']?12345["']?/,
+    );
+  });
+  it("does not prune unrelated exports when --format is explicit", () => {
+    const d = feature();
+    const out = join(d, "cases", "exports");
+    mkdirSync(out, { recursive: true });
+    writeFileSync(join(out, "历史导出.xmind"), "keep");
+    const r = spawnSync(
+      "bun",
+      [
+        "cli/bin/kata.ts",
+        "cases",
+        "build",
+        "--feature",
+        d,
+        "--format",
+        "csv",
+        "--case-module-id",
+        "12345",
+      ],
+      { encoding: "utf8" },
+    );
+    expect(r.status).toBe(0);
+    expect(existsSync(join(out, "历史导出.xmind"))).toBe(true);
+    expect(existsSync(join(out, "需求名.csv"))).toBe(true);
+  });
+  it("rejects csv output when the yaml has no module id and --case-module-id is absent", () => {
+    const d = feature();
+    const r = spawnSync(
+      "bun",
+      ["cli/bin/kata.ts", "cases", "build", "--feature", d, "--format", "csv"],
+      { encoding: "utf8" },
+    );
+    expect(r.status).not.toBe(0);
+    expect(r.stderr).toContain("禅道模块 ID");
+    expect(existsSync(join(d, "cases", "exports"))).toBe(false);
+  });
+  it("rejects unsupported --format values", () => {
+    const d = feature();
+    const r = spawnSync(
+      "bun",
+      ["cli/bin/kata.ts", "cases", "build", "--feature", d, "--format", "pdf"],
+      { encoding: "utf8" },
+    );
+    expect(r.status).not.toBe(0);
+    expect(r.stderr).toContain("不支持的导出格式");
+  });
   it("blocks stale cases when test-points no longer matches the PRD digest chain", () => {
     const d = feature();
     mkdirSync(join(d, "prd"), { recursive: true });

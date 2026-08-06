@@ -14,16 +14,30 @@ import {
 } from "../integrations/notify/index.ts";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
 import {
+  exportLabels,
+  type ModuleIdChoice,
+  printFeatureSummary,
+  resolveModuleIdInteractively,
+  selectBuildFormats,
+} from "../lib/cases/build-interactive.ts";
+import {
   lintCaseContent,
   loadCasesLintConfig,
   resolveCaseCustomer,
 } from "../lib/cases/content-lint.ts";
-import { type CaseExportFormat, caseExports, parseCaseExportName } from "../lib/cases/formats.ts";
+import {
+  CASE_EXPORT_FORMATS,
+  type CaseExportFormat,
+  caseExports,
+  isCaseExportFormat,
+  parseCaseExportName,
+} from "../lib/cases/formats.ts";
 import { parseCasesYaml, validateCases } from "../lib/cases/parse.ts";
 import { renderCsv } from "../lib/cases/render-csv.ts";
 import { renderMarkdown } from "../lib/cases/render-md.ts";
 import { renderXlsx } from "../lib/cases/render-xlsx.ts";
 import { locateFeaturesByRequirementId } from "../lib/cases/requirement-locate.ts";
+import { setCaseModuleId } from "../lib/cases/serialize.ts";
 import type { CaseRenderContext, CasesFile } from "../lib/cases/types.ts";
 import { renderXmindBuffer } from "../lib/cases/xmind/render.ts";
 import {
@@ -84,6 +98,26 @@ function resolveBuildTargets(
   return matches.map((match) => match.featureDir);
 }
 
+function parseBuildFormats(raw: string | undefined): CaseExportFormat[] | undefined {
+  if (raw === undefined) return undefined;
+  const values = raw
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const invalid = values.filter((value) => !isCaseExportFormat(value));
+  if (invalid.length > 0) {
+    throw new Error(
+      `--format 含不支持的导出格式: ${invalid.join(", ")}; 支持 ${CASE_EXPORT_FORMATS.join("/")}`,
+    );
+  }
+  if (values.length === 0) throw new Error("--format 不能为空");
+  return [...new Set(values)] as CaseExportFormat[];
+}
+
+function formatOutputName(format: CaseExportFormat, defaultName: string): string {
+  return `${defaultName}.${format}`;
+}
+
 function renderContextForFeature(featureDir: string): {
   projectName: string;
   context: CaseRenderContext;
@@ -134,8 +168,11 @@ async function renderArtifacts(
   file: CasesFile,
   featureDir: string,
   name: string,
+  formats?: CaseExportFormat[],
 ): Promise<DerivedArtifact[]> {
-  const exports = caseExports(file.meta.exports, name);
+  const exports = formats
+    ? formats.map((format) => ({ name: formatOutputName(format, name), format }))
+    : caseExports(file.meta.exports, name);
   const renderContext = renderContextForFeature(featureDir);
   const artifacts: DerivedArtifact[] = [];
   for (const output of exports) {
@@ -158,14 +195,20 @@ async function renderArtifacts(
   return artifacts;
 }
 
-function commitArtifacts(artifacts: DerivedArtifact[], featureDir: string): CasesBuildReport {
+function commitArtifacts(
+  artifacts: DerivedArtifact[],
+  featureDir: string,
+  pruneStale = true,
+): CasesBuildReport {
   const outputDir = join(featureDir, "cases", "exports");
   mkdirSync(outputDir, { recursive: true });
   const desired = new Set(artifacts.map((artifact) => artifact.path));
-  const stale = readdirSync(outputDir)
-    .filter((entry) => Boolean(parseCaseExportName(entry)))
-    .map((entry) => join(outputDir, entry))
-    .filter((path) => !desired.has(path));
+  const stale = pruneStale
+    ? readdirSync(outputDir)
+        .filter((entry) => Boolean(parseCaseExportName(entry)))
+        .map((entry) => join(outputDir, entry))
+        .filter((path) => !desired.has(path))
+    : [];
   const changed = artifacts.filter((artifact) => {
     if (!existsSync(artifact.path)) return true;
     return !readFileSync(artifact.path).equals(artifact.content);
@@ -256,12 +299,83 @@ function preflightFeature(featureDir: string): {
   return { yamlPath, name, file };
 }
 
+export interface RunCasesBuildOptions {
+  formats?: CaseExportFormat[];
+  caseModuleId?: string;
+}
+
 /** Build all declared derived artifacts for one feature directory. */
-export async function runCasesBuild(featureDir: string): Promise<CasesBuildReport> {
+export async function runCasesBuild(
+  featureDir: string,
+  opts: RunCasesBuildOptions = {},
+): Promise<CasesBuildReport> {
   const { file, name } = preflightFeature(featureDir);
-  const artifacts = await renderArtifacts(file, featureDir, name);
+  const formats =
+    opts.formats ?? caseExports(file.meta.exports, name).map((output) => output.format);
+  if (formats.includes("csv")) {
+    const moduleId = opts.caseModuleId?.trim() || file.meta.case_module_id.trim();
+    if (!moduleId) {
+      throw new Error("CSV 导出需要禅道模块 ID；请提供 --case-module-id <id>");
+    }
+    if (!/^\d+$/.test(moduleId)) {
+      throw new Error("禅道模块 ID 必须为数字");
+    }
+    file.meta.case_module_id = moduleId;
+  }
+  const artifacts = await renderArtifacts(file, featureDir, name, formats);
   for (const artifact of artifacts) assertWritable(featurePaths(featureDir), artifact.path);
-  return commitArtifacts(artifacts, featureDir);
+  return commitArtifacts(artifacts, featureDir, opts.formats === undefined);
+}
+
+interface TargetPlan {
+  featureDir: string;
+  yamlPath: string;
+  name: string;
+  file: CasesFile;
+  formats?: CaseExportFormat[];
+  moduleIdChoice?: ModuleIdChoice;
+}
+
+function summaryForFeature(featureDir: string, file: CasesFile, formats?: CaseExportFormat[]) {
+  const projectDir = projectRootFromFeatureDir(featureDir);
+  const projectName = projectDir.split(/[\\/]/).at(-1) ?? "unknown";
+  const { context } = renderContextForFeature(featureDir);
+  const outputDir = join(featureDir, "cases", "exports");
+  const relativePath = relative(projectDir, outputDir);
+  const labels = formats
+    ? exportLabels(formats.map((format) => `case.${format}`))
+    : exportLabels(file.meta.exports ?? []);
+  return {
+    project: projectName,
+    version: context.version,
+    title: file.meta.title,
+    caseCount: file.cases.length,
+    exportsLabel: labels,
+    exportDir: `${projectName}/${relativePath}`.split("\\").join("/"),
+  };
+}
+
+async function resolveModuleIdChoice(
+  file: CasesFile,
+  explicitId: string | undefined,
+  interactive: boolean,
+): Promise<ModuleIdChoice | null> {
+  if (explicitId !== undefined) {
+    const id = explicitId.trim();
+    if (!/^\d+$/.test(id)) throw new Error("--case-module-id 必须为数字");
+    return {
+      id,
+      persist: file.meta.case_module_id !== id,
+      ...(file.meta.case_module_id ? { changedFrom: file.meta.case_module_id } : {}),
+    };
+  }
+  const existing = file.meta.case_module_id.trim();
+  if (existing) {
+    if (interactive) return resolveModuleIdInteractively(existing);
+    return { id: existing, persist: false };
+  }
+  if (interactive) return resolveModuleIdInteractively("");
+  throw new Error("CSV 导出需要禅道模块 ID；请提供 --case-module-id <id>");
 }
 
 /** Register the metadata-driven build verb. */
@@ -269,7 +383,7 @@ export function registerCasesBuild(cases: Command): void {
   cases
     .command("build")
     .description(
-      "用例内容 lint 与 P0 占比硬校验通过后按 YAML meta.exports 生成派生产物；缺省生成同名 XMind；requirements 布局生成多个 L1；传需求 id 简写定位 feature",
+      "用例内容 lint 与 P0 占比硬校验通过后生成派生产物；TTY 下可交互选择 XMind/CSV，CSV 需禅道模块 ID；传需求 id 简写定位 feature",
     )
     .argument("[requirementId]", "需求 id；按 cases YAML 中 requirement_id 字段定位 feature")
     .option("--feature <dir>", "feature 目录路径；与 <requirementId> 二选一")
@@ -277,8 +391,20 @@ export function registerCasesBuild(cases: Command): void {
       "--project <name>",
       "项目名；feature 传相对 features/ 的完整路径时必填；按需求 id 定位时可限定项目",
     )
+    .option("--format <formats>", "逗号分隔的导出格式，如 xmind,csv；显式传入时跳过交互")
+    .option("--no-interactive", "跳过 TUI 深链，强制 CLI 输出")
+    .option("--case-module-id <id>", "禅道模块 ID；CSV 且 YAML 为空时必填")
     .action(
-      async (requirementId: string | undefined, opts: { feature?: string; project?: string }) => {
+      async (
+        requirementId: string | undefined,
+        opts: {
+          feature?: string;
+          project?: string;
+          format?: string;
+          caseModuleId?: string;
+          interactive?: boolean;
+        },
+      ) => {
         const targets = resolveBuildTargets(requirementId, opts);
         // 先对全部目标完成校验预检：任一目标失败时任何目标都不写入、不通知，
         // 避免跨项目同 id 一半新一半旧的派生状态。
@@ -286,42 +412,107 @@ export function registerCasesBuild(cases: Command): void {
           featureDir,
           input: preflightFeature(featureDir),
         }));
+        const explicitFormats = parseBuildFormats(opts.format);
+        const interactive =
+          process.stdin.isTTY &&
+          explicitFormats === undefined &&
+          opts.interactive !== false &&
+          process.env.KATA_NO_INTERACTIVE !== "1";
+        let selectedFormats: CaseExportFormat[] | null | undefined;
+        if (interactive) {
+          for (const { featureDir, input } of preflighted) {
+            printFeatureSummary(summaryForFeature(featureDir, input.file, explicitFormats));
+            console.log("");
+          }
+          selectedFormats = await selectBuildFormats();
+          if (!selectedFormats || selectedFormats.length === 0) {
+            console.log("未选择导出文件，已取消");
+            return;
+          }
+        }
+
+        const plans: TargetPlan[] = [];
         for (const { featureDir, input } of preflighted) {
-          const startedAt = new Date();
-          const artifacts = await renderArtifacts(input.file, featureDir, input.name);
-          for (const artifact of artifacts) {
-            assertWritable(featurePaths(featureDir), artifact.path);
-          }
-          const report = commitArtifacts(artifacts, featureDir);
-          for (const path of report.created) console.log(`created ${path}`);
-          for (const path of report.updated) console.log(`updated ${path}`);
-          for (const path of report.unchanged) console.log(`unchanged ${path}`);
-          for (const path of report.deleted) console.log(`deleted ${path}`);
-          if (report.created.length + report.updated.length > 0) {
-            const projectDir = projectRootFromFeatureDir(featureDir);
-            const { context } = renderContextForFeature(featureDir);
-            const root = dirname(dirname(projectDir));
-            const result = await emitBusinessNotificationSafely(
-              "cases-built",
-              {
-                project: projectDir.split(/[\\/]/).at(-1) ?? "",
-                version: context.version,
-                feature: input.file.meta.title,
-                completed_at: formatTaipeiTime(),
-                case_count: input.file.cases.length,
-                created_count: report.created.length,
-                updated_count: report.updated.length,
-                artifact_paths: [...report.created, ...report.updated].map((path) =>
-                  workspaceRelativePath(root, path),
-                ),
-                duration_ms: Date.now() - startedAt.getTime(),
-              },
-              { root },
+          const selected = selectedFormats ?? explicitFormats;
+          const effectiveFormats =
+            selected ??
+            caseExports(input.file.meta.exports, input.name).map((output) => output.format);
+          const plan: TargetPlan = {
+            featureDir,
+            yamlPath: input.yamlPath,
+            name: input.name,
+            file: input.file,
+            ...(selected ? { formats: selected } : {}),
+          };
+          if (effectiveFormats.includes("csv")) {
+            const moduleIdChoice = await resolveModuleIdChoice(
+              input.file,
+              opts.caseModuleId,
+              interactive,
             );
-            process.stderr.write(
-              `[notify] cases-built: ${result.state}${result.reason ? ` (${result.reason})` : ""}\n`,
-            );
+            if (!moduleIdChoice) {
+              console.log("已取消");
+              return;
+            }
+            plan.moduleIdChoice = moduleIdChoice;
+            input.file.meta.case_module_id = moduleIdChoice.id;
+            if (moduleIdChoice.changedFrom && moduleIdChoice.changedFrom !== moduleIdChoice.id) {
+              console.log(`禅道模块 ID: ${moduleIdChoice.changedFrom} -> ${moduleIdChoice.id}`);
+            }
           }
+          plans.push(plan);
+        }
+
+        const yamlBackups: Array<{ path: string; original: string }> = [];
+        try {
+          for (const plan of plans) {
+            if (plan.moduleIdChoice?.persist) {
+              const original = readFileSync(plan.yamlPath, "utf8");
+              yamlBackups.push({ path: plan.yamlPath, original });
+              writeFileAtomic(plan.yamlPath, setCaseModuleId(original, plan.moduleIdChoice.id));
+            }
+          }
+          for (const plan of plans) {
+            const { featureDir, file, name } = plan;
+            const startedAt = new Date();
+            const artifacts = await renderArtifacts(file, featureDir, name, plan.formats);
+            for (const artifact of artifacts) {
+              assertWritable(featurePaths(featureDir), artifact.path);
+            }
+            const report = commitArtifacts(artifacts, featureDir, plan.formats === undefined);
+            for (const path of report.created) console.log(`created ${path}`);
+            for (const path of report.updated) console.log(`updated ${path}`);
+            for (const path of report.unchanged) console.log(`unchanged ${path}`);
+            for (const path of report.deleted) console.log(`deleted ${path}`);
+            if (report.created.length + report.updated.length > 0) {
+              const projectDir = projectRootFromFeatureDir(featureDir);
+              const { context } = renderContextForFeature(featureDir);
+              const root = dirname(dirname(projectDir));
+              const result = await emitBusinessNotificationSafely(
+                "cases-built",
+                {
+                  project: projectDir.split(/[\\/]/).at(-1) ?? "",
+                  version: context.version,
+                  feature: file.meta.title,
+                  completed_at: formatTaipeiTime(),
+                  case_count: file.cases.length,
+                  created_count: report.created.length,
+                  updated_count: report.updated.length,
+                  artifact_paths: [...report.created, ...report.updated].map((path) =>
+                    workspaceRelativePath(root, path),
+                  ),
+                  duration_ms: Date.now() - startedAt.getTime(),
+                },
+                { root },
+              );
+              process.stderr.write(
+                `[notify] cases-built: ${result.state}${result.reason ? ` (${result.reason})` : ""}\n`,
+              );
+            }
+          }
+        } catch (error) {
+          for (const backup of yamlBackups) writeFileAtomic(backup.path, backup.original);
+          throw error;
         }
       },
     );
