@@ -1,0 +1,2474 @@
+meta:
+  title: 【岚图汽车】【数据质量】完整性规则新增多表去重数据包含关系规则
+  requirement_id: "15913"
+  case_module_id: ""
+  source: "蓝湖需求 #15913"
+  test_points_digest: "sha256:0b53c22efe3de7956e4e525392ce43baab9721073d5c6f55518e5461e3e156d3"
+  exports:
+    - 完整性规则新增多表去重数据包含关系规则.xmind
+cases:
+  - case_id: C0001
+    title: 验证【规则库配置】-【内置规则列表】检索多表去重数据包含关系，显示完整性校验分类与多表范围
+    source_ref: TP-001
+    priority: P1
+    precondition: 1) 规则库已完成内置规则初始化
+    steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 进入成功
+      - action: 在规则列表中检索「多表去重数据包含关系」
+        expected: 列表存在且仅定位到该内置规则，名称列显示「多表去重数据包含关系」
+      - action: 查看该规则所在分类与关联范围
+        expected: 规则分类显示「完整性校验」，关联范围显示「多表」
+    tags:
+      - 数据质量
+
+  - case_id: C0002
+    title: 验证【规则集管理】-【多表去重数据包含关系】选择新规则类型，展示全部专属配置项
+    source_ref: TP-002
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验表和对比表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0002_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0002_source (
+           id BIGINT,
+           code STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0002_source PARTITION (dt='2026-08-04') VALUES
+           (1, 'A');
+         INSERT INTO ${SchemaA}.test_table_15913_c0002_source PARTITION (dt='2026-08-05') VALUES
+           (2, 'B');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0002_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0002_comparison (
+           id BIGINT,
+           code STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15913_c0002_comparison VALUES
+           (1, 'A');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0002_source
+          规则集描述：配置项展示验证
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息按填写值回显
+      - action: 在规则包 PackA 中选择「完整性校验-多表去重数据包含关系」
+        expected: |-
+          规则配置区按顺序展示以下配置项：
+          1) 生效范围
+          2) 校验表去重字段
+          3) 选择对比表
+          4) 对比表包含关系
+          5) 对比表
+          6) 输入分区
+          7) 对比表字段
+          8) 选择判断关系
+          9) 字段类型转换
+          10) 强弱规则和规则描述
+    tags:
+      - 数据质量
+
+  - case_id: C0003
+    title: 验证【校验结果查询】-【校验表包含对比表】执行子集数据，结果达标且无脏数据明细
+    source_ref: TP-003
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和对比表，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0003_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0003_source (
+           id BIGINT,
+           code STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0003_source PARTITION (dt='2026-08-04') VALUES
+           (1, 'A'), (2, 'B'), (3, 'C');
+         INSERT INTO ${SchemaA}.test_table_15913_c0003_source PARTITION (dt='2026-08-05') VALUES
+           (4, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0003_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0003_comparison (
+           id BIGINT,
+           code STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15913_c0003_comparison VALUES
+           (1, 'A'), (2, 'B');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0003_source
+          规则集描述：校验表包含对比表子集场景
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息按填写值回显
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0003_comparison
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：对比表去重集合为校验表去重集合的子集
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackA 规则数量为 1
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0003_source
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的监控报告
+        expected: 任务状态为「运行成功」，结果状态为「达标」，规则行不提供脏数据明细入口且明细记录数为 0
+    tags:
+      - 数据质量
+
+  - case_id: C0004
+    title: 验证【脏数据明细】-【校验表包含对比表】执行对比表独有值，结果不达标并展示对比表未匹配值
+    source_ref: TP-004
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和对比表，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0004_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0004_source (
+           id BIGINT,
+           code STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0004_source PARTITION (dt='2026-08-04') VALUES
+           (1, 'A'), (2, 'B');
+         INSERT INTO ${SchemaA}.test_table_15913_c0004_source PARTITION (dt='2026-08-05') VALUES
+           (3, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0004_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0004_comparison (
+           id BIGINT,
+           code STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15913_c0004_comparison VALUES
+           (1, 'A'), (2, 'B');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0004_source
+          规则集描述：校验表包含对比表异常场景
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息按填写值回显
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0004_comparison
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：对比表含校验表未覆盖的值
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackA 规则数量为 1
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0004_source
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的脏数据明细
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「不达标」
+          2) 明细来源表为 test_table_15913_c0004_comparison，包含关系为「校验表包含对比表」，字段 code 标红且仅展示未匹配值 B
+          3) 等价核对查询及确定结果为：
+             SELECT DISTINCT c.code
+             FROM ${SchemaA}.test_table_15913_c0004_comparison c
+             LEFT ANTI JOIN (
+               SELECT DISTINCT code
+               FROM ${SchemaA}.test_table_15913_c0004_source
+               WHERE dt = '2026-08-05'
+             ) s ON c.code <=> s.code
+             ORDER BY c.code;
+             查询结果：
+             B
+    tags:
+      - 数据质量
+
+  - case_id: C0005
+    title: 验证【校验结果查询】-【校验表被对比表包含】执行校验表子集数据，结果达标且无脏数据明细
+    source_ref: TP-005
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和对比表，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0005_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0005_source (
+           id BIGINT,
+           code STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0005_source PARTITION (dt='2026-08-04') VALUES
+           (1, 'A'), (2, 'B');
+         INSERT INTO ${SchemaA}.test_table_15913_c0005_source PARTITION (dt='2026-08-05') VALUES
+           (3, 'A'), (4, 'X');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0005_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0005_comparison (
+           id BIGINT,
+           code STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15913_c0005_comparison VALUES
+           (1, 'A'), (2, 'B'), (3, 'C');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0005_source
+          规则集描述：校验表被对比表包含子集场景
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息按填写值回显
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表被对比表包含
+              * 对比表：test_table_15913_c0005_comparison
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：校验表去重集合为对比表去重集合的子集
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackA 规则数量为 1
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0005_source
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的监控报告
+        expected: 任务状态为「运行成功」，结果状态为「达标」，规则行不提供脏数据明细入口且明细记录数为 0
+    tags:
+      - 数据质量
+
+  - case_id: C0006
+    title: 验证【脏数据明细】-【校验表被对比表包含】执行校验表独有值，结果不达标并展示校验表未匹配值
+    source_ref: TP-006
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和对比表，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0006_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0006_source (
+           id BIGINT,
+           code STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0006_source PARTITION (dt='2026-08-04') VALUES
+           (1, 'A'), (2, 'B');
+         INSERT INTO ${SchemaA}.test_table_15913_c0006_source PARTITION (dt='2026-08-05') VALUES
+           (3, 'A'), (4, 'X');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0006_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0006_comparison (
+           id BIGINT,
+           code STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15913_c0006_comparison VALUES
+           (1, 'A'), (2, 'B'), (3, 'C');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0006_source
+          规则集描述：校验表被对比表包含异常场景
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息按填写值回显
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表被对比表包含
+              * 对比表：test_table_15913_c0006_comparison
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：校验表含对比表未覆盖的值
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackA 规则数量为 1
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0006_source
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的脏数据明细
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「不达标」
+          2) 明细来源表为 test_table_15913_c0006_source，包含关系为「校验表被对比表包含」，字段 code 标红且仅展示未匹配值 X
+          3) 等价核对查询及确定结果为：
+             SELECT DISTINCT s.code
+             FROM ${SchemaA}.test_table_15913_c0006_source s
+             LEFT ANTI JOIN ${SchemaA}.test_table_15913_c0006_comparison c
+               ON s.code <=> c.code
+             WHERE s.dt = '2026-08-05'
+             ORDER BY s.code;
+             查询结果：
+             X
+    tags:
+      - 数据质量
+
+  - case_id: C0007
+    title: 验证【校验结果查询】-【复合去重字段】按选择顺序整体去重并匹配，字段顺序变化产生未匹配复合值
+    source_ref: TP-007
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和两张对比表，各表均写入重复复合值，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0007_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0007_source (
+           id BIGINT,
+           k1 STRING,
+           k2 STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0007_source PARTITION (dt='2026-08-04') VALUES
+           (1, 'A', '1'), (2, 'A', '1'), (3, '1', 'A');
+         INSERT INTO ${SchemaA}.test_table_15913_c0007_source PARTITION (dt='2026-08-05') VALUES
+           (4, 'A', '1'), (5, 'A', '1');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0007_comparison_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0007_comparison_01 (
+           id BIGINT,
+           k1 STRING,
+           k2 STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15913_c0007_comparison_01 VALUES
+           (1, 'A', '1'), (2, 'A', '1');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0007_comparison_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0007_comparison_02 (
+           id BIGINT,
+           k1 STRING,
+           k2 STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15913_c0007_comparison_02 VALUES
+           (1, 'A', '1'), (2, 'A', '1');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0007_source
+          规则集描述：复合字段顺序与去重验证
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息按填写值回显
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：k1、k2
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0007_comparison_01
+              输入分区：空
+              * 对比表字段：k1、k2
+              字段类型转换：否
+            对比表2：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0007_comparison_02
+              输入分区：空
+              * 对比表字段：k2、k1
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：复合值按已选字段顺序匹配
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，两个对比表及各自字段顺序均按配置回显
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0007_source
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 打开 RuleA 最新监控报告和脏数据明细
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「不达标」
+          2) 对比表1 的重复复合值 (A,1) 去重后可匹配，不产生明细
+          3) 对比表2 按 k2、k1 组成复合值 (1,A)，与校验表按 k1、k2 组成的 (A,1) 不同，明细仅展示 (1,A)
+    tags:
+      - 数据质量
+
+  - case_id: C0008
+    title: 验证【校验结果查询】-【且关系】执行两张对比表均满足包含关系的数据，结果达标
+    source_ref: TP-008
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和两张对比表，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0008_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0008_source (id BIGINT, code STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0008_source PARTITION (dt='2026-08-04') VALUES (1, 'A'), (2, 'B');
+         INSERT INTO ${SchemaA}.test_table_15913_c0008_source PARTITION (dt='2026-08-05') VALUES (3, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0008_comparison_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0008_comparison_01 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0008_comparison_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0008_comparison_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0008_comparison_02 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0008_comparison_02 VALUES (1, 'B');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0008_source
+          规则集描述：且关系全部满足
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0008_comparison_01
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+            对比表2：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0008_comparison_02
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：两张对比表均需满足
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则包 PackA 展示两个对比表且判断关系为「且」
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0008_source
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的监控报告
+        expected: 任务状态为「运行成功」，两张对比表的包含关系均显示「符合」，结果状态为「达标」
+    tags:
+      - 数据质量
+
+  - case_id: C0009
+    title: 验证【校验结果查询】-【且关系】执行一张对比表不满足包含关系的数据，结果不达标
+    source_ref: TP-009
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和两张对比表，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0009_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0009_source (id BIGINT, code STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0009_source PARTITION (dt='2026-08-04') VALUES (1, 'A'), (2, 'B');
+         INSERT INTO ${SchemaA}.test_table_15913_c0009_source PARTITION (dt='2026-08-05') VALUES (3, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0009_comparison_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0009_comparison_01 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0009_comparison_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0009_comparison_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0009_comparison_02 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0009_comparison_02 VALUES (1, 'B');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0009_source
+          规则集描述：且关系局部不满足
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0009_comparison_01
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+            对比表2：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0009_comparison_02
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：两张对比表均需满足
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则包 PackA 展示两个对比表且判断关系为「且」
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0009_source
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的监控报告
+        expected: 任务状态为「运行成功」，对比表1 显示「符合」、对比表2 显示「不符合」，且关系汇总结果状态为「不达标」
+    tags:
+      - 数据质量
+
+  - case_id: C0010
+    title: 验证【校验结果查询】-【或关系】执行至少一张对比表满足包含关系的数据，结果达标
+    source_ref: TP-010
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和两张对比表，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0010_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0010_source (id BIGINT, code STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0010_source PARTITION (dt='2026-08-04') VALUES (1, 'A');
+         INSERT INTO ${SchemaA}.test_table_15913_c0010_source PARTITION (dt='2026-08-05') VALUES (2, 'X');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0010_comparison_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0010_comparison_01 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0010_comparison_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0010_comparison_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0010_comparison_02 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0010_comparison_02 VALUES (1, 'Z');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0010_source
+          规则集描述：或关系局部满足
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0010_comparison_01
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+            对比表2：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0010_comparison_02
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：或
+          * 强弱规则：弱规则
+          规则描述：任一对比表满足即可
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则包 PackA 展示两个对比表且判断关系为「或」
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0010_source
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的监控报告
+        expected: 任务状态为「运行成功」，对比表1 显示「符合」、对比表2 显示「不符合」，或关系汇总结果状态为「达标」
+    tags:
+      - 数据质量
+
+  - case_id: C0011
+    title: 验证【校验结果查询】-【或关系】执行两张对比表均不满足包含关系的数据，结果不达标
+    source_ref: TP-011
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和两张对比表，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0011_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0011_source (id BIGINT, code STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0011_source PARTITION (dt='2026-08-04') VALUES (1, 'A'), (2, 'B');
+         INSERT INTO ${SchemaA}.test_table_15913_c0011_source PARTITION (dt='2026-08-05') VALUES (3, 'X');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0011_comparison_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0011_comparison_01 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0011_comparison_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0011_comparison_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0011_comparison_02 (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0011_comparison_02 VALUES (1, 'B');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0011_source
+          规则集描述：或关系全部不满足
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0011_comparison_01
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+            对比表2：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0011_comparison_02
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：或
+          * 强弱规则：弱规则
+          规则描述：任一对比表满足即可
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则包 PackA 展示两个对比表且判断关系为「或」
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0011_source
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的监控报告
+        expected: 任务状态为「运行成功」，两张对比表均显示「不符合」，或关系汇总结果状态为「不达标」
+    tags:
+      - 数据质量
+
+  - case_id: C0012
+    title: 验证【校验结果查询】-【NULL复合值】执行两侧重复NULL数据，NULL去重为一个普通值并匹配
+    source_ref: TP-012
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和对比表，两侧均含重复 NULL 复合值，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0012_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0012_source (id BIGINT, code STRING, city STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0012_source PARTITION (dt='2026-08-04') VALUES
+           (1, CAST(NULL AS STRING), '北京'), (2, CAST(NULL AS STRING), '北京'), (3, 'A', '上海');
+         INSERT INTO ${SchemaA}.test_table_15913_c0012_source PARTITION (dt='2026-08-05') VALUES
+           (4, 'A', '上海');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0012_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0012_comparison (id BIGINT, code STRING, city STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0012_comparison VALUES
+           (1, CAST(NULL AS STRING), '北京'), (2, CAST(NULL AS STRING), '北京');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0012_source
+          规则集描述：两侧重复 NULL 复合值匹配
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code、city
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0012_comparison
+              输入分区：空
+              * 对比表字段：code、city
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：NULL 作为普通字段值参与去重与匹配
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则包 PackA 回显复合字段 code、city
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0012_source
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的监控报告
+        expected: 任务状态为「运行成功」，结果状态为「达标」；两侧重复的 (NULL,北京) 均按一个普通复合值参与判断且相互匹配，明细记录数为 0
+    tags:
+      - 数据质量
+
+  - case_id: C0013
+    title: 验证【脏数据明细】-【校验表包含对比表】执行仅对比表含NULL的数据，NULL作为未匹配值展示
+    source_ref: TP-013
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和对比表，对比表含 NULL，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0013_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0013_source (id BIGINT, code STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0013_source PARTITION (dt='2026-08-04') VALUES
+           (1, CAST(NULL AS STRING)), (2, 'A');
+         INSERT INTO ${SchemaA}.test_table_15913_c0013_source PARTITION (dt='2026-08-05') VALUES
+           (3, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0013_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0013_comparison (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0013_comparison VALUES
+           (1, CAST(NULL AS STRING)), (2, CAST(NULL AS STRING));
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0013_source
+          规则集描述：对比表单边 NULL 场景
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0013_comparison
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：NULL 作为普通字段值参与包含判断
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则包 PackA 保存完成
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0013_source
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的脏数据明细
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「不达标」
+          2) 对比表中的两个 NULL 去重为一个普通值，明细来源表为 test_table_15913_c0013_comparison 且仅展示一条 NULL
+          3) 等价核对查询及确定结果为：
+             SELECT DISTINCT c.code
+             FROM ${SchemaA}.test_table_15913_c0013_comparison c
+             LEFT ANTI JOIN (
+               SELECT DISTINCT code
+               FROM ${SchemaA}.test_table_15913_c0013_source
+               WHERE dt = '2026-08-05'
+             ) s ON c.code <=> s.code;
+             查询结果：
+             NULL
+    tags:
+      - 数据质量
+
+  - case_id: C0014
+    title: 验证【脏数据明细】-【校验表被对比表包含】执行仅校验表含NULL的数据，NULL作为未匹配值展示
+    source_ref: TP-014
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和对比表，校验表异常分区含 NULL，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0014_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0014_source (id BIGINT, code STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0014_source PARTITION (dt='2026-08-04') VALUES
+           (1, 'A');
+         INSERT INTO ${SchemaA}.test_table_15913_c0014_source PARTITION (dt='2026-08-05') VALUES
+           (2, 'A'), (3, CAST(NULL AS STRING)), (4, CAST(NULL AS STRING));
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0014_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0014_comparison (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0014_comparison VALUES
+           (1, 'A');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0014_source
+          规则集描述：校验表单边 NULL 场景
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表被对比表包含
+              * 对比表：test_table_15913_c0014_comparison
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：NULL 作为普通字段值参与包含判断
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则包 PackA 保存完成
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0014_source
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的脏数据明细
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「不达标」
+          2) 校验表中的两个 NULL 去重为一个普通值，明细来源表为 test_table_15913_c0014_source 且仅展示一条 NULL
+          3) 等价核对查询及确定结果为：
+             SELECT DISTINCT s.code
+             FROM ${SchemaA}.test_table_15913_c0014_source s
+             LEFT ANTI JOIN ${SchemaA}.test_table_15913_c0014_comparison c
+               ON s.code <=> c.code
+             WHERE s.dt = '2026-08-05';
+             查询结果：
+             NULL
+    tags:
+      - 数据质量
+
+  - case_id: C0015
+    title: 验证【规则集管理】-【校验表去重字段】选择10个字段后继续选择第11个，限制选择并保存上限值
+    source_ref: TP-015
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建含 11 个候选字段的校验表与对比表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0015_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0015_source (
+           f01 STRING, f02 STRING, f03 STRING, f04 STRING, f05 STRING, f06 STRING,
+           f07 STRING, f08 STRING, f09 STRING, f10 STRING, f11 STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0015_source PARTITION (dt='2026-08-04') VALUES
+           ('01','02','03','04','05','06','07','08','09','10','11');
+         INSERT INTO ${SchemaA}.test_table_15913_c0015_source PARTITION (dt='2026-08-05') VALUES
+           ('a1','a2','a3','a4','a5','a6','a7','a8','a9','a0','ab');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0015_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0015_comparison (
+           f01 STRING, f02 STRING, f03 STRING, f04 STRING, f05 STRING, f06 STRING,
+           f07 STRING, f08 STRING, f09 STRING, f10 STRING, f11 STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15913_c0015_comparison VALUES
+           ('01','02','03','04','05','06','07','08','09','10','11');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0015_source
+          规则集描述：校验表字段上限
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：f01、f02、f03、f04、f05、f06、f07、f08、f09、f10
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0015_comparison
+              输入分区：空
+              * 对比表字段：f01、f02、f03、f04、f05、f06、f07、f08、f09、f10
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：十个校验字段上限验证
+        expected: f01 至 f10 共 10 个校验表去重字段全部保持选中，已选数量为 10
+      - action: 继续在「校验表去重字段」中选择 f11
+        expected: f11 不会加入已选项或页面提示「最多选择10个」，已选字段仍为 f01 至 f10
+      - action: 点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，详情仅回显 f01 至 f10
+    tags:
+      - 数据质量
+
+  - case_id: C0016
+    title: 验证【规则集管理】-【选择对比表】配置10张对比表后继续新增第11张，限制新增并保存上限值
+    source_ref: TP-016
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验表和 11 张候选对比表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0016_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0016_source (code STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0016_source PARTITION (dt='2026-08-04') VALUES ('A');
+         INSERT INTO ${SchemaA}.test_table_15913_c0016_source PARTITION (dt='2026-08-05') VALUES ('B');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0016_comparison_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0016_comparison_01 (code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0016_comparison_01 VALUES ('A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0016_comparison_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0016_comparison_02 (code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0016_comparison_02 VALUES ('A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0016_comparison_03;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0016_comparison_03 (code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0016_comparison_03 VALUES ('A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0016_comparison_04;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0016_comparison_04 (code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0016_comparison_04 VALUES ('A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0016_comparison_05;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0016_comparison_05 (code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0016_comparison_05 VALUES ('A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0016_comparison_06;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0016_comparison_06 (code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0016_comparison_06 VALUES ('A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0016_comparison_07;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0016_comparison_07 (code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0016_comparison_07 VALUES ('A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0016_comparison_08;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0016_comparison_08 (code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0016_comparison_08 VALUES ('A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0016_comparison_09;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0016_comparison_09 (code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0016_comparison_09 VALUES ('A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0016_comparison_10;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0016_comparison_10 (code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0016_comparison_10 VALUES ('A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0016_comparison_11;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0016_comparison_11 (code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0016_comparison_11 VALUES ('A');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0016_source
+          规则集描述：对比表数量上限
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1至对比表10：
+              * 包含关系：均为校验表包含对比表
+              * 对比表：依次为 test_table_15913_c0016_comparison_01、test_table_15913_c0016_comparison_02、test_table_15913_c0016_comparison_03、test_table_15913_c0016_comparison_04、test_table_15913_c0016_comparison_05、test_table_15913_c0016_comparison_06、test_table_15913_c0016_comparison_07、test_table_15913_c0016_comparison_08、test_table_15913_c0016_comparison_09、test_table_15913_c0016_comparison_10
+              输入分区：均为空
+              * 对比表字段：均为 code
+              字段类型转换：均为否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：十张对比表上限验证
+        expected: 对比表1至对比表10 均完整展示表名、包含关系、分区、字段和类型转换配置，当前对比表数量为 10
+      - action: 点击「新增对比表」并选择 test_table_15913_c0016_comparison_11
+        expected: 第 11 张对比表不会新增或页面提示「最多选择10张对比表」，已有 10 张对比表保持不变
+      - action: 点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，详情仅回显前 10 张对比表
+    tags:
+      - 数据质量
+
+  - case_id: C0017
+    title: 验证【规则集管理】-【对比表字段】选择10个字段后继续选择第11个，限制选择并保存上限值
+    source_ref: TP-017
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建含 11 个候选字段的校验表与对比表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0017_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0017_source (
+           f01 STRING, f02 STRING, f03 STRING, f04 STRING, f05 STRING, f06 STRING,
+           f07 STRING, f08 STRING, f09 STRING, f10 STRING, f11 STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0017_source PARTITION (dt='2026-08-04') VALUES
+           ('01','02','03','04','05','06','07','08','09','10','11');
+         INSERT INTO ${SchemaA}.test_table_15913_c0017_source PARTITION (dt='2026-08-05') VALUES
+           ('a1','a2','a3','a4','a5','a6','a7','a8','a9','a0','ab');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0017_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0017_comparison (
+           f01 STRING, f02 STRING, f03 STRING, f04 STRING, f05 STRING, f06 STRING,
+           f07 STRING, f08 STRING, f09 STRING, f10 STRING, f11 STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15913_c0017_comparison VALUES
+           ('01','02','03','04','05','06','07','08','09','10','11');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0017_source
+          规则集描述：对比表字段上限
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：f01、f02、f03、f04、f05、f06、f07、f08、f09、f10
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0017_comparison
+              输入分区：空
+              * 对比表字段：f01、f02、f03、f04、f05、f06、f07、f08、f09、f10
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：十个对比字段上限验证
+        expected: f01 至 f10 共 10 个对比表字段全部保持选中，已选数量为 10
+      - action: 继续在「对比表字段」中选择 f11
+        expected: f11 不会加入已选项或页面提示「最多选择10个」，已选字段仍为 f01 至 f10
+      - action: 点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，详情仅回显 f01 至 f10
+    tags:
+      - 数据质量
+
+  - case_id: C0018
+    title: 验证【规则集管理】-【字段数量校验】配置少于校验表的对比字段，提示实际缺少数量并阻止保存
+    source_ref: TP-018
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建三个去重字段的校验表和一个候选字段的对比表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0018_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0018_source (k1 STRING, k2 STRING, k3 STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0018_source PARTITION (dt='2026-08-04') VALUES ('A', 'B', 'C');
+         INSERT INTO ${SchemaA}.test_table_15913_c0018_source PARTITION (dt='2026-08-05') VALUES ('X', 'Y', 'Z');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0018_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0018_comparison (k1 STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0018_comparison VALUES ('A');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0018_source
+          规则集描述：字段数量差值校验
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：k1、k2、k3
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0018_comparison
+              输入分区：空
+              * 对比表字段：k1
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：字段数量不足
+          点击配置区空白处
+        expected: 对比表字段区域标红并提示「缺少 2 个字段」
+      - action: 点击「保存」
+        expected: 保存请求不会提交且停留在当前页面
+    tags:
+      - 数据质量
+
+  - case_id: C0019
+    title: 验证【规则集管理】-【字段类型校验】按选择顺序配置不匹配类型，失焦立即标红并阻止保存
+    source_ref: TP-019
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建字段数量一致但第二个字段类型不同的校验表与对比表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0019_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0019_source (code STRING, amount BIGINT) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0019_source PARTITION (dt='2026-08-04') VALUES ('A', 100);
+         INSERT INTO ${SchemaA}.test_table_15913_c0019_source PARTITION (dt='2026-08-05') VALUES ('B', 200);
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0019_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0019_comparison (code STRING, amount_text STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0019_comparison VALUES ('A', '100');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0019_source
+          规则集描述：字段类型失配
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code、amount
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0019_comparison
+              输入分区：空
+              * 对比表字段：code、amount_text
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：第二顺位 BIGINT 与 STRING 不匹配
+          点击配置区空白处
+        expected: 失焦后第二顺位字段立即标红并提示「存在字段类型不匹配」
+      - action: 保持字段类型转换为「否」并点击「保存」
+        expected: 后端保存前再次显示「存在字段类型不匹配」，保存请求失败且规则集不会新增
+    tags:
+      - 数据质量
+
+  - case_id: C0020
+    title: 验证【校验结果查询】-【字段类型转换】配置有效STRING转BIGINT转换，提示消失且规则执行达标
+    source_ref: TP-020
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建字段类型不同但数据可转换的校验分区表和对比表，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0020_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0020_source (code STRING, amount BIGINT) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0020_source PARTITION (dt='2026-08-04') VALUES ('A', 100);
+         INSERT INTO ${SchemaA}.test_table_15913_c0020_source PARTITION (dt='2026-08-05') VALUES ('A', 999);
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0020_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0020_comparison (code STRING, amount_text STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0020_comparison VALUES ('A', '100');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0020_source
+          规则集描述：有效字段类型转换
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code、amount
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0020_comparison
+              输入分区：空
+              * 对比表字段：code、amount_text
+              字段类型转换：amount_text → BIGINT（CAST(amount_text AS BIGINT)）
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：STRING 数值转换为 BIGINT 后比较
+          点击配置区空白处
+        expected: 字段类型不匹配的红色提示消失，code 与转换后的 amount_text 均显示可用
+      - action: 点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，详情回显 amount_text 到 BIGINT 的类型转换
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0020_source
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的监控报告
+        expected: 任务状态为「运行成功」，amount_text 值 '100' 转换为 BIGINT 100 后与校验表复合值匹配，结果状态为「达标」
+    tags:
+      - 数据质量
+
+  - case_id: C0021
+    title: 验证【校验结果查询】-【对比表分区】不选择对比表分区并执行，使用对比表全部可校验数据
+    source_ref: TP-021
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和非分区对比表，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0021_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0021_source (id BIGINT, code STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0021_source PARTITION (dt='2026-08-04') VALUES (1, 'A'), (2, 'B');
+         INSERT INTO ${SchemaA}.test_table_15913_c0021_source PARTITION (dt='2026-08-05') VALUES (3, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0021_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0021_comparison (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0021_comparison VALUES (1, 'A'), (2, 'B');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0021_source
+          规则集描述：对比表不指定分区
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0021_comparison
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：使用非分区对比表全部数据
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则详情回显输入分区为空
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0021_source
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的监控报告
+        expected: 任务状态为「运行成功」，非分区对比表中的 A、B 均参与判断并显示「符合」，结果状态为「达标」
+    tags:
+      - 数据质量
+
+  - case_id: C0022
+    title: 验证【校验结果查询】-【对比表分区】选择具体对比表分区并执行，仅使用所选分区数据
+    source_ref: TP-022
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和对比表，校验表 dt=2026-08-04 为全部可得到预期达标结果的正确数据、dt=2026-08-05 为全部可得到预期不达标结果的异常数据，对比表 part_dt=2026-08-04 为匹配数据、part_dt=2026-08-05 为不匹配数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0022_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0022_source (id BIGINT, code STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0022_source PARTITION (dt='2026-08-04') VALUES (1, 'A');
+         INSERT INTO ${SchemaA}.test_table_15913_c0022_source PARTITION (dt='2026-08-05') VALUES (2, 'X');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0022_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0022_comparison (id BIGINT, code STRING) PARTITIONED BY (part_dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0022_comparison PARTITION (part_dt='2026-08-04') VALUES (1, 'A');
+         INSERT INTO ${SchemaA}.test_table_15913_c0022_comparison PARTITION (part_dt='2026-08-05') VALUES (2, 'Z');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0022_source
+          规则集描述：对比表指定分区
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0022_comparison
+              输入分区：part_dt='2026-08-04'
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：仅使用对比表指定分区
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则详情回显输入分区 part_dt='2026-08-04'
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0022_source
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的监控报告
+        expected: 任务状态为「运行成功」，仅 part_dt='2026-08-04' 的 A 参与判断并显示「符合」，未使用 part_dt='2026-08-05' 的 Z，结果状态为「达标」
+    tags:
+      - 数据质量
+
+  - case_id: C0023
+    title: 验证【规则集管理】-【规则集详情】保存多表规则，回显实际字段且不展示维度字段
+    source_ref: TP-023
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验表、一张非分区对比表和一张分区对比表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0023_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0023_source (code STRING, city STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0023_source PARTITION (dt='2026-08-04') VALUES ('A', '北京');
+         INSERT INTO ${SchemaA}.test_table_15913_c0023_source PARTITION (dt='2026-08-05') VALUES ('B', '上海');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0023_comparison_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0023_comparison_01 (code STRING, city STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0023_comparison_01 VALUES ('A', '北京');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0023_comparison_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0023_comparison_02 (code STRING, city STRING) PARTITIONED BY (part_dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0023_comparison_02 PARTITION (part_dt='2026-08-04') VALUES ('A', '北京');
+         INSERT INTO ${SchemaA}.test_table_15913_c0023_comparison_02 PARTITION (part_dt='2026-08-05') VALUES ('Z', '深圳');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0023_source
+          规则集描述：规则集详情回显
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code、city
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0023_comparison_01
+              输入分区：空
+              * 对比表字段：code、city
+              字段类型转换：否
+            对比表2：
+              * 包含关系：校验表被对比表包含
+              * 对比表：test_table_15913_c0023_comparison_02
+              输入分区：part_dt='2026-08-04'
+              * 对比表字段：code、city
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：详情展示实际规则配置
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA
+      - action: 点击「规则集详情」打开 RuleSetA
+        expected: 进入 RuleSetA 详情页
+      - action: 查看 PackA 中的规则
+        expected: |-
+          1) 校验表字段回显 code、city
+          2) 对比表1 回显「校验表包含对比表」、表名、空分区和字段 code、city
+          3) 对比表2 回显「校验表被对比表包含」、表名、part_dt='2026-08-04' 和字段 code、city
+          4) 页面不展示「维度字段」项目
+    tags:
+      - 数据质量
+
+  - case_id: C0024
+    title: 验证【规则任务管理】-【规则任务详情】引入多表规则，回显实际字段且不展示维度字段
+    source_ref: TP-024
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和两张对比表，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0024_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0024_source (code STRING, city STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0024_source PARTITION (dt='2026-08-04') VALUES ('A', '北京'), ('B', '上海');
+         INSERT INTO ${SchemaA}.test_table_15913_c0024_source PARTITION (dt='2026-08-05') VALUES ('X', '深圳');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0024_comparison_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0024_comparison_01 (code STRING, city STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0024_comparison_01 VALUES ('A', '北京');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0024_comparison_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0024_comparison_02 (code STRING, city STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0024_comparison_02 VALUES ('B', '上海');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0024_source
+          规则集描述：任务详情回显
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code、city
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0024_comparison_01
+              输入分区：空
+              * 对比表字段：code、city
+              字段类型转换：否
+            对比表2：
+              * 包含关系：校验表被对比表包含
+              * 对比表：test_table_15913_c0024_comparison_02
+              输入分区：空
+              * 对比表字段：code、city
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：任务详情展示实际规则配置
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0024_source
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 查看 PackA 中的规则
+        expected: |-
+          1) 校验表字段回显 code、city
+          2) 两张对比表分别回显各自包含关系、表名、空分区和字段 code、city
+          3) 页面不展示「维度字段」项目
+    tags:
+      - 数据质量
+
+  - case_id: C0025
+    title: 验证【校验结果查询】-【监控报告】执行达标数据，展示规则配置与达标状态且无明细
+    source_ref: TP-025
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和对比表，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0025_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0025_source (id BIGINT, code STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0025_source PARTITION (dt='2026-08-04') VALUES (1, 'A'), (2, 'B');
+         INSERT INTO ${SchemaA}.test_table_15913_c0025_source PARTITION (dt='2026-08-05') VALUES (3, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0025_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0025_comparison (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0025_comparison VALUES (1, 'B');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0025_source
+          规则集描述：达标监控报告
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0025_comparison
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：达标监控报告
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0025_source
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的监控报告
+        expected: |-
+          1) 任务状态为「运行成功」，规则结果状态为「达标」
+          2) 报告展示校验表字段 code、包含关系「校验表包含对比表」、对比表名、空分区、对比表字段 code 和判断关系「且」
+          3) 规则行不提供脏数据明细入口，明细记录数为 0
+    tags:
+      - 数据质量
+
+  - case_id: C0026
+    title: 验证【校验结果查询】-【监控报告】执行不达标数据，展示规则配置与不达标状态并提供明细入口
+    source_ref: TP-026
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和对比表，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0026_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0026_source (id BIGINT, code STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0026_source PARTITION (dt='2026-08-04') VALUES (1, 'A'), (2, 'B');
+         INSERT INTO ${SchemaA}.test_table_15913_c0026_source PARTITION (dt='2026-08-05') VALUES (3, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0026_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0026_comparison (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0026_comparison VALUES (1, 'B');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0026_source
+          规则集描述：不达标监控报告
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0026_comparison
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：不达标监控报告
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0026_source
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新运行实例的监控报告
+        expected: |-
+          1) 任务状态为「运行成功」，规则结果状态为「不达标」
+          2) 报告展示校验表字段 code、包含关系「校验表包含对比表」、对比表名、空分区、对比表字段 code 和判断关系「且」
+          3) 规则行展示不符合数据条数 1，并提供可点击的「查看明细」入口
+    tags:
+      - 数据质量
+
+  - case_id: C0027
+    title: 验证【校验结果查询】-【失败日志】执行时对比表不存在，展示运行失败状态并支持查看日志
+    source_ref: TP-027
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和对比表，dt=2026-08-04 为正确数据，dt=2026-08-05 为异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0027_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0027_source (id BIGINT, code STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0027_source PARTITION (dt='2026-08-04') VALUES (1, 'A');
+         INSERT INTO ${SchemaA}.test_table_15913_c0027_source PARTITION (dt='2026-08-05') VALUES (2, 'B');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0027_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0027_comparison (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0027_comparison VALUES (1, 'A');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0027_source
+          规则集描述：运行失败日志验证
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0027_comparison
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：运行失败日志验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0027_source
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: |-
+          在数据源删除已被规则引用的对比表：
+          DROP TABLE ${SchemaA}.test_table_15913_c0027_comparison;
+        expected: 对比表删除完成，规则集和规则任务仍保留原引用
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 任务提交成功并在执行阶段因找不到对比表而结束
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 定位 RuleA 最新运行实例并点击「查看日志」
+        expected: 最新实例任务状态为「运行失败」，页面提供「查看日志」入口，日志包含 test_table_15913_c0027_comparison 不存在或无法解析的明确错误信息
+    tags:
+      - 数据质量
+
+  - case_id: C0028
+    title: 验证【数据质量报告】-【包含关系结果】执行达标与不达标任务，分别展示关系结论及不符合条数
+    source_ref: TP-028
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建校验分区表和对比表，dt=2026-08-04 为全部可得到预期达标结果的正确数据，dt=2026-08-05 为全部可得到预期不达标结果的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0028_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0028_source (id BIGINT, code STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0028_source PARTITION (dt='2026-08-04') VALUES (1, 'A'), (2, 'B');
+         INSERT INTO ${SchemaA}.test_table_15913_c0028_source PARTITION (dt='2026-08-05') VALUES (3, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0028_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0028_comparison (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0028_comparison VALUES (1, 'B');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0028_source
+          规则集描述：质量报告双结果验证
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0028_comparison
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：质量报告双结果验证
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0028_source
+          选择分区：选择已有分区(dt=2026-08-04)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入 RuleA 的「监控规则」步骤
+      - action: |-
+          为 RuleA 引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: RuleA 的规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          为 RuleA 配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: |-
+          再次点击「新建规则任务」：
+          * 规则名称：RuleB
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0028_source
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入 RuleB 的「监控规则」步骤
+      - action: |-
+          为 RuleB 引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: RuleB 的规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          为 RuleB 配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportB
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleB
+      - action: 点击 RuleA 的「表名」进入详情页
+        expected: 进入 RuleA 详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 点击 RuleB 的「表名」进入详情页
+        expected: 进入 RuleB 详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 数据质量报告】页面
+        expected: 进入成功
+      - action: 分别打开 ReportA 和 ReportB
+        expected: |-
+          1) ReportA 展示对比表 test_table_15913_c0028_comparison、字段 code、包含关系「校验表包含对比表」、关系结论「符合」和不符合数据条数 0
+          2) ReportB 展示相同对比表、字段及包含关系，关系结论「不符合」和不符合数据条数 1
+          3) ReportA 的结果状态为「达标」，ReportB 的结果状态为「不达标」
+    tags:
+      - 数据质量
+
+  - case_id: C0029
+    title: 验证【脏数据明细】-【单表100条上限】产生120条未匹配值，页面最多展示100条并可下载全部明细
+    source_ref: TP-029
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 使用集合生成语句创建校验分区表和对比表，dt=2026-08-04 为包含全部 120 个对比值的正确数据，dt=2026-08-05 为不包含这 120 个对比值的异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0029_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0029_source (id BIGINT, code STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0029_source PARTITION (dt='2026-08-04')
+         SELECT id, CONCAT('Z', LPAD(CAST(id AS STRING), 4, '0')) FROM range(1, 121);
+         INSERT INTO ${SchemaA}.test_table_15913_c0029_source PARTITION (dt='2026-08-05') VALUES
+           (999, 'BASE');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15913_c0029_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15913_c0029_comparison (id BIGINT, code STRING);
+         INSERT INTO ${SchemaA}.test_table_15913_c0029_comparison
+         SELECT id, CONCAT('Z', LPAD(CAST(id AS STRING), 4, '0')) FROM range(1, 121);
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0029_source
+          规则集描述：脏数据展示上限与下载
+          点击「下一步」
+        expected: 进入规则配置步骤
+      - action: |-
+          配置规则包「PackA」的规则（完整性校验-多表去重数据包含关系）：
+          * 生效范围：多表去重数据包含关系
+          * 校验表去重字段：code
+          * 选择对比表：
+            对比表1：
+              * 包含关系：校验表包含对比表
+              * 对比表：test_table_15913_c0029_comparison
+              输入分区：空
+              * 对比表字段：code
+              字段类型转换：否
+          * 选择判断关系：且
+          * 强弱规则：弱规则
+          规则描述：对比表产生 120 条未匹配值
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15913_c0029_source
+          选择分区：选择已有分区(dt=2026-08-05)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackA，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          * 资源组：default
+          * 超时时间：30分钟
+          * 告警方式：无
+          * 无需生成报告：不勾选
+          * 报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: 进入 RuleA 规则任务详情页
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开 RuleA 最新实例的脏数据明细
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「不达标」，不符合数据条数为 120
+          2) 明细来源表为 test_table_15913_c0029_comparison，包含关系为「校验表包含对比表」，校验字段 code 标红
+          3) 当前对比表在页面最多展示 100 条去重明细，按 code 排序可见 Z0001 至 Z0100，不在页面继续展示第 101 条
+          4) 等价核对查询及确定结果为：
+             SELECT COUNT(*) AS dirty_count
+             FROM (
+               SELECT DISTINCT c.code
+               FROM ${SchemaA}.test_table_15913_c0029_comparison c
+               LEFT ANTI JOIN (
+                 SELECT DISTINCT code
+                 FROM ${SchemaA}.test_table_15913_c0029_source
+                 WHERE dt = '2026-08-05'
+               ) s ON c.code <=> s.code
+             ) dirty;
+             查询结果：
+             dirty_count=120
+      - action: 点击脏数据明细页的「下载」并打开下载文件
+        expected: 下载成功
+      - action: 统计下载文件的记录
+        expected: 文件包含 120 条去重明细，包含 Z0001 和 Z0120，来源表、包含关系及字段信息与页面一致
+    tags:
+      - 数据质量
