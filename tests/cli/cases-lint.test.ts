@@ -223,9 +223,6 @@ cases:
     expect(result.status).toBe(1);
     expect(result.stdout).toContain("case_forbidden_term");
     expect(result.stdout).toContain("修复：");
-    expect(result.stdout).toContain(
-      "要求：语义级重写全部同类内容后重新执行 lint；未通过前不得交由用户验收!",
-    );
   });
 
   it("enforces global authored-case content rules without exposing a case location", () => {

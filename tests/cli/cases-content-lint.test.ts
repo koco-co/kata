@@ -224,7 +224,7 @@ describe("cases content lint", () => {
     expect(violations.map((item) => item.message).join("\n")).not.toContain("C0001");
     for (const violation of violations) {
       expect(violation.message).toMatch(
-        /^标题: YAML用例存在违规内容，必须整改\.\n预期：.+\n实际：.+\n修复：.+\n要求：语义级重写全部同类内容后重新执行 lint；未通过前不得交由用户验收!$/s,
+        /^标题: YAML用例存在违规内容，必须整改\.\n实际：.+\n修复：.+$/s,
       );
     }
   });
@@ -352,10 +352,8 @@ describe("cases content lint", () => {
       config,
     );
     const violation = violations.find((item) => item.rule === "case_first_step_navigation");
-    expect(violation?.message).toContain(
-      "预期：进入【一至三级实际菜单路径】页面, e.g. 进入【数据质量 → 规则库配置】页面.",
-    );
     expect(violation?.message).toContain("实际：点击新增按钮");
+    expect(violation?.message).toContain("修复：将首步骤 action 改为");
     expect(violation?.message).not.toContain("C0001");
   });
 
@@ -575,8 +573,8 @@ cases:
       config,
     );
     const violation = short.find((item) => item.rule === "case_min_steps");
-    expect(violation?.message).toContain("步骤 < 3 时建议与其它用例合并或补充步骤");
-    expect(violation?.message).toContain("步骤数 = 2");
+    expect(violation?.message).toContain("实际：步骤数 = 2（< 3）");
+    expect(violation?.message).toContain("修复：补充可独立验收的步骤");
 
     const enough = lintCaseContent(
       doc(

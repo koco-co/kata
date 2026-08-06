@@ -162,7 +162,7 @@ function makeViolation(
 ): CaseContentViolation {
   return {
     rule,
-    message: `标题: YAML用例存在违规内容，必须整改.\n预期：${expected}\n实际：${compactActual(actual)}\n修复：${compactActual(fix ?? `按预期改写当前内容：${expected}`)}\n要求：语义级重写全部同类内容后重新执行 lint；未通过前不得交由用户验收!`,
+    message: `标题: YAML用例存在违规内容，必须整改.\n实际：${compactActual(actual)}\n修复：${compactActual(fix ?? `按预期改写当前内容：${expected}`)}`,
   };
 }
 
