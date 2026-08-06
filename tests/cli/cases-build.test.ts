@@ -24,6 +24,10 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
+      - action: 查看规则列表
+        expected: 规则列表展示 1 条记录
+      - action: 确认规则状态
+        expected: 状态显示为「启用」
 `;
 
 function feature(): string {
@@ -177,6 +181,10 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
+      - action: 查看规则列表
+        expected: 规则列表展示 1 条记录
+      - action: 确认规则状态
+        expected: 状态显示为「启用」
 `;
 
 function workspaceRoot(): string {

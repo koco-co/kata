@@ -1756,6 +1756,17 @@ export function lintCaseContent(
       );
     }
 
+    if (item.steps.length < 3) {
+      violations.push(
+        makeViolation(
+          "case_min_steps",
+          "步骤数 ≥ 3；步骤 < 3 时建议与其它用例合并或补充步骤，避免用例碎片化",
+          `步骤数 = ${item.steps.length}（< 3）`,
+          "补充可独立验收的步骤，或与相邻用例合并后再重建；每个用例至少 3 个步骤",
+        ),
+      );
+    }
+
     const formFields = CUSTOMER_FORM_FIELDS[customer];
     for (const step of item.steps) {
       violations.push(...lintRuleSetForm(step.action, formFields.ruleSet));

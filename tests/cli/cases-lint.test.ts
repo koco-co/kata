@@ -36,6 +36,10 @@ cases:
     steps:
       - action: 进入【资产盘点】页面
         expected: 进入成功
+      - action: 查看盘点结果列表
+        expected: 列表展示 1 条记录
+      - action: 确认盘点状态
+        expected: 状态显示为「进行中」
 `,
     );
     expect(runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations).toHaveLength(

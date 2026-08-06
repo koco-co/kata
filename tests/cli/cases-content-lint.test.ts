@@ -22,10 +22,9 @@ function testCase(overrides: Partial<CaseItem> = {}): CaseItem {
     priority: "P0",
     precondition: "无",
     steps: [
-      {
-        action: "进入【数据质量 → 规则库配置】页面",
-        expected: "进入成功",
-      },
+      { action: "进入【数据质量 → 规则库配置】页面", expected: "进入成功" },
+      { action: "点击「新增规则」", expected: "打开新建规则表单" },
+      { action: "查看规则列表", expected: "规则已创建" },
     ],
     ...overrides,
   };
@@ -91,6 +90,7 @@ describe("cases content lint", () => {
           action: `选择项目 \${ProjectA}、数据源 \${DataSourceA} 和 \${SchemaA}.test_table_16178_c0001`,
           expected: `对象回显为 \${ProjectA}、\${DataSourceA}、\${SchemaA}.test_table_16178_c0001`,
         },
+        { action: "查看规则列表", expected: "规则已创建" },
       ],
     });
     expect(lintCaseContent(doc(valid), config)).toEqual([]);
@@ -207,6 +207,7 @@ describe("cases content lint", () => {
           action: `执行 SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = '\${SchemaA}'`,
           expected: "查询结果为 1",
         },
+        { action: "查看周期任务列表", expected: "任务已创建" },
       ],
     });
     expect(lintCaseContent(doc(item), config)).toEqual([]);
@@ -365,7 +366,18 @@ describe("cases content lint", () => {
       "进入【元数据 → 数据目录 → 属性管理】页面",
     ]) {
       expect(
-        lintCaseContent(doc(testCase({ steps: [{ action, expected: "进入成功" }] })), config),
+        lintCaseContent(
+          doc(
+            testCase({
+              steps: [
+                { action, expected: "进入成功" },
+                { action: "查看规则列表", expected: "规则列表展示 1 条记录" },
+                { action: "确认状态", expected: "状态显示为「启用」" },
+              ],
+            }),
+          ),
+          config,
+        ),
       ).toEqual([]);
     }
     const fourLevels = lintCaseContent(
@@ -550,6 +562,37 @@ cases:
     expect(separated.map((item) => item.rule)).not.toContain("case_action_atomicity");
   });
 
+  it("requires each case to have at least 3 steps, suggesting merge or additions otherwise", () => {
+    const short = lintCaseContent(
+      doc(
+        testCase({
+          steps: [
+            { action: "进入【数据质量 → 规则库配置】页面", expected: "进入成功" },
+            { action: "查看规则列表", expected: "规则已创建" },
+          ],
+        }),
+      ),
+      config,
+    );
+    const violation = short.find((item) => item.rule === "case_min_steps");
+    expect(violation?.message).toContain("步骤 < 3 时建议与其它用例合并或补充步骤");
+    expect(violation?.message).toContain("步骤数 = 2");
+
+    const enough = lintCaseContent(
+      doc(
+        testCase({
+          steps: [
+            { action: "进入【数据质量 → 规则库配置】页面", expected: "进入成功" },
+            { action: "点击「新增规则」", expected: "打开新建规则表单" },
+            { action: "查看规则列表", expected: "规则已创建" },
+          ],
+        }),
+      ),
+      config,
+    );
+    expect(enough.map((item) => item.rule)).not.toContain("case_min_steps");
+  });
+
   it("treats numbered form fields inside one action as a single operation stage", () => {
     const violations = lintCaseContent(
       doc(
@@ -721,6 +764,10 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
+      - action: 点击「新增规则」
+        expected: 打开新建规则表单
+      - action: 查看规则列表
+        expected: 规则已创建
 `;
     const parsed = parseCasesYaml(noneId);
     expect(validateCases(parsed)).toEqual([]);
@@ -981,6 +1028,7 @@ cases:
       steps: [
         { action: "进入【数据质量 → 规则库配置】页面", expected: "进入成功" },
         { action: "执行SQL任务校验", expected: "任务状态：「成功」" },
+        { action: "查看规则列表", expected: "规则已创建" },
       ],
     });
     expect(lintCaseContent(doc(item), config).map((entry) => entry.rule)).toContain(
