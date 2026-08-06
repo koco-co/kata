@@ -62,9 +62,8 @@ Options:
   -h, --help                       display help for command
 
 Commands:
-  build [options] [requirementId]  用例内容 lint 与 P0 占比硬校验通过后按 YAML meta.exports
-                                   生成派生产物；缺省生成同名 XMind；requirements 布局生成多个
-                                   L1；传需求 id 简写定位 feature
+  build [options] [requirementId]  用例内容 lint 与 P0 占比硬校验通过后生成派生产物；TTY 下可交互选择
+                                   XMind/CSV，CSV 需禅道模块 ID；传需求 id 简写定位 feature
   import [options]                 将 CSV/XLSX/MD/XMind 转为 YAML；XMind 可按 L1 拆分(默认
                                    dry-run)
   sync [options]                   按 YAML 中已声明的 Playwright spec_file 同步文件名和
@@ -386,16 +385,18 @@ Options:
 ```text
 Usage: kata cases build [options] [requirementId]
 
-用例内容 lint 与 P0 占比硬校验通过后按 YAML meta.exports 生成派生产物；缺省生成同名 XMind；requirements
-布局生成多个 L1；传需求 id 简写定位 feature
+用例内容 lint 与 P0 占比硬校验通过后生成派生产物；TTY 下可交互选择 XMind/CSV，CSV 需禅道模块 ID；传需求 id 简写定位
+feature
 
 Arguments:
-  requirementId     需求 id；按 cases YAML 中 requirement_id 字段定位 feature
+  requirementId          需求 id；按 cases YAML 中 requirement_id 字段定位 feature
 
 Options:
-  --feature <dir>   feature 目录路径；与 <requirementId> 二选一
-  --project <name>  项目名；feature 传相对 features/ 的完整路径时必填；按需求 id 定位时可限定项目
-  -h, --help        display help for command
+  --feature <dir>        feature 目录路径；与 <requirementId> 二选一
+  --project <name>       项目名；feature 传相对 features/ 的完整路径时必填；按需求 id 定位时可限定项目
+  --format <formats>     逗号分隔的导出格式，如 xmind,csv；显式传入时跳过交互
+  --case-module-id <id>  禅道模块 ID；CSV 且 YAML 为空时必填
+  -h, --help             display help for command
 ```
 
 ## kata cases import

@@ -61,8 +61,10 @@ export function normalizeCasesYamlText(
   if (document.errors.length > 0) {
     throw new Error(`yaml 解析失败: ${document.errors.map((error) => error.message).join("; ")}`);
   }
-  if (document.getIn(["meta", "case_module_id"]) === undefined) {
-    document.setIn(["meta", "case_module_id"], options.defaultCaseModuleId ?? "");
+  if (options.defaultCaseModuleId !== undefined) {
+    document.setIn(["meta", "case_module_id"], options.defaultCaseModuleId);
+  } else if (document.getIn(["meta", "case_module_id"]) === undefined) {
+    document.setIn(["meta", "case_module_id"], "");
   }
   if (options.exports) document.setIn(["meta", "exports"], options.exports);
 
@@ -80,5 +82,15 @@ export function normalizeCasesYamlText(
       }
     }
   }
+  return document.toString({ lineWidth: 0 });
+}
+
+/** Rewrite only meta.case_module_id while preserving the rest of the document. */
+export function setCaseModuleId(yamlText: string, caseModuleId: string): string {
+  const document = parseDocument(yamlText);
+  if (document.errors.length > 0) {
+    throw new Error(`yaml 解析失败: ${document.errors.map((error) => error.message).join("; ")}`);
+  }
+  document.setIn(["meta", "case_module_id"], caseModuleId);
   return document.toString({ lineWidth: 0 });
 }

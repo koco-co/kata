@@ -7,7 +7,7 @@ import { join } from "node:path";
 const YAML = `
 meta:
   title: 需求名
-  case_module_id: ""
+  case_module_id: "10812"
   exports: [交付用例.csv, 交付用例.xlsx, 交付用例.md, 交付用例.xmind]
 cases:
   - case_id: C0001
@@ -45,7 +45,8 @@ describe("kata cases build metadata exports", () => {
     expect(existsSync(join(out, "交付用例.xmind"))).toBe(true);
     expect(existsSync(join(out, "需求名.xmind"))).toBe(false);
     expect(existsSync(join(out, "历史导出.xmind"))).toBe(false);
-    expect(readFileSync(join(out, "交付用例.csv"), "utf8")).toContain("所属层级3");
+    expect(readFileSync(join(out, "交付用例.csv"), "utf8")).toContain("所属模块");
+    expect(readFileSync(join(out, "交付用例.csv"), "utf8")).toContain("需求名(#10812)");
   });
 
   it("does not expose the old one-format export command", () => {

@@ -36,6 +36,7 @@
     "test:watch": "bun test --watch"
   },
   "dependencies": {
+    "@clack/prompts": "^1.7.0",
     "commander": "^14.0.3",
     "exceljs": "^4.4.0",
     "handlebars": "^4.7.9",
