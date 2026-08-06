@@ -17,12 +17,16 @@ import { registerRepo } from "../commands/repo.ts";
 import { registerRepos } from "../commands/repos.ts";
 import { registerRuns } from "../commands/runs.ts";
 import { registerScans } from "../commands/scans.ts";
+import { registerTui } from "../commands/tui.ts";
 import { registerZentao } from "../commands/zentao.ts";
+import { tryLaunchTui } from "../lib/tui/entry.ts";
 
 const program = new Command();
 // 不注册根级 .version():commander 会用它拦截任意位置的 --version,
 // 与子命令自身的版本参数避免冲突。
 program.name("kata").description("kata 工作区命令行");
+program.option("--no-interactive", "禁止进入 TUI，强制 CLI 输出");
+program.option("--interactive", "TTY 下强制进入 TUI");
 
 registerFeatures(program);
 registerCases(program);
@@ -40,6 +44,7 @@ registerProject(program);
 registerPrd(program);
 registerZentao(program);
 registerNotify(program);
+registerTui(program);
 
 const topLevel = process.argv[2];
 if (
@@ -52,7 +57,14 @@ if (
   process.exit(1);
 }
 
-program.parseAsync(process.argv).catch((err) => {
-  console.error(err instanceof Error ? err.message : String(err));
-  process.exit(err instanceof Error && "exitCode" in err ? Number(err.exitCode) || 1 : 1);
-});
+if (await tryLaunchTui(process.argv.slice(2))) {
+  process.exitCode = 0;
+} else {
+  if (process.argv.includes("--no-interactive")) {
+    process.env.KATA_NO_INTERACTIVE = "1";
+  }
+  program.parseAsync(process.argv).catch((err) => {
+    console.error(err instanceof Error ? err.message : String(err));
+    process.exit(err instanceof Error && "exitCode" in err ? Number(err.exitCode) || 1 : 1);
+  });
+}

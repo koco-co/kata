@@ -392,11 +392,18 @@ export function registerCasesBuild(cases: Command): void {
       "项目名；feature 传相对 features/ 的完整路径时必填；按需求 id 定位时可限定项目",
     )
     .option("--format <formats>", "逗号分隔的导出格式，如 xmind,csv；显式传入时跳过交互")
+    .option("--no-interactive", "跳过 TUI 深链，强制 CLI 输出")
     .option("--case-module-id <id>", "禅道模块 ID；CSV 且 YAML 为空时必填")
     .action(
       async (
         requirementId: string | undefined,
-        opts: { feature?: string; project?: string; format?: string; caseModuleId?: string },
+        opts: {
+          feature?: string;
+          project?: string;
+          format?: string;
+          caseModuleId?: string;
+          interactive?: boolean;
+        },
       ) => {
         const targets = resolveBuildTargets(requirementId, opts);
         // 先对全部目标完成校验预检：任一目标失败时任何目标都不写入、不通知，
@@ -406,7 +413,11 @@ export function registerCasesBuild(cases: Command): void {
           input: preflightFeature(featureDir),
         }));
         const explicitFormats = parseBuildFormats(opts.format);
-        const interactive = process.stdin.isTTY && explicitFormats === undefined;
+        const interactive =
+          process.stdin.isTTY &&
+          explicitFormats === undefined &&
+          opts.interactive !== false &&
+          process.env.KATA_NO_INTERACTIVE !== "1";
         let selectedFormats: CaseExportFormat[] | null | undefined;
         if (interactive) {
           for (const { featureDir, input } of preflighted) {

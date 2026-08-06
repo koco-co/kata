@@ -12,26 +12,29 @@ Usage: kata [options] [command]
 kata 工作区命令行
 
 Options:
-  -h, --help      display help for command
+  --no-interactive  禁止进入 TUI，强制 CLI 输出
+  --interactive     TTY 下强制进入 TUI
+  -h, --help        display help for command
 
 Commands:
-  features        需求功能目录操作
-  cases           用例导入、构建与检查
-  config          运行时配置检查
-  runs            运行结果目录操作
-  env             管理本机私密的平台环境
-  repo            当前 Kata 仓库规范检查
-  repos           查询 config/private/repositories.yaml 配置的源码仓库(.repos/ 本地克隆)
-  knowledge       项目知识的查询、维护与索引
-  scans           代码 diff 扫描报告
-  defects         缺陷报告生成与结构校验
-  infra           基础设施配置和 SSH connectivity 检查
-  automation      自动化目录结构管理
-  project         项目工作区的创建、检查与修复
-  prd             PRD 证据提取、确认式定稿与检查
-  zentao          禅道集成:bug 抓取与创建
-  notify          业务通知预览、查询与失败重试
-  help [command]  display help for command
+  features          需求功能目录操作
+  cases             用例导入、构建与检查
+  config            运行时配置检查
+  runs              运行结果目录操作
+  env               管理本机私密的平台环境
+  repo              当前 Kata 仓库规范检查
+  repos             查询 config/private/repositories.yaml 配置的源码仓库(.repos/ 本地克隆)
+  knowledge         项目知识的查询、维护与索引
+  scans             代码 diff 扫描报告
+  defects           缺陷报告生成与结构校验
+  infra             基础设施配置和 SSH connectivity 检查
+  automation        自动化目录结构管理
+  project           项目工作区的创建、检查与修复
+  prd               PRD 证据提取、确认式定稿与检查
+  zentao            禅道集成:bug 抓取与创建
+  notify            业务通知预览、查询与失败重试
+  tui               进入全屏交互界面；TTY 下裸 kata 也会进入
+  help [command]    display help for command
 ```
 
 ## kata features
@@ -331,6 +334,17 @@ Commands:
   help [command]              display help for command
 ```
 
+## kata tui
+
+```text
+Usage: kata tui [options]
+
+进入全屏交互界面；TTY 下裸 kata 也会进入
+
+Options:
+  -h, --help  display help for command
+```
+
 ## kata features resolve
 
 ```text
@@ -395,6 +409,7 @@ Options:
   --feature <dir>        feature 目录路径；与 <requirementId> 二选一
   --project <name>       项目名；feature 传相对 features/ 的完整路径时必填；按需求 id 定位时可限定项目
   --format <formats>     逗号分隔的导出格式，如 xmind,csv；显式传入时跳过交互
+  --no-interactive       跳过 TUI 深链，强制 CLI 输出
   --case-module-id <id>  禅道模块 ID；CSV 且 YAML 为空时必填
   -h, --help             display help for command
 ```
