@@ -1,5 +1,5 @@
-import { existsSync, lstatSync, readdirSync } from "node:fs";
-import { join, resolve, sep } from "node:path";
+import { existsSync, lstatSync, readdirSync, realpathSync } from "node:fs";
+import { dirname, join, resolve, sep } from "node:path";
 import type { ProjectPaths } from "./types.ts";
 
 function isDirectory(path: string): boolean {
@@ -26,16 +26,38 @@ export function workspaceRoot(root: string): string {
   return process.env.KATA_WORKSPACE_ROOT ?? join(root, "workspace");
 }
 
-/** Locate the repo root by walking up to a dir with workspace/ + package.json. */
-export function locateProjectRoot(fromDir: string = process.cwd()): string {
-  let dir = resolve(fromDir);
+function findRepoRoot(startDir: string): string | undefined {
+  let dir = resolve(startDir);
   for (;;) {
     // .repos/ 下的克隆仓库可能自带 workspace/ 与 package.json，是伪根，继续向上
     if (isRepoRoot(dir) && !dir.split(sep).includes(".repos")) return dir;
     const parent = resolve(dir, "..");
-    if (parent === dir) throw new Error("kata: 未找到仓库根(缺 workspace/ 与 package.json)");
+    if (parent === dir) return undefined;
     dir = parent;
   }
+}
+
+/** Locate the repo root by walking up from cwd, then fall back to the linked script. */
+export function locateProjectRoot(fromDir: string = process.cwd()): string {
+  return locateProjectRootWithCandidates(fromDir, process.argv[1]);
+}
+
+export function locateProjectRootWithCandidates(
+  fromDir: string,
+  entryPath: string | undefined,
+): string {
+  const fromCwd = findRepoRoot(fromDir);
+  if (fromCwd) return fromCwd;
+  if (entryPath) {
+    try {
+      const resolvedEntry = realpathSync(entryPath);
+      const fromEntry = findRepoRoot(dirname(resolvedEntry));
+      if (fromEntry) return fromEntry;
+    } catch {
+      // 入口脚本不可解析时保留原始错误语义。
+    }
+  }
+  throw new Error("kata: 未找到仓库根(缺 workspace/ 与 package.json)");
 }
 
 /** Return canonical paths for a workspace project; throws if the project dir is absent. */

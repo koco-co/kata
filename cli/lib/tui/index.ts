@@ -21,11 +21,12 @@ import { existingCaseModuleId, featureRefByProjectPath, formatBuildReport } from
 import type { FeatureRef } from "./types.ts";
 
 const TUI_BANNER = [
-  " _  __      _        _",
-  "| |/ /_ __ | |_ __ _| |_",
-  "| ' /| '_ \\| __/ _| | __|",
-  "| . \\| | | | || (_| | |_",
-  "|_|\\_\\_| |_|\\__\\__,_|\\__|",
+  "#     #  #####   #    #   #####",
+  "#     # #     #  ##  ##  #     #",
+  "#     # #     #  # ## #  #",
+  " #   #  #     #  #    #  #  ####",
+  "  # #   #     #  #    #  #     #",
+  "   #     #####   #    #   #####",
 ].join("\n");
 
 export interface TuiInitialFeature {
