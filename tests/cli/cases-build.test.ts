@@ -91,7 +91,7 @@ cases:
     const d = feature();
     const cases = Array.from({ length: 8 }, (_, index) => {
       const priority = index < 3 ? "P0" : "P1";
-      return `  - case_id: C${String(index + 1).padStart(4, "0")}\n    title: 验证【数据质量】-【规则库配置】进入页面，展示规则列表${index + 1}\n    priority: ${priority}\n    precondition: 无\n    steps:\n      - action: 进入【数据质量 → 规则库配置】页面\n        expected: 进入成功`;
+      return `  - case_id: C${String(index + 1).padStart(4, "0")}\n    title: 验证【数据质量】-【规则库配置】进入页面，展示规则列表${index + 1}\n    priority: ${priority}\n    precondition: 无\n    steps:\n      - action: 进入【数据质量 → 规则库配置】页面\n        expected: 进入成功\n      - action: 查看规则列表\n        expected: 规则列表展示 1 条记录\n      - action: 确认规则状态\n        expected: 状态显示为「启用」`;
     }).join("\n");
     writeFileSync(
       join(d, "cases", "需求名.yaml"),
