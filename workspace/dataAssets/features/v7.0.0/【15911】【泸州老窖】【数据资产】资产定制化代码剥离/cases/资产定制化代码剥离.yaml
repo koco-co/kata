@@ -930,7 +930,7 @@ cases:
 - requirement_id: '13178'
   title: 验证【导入目录】-【错误文件下载失败】下载异常时精确提示，且不产生损坏文件
   priority: P1
-  precondition: "1) 使用 UserA，已授予目录管理查看和操作权限\n2) 创建导入文件 invalid_catalog_c0330.xlsx（含1条缺少必填项的L1数据，可触发“导入失败”弹窗）：\n   Sheet: L1\n   Title: 编码, *目录中文名称, *目录英文名称, *数据责任人工号, *业务定义\n   Line1: 空, L1_Invalid_330, L1_Invalid_EN_330, Owner_Valid_330, 空\n3) 测试环境可在浏览器层阻断本次错误文件的响应请求，不修改服务端业务数据"
+  precondition: "1) 使用 UserA，已授予目录管理查看和操作权限\n2) 创建导入文件 invalid_catalog_c0330.xlsx（含1条缺少必填项的L1数据，可触发“导入失败”弹窗）：\n   Sheet: L1\n   Title: 编码, *目录中文名称, *目录英文名称, *数据责任人工号, *业务定义\n   Line1: 空, L1_Invalid_330, L1_Invalid_EN_330, Owner_Valid_330, 空\n3) 测试环境已配置阻断本次错误文件的下载响应，不修改服务端业务数据，用于验证下载失败提示"
   steps:
   - action: 进入【元数据 → 数据目录 → 目录管理】页面
     expected: 进入成功
@@ -5922,7 +5922,7 @@ cases:
 
       3）【安全分级】与【隐私分级】至少必选其一'
   - action: 安全分级与隐私分级均不选择，直接点击【保存】
-    expected: 保存被阻断，提示至少选择安全分级或隐私分级之一（提示原文以页面为准，需浏览器核实）
+    expected: 保存被阻断，提示「请选择安全分级!」或「请选择隐私分级!」，规则未保存
   - action: 选择安全分级 L2 后点击【保存】
     expected: Toast提示:「保存成功」，规则新增成功
   source_ref: TP-043
@@ -9032,16 +9032,16 @@ cases:
   title: 验证【数据地图】-【L4导入】错误文件定位出错单元格，修复后导入成功且只更新业务属性(错误行数 = 1)
   priority: P0
   source_ref: TP-055
-  precondition: "1) 使用 UserA，已授予数据地图查看与导入权限\n2) 数据源：${DataSourceA}，数据源类型：SparkThrift2.x\n3) 数据库 test_schema_13551_c0331 中已同步表 test_table_13551_c0330_01（字段 id BIGINT、code STRING）\n4) 创建导入文件 l4_import_13551_c0331.xlsx：\n   Sheet: L4\n   Title: *所属数据源,*所属数据库,*数据表,*表中文名,*表负责人,*数据责任人工号,*数据管家工号,*来源业务系统,自定义属性1\n   Line1: ${DataSourceA},test_schema_13551_c0331,test_table_13551_c0330_01,新中文名,张三,1001,2001,营销系统,值A\n   Line2: ${DataSourceA},test_schema_13551_c0331,test_table_13551_c0330_01,长度超255的字符串,张三,1001,2001,营销系统,值B"
+  precondition: "1) 使用 UserA，已授予数据地图查看与导入权限\n2) 数据源：${DataSourceA}，数据源类型：SparkThrift2.x\n3) 数据库 test_schema_13551_c0330 中已同步表 test_table_13551_c0330_01（字段 id BIGINT、code STRING）\n4) 创建导入文件 l4_import_13551_c0330.xlsx：\n   Sheet: L4\n   Title: *所属数据源,*所属数据库,*数据表,*表中文名,*表负责人,*数据责任人工号,*数据管家工号,*来源业务系统,自定义属性1\n   Line1: ${DataSourceA},test_schema_13551_c0330,test_table_13551_c0330_01,新中文名,张三,1001,2001,营销系统,值A\n   Line2: ${DataSourceA},test_schema_13551_c0330,test_table_13551_c0330_01,长度超255的字符串,张三,1001,2001,营销系统,值B"
   steps:
   - action: 进入【元数据 → 数据地图】页面
     expected: 进入成功
-  - action: 点击【导入】，配置导入数据维度 L4、导入数据源类型 SparkThrift2.x，上传 l4_import_13551_c0331.xlsx，点击「确定」
+  - action: 点击【导入】，配置导入数据维度 L4、导入数据源类型 SparkThrift2.x，上传 l4_import_13551_c0330.xlsx，点击「确定」
     expected: 弹出「导入失败」弹窗，提示「导入表格中存在错误数据，请检查后重新导入。」
   - action: 点击「导出错误文件」
     expected: 提示「下载成功」，错误文件定位到 Line2 表中文名单元格并标注错误原因
   - action: 修正 Line2 表中文名为合法值后重新导入
-    expected: 提示「l4_import_13551_c0331.xlsx文件导入成功」
+    expected: 提示「l4_import_13551_c0330.xlsx文件导入成功」
   - action: 打开 test_table_13551_c0330_01 详情并核对源库
     expected: 表中文名更新为「新中文名」，自定义属性1 为「值A」；未创建新表或字段
   tags:
@@ -9126,7 +9126,7 @@ cases:
   - action: 进入【数据标准 → 标准管理 → 标准定义】页面
     expected: 进入成功
   - action: 点击【导出标准】
-    expected: 弹出导出弹窗，展示目录树与「全部」选项
+    expected: 弹出「导出标准」弹窗，展示「选择目录」字段与「全部」选项
   - action: 选择「全部」，点击【导出】
     expected: 页面提示「导出成功」
   - action: 下载导出文件并打开
@@ -9174,7 +9174,7 @@ cases:
   - action: 选择 code_table_01，点击【新建代码】
     expected: 打开新建代码表单，展示代码值、代码名称、代码说明、上级代码、代码状态字段
   - action: 代码值、代码名称、代码说明均置空，点击【保存】
-    expected: 保存被阻断，代码值、代码名称、代码说明输入框置红并提示必填，码表内容不新增记录
+    expected: 保存被阻断，代码值、代码名称、代码说明输入框置红并分别提示「请输入编码取值」「请输入编码名称」「请输入编码说明」，码表内容不新增记录
   - action: 填写代码值：A04；代码名称：启用_新增；代码说明：新增说明；点击【保存】
     expected: 保存成功，码表内容新增 A04/启用_新增
   tags:
@@ -9222,7 +9222,7 @@ cases:
   - action: 在「安全级别」目录点击【添加级别】，输入级别名称：「机密」，级别描述：「重名校验」
     expected: 弹窗打开且「级别名称」为必填项
   - action: 点击【确定】
-    expected: '1) 保存被阻断，提示重名信息
+    expected: '1) 保存被阻断，提示「该级别已存在，请修改！」
 
       2) 列表不新增记录'
   tags:
@@ -9242,14 +9242,26 @@ cases:
 
       * 规则名称：RuleA
 
-      * 等级类型：安全分级
+      * 分类目录：CatalogA
 
-      * 字段名称：包含「amount」
+      * 数据源类型：SparkThrift2.x
 
-      备注：空
+      * 数据源：${DataSourceA}
 
-      * 命中的安全等级：L2'
-    expected: 规则页展示「字段名称 包含 amount」配置项
+      * 数据库：${SchemaA}
+
+      * 数据表：test_table_13187_c0339
+
+      * 安全分级：选择「L2」
+
+      隐私分级：空
+
+      勾选「字段识别」，字段包含：amount
+
+      字段排除：空
+
+      识别模式：增量识别'
+    expected: 规则页展示安全分级 L2、字段包含 amount 配置项，未启用字段排除
   - action: 点击【保存】并运行该规则
     expected: '1) Toast提示:「保存成功」，规则状态为「启用」
 
@@ -9269,16 +9281,28 @@ cases:
     expected: 进入成功
   - action: '点击【添加】新建自动分级规则：
 
-      * 规则名称：RuleA
+      * 规则名称：RuleB
 
-      * 等级类型：隐私分级
+      * 分类目录：CatalogA
 
-      * 字段名称：排除「name」
+      * 数据源类型：SparkThrift2.x
 
-      备注：空
+      * 数据源：${DataSourceA}
 
-      * 命中的隐私等级：P2'
-    expected: 规则页展示「字段名称 排除 name」配置项
+      * 数据库：${SchemaA}
+
+      * 数据表：test_table_13187_c0340
+
+      * 隐私分级：选择「P2」
+
+      安全分级：空
+
+      勾选「字段识别」，字段包含：空
+
+      字段排除：name
+
+      识别模式：增量识别'
+    expected: 规则页展示隐私分级 P2、字段排除 name 配置项，未启用字段包含
   - action: 点击【保存】并运行该规则
     expected: '1) Toast提示:「保存成功」，规则状态为「启用」
 
