@@ -1,0 +1,1613 @@
+meta:
+  title: 【岚图汽车】【数据质量】支持自定义脏数据存储字段
+  requirement_id: "15912"
+  case_module_id: ""
+  source: "蓝湖需求 #15912"
+  test_points_digest: "sha256:3729bcdd1db7d4c22a69b0fbf9eb03e45246539ac1401a4d124cf1827f14d9a8"
+  exports:
+    - 支持自定义脏数据存储字段.xmind
+cases:
+  - case_id: C0001
+    title: 验证【脏数据管理】-【脏数据明细】进入配置列表，展示双页签和完整列表列
+    source_ref: TP-001
+    priority: P0
+    precondition: 1) 使用具备「脏数据明细」权限的账号进入质量项目 ${ProjectA}
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: |-
+          1) 页面展示「脏数据存储」和「脏数据明细」两个页签，当前选中「脏数据明细」
+          2) 展示数据表名称搜索框、数据源筛选和「新建公共字段」入口
+          3) 列表按顺序展示数据表、数据源、数据库、公共字段、更新人、最近更新时间和操作列
+          4) 操作列提供编辑和删除入口
+    tags:
+      - 数据质量
+      - 脏数据明细
+
+  - case_id: C0002
+    title: 验证【脏数据明细】-【新建公共字段】配置SparkThrift2.x表，列表新增单表公共字段配置(数据源 = SparkThrift2.x)
+    source_ref: TP-002
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0002;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0002 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING,
+           vehicle_type STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0002 VALUES
+           (1, 'VIN0001', '2026-08-06 10:00:00', 'SUV');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0002
+          * 选择字段：vin、event_time
+          点击「确定」
+        expected: |-
+          1) 选择数据源后数据库候选项刷新，选择数据库后数据表候选项刷新，选择数据表后字段候选项刷新
+          2) 列表新增 test_table_15912_c0002
+          3) 数据源、数据库和公共字段分别显示 ${DataSourceA}、${SchemaA}、vin、event_time
+          4) 同一数据表仅生成一条配置记录
+    tags:
+      - 数据质量
+      - 脏数据明细
+
+  - case_id: C0003
+    title: 验证【脏数据明细】-【新建公共字段】配置Doris3.x多字段，详情读取源表字段名称和类型(数据源 = Doris3.x)
+    source_ref: TP-003
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceB}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaB}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15912_c0003;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15912_c0003 (
+           record_id BIGINT,
+           vin VARCHAR(64),
+           event_time DATETIME,
+           vehicle_type VARCHAR(32)
+         )
+         DUPLICATE KEY(record_id)
+         DISTRIBUTED BY HASH(record_id) BUCKETS 1
+         PROPERTIES ("replication_num" = "1");
+         INSERT INTO ${SchemaB}.test_table_15912_c0003 VALUES
+           (1, 'VIN0001', '2026-08-06 10:00:00', 'SUV');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceB}
+          * 选择数据库：${SchemaB}
+          * 选择数据表：test_table_15912_c0003
+          * 选择字段：vin、event_time、vehicle_type
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0003，公共字段显示 vin、event_time、vehicle_type
+      - action: 点击数据表名称 test_table_15912_c0003
+        expected: |-
+          1) 打开公共字段详情
+          2) 基本信息展示数据表 test_table_15912_c0003、数据源 ${DataSourceB} 和数据库 ${SchemaB}
+          3) 公共字段列表展示 vin/VARCHAR、event_time/DATETIME、vehicle_type/VARCHAR，名称和类型与 Doris 源表一致
+    tags:
+      - 数据质量
+      - 脏数据明细
+
+  - case_id: C0004
+    title: 验证【脏数据明细】-【新建公共字段】未选择字段并提交，阻断保存并提示选择字段
+    source_ref: TP-004
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0004;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0004 (
+           record_id BIGINT,
+           vin STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0004 VALUES
+           (1, 'VIN0001');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0004
+          * 选择字段：空
+          点击「确定」
+        expected: |-
+          1) 「选择字段」项提示必须选择字段
+          2) 新建表单保持打开
+          3) 列表未新增 test_table_15912_c0004
+    tags:
+      - 数据质量
+      - 脏数据明细
+
+  - case_id: C0005
+    title: 验证【脏数据明细】-【编辑公共字段】清空全部字段并提交，阻断保存且保留原配置
+    source_ref: TP-005
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0005;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0005 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0005 VALUES
+           (1, 'VIN0001', '2026-08-06 10:00:00');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0005
+          * 选择字段：vin、event_time
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0005，公共字段为 vin、event_time
+      - action: |-
+          编辑 test_table_15912_c0005 的公共字段配置：
+          * 选择数据源：${DataSourceA}（只读）
+          * 选择数据库：${SchemaA}（只读）
+          * 选择数据表：test_table_15912_c0005（只读）
+          * 选择字段：空
+          点击「确定」
+        expected: |-
+          1) 「选择字段」项提示必须选择字段，编辑表单保持打开
+          2) 关闭编辑表单后，列表中的公共字段仍为 vin、event_time
+    tags:
+      - 数据质量
+      - 脏数据明细
+
+  - case_id: C0006
+    title: 验证【脏数据明细】-【数据表唯一性】再次新建配置，已配置数据表不再出现在候选项中
+    source_ref: TP-006
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建两张数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0006_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0006_source (
+           record_id BIGINT,
+           vin STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0006_source VALUES
+           (1, 'VIN0001');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0006_target;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0006_target (
+           record_id BIGINT,
+           vin STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0006_target VALUES
+           (2, 'VIN0002');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0006_source
+          * 选择字段：vin
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0006_source，且仅有一条同名配置
+      - action: |-
+          再次点击「新建公共字段」并选择：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          展开「选择数据表」候选项
+        expected: |-
+          1) 候选项包含 test_table_15912_c0006_target
+          2) 候选项不包含 test_table_15912_c0006_source
+    tags:
+      - 数据质量
+      - 脏数据明细
+
+  - case_id: C0007
+    title: 验证【脏数据明细】-【编辑公共字段】增加公共字段，列表字段和更新信息同步变化
+    source_ref: TP-007
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0007;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0007 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING,
+           vehicle_type STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0007 VALUES
+           (1, 'VIN0001', '2026-08-06 10:00:00', 'SUV');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0007
+          * 选择字段：vin、event_time
+          点击「确定」
+        expected: 列表公共字段为 vin、event_time，并记录当前更新人和最近更新时间
+      - action: |-
+          编辑 test_table_15912_c0007 的公共字段配置：
+          * 选择数据源：${DataSourceA}（只读）
+          * 选择数据库：${SchemaA}（只读）
+          * 选择数据表：test_table_15912_c0007（只读）
+          * 选择字段：vin、event_time、vehicle_type
+          点击「确定」
+        expected: |-
+          1) 数据源、数据库和数据表保持不变
+          2) 列表公共字段更新为 vin、event_time、vehicle_type
+          3) 更新人显示当前登录账号，最近更新时间晚于编辑前记录值
+    tags:
+      - 数据质量
+      - 脏数据明细
+
+  - case_id: C0008
+    title: 验证【脏数据明细】-【删除公共字段】删除整条配置，记录消失且数据表恢复可配置
+    source_ref: TP-008
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0008;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0008 (
+           record_id BIGINT,
+           vin STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0008 VALUES
+           (1, 'VIN0001');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0008
+          * 选择字段：vin
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0008
+      - action: 点击 test_table_15912_c0008 对应的「删除」，完成系统提供的删除确认
+        expected: 列表不再展示 test_table_15912_c0008
+      - action: |-
+          点击「新建公共字段」并选择：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          展开「选择数据表」候选项
+        expected: 候选项重新包含 test_table_15912_c0008
+    tags:
+      - 数据质量
+      - 脏数据明细
+
+  - case_id: C0009
+    title: 验证【脏数据明细】-【公共字段详情】点击数据表名称，展示基本信息和字段类型
+    source_ref: TP-009
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0009;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0009 (
+           record_id BIGINT,
+           vin STRING,
+           event_time TIMESTAMP
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0009 VALUES
+           (1, 'VIN0001', TIMESTAMP '2026-08-06 10:00:00');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0009
+          * 选择字段：record_id、vin、event_time
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0009
+      - action: 点击数据表名称 test_table_15912_c0009
+        expected: |-
+          1) 打开「公共字段详情」
+          2) 基本信息展示数据表名称 test_table_15912_c0009、所属数据源 ${DataSourceA} 和所属数据库 ${SchemaA}
+          3) 公共字段列表展示 record_id/BIGINT、vin/STRING、event_time/TIMESTAMP
+    tags:
+      - 数据质量
+      - 脏数据明细
+
+  - case_id: C0010
+    title: 验证【脏数据明细】-【数据表搜索】输入完整名称和中间片段，均返回匹配记录并可清空恢复
+    source_ref: TP-010
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建两张数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0010_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0010_source (
+           record_id BIGINT,
+           vin STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0010_source VALUES
+           (1, 'VIN0001');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0010_target;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0010_target (
+           record_id BIGINT,
+           vin STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0010_target VALUES
+           (2, 'VIN0002');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0010_source
+          * 选择字段：vin
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0010_source
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0010_target
+          * 选择字段：vin
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0010_target
+      - action: 在数据表名称搜索框输入完整值 test_table_15912_c0010_source 并搜索
+        expected: 列表仅展示 test_table_15912_c0010_source
+      - action: 将搜索值改为中间片段 c0010_source 并搜索
+        expected: 列表仍仅展示 test_table_15912_c0010_source
+      - action: 清空数据表名称搜索条件
+        expected: 列表恢复展示 test_table_15912_c0010_source 和 test_table_15912_c0010_target
+    tags:
+      - 数据质量
+      - 脏数据明细
+
+  - case_id: C0011
+    title: 验证【脏数据明细】-【数据源筛选】搜索并选择筛选项，列表匹配且重置后恢复
+    source_ref: TP-011
+    priority: P1
+    precondition: |-
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：SparkThrift2.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 在数据源 A 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0011_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0011_source (
+           record_id BIGINT,
+           vin STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0011_source VALUES
+           (1, 'VIN0001');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：SparkThrift2.x
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 在数据源 B 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15912_c0011_target;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15912_c0011_target (
+           record_id BIGINT,
+           vin STRING
+         );
+         INSERT INTO ${SchemaB}.test_table_15912_c0011_target VALUES
+           (2, 'VIN0002');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0011_source
+          * 选择字段：vin
+          点击「确定」
+        expected: 列表新增数据源为 ${DataSourceA} 的 test_table_15912_c0011_source
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceB}
+          * 选择数据库：${SchemaB}
+          * 选择数据表：test_table_15912_c0011_target
+          * 选择字段：vin
+          点击「确定」
+        expected: 列表新增数据源为 ${DataSourceB} 的 test_table_15912_c0011_target
+      - action: 展开数据源筛选，在筛选项搜索框输入 ${DataSourceA} 的中间片段
+        expected: 筛选项仅保留名称匹配 ${DataSourceA} 的数据源
+      - action: 选择 ${DataSourceA} 并确认筛选
+        expected: 列表仅展示数据源为 ${DataSourceA} 的 test_table_15912_c0011_source
+      - action: 重置数据源筛选
+        expected: 列表恢复展示 ${DataSourceA} 和 ${DataSourceB} 的两条配置
+    tags:
+      - 数据质量
+      - 脏数据明细
+
+  - case_id: C0012
+    title: 验证【脏数据明细】-【最近更新时间】切换升降序，记录按更新时间正确排序
+    source_ref: TP-012
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建三张数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0012_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0012_source_01 (record_id BIGINT, vin STRING);
+         INSERT INTO ${SchemaA}.test_table_15912_c0012_source_01 VALUES (1, 'VIN0001');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0012_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0012_source_02 (record_id BIGINT, vin STRING);
+         INSERT INTO ${SchemaA}.test_table_15912_c0012_source_02 VALUES (2, 'VIN0002');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0012_source_03;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0012_source_03 (record_id BIGINT, vin STRING);
+         INSERT INTO ${SchemaA}.test_table_15912_c0012_source_03 VALUES (3, 'VIN0003');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0012_source_01
+          * 选择字段：vin
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0012_source_01 并记录最近更新时间 T1
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0012_source_02
+          * 选择字段：vin
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0012_source_02 并记录最近更新时间 T2，且 T2 不早于 T1
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0012_source_03
+          * 选择字段：vin
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0012_source_03 并记录最近更新时间 T3，且 T3 不早于 T2
+      - action: 将「最近更新时间」切换为升序
+        expected: 三条记录按 T1、T2、T3 从早到晚排列
+      - action: 将「最近更新时间」切换为降序
+        expected: 三条记录按 T3、T2、T1 从晚到早排列
+    tags:
+      - 数据质量
+      - 脏数据明细
+
+  - case_id: C0013
+    title: 验证【脏数据明细】-【公共字段展示】比较长短字段文本，超长值截断且短值完整(字符数 > 25)
+    source_ref: TP-013
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建两张数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0013_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0013_source (
+           record_id BIGINT,
+           vehicle_identification_number STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0013_source VALUES
+           (1, 'VIN0001');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0013_target;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0013_target (
+           record_id BIGINT,
+           vin STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0013_target VALUES
+           (2, 'VIN0002');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0013_source
+          * 选择字段：vehicle_identification_number
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0013_source
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0013_target
+          * 选择字段：vin
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0013_target
+      - action: 比较两条记录「公共字段」列的展示文本
+        expected: |-
+          1) vehicle_identification_number 超过 25 个字符，截断展示并带未完全展示标识
+          2) vin 未超过 25 个字符，完整展示为 vin
+    tags:
+      - 数据质量
+      - 脏数据明细
+
+  - case_id: C0014
+    title: 验证【校验结果查询】-【普通质量规则明细】执行空值数规则，仅保存子规则默认字段(公共字段未配置)
+    source_ref: TP-014
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据源已开启脏数据存储
+      5) 创建分区表，dt=2026-08-05 写入规则正确数据，dt=2026-08-06 写入规则异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0014;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0014 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING,
+           error_code STRING,
+           vehicle_type STRING,
+           aux_code STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15912_c0014 PARTITION (dt='2026-08-05') VALUES
+           (1, 'VIN0001', '2026-08-05 10:00:00', 'E000', 'SUV', 'AUX00');
+         INSERT INTO ${SchemaA}.test_table_15912_c0014 PARTITION (dt='2026-08-06') VALUES
+           (2, NULL, '2026-08-06 10:00:00', 'E001', 'SUV', 'AUX01');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0014
+          规则集描述：验证未配置公共字段时的默认保存字段
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息按填写值回显
+      - action: |-
+          配置规则包「PackC0014」的普通规则（完整性校验-空值数）：
+          * 生效范围：字段级
+          * 字段：vin
+          字段间规则逻辑：且
+          * 统计函数：空值数
+          过滤条件：空
+          * 校验方法：固定值
+          * 期望值：= 0
+          * 强弱规则：弱规则
+          规则描述：vin 不允许为 NULL
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackC0014 规则数量为 1
+      - action: 进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0014
+          选择分区：选择已有分区(dt=2026-08-06)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackC0014
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackC0014，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          资源组：default
+          超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击 RuleA 的表名进入任务详情，点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】，打开 RuleA 最新实例的空值数规则明细
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「不达标」
+          2) 明细包含 record_id=2 的异常记录
+          3) 明细字段按子规则默认顺序仅展示 record_id、vin、event_time、error_code
+          4) 不展示未纳入默认保存字段的 vehicle_type、aux_code
+    tags:
+      - 数据质量
+      - 校验结果查询
+
+  - case_id: C0015
+    title: 验证【校验结果查询】-【普通质量规则明细】配置完全不重叠公共字段，默认字段在前并追加完整公共字段(重叠字段数 = 0)
+    source_ref: TP-015
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据源已开启脏数据存储
+      5) 创建分区表，dt=2026-08-05 写入规则正确数据，dt=2026-08-06 写入规则异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0015;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0015 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING,
+           error_code STRING,
+           vehicle_type STRING,
+           aux_code STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15912_c0015 PARTITION (dt='2026-08-05') VALUES
+           (1, 'VIN0001', '2026-08-05 10:00:00', 'E000', 'SUV', 'AUX00');
+         INSERT INTO ${SchemaA}.test_table_15912_c0015 PARTITION (dt='2026-08-06') VALUES
+           (2, NULL, '2026-08-06 10:00:00', 'E001', 'SUV', 'AUX01');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0015
+          * 选择字段：vehicle_type、aux_code
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0015，公共字段为 vehicle_type、aux_code
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0015
+          规则集描述：验证默认字段与公共字段完全不重叠
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息按填写值回显
+      - action: |-
+          配置规则包「PackC0015」的普通规则（完整性校验-空值数）：
+          * 生效范围：字段级
+          * 字段：vin
+          字段间规则逻辑：且
+          * 统计函数：空值数
+          过滤条件：空
+          * 校验方法：固定值
+          * 期望值：= 0
+          * 强弱规则：弱规则
+          规则描述：vin 不允许为 NULL
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackC0015 规则数量为 1
+      - action: 进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0015
+          选择分区：选择已有分区(dt=2026-08-06)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackC0015
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackC0015，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          资源组：default
+          超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击 RuleA 的表名进入任务详情，点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】，打开 RuleA 最新实例的空值数规则明细
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「不达标」
+          2) 明细字段依次为默认字段 record_id、vin、event_time、error_code，再追加公共字段 vehicle_type、aux_code
+          3) 六个字段均只出现一次，record_id=2 的字段值与源表一致
+    tags:
+      - 数据质量
+      - 校验结果查询
+
+  - case_id: C0016
+    title: 验证【校验结果查询】-【普通质量规则明细】配置部分重叠公共字段，去重后形成五字段并集(重叠字段数 > 0 且 < 公共字段数)
+    source_ref: TP-016
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据源已开启脏数据存储
+      5) 创建分区表，dt=2026-08-05 写入规则正确数据，dt=2026-08-06 写入规则异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0016;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0016 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING,
+           error_code STRING,
+           vehicle_type STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15912_c0016 PARTITION (dt='2026-08-05') VALUES
+           (1, 'VIN0001', '2026-08-05 10:00:00', 'E000', 'SUV');
+         INSERT INTO ${SchemaA}.test_table_15912_c0016 PARTITION (dt='2026-08-06') VALUES
+           (2, NULL, '2026-08-06 10:00:00', 'E001', 'SUV');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0016
+          * 选择字段：vin、event_time、vehicle_type
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0016，公共字段为 vin、event_time、vehicle_type
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0016
+          规则集描述：验证默认字段与公共字段部分重叠
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息按填写值回显
+      - action: |-
+          配置规则包「PackC0016」的普通规则（完整性校验-空值数）：
+          * 生效范围：字段级
+          * 字段：vin
+          字段间规则逻辑：且
+          * 统计函数：空值数
+          过滤条件：空
+          * 校验方法：固定值
+          * 期望值：= 0
+          * 强弱规则：弱规则
+          规则描述：vin 不允许为 NULL
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackC0016 规则数量为 1
+      - action: 进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0016
+          选择分区：选择已有分区(dt=2026-08-06)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackC0016
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackC0016，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          资源组：default
+          超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击 RuleA 的表名进入任务详情，点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】，打开 RuleA 最新实例的空值数规则明细
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「不达标」
+          2) 默认字段 record_id、vin、event_time、error_code 与公共字段 vin、event_time、vehicle_type 去重
+          3) 最终字段按顺序为 record_id、vin、event_time、error_code、vehicle_type
+          4) vin 和 event_time 均只出现一次
+    tags:
+      - 数据质量
+      - 校验结果查询
+
+  - case_id: C0017
+    title: 验证【校验结果查询】-【普通质量规则明细】配置完全重叠公共字段，明细不生成重复列(公共字段 = 默认字段)
+    source_ref: TP-017
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据源已开启脏数据存储
+      5) 创建分区表，dt=2026-08-05 写入规则正确数据，dt=2026-08-06 写入规则异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0017;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0017 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING,
+           error_code STRING,
+           vehicle_type STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15912_c0017 PARTITION (dt='2026-08-05') VALUES
+           (1, 'VIN0001', '2026-08-05 10:00:00', 'E000', 'SUV');
+         INSERT INTO ${SchemaA}.test_table_15912_c0017 PARTITION (dt='2026-08-06') VALUES
+           (2, NULL, '2026-08-06 10:00:00', 'E001', 'SUV');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0017
+          * 选择字段：record_id、vin、event_time、error_code
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0017，公共字段为 record_id、vin、event_time、error_code
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0017
+          规则集描述：验证公共字段与默认字段完全重叠
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息按填写值回显
+      - action: |-
+          配置规则包「PackC0017」的普通规则（完整性校验-空值数）：
+          * 生效范围：字段级
+          * 字段：vin
+          字段间规则逻辑：且
+          * 统计函数：空值数
+          过滤条件：空
+          * 校验方法：固定值
+          * 期望值：= 0
+          * 强弱规则：弱规则
+          规则描述：vin 不允许为 NULL
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackC0017 规则数量为 1
+      - action: 进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0017
+          选择分区：选择已有分区(dt=2026-08-06)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackC0017
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackC0017，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          资源组：default
+          超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击 RuleA 的表名进入任务详情，点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】，打开 RuleA 最新实例的空值数规则明细
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「不达标」
+          2) 明细字段仅为 record_id、vin、event_time、error_code
+          3) 每个字段只出现一次，不追加 vehicle_type
+    tags:
+      - 数据质量
+      - 校验结果查询
+
+  - case_id: C0018
+    title: 验证【校验结果查询】-【固定字段型规则明细】配置额外公共字段，明细仍只展示规则字段
+    source_ref: TP-018
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据源已开启脏数据存储
+      5) 创建分区表，dt=2026-08-05 写入规则正确数据，dt=2026-08-06 写入规则异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0018;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0018 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING,
+           vehicle_type STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15912_c0018 PARTITION (dt='2026-08-05') VALUES
+           (1, 'VIN0001', '2026-08-05 10:00:00', 'SUV');
+         INSERT INTO ${SchemaA}.test_table_15912_c0018 PARTITION (dt='2026-08-06') VALUES
+           (2, 'INVALID_VALUE', '2026-08-06 10:00:00', 'SUV');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0018
+          * 选择字段：event_time、vehicle_type
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0018，公共字段为 event_time、vehicle_type
+      - action: 进入【数据质量 → 规则集管理】页面，选择需求实现清单中标记为「仅展示固定规则字段」的子规则
+        expected: 该子规则的规则字段可选择 vin，明细保存类型显示为仅规则字段
+      - action: |-
+          新建 RuleSetA 并将该固定字段型子规则配置到 PackC0018：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0018
+          * 规则字段：vin
+          过滤条件：空
+          * 强弱规则：弱规则
+          规则描述：固定字段型规则公共字段隔离验证
+          点击「保存」
+        expected: RuleSetA 保存成功，PackC0018 中存在一条以 vin 为规则字段的固定字段型规则
+      - action: 进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0018
+          选择分区：选择已有分区(dt=2026-08-06)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackC0018
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackC0018，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          资源组：default
+          超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击 RuleA 的表名进入任务详情，点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】，打开 RuleA 最新实例的规则明细
+        expected: |-
+          1) 任务状态为「运行成功」，结果状态为「不达标」
+          2) 明细仅展示规则字段 vin
+          3) 不展示公共字段 event_time、vehicle_type，也不展示 record_id
+    tags:
+      - 数据质量
+      - 校验结果查询
+
+  - case_id: C0019
+    title: 验证【落标检查】-【不达标详情】执行未配置公共字段的检查，仅保存落标检查字段(公共字段未配置)
+    source_ref: TP-019
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据源已开启脏数据存储
+      5) 创建数据表并插入不达标数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0019;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0019 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING,
+           vehicle_type STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0019 VALUES
+           (1, NULL, '2026-08-06 10:00:00', 'SUV');
+      6) 存在可复用的落标检查回归模板 StandardCheckTemplate，支持绑定目标表和检查字段
+    steps:
+      - action: 进入【数据标准 → 标准管理 → 落标检查】页面
+        expected: 进入成功
+      - action: |-
+          切换至「落标检查设置」，复用 StandardCheckTemplate 创建 StandardCheckC0019：
+          数据源：${DataSourceA}
+          数据库：${SchemaA}
+          数据表：test_table_15912_c0019
+          落标检查字段：record_id、vin
+          不达标条件：vin 为空
+          保存检查配置
+        expected: 落标检查设置中新增 StandardCheckC0019，检查字段为 record_id、vin
+      - action: 执行 StandardCheckC0019，并在「落标检查结果」打开本次结果
+        expected: 检查完成，结果状态为「不达标」，不达标记录数为 1
+      - action: 打开 StandardCheckC0019 的不达标详情
+        expected: |-
+          1) 展示 record_id=1 的不达标记录
+          2) 明细字段仅为落标检查字段 record_id、vin
+          3) 不展示 event_time、vehicle_type
+    tags:
+      - 数据标准
+      - 落标检查
+
+  - case_id: C0020
+    title: 验证【落标检查】-【不达标详情】配置完全不重叠公共字段，保存检查字段与公共字段完整并集(重叠字段数 = 0)
+    source_ref: TP-020
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据源已开启脏数据存储
+      5) 创建数据表并插入不达标数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0020;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0020 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING,
+           vehicle_type STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0020 VALUES
+           (1, NULL, '2026-08-06 10:00:00', 'SUV');
+      6) 存在可复用的落标检查回归模板 StandardCheckTemplate，支持绑定目标表和检查字段
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0020
+          * 选择字段：event_time、vehicle_type
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0020，公共字段为 event_time、vehicle_type
+      - action: |-
+          进入【数据标准 → 标准管理 → 落标检查 → 落标检查设置】，复用 StandardCheckTemplate 创建 StandardCheckC0020：
+          数据源：${DataSourceA}
+          数据库：${SchemaA}
+          数据表：test_table_15912_c0020
+          落标检查字段：record_id、vin
+          不达标条件：vin 为空
+          保存检查配置
+        expected: 落标检查设置中新增 StandardCheckC0020，检查字段为 record_id、vin
+      - action: 执行 StandardCheckC0020，并在「落标检查结果」打开本次不达标详情
+        expected: |-
+          1) 检查完成，结果状态为「不达标」
+          2) 明细字段依次为落标检查字段 record_id、vin，再追加公共字段 event_time、vehicle_type
+          3) 四个字段均只出现一次，record_id=1 的字段值与源表一致
+    tags:
+      - 数据标准
+      - 落标检查
+
+  - case_id: C0021
+    title: 验证【落标检查】-【不达标详情】配置部分重叠公共字段，去重后形成四字段并集(重叠字段数 > 0 且 < 公共字段数)
+    source_ref: TP-021
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据源已开启脏数据存储
+      5) 创建数据表并插入不达标数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0021;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0021 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING,
+           vehicle_type STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0021 VALUES
+           (1, NULL, '2026-08-06 10:00:00', 'SUV');
+      6) 存在可复用的落标检查回归模板 StandardCheckTemplate，支持绑定目标表和检查字段
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0021
+          * 选择字段：vin、event_time、vehicle_type
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0021，公共字段为 vin、event_time、vehicle_type
+      - action: |-
+          进入【数据标准 → 标准管理 → 落标检查 → 落标检查设置】，复用 StandardCheckTemplate 创建 StandardCheckC0021：
+          数据源：${DataSourceA}
+          数据库：${SchemaA}
+          数据表：test_table_15912_c0021
+          落标检查字段：record_id、vin
+          不达标条件：vin 为空
+          保存检查配置
+        expected: 落标检查设置中新增 StandardCheckC0021，检查字段为 record_id、vin
+      - action: 执行 StandardCheckC0021，并在「落标检查结果」打开本次不达标详情
+        expected: |-
+          1) 检查完成，结果状态为「不达标」
+          2) 落标检查字段 record_id、vin 与公共字段 vin、event_time、vehicle_type 去重
+          3) 最终字段按顺序为 record_id、vin、event_time、vehicle_type
+          4) vin 只出现一次
+    tags:
+      - 数据标准
+      - 落标检查
+
+  - case_id: C0022
+    title: 验证【落标检查】-【不达标详情】配置完全重叠公共字段，明细不生成重复列(公共字段 = 落标检查字段)
+    source_ref: TP-022
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据源已开启脏数据存储
+      5) 创建数据表并插入不达标数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0022;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0022 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING,
+           vehicle_type STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15912_c0022 VALUES
+           (1, NULL, '2026-08-06 10:00:00', 'SUV');
+      6) 存在可复用的落标检查回归模板 StandardCheckTemplate，支持绑定目标表和检查字段
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 切换至「脏数据明细」页签
+        expected: 展示公共字段配置列表和「新建公共字段」入口
+      - action: |-
+          点击「新建公共字段」，按顺序完成配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0022
+          * 选择字段：record_id、vin
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0022，公共字段为 record_id、vin
+      - action: |-
+          进入【数据标准 → 标准管理 → 落标检查 → 落标检查设置】，复用 StandardCheckTemplate 创建 StandardCheckC0022：
+          数据源：${DataSourceA}
+          数据库：${SchemaA}
+          数据表：test_table_15912_c0022
+          落标检查字段：record_id、vin
+          不达标条件：vin 为空
+          保存检查配置
+        expected: 落标检查设置中新增 StandardCheckC0022，检查字段为 record_id、vin
+      - action: 执行 StandardCheckC0022，并在「落标检查结果」打开本次不达标详情
+        expected: |-
+          1) 检查完成，结果状态为「不达标」
+          2) 明细字段仅为 record_id、vin
+          3) 两个字段均只出现一次，不展示 event_time、vehicle_type
+    tags:
+      - 数据标准
+      - 落标检查
+
+  - case_id: C0023
+    title: 验证【校验结果查询】-【历史明细隔离】历史实例生成后新增公共字段，仅后续实例追加字段
+    source_ref: TP-023
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据源已开启脏数据存储
+      5) 创建分区表，dt=2026-08-05 写入规则正确数据，dt=2026-08-06 写入规则异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0023;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0023 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING,
+           error_code STRING,
+           vehicle_type STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15912_c0023 PARTITION (dt='2026-08-05') VALUES
+           (1, 'VIN0001', '2026-08-05 10:00:00', 'E000', 'SUV');
+         INSERT INTO ${SchemaA}.test_table_15912_c0023 PARTITION (dt='2026-08-06') VALUES
+           (2, NULL, '2026-08-06 10:00:00', 'E001', 'SUV');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0023
+          规则集描述：新增公共字段历史隔离验证
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息按填写值回显
+      - action: |-
+          配置规则包「PackC0023」的普通规则（完整性校验-空值数）：
+          * 生效范围：字段级
+          * 字段：vin
+          字段间规则逻辑：且
+          * 统计函数：空值数
+          过滤条件：空
+          * 校验方法：固定值
+          * 期望值：= 0
+          * 强弱规则：弱规则
+          规则描述：vin 不允许为 NULL
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackC0023 规则数量为 1
+      - action: 进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0023
+          选择分区：选择已有分区(dt=2026-08-06)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackC0023
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackC0023，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          资源组：default
+          超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击 RuleA 的表名进入任务详情，点击「立即执行」
+        expected: 提示执行成功，生成第一条运行实例 H1
+      - action: 在【校验结果查询】打开 H1 的空值数规则明细
+        expected: H1 结果状态为「不达标」，明细字段为 record_id、vin、event_time、error_code
+      - action: |-
+          进入【数据质量 → 项目管理 → 脏数据管理】页面，切换至「脏数据明细」并点击「新建公共字段」：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0023
+          * 选择字段：vehicle_type
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0023，公共字段为 vehicle_type
+      - action: 返回 RuleA 任务详情，再次点击「立即执行」
+        expected: 提示执行成功，生成晚于 H1 的运行实例 H2
+      - action: 在【校验结果查询】打开 H2 的空值数规则明细
+        expected: H2 明细字段为 record_id、vin、event_time、error_code、vehicle_type
+      - action: 重新打开历史实例 H1 的空值数规则明细
+        expected: H1 仍仅展示 record_id、vin、event_time、error_code，不回填 vehicle_type
+    tags:
+      - 数据质量
+      - 校验结果查询
+
+  - case_id: C0024
+    title: 验证【校验结果查询】-【历史明细隔离】历史实例生成后编辑公共字段，仅后续实例使用新字段集合
+    source_ref: TP-024
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据源已开启脏数据存储
+      5) 创建分区表，dt=2026-08-05 写入规则正确数据，dt=2026-08-06 写入规则异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0024;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0024 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING,
+           error_code STRING,
+           vehicle_type STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15912_c0024 PARTITION (dt='2026-08-05') VALUES
+           (1, 'VIN0001', '2026-08-05 10:00:00', 'E000', 'SUV');
+         INSERT INTO ${SchemaA}.test_table_15912_c0024 PARTITION (dt='2026-08-06') VALUES
+           (2, NULL, '2026-08-06 10:00:00', 'E001', 'SUV');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: |-
+          切换至「脏数据明细」，点击「新建公共字段」并配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0024
+          * 选择字段：vin、event_time
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0024，公共字段为 vin、event_time
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0024
+          规则集描述：编辑公共字段历史隔离验证
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息按填写值回显
+      - action: |-
+          配置规则包「PackC0024」的普通规则（完整性校验-空值数）：
+          * 生效范围：字段级
+          * 字段：vin
+          字段间规则逻辑：且
+          * 统计函数：空值数
+          过滤条件：空
+          * 校验方法：固定值
+          * 期望值：= 0
+          * 强弱规则：弱规则
+          规则描述：vin 不允许为 NULL
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackC0024 规则数量为 1
+      - action: 进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0024
+          选择分区：选择已有分区(dt=2026-08-06)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackC0024
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackC0024，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          资源组：default
+          超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击 RuleA 的表名进入任务详情，点击「立即执行」
+        expected: 提示执行成功，生成第一条运行实例 H1
+      - action: 在【校验结果查询】打开 H1 的空值数规则明细
+        expected: H1 明细字段为 record_id、vin、event_time、error_code，重叠公共字段未重复
+      - action: |-
+          进入【数据质量 → 项目管理 → 脏数据管理】页面，切换至「脏数据明细」并编辑 test_table_15912_c0024：
+          * 选择数据源：${DataSourceA}（只读）
+          * 选择数据库：${SchemaA}（只读）
+          * 选择数据表：test_table_15912_c0024（只读）
+          * 选择字段：vin、event_time、vehicle_type
+          点击「确定」
+        expected: 公共字段更新为 vin、event_time、vehicle_type
+      - action: 返回 RuleA 任务详情，再次点击「立即执行」
+        expected: 提示执行成功，生成晚于 H1 的运行实例 H2
+      - action: 在【校验结果查询】打开 H2 的空值数规则明细
+        expected: H2 明细字段为 record_id、vin、event_time、error_code、vehicle_type
+      - action: 重新打开历史实例 H1 的空值数规则明细
+        expected: H1 仍仅展示 record_id、vin、event_time、error_code，不追加 vehicle_type
+    tags:
+      - 数据质量
+      - 校验结果查询
+
+  - case_id: C0025
+    title: 验证【校验结果查询】-【历史明细隔离】历史实例生成后删除公共字段配置，仅后续实例恢复默认字段
+    source_ref: TP-025
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据源已开启脏数据存储
+      5) 创建分区表，dt=2026-08-05 写入规则正确数据，dt=2026-08-06 写入规则异常数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15912_c0025;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15912_c0025 (
+           record_id BIGINT,
+           vin STRING,
+           event_time STRING,
+           error_code STRING,
+           vehicle_type STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15912_c0025 PARTITION (dt='2026-08-05') VALUES
+           (1, 'VIN0001', '2026-08-05 10:00:00', 'E000', 'SUV');
+         INSERT INTO ${SchemaA}.test_table_15912_c0025 PARTITION (dt='2026-08-06') VALUES
+           (2, NULL, '2026-08-06 10:00:00', 'E001', 'SUV');
+    steps:
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 进入成功
+      - action: |-
+          切换至「脏数据明细」，点击「新建公共字段」并配置：
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0025
+          * 选择字段：vehicle_type
+          点击「确定」
+        expected: 列表新增 test_table_15912_c0025，公共字段为 vehicle_type
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0025
+          规则集描述：删除公共字段历史隔离验证
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息按填写值回显
+      - action: |-
+          配置规则包「PackC0025」的普通规则（完整性校验-空值数）：
+          * 生效范围：字段级
+          * 字段：vin
+          字段间规则逻辑：且
+          * 统计函数：空值数
+          过滤条件：空
+          * 校验方法：固定值
+          * 期望值：= 0
+          * 强弱规则：弱规则
+          规则描述：vin 不允许为 NULL
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 PackC0025 规则数量为 1
+      - action: 进入【数据质量 → 规则任务管理】页面，点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15912_c0025
+          选择分区：选择已有分区(dt=2026-08-06)
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：PackC0025
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 PackC0025，规则行数量为 1
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：2
+          资源组：default
+          超时时间：30分钟
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：ReportA
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击 RuleA 的表名进入任务详情，点击「立即执行」
+        expected: 提示执行成功，生成第一条运行实例 H1
+      - action: 在【校验结果查询】打开 H1 的空值数规则明细
+        expected: H1 明细字段为 record_id、vin、event_time、error_code、vehicle_type
+      - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面，切换至「脏数据明细」并删除 test_table_15912_c0025 的整条配置，完成系统提供的删除确认
+        expected: 列表不再展示 test_table_15912_c0025
+      - action: 返回 RuleA 任务详情，再次点击「立即执行」
+        expected: 提示执行成功，生成晚于 H1 的运行实例 H2
+      - action: 在【校验结果查询】打开 H2 的空值数规则明细
+        expected: H2 明细字段恢复为 record_id、vin、event_time、error_code，不展示 vehicle_type
+      - action: 重新打开历史实例 H1 的空值数规则明细
+        expected: H1 仍展示 record_id、vin、event_time、error_code、vehicle_type，不裁剪 vehicle_type
+    tags:
+      - 数据质量
+      - 校验结果查询
+
+  - case_id: C0026
+    title: 验证【权限配置】-【脏数据管理子权限】查看默认授权，管理员和数据开发可见双页签且访客不可见
+    source_ref: TP-026
+    priority: P0
+    precondition: |-
+      1) 存在管理员账号、数据开发账号和访客账号
+      2) 当前项目尚未人工调整「脏数据明细」和「脏数据存储」两个子级权限的默认授权
+    steps:
+      - action: 进入【数据质量】页面
+        expected: 进入成功
+      - action: 使用管理员账号打开当前项目的数据质量功能权限配置
+        expected: |-
+          1) 「脏数据明细」默认勾选管理员、数据开发，未勾选访客
+          2) 「脏数据存储」默认勾选管理员、数据开发，未勾选访客
+      - action: 分别使用管理员账号和数据开发账号进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 两类账号均可看到「脏数据明细」和「脏数据存储」两个页签
+      - action: 使用访客账号进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 访客看不到「脏数据明细」和「脏数据存储」两个页签，也不能进入对应功能
+    tags:
+      - 数据质量
+      - 权限配置
+
+  - case_id: C0027
+    title: 验证【权限配置】-【脏数据管理子权限】分别授权访客，两个页签按独立权限显示
+    source_ref: TP-027
+    priority: P1
+    precondition: |-
+      1) 存在管理员账号和访客账号
+      2) 管理员账号具备当前项目的数据质量权限管理角色
+    steps:
+      - action: 进入【数据质量】页面
+        expected: 进入成功
+      - action: |-
+          使用管理员账号打开当前项目的数据质量功能权限配置：
+          「脏数据明细」：勾选管理员、数据开发、访客
+          「脏数据存储」：勾选管理员、数据开发，取消访客
+          保存权限配置
+        expected: 权限配置保存成功，两项子权限分别按勾选状态回显
+      - action: 使用访客账号进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 仅展示「脏数据明细」页签，不展示「脏数据存储」页签，访客可使用脏数据明细已授权功能
+      - action: |-
+          使用管理员账号再次修改权限配置：
+          「脏数据明细」：勾选管理员、数据开发，取消访客
+          「脏数据存储」：勾选管理员、数据开发、访客
+          保存权限配置
+        expected: 权限配置保存成功，两项子权限分别按新勾选状态回显
+      - action: 使用访客账号重新进入【数据质量 → 项目管理 → 脏数据管理】页面
+        expected: 仅展示「脏数据存储」页签，不展示「脏数据明细」页签，两个页签权限互不联动
+    tags:
+      - 数据质量
+      - 权限配置
