@@ -417,6 +417,93 @@ describe("cases content lint", () => {
     expect(lintCaseYamlSource(source)).toEqual([]);
   });
 
+  it("flags double-quoted preconditions using \\n escapes instead of |-", () => {
+    const source = `cases:
+  - case_id: C0001
+    title: 验证【编码配置】保存，展示结果
+    priority: P1
+    precondition: "1) 存在数据库：\${SchemaA}\\n2) 已创建数据表"
+    steps:
+      - action: 进入【数据资产】页面
+        expected: 进入成功
+`;
+    const violations = lintCaseYamlSource(source);
+    expect(violations.map((item) => item.rule)).toContain("case_block_scalar");
+  });
+
+  it("flags single-quoted multi-line actions wrapped in quotes instead of |-", () => {
+    const source = `cases:
+  - case_id: C0001
+    title: 验证【编码配置】保存，展示结果
+    priority: P1
+    precondition: 无
+    steps:
+      - action: '1）新增一个目录；
+
+          2）再次查看当前编码值'
+        expected: 进入成功
+`;
+    const violations = lintCaseYamlSource(source);
+    expect(violations.map((item) => item.rule)).toContain("case_block_scalar");
+  });
+
+  it("flags multi-line expected values wrapped in quotes", () => {
+    const source = `cases:
+  - case_id: C0001
+    title: 验证【编码配置】保存，展示结果
+    priority: P1
+    precondition: 无
+    steps:
+      - action: 进入【数据资产】页面
+        expected: '1）列表新增记录；
+
+          2）状态为「启用」'
+`;
+    expect(lintCaseYamlSource(source).map((item) => item.rule)).toContain("case_block_scalar");
+  });
+
+  it("allows |- block scalars and single-line quoted content containing quotes", () => {
+    const source = `cases:
+  - case_id: C0001
+    title: 验证【编码配置】保存，展示结果
+    priority: P1
+    precondition: |-
+      1) 存在数据库：\${SchemaA}
+      2) 已创建数据表
+    steps:
+      - action: 进入【数据资产】页面
+        expected: '提示: ''保存成功'''
+`;
+    expect(lintCaseYamlSource(source)).toEqual([]);
+  });
+
+  it("keeps single-line quoted meta and requirement id values untouched", () => {
+    const source = `meta: { title: 需求, requirement_id: '16178', case_module_id: 'data-standard' }
+cases:
+  - case_id: C0001
+    title: 验证【编码配置】保存，展示结果
+    priority: P1
+    precondition: 无
+    steps:
+      - action: 进入【数据资产】页面
+        expected: 进入成功
+`;
+    expect(lintCaseYamlSource(source)).toEqual([]);
+  });
+
+  it("allows single-line quoted content that contains backslash-n as literal text", () => {
+    const source = `cases:
+  - case_id: C0001
+    title: 验证【编码配置】保存，展示结果
+    priority: P1
+    precondition: 无
+    steps:
+      - action: 进入【数据资产】页面
+        expected: '描述使用 \\n 表示换行'
+`;
+    expect(lintCaseYamlSource(source)).toEqual([]);
+  });
+
   it("requires each action to represent one independently verifiable operation stage", () => {
     const collapsed = lintCaseContent(
       doc(

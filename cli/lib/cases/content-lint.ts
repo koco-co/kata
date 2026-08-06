@@ -166,10 +166,11 @@ function makeViolation(
 export function lintCaseYamlSource(yamlText: string): CaseContentViolation[] {
   const document = parseDocument(yamlText);
   if (document.errors.length > 0) return [];
-  const cases = document.getIn(["cases"], true);
-  if (!isSeq(cases)) return [];
-
   const violations: CaseContentViolation[] = [];
+  lintBlockScalarSource(yamlText, document, violations);
+  const cases = document.getIn(["cases"], true);
+  if (!isSeq(cases)) return violations;
+
   for (const item of cases.items) {
     if (!isMap(item)) continue;
     const precondition = item.get("precondition", true);
@@ -200,6 +201,53 @@ export function lintCaseYamlSource(yamlText: string): CaseContentViolation[] {
     }
   }
   return violations;
+}
+
+/**
+ * 多行标量表示缺陷：用例 YAML 任何字段（precondition/action/expected 等）的多行内容
+ * 都必须用 `|-` 块标量真实换行，禁止用引号字符串 + `\n` 转义换行或用跨行引号包裹。
+ * 只按标量包装风格判定（引号包裹 + 跨物理行或双引号 `\n` 转义），块标量内可直接包含
+ * `'xxx'` 等引号内容；单行引号值（如 `提示: '保存成功'`）不受影响。
+ */
+function lintBlockScalarSource(
+  text: string,
+  document: ReturnType<typeof parseDocument>,
+  violations: CaseContentViolation[],
+): void {
+  if (!document.contents) return;
+  const visit = (node: unknown, path: string): void => {
+    if (isScalar(node)) {
+      if (typeof node.value !== "string" || !node.range) return;
+      const raw = text.slice(node.range[0], node.range[2]).trim();
+      if (!/^['"]/.test(raw)) return;
+      const spansLines = raw.includes("\n");
+      const doubleQuotedEscape = raw.startsWith('"') && raw.includes("\\n");
+      if (!spansLines && !doubleQuotedEscape) return;
+      const field = path.split(".").pop() ?? path;
+      violations.push(
+        makeViolation(
+          "case_block_scalar",
+          "多行内容必须使用 |- 块标量真实换行，禁止用引号字符串 + \\n 转义换行或用跨行引号包裹；块标量内可直接包含 'xxx' 等引号内容",
+          `${field} 使用引号包裹多行文本`,
+          `将 ${path.replace(/^\./, "")} 改为 |- 块标量，内容逐行缩进；块标量内引号 'xxx' 原样保留`,
+        ),
+      );
+      return;
+    }
+    if (isMap(node)) {
+      for (const pair of (node as { items: Array<{ key?: unknown; value: unknown }> }).items) {
+        const key = String((pair.key as { value?: unknown } | undefined)?.value ?? pair.key);
+        visit(pair.value, `${path}.${key}`);
+      }
+      return;
+    }
+    if (isSeq(node)) {
+      (node as { items: unknown[] }).items.forEach((child, index) => {
+        visit(child, `${path}[${index}]`);
+      });
+    }
+  };
+  visit(document.contents, "");
 }
 
 function placeholderLetters(text: string, pattern: RegExp): Set<string> {
