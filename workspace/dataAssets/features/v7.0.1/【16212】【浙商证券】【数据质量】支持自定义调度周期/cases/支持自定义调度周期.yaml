@@ -3,9 +3,10 @@ meta:
   requirement_id: "16212"
   case_module_id: ""
   source: "蓝湖需求 #16212"
-  test_points_digest: "sha256:2ecec6a868375b5d5b1cef14825f5e509ff3f8f1b28f2febb0beaa228e115c98"
+  test_points_digest: "sha256:8ae702f6b178c4742bf128574801ea55b829ffb538fa2bdcf0f6307f31ab2210"
   exports:
     - 支持自定义调度周期.xmind
+    - 支持自定义调度周期.csv
 cases:
   - case_id: C0001
     title: 验证【规则配置】-【新建单表校验规则】展开调度周期下拉，提供自定义调度日期选项
@@ -255,7 +256,7 @@ cases:
       - 规则配置
 
   - case_id: C0006
-    title: 验证【任务查询】-【自定义调度日期】日历命中日期，实例生成并按计划运行
+    title: 验证【任务查询】-【自定义调度日期】单表规则年月日日历命中日期，实例生成并按计划运行
     source_ref: TP-006
     priority: P0
     precondition: |-
@@ -299,14 +300,16 @@ cases:
       - action: |-
           配置调度属性：
           * 调度周期：自定义调度日期
-          * 生效日期：开始日期为当天、结束日期为当天+100年（保持默认）
+          生效日期：开始日期为当天、结束日期为当天+100年（保持默认）
           * 自定义调度日期：调度日历A
           * 起调周期：设为当前时刻后约 10 分钟的时/分
           * 规则拼接包：1
           告警方式：空
           点击「新建」
         expected: Toast提示:「添加成功！」,规则列表新增 RuleE，执行周期展示「自定义调度日期」
-      - action: 等待至「起调周期」设置时刻后刷新，进入【数据质量 → 任务查询】页面，按规则名称 RuleE 搜索
+      - action: 进入【数据质量 → 任务查询】页面
+        expected: 进入成功
+      - action: 等待至「起调周期」设置时刻后刷新，按规则名称 RuleE 搜索
         expected: 列表展示该规则任务的一条任务实例（D 日命中日历生成）
       - action: 查看该实例的任务状态与结果状态
         expected: 任务状态为「运行成功」，结果状态为「达标」
@@ -315,7 +318,7 @@ cases:
       - 任务查询
 
   - case_id: C0007
-    title: 验证【任务查询】-【自定义调度日期】按日历日期与时间，生成对应任务实例
+    title: 验证【任务查询】-【自定义调度日期】多表比对规则年月日时分日历命中，按日期+时间生成实例
     source_ref: TP-007
     priority: P1
     precondition: |-
@@ -323,50 +326,51 @@ cases:
       2) 授权数据源：${DataSourceA}
       3) 数据源类型：StarRocks3.x
       4) 存在数据库：${SchemaA}
-      5) 在 ${SchemaA} 创建数据表并插入无空值数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_16212_c0007;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16212_c0007 (id BIGINT, amount DECIMAL(10,2))
+      5) 在 ${SchemaA} 创建两张同构数据表并插入无空值数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_16212_c0007_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16212_c0007_source_01 (id BIGINT, amount DECIMAL(10,2))
          ENGINE=OLAP DUPLICATE KEY(id)
          DISTRIBUTED BY HASH(id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-         INSERT INTO ${SchemaA}.test_table_16212_c0007 VALUES (1, 100.00), (2, 200.00), (3, 300.00);
+         INSERT INTO ${SchemaA}.test_table_16212_c0007_source_01 VALUES (1, 100.00), (2, 200.00), (3, 300.00);
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_16212_c0007_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16212_c0007_target_01 (id BIGINT, amount DECIMAL(10,2))
+         ENGINE=OLAP DUPLICATE KEY(id)
+         DISTRIBUTED BY HASH(id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+         INSERT INTO ${SchemaA}.test_table_16212_c0007_target_01 VALUES (1, 100.00), (2, 200.00), (3, 300.00);
       6) 测试执行当天记为 D
       7) 存在「自定义调度日期」日历：「调度日历B」（年月日时分格式），时间点包含 D 当日 T 时刻（T = 当前时刻 + 10 分钟）
     steps:
       - action: 进入【数据质量 → 规则配置】页面
         expected: 进入成功
-      - action: 点击「新建监控规则」，选择「单表校验规则」
-        expected: 打开「单表校验规则」创建向导并进入「监控对象」步骤
+      - action: 点击「新建监控规则」，选择「多表比对规则」
+        expected: 打开「多表比对规则」创建向导并进入「选择左侧表」步骤
       - action: |-
-          配置监控对象：
+          配置左侧表：
           * 规则名称：RuleF
           * 选择数据源：${DataSourceA}
-          * 选择数据表：test_table_16212_c0007
+          * 选择左侧表：test_table_16212_c0007_source_01
           点击「下一步」
-        expected: 进入「监控规则」步骤并展示校验字段与统计函数配置区
+        expected: 进入「选择右侧表」步骤
       - action: |-
-          配置监控规则：
-          点击「添加规则」选择「完整性校验」
-          * 规则类型：字段级
-          * 字段：id
-          * 统计函数：空值数
-          过滤条件：空
-          * 校验方法：固定值
-          * 期望值：= 0
-          强弱规则：弱规则
-          规则描述：空
+          配置右侧表：
+          * 选择数据源：${DataSourceA}
+          * 选择右侧表：test_table_16212_c0007_target_01
           点击「下一步」
-        expected: 进入「调度属性」步骤
+        expected: 进入「选择字段」步骤并展示左右两侧字段映射
+      - action: 点击「同名映射」映射字段 id 后点击「下一步」
+        expected: 进入「执行配置」步骤
       - action: |-
           配置调度属性：
           * 调度周期：自定义调度日期
-          * 生效日期：开始日期为当天、结束日期为当天+100年（保持默认）
+          生效日期：开始日期为当天、结束日期为当天+100年（保持默认）
           * 自定义调度日期：调度日历B
           * 起调周期：时 10、分 00（年月日时分日历实例执行时间以日历日期+时间为准）
-          * 规则拼接包：1
           告警方式：空
           点击「新建」
         expected: Toast提示:「添加成功！」,规则列表新增 RuleF，执行周期展示「自定义调度日期」
-      - action: 等待至 T 时刻后刷新，进入【数据质量 → 任务查询】页面，按规则名称 RuleF 搜索
+      - action: 进入【数据质量 → 任务查询】页面
+        expected: 进入成功
+      - action: 等待至 T 时刻后刷新，按规则名称 RuleF 搜索
         expected: 列表展示该规则任务的一条任务实例，计划时间为日历中的日期+时间
       - action: 查看该实例的任务状态与结果状态
         expected: 任务状态为「运行成功」，结果状态为「达标」
@@ -375,7 +379,7 @@ cases:
       - 任务查询
 
   - case_id: C0008
-    title: 验证【任务查询】-【自定义调度日期】日历未命中日期，不生成任务实例
+    title: 验证【任务查询】-【自定义调度日期】规则集日历未命中日期，不生成任务实例
     source_ref: TP-008
     priority: P0
     precondition: |-
@@ -383,57 +387,52 @@ cases:
       2) 授权数据源：${DataSourceA}
       3) 数据源类型：StarRocks3.x
       4) 存在数据库：${SchemaA}
-      5) 在 ${SchemaA} 创建数据表并插入无空值数据：
+      5) 在 ${SchemaA} 创建数据表并插入数据：
          DROP TABLE IF EXISTS ${SchemaA}.test_table_16212_c0008;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16212_c0008 (id BIGINT, amount DECIMAL(10,2))
          ENGINE=OLAP DUPLICATE KEY(id)
          DISTRIBUTED BY HASH(id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
          INSERT INTO ${SchemaA}.test_table_16212_c0008 VALUES (1, 100.00), (2, 200.00), (3, 300.00);
-      6) 测试执行当天记为 D
-      7) 存在「自定义调度日期」日历：「调度日历C」（年月日格式），日期集合仅包含 D+1 至 D+3，不含 D
+      6) 存在规则集导入模板文件 RuleSet_16212_c0008.xlsx，内容如下：
+         Title: * 规则名称,规则描述,* 表名,表中文名,字段名,字段中文名,* 校验SQL(请输入不符合规则要求的明细数据查询SQL)
+         Line1: ${RuleA},导入规则A,${SchemaA}.test_table_16212_c0008,校验表,id,编号,SELECT id FROM ${SchemaA}.test_table_16212_c0008 WHERE id IS NULL
+         Sheet: Sheet1
+      7) 测试执行当天记为 D
+      8) 存在「自定义调度日期」日历：「调度日历C」（年月日格式），日期集合仅包含 D+1 至 D+3，不含 D
     steps:
       - action: 进入【数据质量 → 规则配置】页面
         expected: 进入成功
-      - action: 点击「新建监控规则」，选择「单表校验规则」
-        expected: 打开「单表校验规则」创建向导并进入「监控对象」步骤
       - action: |-
-          配置监控对象：
-          * 规则名称：RuleG
-          * 选择数据源：${DataSourceA}
-          * 选择数据表：test_table_16212_c0008
+          点击「新建规则集」，配置规则集基础信息：
+          * 规则集名称：RuleSetC
+          * 校验数据源：${DataSourceA}
+          规则集描述：规则集自定义调度日期
           点击「下一步」
-        expected: 进入「监控规则」步骤并展示校验字段与统计函数配置区
-      - action: |-
-          配置监控规则：
-          点击「添加规则」选择「完整性校验」
-          * 规则类型：字段级
-          * 字段：id
-          * 统计函数：空值数
-          过滤条件：空
-          * 校验方法：固定值
-          * 期望值：= 0
-          强弱规则：弱规则
-          规则描述：空
-          点击「下一步」
-        expected: 进入「调度属性」步骤
+        expected: 进入「规则内容」步骤，展示「导入规则」入口
+      - action: 点击「导入规则」，选择模板文件 RuleSet_16212_c0008.xlsx 并点击「确定」
+        expected: 文件上传成功，规则内容区新增 1 条规则，规则名称为「${RuleA}」
+      - action: 点击「下一步」
+        expected: 进入「调度配置」步骤
       - action: |-
           配置调度属性：
           * 调度周期：自定义调度日期
-          * 生效日期：开始日期为当天、结束日期为当天+100年（保持默认）
+          生效日期：开始日期为当天、结束日期为当天+100年（保持默认）
           * 自定义调度日期：调度日历C
           * 起调周期：时 10、分 00
           * 规则拼接包：1
           告警方式：空
-          点击「新建」
-        expected: Toast提示:「添加成功！」,规则列表新增 RuleG
-      - action: 等待一个任务实例生成周期后，进入【数据质量 → 任务查询】页面，按规则名称 RuleG 搜索
-        expected: D 日不存在该规则任务的任务实例（D 不在日历日期集合内，不生成实例）
+          点击「完成」
+        expected: Toast提示:「规则集创建完成」,规则集列表新增 RuleSetC，执行周期为「自定义调度日期」
+      - action: 进入【数据质量 → 任务查询】页面
+        expected: 进入成功
+      - action: 等待一个任务实例生成周期后，按规则集名称 RuleSetC 搜索
+        expected: D 日不存在该规则集的任务实例（D 不在日历日期集合内，不生成实例）
     tags:
       - 数据质量
       - 任务查询
 
   - case_id: C0009
-    title: 验证【任务查询】-【停止】运行中实例停止，状态流转为中途停止
+    title: 验证【规则配置】-【编辑单表校验规则】编辑自定义调度日期规则，回显日历与起调周期并修改保存
     source_ref: TP-009
     priority: P1
     precondition: |-
@@ -447,13 +446,167 @@ cases:
          ENGINE=OLAP DUPLICATE KEY(id)
          DISTRIBUTED BY HASH(id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
          INSERT INTO ${SchemaA}.test_table_16212_c0009 VALUES (1, 100.00), (2, 200.00), (3, 300.00);
-      6) 存在单表校验规则 RuleA，监控对象为 test_table_16212_c0009，执行数据量足够使任务保持「运行中」状态可观测
+      6) 已存在单表校验规则 RuleH，监控对象为 test_table_16212_c0009，规则类型为完整性校验（字段级、空值数）、调度周期为「自定义调度日期」、自定义调度日期为「调度日历A」（年月日格式）、起调周期为 10:00
     steps:
       - action: 进入【数据质量 → 规则配置】页面
         expected: 进入成功
-      - action: 找到 RuleA，点击「立即执行」
+      - action: 在规则列表中找到 RuleH，点击「编辑」
+        expected: 打开 RuleH 编辑向导并进入「监控对象」步骤
+      - action: 点击两次「下一步」
+        expected: 进入「调度属性」步骤，调度周期回显「自定义调度日期」，自定义调度日期回显「调度日历A」，起调周期回显 10 时 00 分
+      - action: 将「自定义调度日期」切换为「调度日历B」，起调周期改为 08 时 30 分，点击「保存」
+        expected: Toast提示:「更新成功！」,返回规则列表，RuleH 执行周期仍为「自定义调度日期」
+      - action: 再次点击 RuleH 的「编辑」
+        expected: 打开 RuleH 编辑向导并进入「监控对象」步骤
+      - action: 点击两次「下一步」
+        expected: 自定义调度日期回显「调度日历B」，起调周期回显 08 时 30 分
+    tags:
+      - 数据质量
+      - 规则配置
+
+  - case_id: C0010
+    title: 验证【规则配置】-【编辑多表比对规则】编辑自定义调度日期规则，回显日历与起调周期并修改保存
+    source_ref: TP-010
+    priority: P1
+    precondition: |-
+      1) 质量项目：${ProjectA}
+      2) 授权数据源：${DataSourceA}
+      3) 数据源类型：StarRocks3.x
+      4) 存在数据库：${SchemaA}
+      5) 在 ${SchemaA} 创建两张同构数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_16212_c0010_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16212_c0010_source_01 (id BIGINT, amount DECIMAL(10,2))
+         ENGINE=OLAP DUPLICATE KEY(id)
+         DISTRIBUTED BY HASH(id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+         INSERT INTO ${SchemaA}.test_table_16212_c0010_source_01 VALUES (1, 100.00), (2, 200.00), (3, 300.00);
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_16212_c0010_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16212_c0010_target_01 (id BIGINT, amount DECIMAL(10,2))
+         ENGINE=OLAP DUPLICATE KEY(id)
+         DISTRIBUTED BY HASH(id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+         INSERT INTO ${SchemaA}.test_table_16212_c0010_target_01 VALUES (1, 100.00), (2, 200.00), (3, 300.00);
+      6) 已存在多表比对规则 RuleI，左右表分别为 source_01 与 target_01，调度周期为「自定义调度日期」、自定义调度日期为「调度日历A」（年月日格式）、起调周期为 10:00
+    steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 进入成功
+      - action: 在规则列表中找到 RuleI，点击「编辑」
+        expected: 打开 RuleI 编辑向导并进入「选择左侧表」步骤
+      - action: 连续点击三次「下一步」跳至「执行配置」步骤
+        expected: 进入「执行配置」步骤，调度周期回显「自定义调度日期」，自定义调度日期回显「调度日历A」，起调周期回显 10 时 00 分
+      - action: 将「自定义调度日期」切换为「调度日历B」，起调周期改为 08 时 30 分，点击「保存」
+        expected: Toast提示:「操作成功」,返回规则列表
+      - action: 再次点击 RuleI 的「编辑」，跳至「执行配置」步骤
+        expected: 自定义调度日期回显「调度日历B」，起调周期回显 08 时 30 分
+    tags:
+      - 数据质量
+      - 规则配置
+
+  - case_id: C0011
+    title: 验证【规则配置】-【编辑规则集】打开规则集编辑向导，回显日历与起调周期并修改保存
+    source_ref: TP-011
+    priority: P1
+    precondition: |-
+      1) 质量项目：${ProjectA}
+      2) 授权数据源：${DataSourceA}
+      3) 数据源类型：StarRocks3.x
+      4) 存在数据库：${SchemaA}
+      5) 在 ${SchemaA} 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_16212_c0011;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16212_c0011 (id BIGINT, amount DECIMAL(10,2))
+         ENGINE=OLAP DUPLICATE KEY(id)
+         DISTRIBUTED BY HASH(id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+         INSERT INTO ${SchemaA}.test_table_16212_c0011 VALUES (1, 100.00), (2, 200.00), (3, 300.00);
+      6) 已存在规则集 RuleSetD，校验数据源为 ${DataSourceA}，包含至少 1 条已导入规则，调度周期为「自定义调度日期」、自定义调度日期为「调度日历A」（年月日格式）、起调周期为 10:00
+    steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 进入成功
+      - action: 点击规则集卡片「RuleSetD」
+        expected: 打开「编辑规则集」向导并进入「规则内容」步骤，展示已导入规则列表
+      - action: 点击「下一步」
+        expected: 进入「调度配置」步骤，调度周期回显「自定义调度日期」，自定义调度日期回显「调度日历A」，起调周期回显 10 时 00 分
+      - action: 将「自定义调度日期」切换为「调度日历B」，起调周期改为 08 时 30 分，点击「完成」
+        expected: Toast提示:「规则集编辑完成」,返回规则集列表
+      - action: 再次点击规则集卡片「RuleSetD」，点击「下一步」跳至「调度配置」步骤
+        expected: 自定义调度日期回显「调度日历B」，起调周期回显 08 时 30 分
+    tags:
+      - 数据质量
+      - 规则配置
+
+  - case_id: C0012
+    title: 验证【规则配置】-【新建规则集】导入规则并配置自定义调度日期，保存后执行周期为自定义调度日期
+    source_ref: TP-012
+    priority: P1
+    precondition: |-
+      1) 质量项目：${ProjectA}
+      2) 授权数据源：${DataSourceA}
+      3) 数据源类型：StarRocks3.x
+      4) 存在数据库：${SchemaA}
+      5) 在 ${SchemaA} 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_16212_c0012;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16212_c0012 (id BIGINT, amount DECIMAL(10,2))
+         ENGINE=OLAP DUPLICATE KEY(id)
+         DISTRIBUTED BY HASH(id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+         INSERT INTO ${SchemaA}.test_table_16212_c0012 VALUES (1, 100.00), (2, 200.00), (3, 300.00);
+      6) 存在「自定义调度日期」日历：「调度日历A」（年月日格式）
+      7) 存在规则集导入模板文件 RuleSet_16212_c0012.xlsx，内容如下：
+         Title: * 规则名称,规则描述,* 表名,表中文名,字段名,字段中文名,* 校验SQL(请输入不符合规则要求的明细数据查询SQL)
+         Line1: ${RuleB},导入规则B,${SchemaA}.test_table_16212_c0012,校验表,,,SELECT 1 FROM ${SchemaA}.test_table_16212_c0012 HAVING COUNT(1) <> 3
+         Sheet: Sheet1
+    steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置规则集基础信息：
+          * 规则集名称：RuleSetE
+          * 校验数据源：${DataSourceA}
+          规则集描述：新建规则集，调度配置选择创建自定义调度日期
+          点击「下一步」
+        expected: 进入「规则内容」步骤，展示「导入规则」入口
+      - action: 点击「导入规则」，选择模板文件 RuleSet_16212_c0012.xlsx 并点击「确定」
+        expected: 文件上传成功，规则内容区新增 1 条规则，规则名称为「${RuleB}」
+      - action: 点击「下一步」
+        expected: 进入「调度配置」步骤
+      - action: |-
+          配置调度属性：
+          * 调度周期：自定义调度日期
+          生效日期：开始日期为当天、结束日期为当天+100年（保持默认）
+          * 自定义调度日期：调度日历A
+          * 起调周期：时 10、分 00
+          * 规则拼接包：1
+          告警方式：空
+          点击「完成」
+        expected: Toast提示:「规则集创建完成」,规则集列表新增 RuleSetE，执行周期为「自定义调度日期」
+      - action: 点击规则集卡片「RuleSetE」
+        expected: 打开「编辑规则集」向导
+      - action: 点击「下一步」跳至「调度配置」步骤
+        expected: 调度配置回显调度周期「自定义调度日期」，自定义调度日期回显「调度日历A」
+    tags:
+      - 数据质量
+      - 规则配置
+
+  - case_id: C0013
+    title: 验证【任务查询】-【停止】运行中实例停止，状态流转为中途停止
+    source_ref: TP-013
+    priority: P1
+    precondition: |-
+      1) 质量项目：${ProjectA}
+      2) 授权数据源：${DataSourceA}
+      3) 数据源类型：StarRocks3.x
+      4) 存在数据库：${SchemaA}
+      5) 在 ${SchemaA} 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_16212_c0013;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16212_c0013 (id BIGINT, amount DECIMAL(10,2))
+         ENGINE=OLAP DUPLICATE KEY(id)
+         DISTRIBUTED BY HASH(id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+         INSERT INTO ${SchemaA}.test_table_16212_c0013 VALUES (1, 100.00), (2, 200.00), (3, 300.00);
+      6) 存在单表校验规则 RuleJ，监控对象为 test_table_16212_c0013，执行数据量足够使任务保持「运行中」状态可观测
+    steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 进入成功
+      - action: 找到 RuleJ，点击「立即执行」
         expected: 提示执行成功，任务进入调度
-      - action: 进入【数据质量 → 任务查询】页面，按 RuleA 搜索
+      - action: 进入【数据质量 → 任务查询】页面
+        expected: 进入成功
+      - action: 按 RuleJ 搜索
         expected: 列表展示该规则任务的一条任务实例
       - action: 查看该实例的任务状态与操作列
         expected: 任务状态为「运行中」，操作列展示「停止」按钮
@@ -465,9 +618,9 @@ cases:
       - 数据质量
       - 任务查询
 
-  - case_id: C0010
+  - case_id: C0014
     title: 验证【任务查询】-【状态筛选】筛选中途停止，仅展示中途停止实例
-    source_ref: TP-010
+    source_ref: TP-014
     priority: P1
     precondition: |-
       1) 质量项目：${ProjectA}
