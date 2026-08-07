@@ -3,7 +3,7 @@ meta:
   requirement_id: "16212"
   case_module_id: ""
   source: "蓝湖需求 #16212"
-  test_points_digest: "sha256:ee2315f348d6d8abd399fc3efa06cb37d4aad71ef72284e1f1062d80e1878504"
+  test_points_digest: "sha256:24b3d33b2cccbdfaf78cb706f72e85999871d8bfc6e4cbbfb940c77ced4cb360"
   exports:
     - 支持自定义调度周期.xmind
     - 支持自定义调度周期.csv
