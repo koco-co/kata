@@ -181,6 +181,16 @@ cases:
       "需求名(#10826)",
     );
   });
+  it("overwrites existing derived artifacts even when content is unchanged", async () => {
+    const d = feature();
+    const first = await runCasesBuild(d, { formats: ["xmind"] });
+    expect(first.created).toHaveLength(1);
+    expect(first.contentChanged).toEqual([join(d, "cases", "exports", "需求名.xmind")]);
+    const second = await runCasesBuild(d, { formats: ["xmind"] });
+    expect(second.updated).toHaveLength(1);
+    expect(second.unchanged).toHaveLength(0);
+    expect(second.contentChanged).toEqual([]);
+  });
   it("rejects unsupported --format values", () => {
     const d = feature();
     const r = spawnSync(

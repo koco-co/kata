@@ -158,6 +158,8 @@ export interface CasesBuildReport {
   updated: string[];
   unchanged: string[];
   deleted: string[];
+  /** 内容实际发生变化的导出文件；用于通知，避免每次覆盖都重复上报。 */
+  contentChanged?: string[];
 }
 
 function outputPath(featureDir: string, name: string): string {
@@ -209,16 +211,19 @@ function commitArtifacts(
         .map((entry) => join(outputDir, entry))
         .filter((path) => !desired.has(path))
     : [];
-  const changed = artifacts.filter((artifact) => {
-    if (!existsSync(artifact.path)) return true;
-    return !readFileSync(artifact.path).equals(artifact.content);
-  });
-  if (changed.length === 0 && stale.length === 0) {
+  const contentChanged = artifacts
+    .filter(
+      (artifact) =>
+        !existsSync(artifact.path) || !readFileSync(artifact.path).equals(artifact.content),
+    )
+    .map((artifact) => artifact.path);
+  if (artifacts.length === 0 && stale.length === 0) {
     return {
       created: [],
       updated: [],
-      unchanged: artifacts.map((artifact) => artifact.path),
+      unchanged: [],
       deleted: [],
+      contentChanged,
     };
   }
 
@@ -227,13 +232,20 @@ function commitArtifacts(
   const backups: Array<{ target: string; backup: string }> = [];
   const installed: string[] = [];
   try {
-    for (const target of [...changed.map((artifact) => artifact.path), ...stale]) {
+    for (const artifact of artifacts) {
+      const target = artifact.path;
       if (!existsSync(target)) continue;
       const backup = join(transaction, `${backups.length}.bak`);
       renameSync(target, backup);
       backups.push({ target, backup });
     }
-    for (const [index, artifact] of changed.entries()) {
+    for (const target of stale) {
+      if (!existsSync(target)) continue;
+      const backup = join(transaction, `${backups.length}.bak`);
+      renameSync(target, backup);
+      backups.push({ target, backup });
+    }
+    for (const [index, artifact] of artifacts.entries()) {
       const staged = join(transaction, `${index}.artifact`);
       writeFileAtomic(staged, artifact.content);
       renameSync(staged, artifact.path);
@@ -250,16 +262,13 @@ function commitArtifacts(
     throw error;
   }
 
-  const created = changed
+  const created = artifacts
     .filter((artifact) => !backups.some((backup) => backup.target === artifact.path))
     .map((artifact) => artifact.path);
-  const updated = changed
+  const updated = artifacts
     .filter((artifact) => backups.some((backup) => backup.target === artifact.path))
     .map((artifact) => artifact.path);
-  const unchanged = artifacts
-    .filter((artifact) => !changed.includes(artifact))
-    .map((artifact) => artifact.path);
-  return { created, updated, unchanged, deleted: stale };
+  return { created, updated, unchanged: [], deleted: stale, contentChanged };
 }
 
 /** 预检一个 feature：parse/validate/digest/content lint 全部通过后返回可渲染输入。 */
@@ -496,7 +505,7 @@ export function registerCasesBuild(cases: Command): void {
             for (const path of report.updated) console.log(`updated ${path}`);
             for (const path of report.unchanged) console.log(`unchanged ${path}`);
             for (const path of report.deleted) console.log(`deleted ${path}`);
-            if (report.created.length + report.updated.length > 0) {
+            if ((report.contentChanged?.length ?? 0) > 0) {
               const projectDir = projectRootFromFeatureDir(featureDir);
               const { context } = renderContextForFeature(featureDir);
               const root = dirname(dirname(projectDir));
@@ -509,8 +518,8 @@ export function registerCasesBuild(cases: Command): void {
                   completed_at: formatTaipeiTime(),
                   case_count: file.cases.length,
                   created_count: report.created.length,
-                  updated_count: report.updated.length,
-                  artifact_paths: [...report.created, ...report.updated].map((path) =>
+                  updated_count: Math.max(0, report.contentChanged.length - report.created.length),
+                  artifact_paths: report.contentChanged.map((path) =>
                     workspaceRelativePath(root, path),
                   ),
                   duration_ms: Date.now() - startedAt.getTime(),
