@@ -8667,25 +8667,26 @@ cases:
 
       3) 存在数据库：${SchemaA}
 
-      4) 使用以下 Shell 脚本生成 prepare_13925_c0253.sql（生成 799/800/801 张 L4 表，该表为空表）：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="prepare_13925_c0253.sql"
-         schema='${SchemaA}'
-         prefix='test_table_13925_c0253'
-         : > "$output_file"
-         gen_tables() {
-           local group=$1
-           local count=$2
-           for ((i = 1; i <= count; i++)); do
-             table="${schema}.${prefix}_${group}_$(printf '%04d' "$i")"
-             printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
-             printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
-           done
-         }
-         gen_tables g799 799
-         gen_tables g800 800
-         gen_tables g801 801
+      4) 使用以下一次性 Bash 命令生成 prepare_13925_c0253.sql（生成 799/800/801 张 L4 表，该表为空表）：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="prepare_13925_c0253.sql"
+      schema='${SchemaA}'
+      prefix='test_table_13925_c0253'
+      : > "$output_file"
+      gen_tables() {
+        local group=$1
+        local count=$2
+        for ((i = 1; i <= count; i++)); do
+          table="${schema}.${prefix}_${group}_$(printf '%04d' "$i")"
+          printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
+          printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
+        done
+      }
+      gen_tables g799 799
+      gen_tables g800 800
+      gen_tables g801 801
+      BASH
 
       5) 复制 prepare_13925_c0253.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
 
@@ -8723,25 +8724,26 @@ cases:
 
       3) 存在数据库：${SchemaA}
 
-      4) 使用以下 Shell 脚本生成 prepare_13925_c0254.sql（每张表 1 个字段，生成 799/800/801 三组 L5 字段，该表为空表）：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="prepare_13925_c0254.sql"
-         schema='${SchemaA}'
-         prefix='test_table_13925_c0254'
-         : > "$output_file"
-         gen_tables() {
-           local group=$1
-           local count=$2
-           for ((i = 1; i <= count; i++)); do
-             table="${schema}.${prefix}_${group}_$(printf '%04d' "$i")"
-             printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
-             printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
-           done
-         }
-         gen_tables g799 799
-         gen_tables g800 800
-         gen_tables g801 801
+      4) 使用以下一次性 Bash 命令生成 prepare_13925_c0254.sql（每张表 1 个字段，生成 799/800/801 三组 L5 字段，该表为空表）：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="prepare_13925_c0254.sql"
+      schema='${SchemaA}'
+      prefix='test_table_13925_c0254'
+      : > "$output_file"
+      gen_tables() {
+        local group=$1
+        local count=$2
+        for ((i = 1; i <= count; i++)); do
+          table="${schema}.${prefix}_${group}_$(printf '%04d' "$i")"
+          printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
+          printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
+        done
+      }
+      gen_tables g799 799
+      gen_tables g800 800
+      gen_tables g801 801
+      BASH
 
       5) 复制 prepare_13925_c0254.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
 
@@ -8779,18 +8781,19 @@ cases:
 
       3) 存在数据库：${SchemaA}
 
-      4) 使用以下 Shell 脚本生成 prepare_13925_c0255.sql（生成 10000 张 L4 表，该表为空表）：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="prepare_13925_c0255.sql"
-         schema='${SchemaA}'
-         prefix='test_table_13925_c0255'
-         : > "$output_file"
-         for ((i = 1; i <= 10000; i++)); do
-           table="${schema}.${prefix}_$(printf '%05d' "$i")"
-           printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
-           printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
-         done
+      4) 使用以下一次性 Bash 命令生成 prepare_13925_c0255.sql（生成 10000 张 L4 表，该表为空表）：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="prepare_13925_c0255.sql"
+      schema='${SchemaA}'
+      prefix='test_table_13925_c0255'
+      : > "$output_file"
+      for ((i = 1; i <= 10000; i++)); do
+        table="${schema}.${prefix}_$(printf '%05d' "$i")"
+        printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
+        printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
+      done
+      BASH
 
       5) 复制 prepare_13925_c0255.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
 
@@ -8823,18 +8826,19 @@ cases:
 
       3) 存在数据库：${SchemaA}
 
-      4) 使用以下 Shell 脚本生成 prepare_13925_c0256.sql（每张表 1 个字段，生成 10000 个 L5 字段，该表为空表）：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="prepare_13925_c0256.sql"
-         schema='${SchemaA}'
-         prefix='test_table_13925_c0256'
-         : > "$output_file"
-         for ((i = 1; i <= 10000; i++)); do
-           table="${schema}.${prefix}_$(printf '%05d' "$i")"
-           printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
-           printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
-         done
+      4) 使用以下一次性 Bash 命令生成 prepare_13925_c0256.sql（每张表 1 个字段，生成 10000 个 L5 字段，该表为空表）：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="prepare_13925_c0256.sql"
+      schema='${SchemaA}'
+      prefix='test_table_13925_c0256'
+      : > "$output_file"
+      for ((i = 1; i <= 10000; i++)); do
+        table="${schema}.${prefix}_$(printf '%05d' "$i")"
+        printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
+        printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
+      done
+      BASH
 
       5) 复制 prepare_13925_c0256.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
 
@@ -8867,18 +8871,19 @@ cases:
 
       3) 存在数据库：${SchemaA}
 
-      4) 使用以下 Shell 脚本生成 prepare_13925_c0257.sql（生成 801 张表，每张表 1 个字段，该表为空表）：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="prepare_13925_c0257.sql"
-         schema='${SchemaA}'
-         prefix='test_table_13925_c0257'
-         : > "$output_file"
-         for ((i = 1; i <= 801; i++)); do
-           table="${schema}.${prefix}_$(printf '%04d' "$i")"
-           printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
-           printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
-         done
+      4) 使用以下一次性 Bash 命令生成 prepare_13925_c0257.sql（生成 801 张表，每张表 1 个字段，该表为空表）：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="prepare_13925_c0257.sql"
+      schema='${SchemaA}'
+      prefix='test_table_13925_c0257'
+      : > "$output_file"
+      for ((i = 1; i <= 801; i++)); do
+        table="${schema}.${prefix}_$(printf '%04d' "$i")"
+        printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
+        printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
+      done
+      BASH
 
       5) 复制 prepare_13925_c0257.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
 
@@ -8909,18 +8914,19 @@ cases:
 
       3) 存在数据库：${SchemaA}
 
-      4) 使用以下 Shell 脚本生成 prepare_13925_c0258.sql（生成 801 张表，每张表 1 个字段，该表为空表）：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="prepare_13925_c0258.sql"
-         schema='${SchemaA}'
-         prefix='test_table_13925_c0258'
-         : > "$output_file"
-         for ((i = 1; i <= 801; i++)); do
-           table="${schema}.${prefix}_$(printf '%04d' "$i")"
-           printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
-           printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
-         done
+      4) 使用以下一次性 Bash 命令生成 prepare_13925_c0258.sql（生成 801 张表，每张表 1 个字段，该表为空表）：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="prepare_13925_c0258.sql"
+      schema='${SchemaA}'
+      prefix='test_table_13925_c0258'
+      : > "$output_file"
+      for ((i = 1; i <= 801; i++)); do
+        table="${schema}.${prefix}_$(printf '%04d' "$i")"
+        printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
+        printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
+      done
+      BASH
 
       5) 复制 prepare_13925_c0258.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
 
@@ -8951,18 +8957,19 @@ cases:
 
       3) 存在数据库：${SchemaA}
 
-      4) 使用以下 Shell 脚本生成 prepare_13925_c0259.sql（生成 801 张表，每张表 1 个字段，该表为空表）：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="prepare_13925_c0259.sql"
-         schema='${SchemaA}'
-         prefix='test_table_13925_c0259'
-         : > "$output_file"
-         for ((i = 1; i <= 801; i++)); do
-           table="${schema}.${prefix}_$(printf '%04d' "$i")"
-           printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
-           printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
-         done
+      4) 使用以下一次性 Bash 命令生成 prepare_13925_c0259.sql（生成 801 张表，每张表 1 个字段，该表为空表）：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="prepare_13925_c0259.sql"
+      schema='${SchemaA}'
+      prefix='test_table_13925_c0259'
+      : > "$output_file"
+      for ((i = 1; i <= 801; i++)); do
+        table="${schema}.${prefix}_$(printf '%04d' "$i")"
+        printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
+        printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
+      done
+      BASH
 
       5) 复制 prepare_13925_c0259.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
 
@@ -10701,14 +10708,16 @@ cases:
       1) 使用 UserA，已授予目录管理查看和操作权限
       2) L1 不含必填自定义属性，必填列仅为内置必填列
       3) Owner_Valid_334 为在职人员工号
-      4) 使用以下 Python 脚本生成 catalog_missing_l1_c0334.xlsx（编码与业务定义合法，其余内置必填字段留空）：
-         from openpyxl import Workbook
-         workbook = Workbook()
-         ws = workbook.active
-         ws.title = "L1"
-         ws.append(["编码", "* 目录中文名称", "* 目录英文名称", "* 数据负责人工号", "* 业务定义"])
-         ws.append(["", "", "", "", "业务定义_334"])
-         workbook.save("catalog_missing_l1_c0334.xlsx")
+      4) 使用以下一次性 Bash 命令生成 catalog_missing_l1_c0334.xlsx（编码与业务定义合法，其余内置必填字段留空）：
+      python3 - <<'PY'
+      from openpyxl import Workbook
+      workbook = Workbook()
+      ws = workbook.active
+      ws.title = "L1"
+      ws.append(["编码", "* 目录中文名称", "* 目录英文名称", "* 数据负责人工号", "* 业务定义"])
+      ws.append(["", "", "", "", "业务定义_334"])
+      workbook.save("catalog_missing_l1_c0334.xlsx")
+      PY
     steps:
       - action: 进入【元数据 → 数据目录 → 目录管理】页面
         expected: 进入成功
@@ -10732,14 +10741,16 @@ cases:
       2) L2 不含必填自定义属性
       3) Owner_Valid_335 为在职人员工号，CatalogA 为已发布 L1 上级目录
          a. CatalogA 创建方式：进入【元数据 → 数据目录 → 目录管理】，L1 层级新建目录 CatalogA 并发布，目录必填项使用 数据资产部/泸州老窖/张三/1001/在职
-      4) 使用以下 Python 脚本生成 catalog_missing_l2_c0335.xlsx（编码合法，目录中文名称与主题域英文名留空）：
-         from openpyxl import Workbook
-         workbook = Workbook()
-         ws = workbook.active
-         ws.title = "L2"
-         ws.append(["* 上级目录", "编码", "* 目录中文名称", "* 目录英文名称", "* 数据负责人工号", "* 业务定义"])
-        ws.append(["CatalogA", "", "", "", "Owner_Valid_335", "业务定义_335"])
-         workbook.save("catalog_missing_l2_c0335.xlsx")
+      4) 使用以下一次性 Bash 命令生成 catalog_missing_l2_c0335.xlsx（编码合法，目录中文名称与主题域英文名留空）：
+      python3 - <<'PY'
+      from openpyxl import Workbook
+      workbook = Workbook()
+      ws = workbook.active
+      ws.title = "L2"
+      ws.append(["* 上级目录", "编码", "* 目录中文名称", "* 目录英文名称", "* 数据负责人工号", "* 业务定义"])
+      ws.append(["CatalogA", "", "", "", "Owner_Valid_335", "业务定义_335"])
+      workbook.save("catalog_missing_l2_c0335.xlsx")
+      PY
     steps:
       - action: 进入【元数据 → 数据目录 → 目录管理】页面
         expected: 进入成功
@@ -10763,14 +10774,16 @@ cases:
       2) 已发布 CatalogA 下存在已发布 CatalogB 上级目录，L3 不含必填自定义属性
          a. 创建方式：进入【元数据 → 数据目录 → 目录管理】，L1 层级新建目录 CatalogA 并发布，再在 L2 层级新建目录 CatalogB（上级目录选择 CatalogA）并发布，目录必填项使用 数据资产部/泸州老窖/张三/1001/在职
       3) Owner_Valid_336 为在职人员工号
-      4) 使用以下 Python 脚本生成 catalog_missing_l3_c0336.xlsx（目录中文名称与数据管家工号留空，其余必填合法）：
-         from openpyxl import Workbook
-         workbook = Workbook()
-         ws = workbook.active
-         ws.title = "L3"
-         ws.append(["* 上级目录(L1)", "* 上级目录(L2)", "编码", "* 目录中文名称", "* 目录英文名称", "* 数据负责人工号", "* 业务定义", "* 数据管家工号"])
-        ws.append(["CatalogA", "CatalogB", "", "", "L3_EN_Missing_336", "Owner_Valid_336", "业务定义_336", ""])
-         workbook.save("catalog_missing_l3_c0336.xlsx")
+      4) 使用以下一次性 Bash 命令生成 catalog_missing_l3_c0336.xlsx（目录中文名称与数据管家工号留空，其余必填合法）：
+      python3 - <<'PY'
+      from openpyxl import Workbook
+      workbook = Workbook()
+      ws = workbook.active
+      ws.title = "L3"
+      ws.append(["* 上级目录(L1)", "* 上级目录(L2)", "编码", "* 目录中文名称", "* 目录英文名称", "* 数据负责人工号", "* 业务定义", "* 数据管家工号"])
+      ws.append(["CatalogA", "CatalogB", "", "", "L3_EN_Missing_336", "Owner_Valid_336", "业务定义_336", ""])
+      workbook.save("catalog_missing_l3_c0336.xlsx")
+      PY
     steps:
       - action: 进入【元数据 → 数据目录 → 目录管理】页面
         expected: 进入成功
@@ -11135,18 +11148,19 @@ cases:
       2) 授权数据源：${DataSourceA}
       3) 数据源类型：SparkThrift2.x
       4) 存在数据库：${SchemaA}
-      5) 使用以下 Shell 脚本生成 prepare_13925_c0332.sql（生成 801 张 L4 表，该表为空表）：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="prepare_13925_c0332.sql"
-         schema='${SchemaA}'
-         prefix='test_table_13925_c0332'
-         : > "$output_file"
-         for ((i = 1; i <= 801; i++)); do
-           table="${schema}.${prefix}_$(printf '%04d' "$i")"
-           printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
-           printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
-         done
+      5) 使用以下一次性 Bash 命令生成 prepare_13925_c0332.sql（生成 801 张 L4 表，该表为空表）：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="prepare_13925_c0332.sql"
+      schema='${SchemaA}'
+      prefix='test_table_13925_c0332'
+      : > "$output_file"
+      for ((i = 1; i <= 801; i++)); do
+        table="${schema}.${prefix}_$(printf '%04d' "$i")"
+        printf 'DROP TABLE IF EXISTS %s;\n' "$table" >> "$output_file"
+        printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT);\n' "$table" >> "$output_file"
+      done
+      BASH
       6) 复制 prepare_13925_c0332.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
       7) 进入【元数据 → 元数据同步】，选择数据源 ${DataSourceA}、数据库 ${SchemaA}，执行元数据同步，将以上表同步至数据地图
       8) 表名前缀：test_table_13925_c0332_
@@ -11864,46 +11878,46 @@ cases:
 
       6) 已创建并发布 L1 上级目录 CatalogA 与 L2 上级目录 CatalogB（位于其下），创建后 L1=BD01、L2=SD001、L3 数值位为 0
 
-      7) 使用以下 Python 脚本生成 import_l1l2l3_boundary.xlsx（依赖 openpyxl，需先 pip install openpyxl。生成 L1 97 行、L2 997 行、L3 9998 行，编码列留空，L2/L3 上级分别填 CatalogA/CatalogB。枚举列固定使用脚本 ENUM 中的值。执行前确认这些枚举值已维护，否则先在前置基础数据中创建同名枚举值。脚本可直接复制执行，YAML 展示缩进不会影响脚本内容）：
-        ```python
-        from openpyxl import Workbook
-        ENUM = {"归属部门": "数据资产部", "所属公司": "泸州老窖", "数据责任人": "张三", "数据责任人工号": "1001", "数据责任人状态": "在职", "数据管家": "李四", "数据管家工号": "2001", "数据管家状态": "在职", "zuhu11": "zuhu11", "dasdsa": "dasdsa", "验证": "验证"}
-        PARENT = {"L2": "CatalogA", "L3": "CatalogB"}
-        PLAN = {"L1": 97, "L2": 997, "L3": 9998}
-        HEADERS = {
-            "L1": ["编码", "* 目录中文名称", "* 业务定义", "* 目录英文名称", "* 归属部门", "* 所属公司", "* 数据责任人", "* 数据责任人工号", "* 数据责任人状态", "* zuhu11", "* dasdsa", "* 验证"],
-            "L2": ["编码", "* 上级目录", "* 目录中文名称", "* 业务定义", "* 目录英文名称", "* 归属部门", "* 所属公司", "* 数据责任人", "* 数据责任人工号", "* 数据责任人状态"],
-            "L3": ["编码", "* 上级目录(L1)", "* 上级目录(L2)", "标签", "* 目录中文名称", "* 业务定义", "* 目录英文名称", "* 归属部门", "* 所属公司", "* 数据责任人", "* 数据责任人工号", "* 数据责任人状态", "* 数据管家", "* 数据管家工号", "* 数据管家状态"],
-        }
-        workbook = Workbook()
-        workbook.remove(workbook.active)
-        for sheet, rows in PLAN.items():
-            ws = workbook.create_sheet(title=sheet)
-            ws.append(HEADERS[sheet])
-            for i in range(1, rows + 1):
-                row = []
-                for h in HEADERS[sheet]:
-                    name = h.replace("* ", "").strip()
-                    if name == "编码":
-                        row.append("")
-                    elif name == "目录中文名称":
-                        row.append(f"{sheet}_BD_{i:05d}")
-                    elif name == "目录英文名称":
-                        row.append(f"{sheet}_BD_EN_{i:05d}")
-                    elif name == "业务定义":
-                        row.append(f"{sheet}_BD_DEF_{i}")
-                    elif name == "上级目录":
-                        row.append(PARENT["L2"])
-                    elif name == "上级目录(L1)":
-                        row.append(PARENT["L2"])
-                    elif name == "上级目录(L2)":
-                        row.append(PARENT["L3"])
-                    else:
-                        row.append(ENUM.get(name, ""))
-                ws.append(row)
-        workbook.save("import_l1l2l3_boundary.xlsx")
-        print("已生成 import_l1l2l3_boundary.xlsx（L1 97 行 / L2 997 行 / L3 9998 行）")
-        ```
+      7) 使用以下一次性 Bash 命令生成 import_l1l2l3_boundary.xlsx（依赖 openpyxl，需先 pip install openpyxl。生成 L1 97 行、L2 997 行、L3 9998 行，编码列留空，L2/L3 上级分别填 CatalogA/CatalogB。枚举列固定使用脚本 ENUM 中的值。执行前确认这些枚举值已维护，否则先在前置基础数据中创建同名枚举值）：
+      python3 - <<'PY'
+      from openpyxl import Workbook
+      ENUM = {"归属部门": "数据资产部", "所属公司": "泸州老窖", "数据责任人": "张三", "数据责任人工号": "1001", "数据责任人状态": "在职", "数据管家": "李四", "数据管家工号": "2001", "数据管家状态": "在职", "zuhu11": "zuhu11", "dasdsa": "dasdsa", "验证": "验证"}
+      PARENT = {"L2": "CatalogA", "L3": "CatalogB"}
+      PLAN = {"L1": 97, "L2": 997, "L3": 9998}
+      HEADERS = {
+        "L1": ["编码", "* 目录中文名称", "* 业务定义", "* 目录英文名称", "* 归属部门", "* 所属公司", "* 数据责任人", "* 数据责任人工号", "* 数据责任人状态", "* zuhu11", "* dasdsa", "* 验证"],
+        "L2": ["编码", "* 上级目录", "* 目录中文名称", "* 业务定义", "* 目录英文名称", "* 归属部门", "* 所属公司", "* 数据责任人", "* 数据责任人工号", "* 数据责任人状态"],
+        "L3": ["编码", "* 上级目录(L1)", "* 上级目录(L2)", "标签", "* 目录中文名称", "* 业务定义", "* 目录英文名称", "* 归属部门", "* 所属公司", "* 数据责任人", "* 数据责任人工号", "* 数据责任人状态", "* 数据管家", "* 数据管家工号", "* 数据管家状态"],
+      }
+      workbook = Workbook()
+      workbook.remove(workbook.active)
+      for sheet, rows in PLAN.items():
+        ws = workbook.create_sheet(title=sheet)
+        ws.append(HEADERS[sheet])
+        for i in range(1, rows + 1):
+          row = []
+          for h in HEADERS[sheet]:
+            name = h.replace("* ", "").strip()
+            if name == "编码":
+              row.append("")
+            elif name == "目录中文名称":
+              row.append(f"{sheet}_BD_{i:05d}")
+            elif name == "目录英文名称":
+              row.append(f"{sheet}_BD_EN_{i:05d}")
+            elif name == "业务定义":
+              row.append(f"{sheet}_BD_DEF_{i}")
+            elif name == "上级目录":
+              row.append(PARENT["L2"])
+            elif name == "上级目录(L1)":
+              row.append(PARENT["L2"])
+            elif name == "上级目录(L2)":
+              row.append(PARENT["L3"])
+            else:
+              row.append(ENUM.get(name, ""))
+          ws.append(row)
+      workbook.save("import_l1l2l3_boundary.xlsx")
+      print("已生成 import_l1l2l3_boundary.xlsx（L1 97 行 / L2 997 行 / L3 9998 行）")
+      PY
     steps:
       - action: 进入【平台管理 → 编码管理】页面
         expected: 进入成功

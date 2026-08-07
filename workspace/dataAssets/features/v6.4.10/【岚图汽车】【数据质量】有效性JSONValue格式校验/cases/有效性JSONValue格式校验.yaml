@@ -269,15 +269,17 @@ cases:
        Sheet: 一层
        Title: key, 中文名称, value格式
        Line1: test-key-001, 测试键001, ^.+$
-    8) 使用以下 Python 脚本生成上述导入文件：
-       import openpyxl
-       wb = openpyxl.Workbook()
-       ws1 = wb.active
-       ws1.title = "一层"
-       ws1.append(["key", "中文名称", "value格式"])
-       for i in range(1, 211):
-           ws1.append([f"test-key-{i:03d}", f"测试键{i:03d}", "^.+$"])
-       wb.save("json_value_format_import_15694.xlsx")
+    8) 使用以下一次性 Bash 命令生成 json_value_format_import_15694.xlsx：
+    python3 - <<'PY'
+    from openpyxl import Workbook
+    workbook = Workbook()
+    ws1 = workbook.active
+    ws1.title = "一层"
+    ws1.append(["key", "中文名称", "value格式"])
+    for i in range(1, 211):
+        ws1.append([f"test-key-{i:03d}", f"测试键{i:03d}", "^.+$"])
+    workbook.save("json_value_format_import_15694.xlsx")
+    PY
     9) 已通过【规则集管理】创建规则集 RuleSetA，关联 SparkThrift2.x 数据源 ${SchemaA} 库 test_table_15694_c0007 表，规则包名称「大数据量key测试包」
     10) 规则集 RuleSetA 中已创建非空值数规则行并保存
   tags:
@@ -866,33 +868,36 @@ cases:
        Sheet: 一层
        Title: key, 中文名称, value格式
        Line1: perf-key-0001, 性能键0001, ^.+$
-    7) 使用以下 Python 脚本生成上述导入文件：
-       import openpyxl
-       wb = openpyxl.Workbook()
-       ws1 = wb.active
-       ws1.title = "一层"
-       ws1.append(["key", "中文名称", "value格式"])
-       for i in range(1, 1001):
-           ws1.append([f"perf-key-{i:04d}", f"性能键{i:04d}", "^.+$"])
-       for i in range(1001, 1201):
-           ws1.append([f"perf-novalue-{i}", f"无格式键{i}", ""])
-       wb.save("json_value_format_import_15694.xlsx")
-    8) 使用以下 Shell 脚本生成 insert_json_perf_15694.sql（共1000条INSERT记录）：
-       #!/usr/bin/env bash
-       set -euo pipefail
-       output_file="insert_json_perf_15694.sql"
-       table='${SchemaA}.test_table_15694_c0019'
-       {
-         printf 'DROP TABLE IF EXISTS %s;\n' "${table}"
-         printf 'CREATE TABLE IF NOT EXISTS %s (id INT, big_info STRING);\n' "${table}"
-         printf 'INSERT INTO %s VALUES\n' "${table}"
-         for ((i=1; i<=1000; i++)); do
-           json='{"perf-key-0001": "value_1", "perf-key-0002": "value_2", "perf-key-0003": "value_3"}'
-           comma=','
-           if (( i == 1000 )); then comma=';'; fi
-           printf "  (%d, '%s')%s\n" "$((i+100))" "${json}" "${comma}"
-         done
-       } > "${output_file}"
+    7) 使用以下一次性 Bash 命令生成 json_value_format_import_15694.xlsx：
+    python3 - <<'PY'
+    from openpyxl import Workbook
+    workbook = Workbook()
+    ws1 = workbook.active
+    ws1.title = "一层"
+    ws1.append(["key", "中文名称", "value格式"])
+    for i in range(1, 1001):
+        ws1.append([f"perf-key-{i:04d}", f"性能键{i:04d}", "^.+$"])
+    for i in range(1001, 1201):
+        ws1.append([f"perf-novalue-{i}", f"无格式键{i}", ""])
+    workbook.save("json_value_format_import_15694.xlsx")
+    PY
+    8) 使用以下一次性 Bash 命令生成 insert_json_perf_15694.sql（共1000条INSERT记录）：
+    bash <<'BASH'
+    set -euo pipefail
+    output_file="insert_json_perf_15694.sql"
+    table='${SchemaA}.test_table_15694_c0019'
+    {
+      printf 'DROP TABLE IF EXISTS %s;\n' "${table}"
+      printf 'CREATE TABLE IF NOT EXISTS %s (id INT, big_info STRING);\n' "${table}"
+      printf 'INSERT INTO %s VALUES\n' "${table}"
+      for ((i=1; i<=1000; i++)); do
+        json='{"perf-key-0001": "value_1", "perf-key-0002": "value_2", "perf-key-0003": "value_3"}'
+        comma=','
+        if (( i == 1000 )); then comma=';'; fi
+        printf "  (%d, '%s')%s\n" "$((i+100))" "${json}" "${comma}"
+      done
+    } > "${output_file}"
+    BASH
     9) 复制 insert_json_perf_15694.sql 的内容，在 ${DataSourceA} 对应平台或底层执行，为 ${SchemaA}.test_table_15694_c0019 灌入1000条数据
     10) 已通过【规则集管理】创建规则集 RuleSetA，关联 ${SchemaA}.test_table_15694_c0019，规则包名称「大数据量key校验包」
     11) 规则集 RuleSetA 中已配置「格式-json格式校验」规则：字段 big_info，校验key perf-key-0001 和 perf-key-0002，强弱规则 强规则，过滤条件 无，规则描述 无，并已保存

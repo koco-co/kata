@@ -339,22 +339,23 @@ cases:
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：StarRocks3.x
       3) 存在数据库：${SchemaA}
-      4) 使用以下 Shell 脚本生成 test_table_16035_c0012.sql：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="test_table_16035_c0012.sql"
-         schema='${SchemaA}'
-         table="${schema}.test_table_16035_c0012"
-         {
-           printf 'DROP TABLE IF EXISTS %s;\n' "${table}"
-           printf 'CREATE TABLE IF NOT EXISTS %s (order_id BIGINT, amount DECIMAL(10,2));\n' "${table}"
-           printf 'INSERT INTO %s VALUES\n' "${table}"
-           for ((id=1; id<=100; id++)); do
-             separator=','
-             if (( id == 100 )); then separator=';'; fi
-             printf "(%d, CAST(%d AS DECIMAL(10,2)))%s\n" "${id}" "${id}" "${separator}"
-           done
-         } > "${output_file}"
+      4) 使用以下一次性 Bash 命令生成 test_table_16035_c0012.sql：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="test_table_16035_c0012.sql"
+      schema='${SchemaA}'
+      table="${schema}.test_table_16035_c0012"
+      {
+        printf 'DROP TABLE IF EXISTS %s;\n' "${table}"
+        printf 'CREATE TABLE IF NOT EXISTS %s (order_id BIGINT, amount DECIMAL(10,2));\n' "${table}"
+        printf 'INSERT INTO %s VALUES\n' "${table}"
+        for ((id=1; id<=100; id++)); do
+          separator=','
+          if (( id == 100 )); then separator=';'; fi
+          printf "(%d, CAST(%d AS DECIMAL(10,2)))%s\n" "${id}" "${id}" "${separator}"
+        done
+      } > "${output_file}"
+      BASH
       5) 复制 test_table_16035_c0012.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
       6) 规则任务「TaskA」开启抽样，抽样数量为 10
     steps:

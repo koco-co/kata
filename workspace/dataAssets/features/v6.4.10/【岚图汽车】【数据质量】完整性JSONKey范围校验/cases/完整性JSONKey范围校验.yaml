@@ -110,15 +110,17 @@ cases:
     title: 验证【数据质量】-【规则集管理】加载校验内容下拉框，默认展示前 200 条且搜索可命中未加载 key(校验内容条数 > 200)
     priority: P1
     precondition: |-
-      1) 使用以下 Python 脚本生成 json_key_range_import_250.xlsx：
-         from openpyxl import Workbook
-         workbook = Workbook()
-         sheet = workbook.active
-         sheet.title = "一层"
-         sheet.append(["key", "中文名称", "value格式"])
-         for index in range(1, 251):
-             sheet.append([f"key_{index:03d}", f"名称{index}", ""])
-         workbook.save("json_key_range_import_250.xlsx")
+      1) 使用以下一次性 Bash 命令生成 json_key_range_import_250.xlsx：
+      python3 - <<'PY'
+      from openpyxl import Workbook
+      workbook = Workbook()
+      sheet = workbook.active
+      sheet.title = "一层"
+      sheet.append(["key", "中文名称", "value格式"])
+      for index in range(1, 251):
+          sheet.append([f"key_{index:03d}", f"名称{index}", ""])
+      workbook.save("json_key_range_import_250.xlsx")
+      PY
       2) 在 JSON 格式校验管理中导入 json_key_range_import_250.xlsx，导入后 key_001 至 key_250 均存在
       3) 规则集「RuleSetF」已关联字段 info
     steps:

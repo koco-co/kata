@@ -714,19 +714,20 @@ cases:
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Lindorm
       3) 存在数据库：${SchemaA}
-      4) 使用以下 Shell 脚本生成 test_table_15889_c0026.sql：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="test_table_15889_c0026.sql"
-         schema='${SchemaA}'
-         {
-           for ((seq=1; seq<=100; seq++)); do
-             table="${schema}.test_table_15889_c0026_source_$(printf '%04d' "$seq")"
-             printf 'DROP TABLE IF EXISTS %s;\n' "${table}"
-             printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT, name STRING);\n' "${table}"
-             printf 'INSERT INTO %s VALUES (1, '\''A'\'');\n' "${table}"
-           done
-         } > "${output_file}"
+      4) 使用以下一次性 Bash 命令生成 test_table_15889_c0026.sql：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="test_table_15889_c0026.sql"
+      schema='${SchemaA}'
+      {
+        for ((seq=1; seq<=100; seq++)); do
+          table="${schema}.test_table_15889_c0026_source_$(printf '%04d' "$seq")"
+          printf 'DROP TABLE IF EXISTS %s;\n' "${table}"
+          printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT, name STRING);\n' "${table}"
+          printf 'INSERT INTO %s VALUES (1, '\''A'\'');\n' "${table}"
+        done
+      } > "${output_file}"
+      BASH
       5) 复制 test_table_15889_c0026.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
       6) ${SchemaA} 下共 100 张表，每张表包含字段 id BIGINT、name STRING
     steps:

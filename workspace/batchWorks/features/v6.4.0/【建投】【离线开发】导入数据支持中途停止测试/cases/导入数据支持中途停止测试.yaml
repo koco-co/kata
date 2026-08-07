@@ -14,14 +14,15 @@ cases:
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：MySQL
       3) 存在数据库：${SchemaA}
-      4) 使用以下 Shell 脚本生成 local_import_9245_c0001.csv：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="local_import_9245_c0001.csv"
-         printf '%s\n' 'employee_id,full_name,job_title,salary,hire_date,is_fulltime,tech_stack' > "${output_file}"
-         for ((id=1; id<=100000; id++)); do
-           printf '%d,user_%06d,engineer,%.2f,2026-08-01,1,SQL\n' "${id}" "${id}" "${id}.00" >> "${output_file}"
-         done
+      4) 使用以下一次性 Bash 命令生成 local_import_9245_c0001.csv：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="local_import_9245_c0001.csv"
+      printf '%s\n' 'employee_id,full_name,job_title,salary,hire_date,is_fulltime,tech_stack' > "${output_file}"
+      for ((id=1; id<=100000; id++)); do
+        printf '%d,user_%06d,engineer,%.2f,2026-08-01,1,SQL\n' "${id}" "${id}" "${id}.00" >> "${output_file}"
+      done
+      BASH
       5) 在 ${SchemaA} 创建带唯一约束的目标表：
          DROP TABLE IF EXISTS ${SchemaA}.test_table_9245_c0001;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_9245_c0001 (
@@ -77,14 +78,15 @@ cases:
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：StarRocks3.x
       3) 存在数据库：${SchemaA}
-      4) 使用以下 Shell 脚本生成 local_import_9245_c0002.csv：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="local_import_9245_c0002.csv"
-         printf '%s\n' 'employee_id,full_name,job_title,salary,hire_date,is_fulltime,tech_stack' > "${output_file}"
-         for ((id=1; id<=100000; id++)); do
-           printf '%d,user_%06d,engineer,%.2f,2026-08-01,1,SQL\n' "${id}" "${id}" "${id}.00" >> "${output_file}"
-         done
+      4) 使用以下一次性 Bash 命令生成 local_import_9245_c0002.csv：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="local_import_9245_c0002.csv"
+      printf '%s\n' 'employee_id,full_name,job_title,salary,hire_date,is_fulltime,tech_stack' > "${output_file}"
+      for ((id=1; id<=100000; id++)); do
+        printf '%d,user_%06d,engineer,%.2f,2026-08-01,1,SQL\n' "${id}" "${id}" "${id}.00" >> "${output_file}"
+      done
+      BASH
       5) 在 ${SchemaA} 创建 Unique Key 目标表和 Duplicate Key 对照表：
          DROP TABLE IF EXISTS ${SchemaA}.test_table_9245_c0002_target_01;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_9245_c0002_target_01 (
@@ -151,14 +153,15 @@ cases:
       2) 数据源类型：PostgreSQL
       3) 平台表类型：OushuDB
       4) 存在数据库：${SchemaA}
-      5) 使用以下 Shell 脚本生成 local_import_9245_c0003.csv：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="local_import_9245_c0003.csv"
-         printf '%s\n' 'employee_id,full_name,job_title,salary,hire_date,is_fulltime,tech_stack' > "${output_file}"
-         for ((id=1; id<=100000; id++)); do
-           printf '%d,user_%06d,engineer,%.2f,2026-08-01,true,SQL\n' "${id}" "${id}" "${id}.00" >> "${output_file}"
-         done
+      5) 使用以下一次性 Bash 命令生成 local_import_9245_c0003.csv：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="local_import_9245_c0003.csv"
+      printf '%s\n' 'employee_id,full_name,job_title,salary,hire_date,is_fulltime,tech_stack' > "${output_file}"
+      for ((id=1; id<=100000; id++)); do
+        printf '%d,user_%06d,engineer,%.2f,2026-08-01,true,SQL\n' "${id}" "${id}" "${id}.00" >> "${output_file}"
+      done
+      BASH
       6) 在 ${SchemaA} 创建目标表：
          DROP TABLE IF EXISTS ${SchemaA}.test_table_9245_c0003;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_9245_c0003 (
@@ -208,14 +211,15 @@ cases:
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：Oracle
       3) 存在数据库：${SchemaA}
-      4) 使用以下 Shell 脚本生成 local_import_9245_c0004.csv：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="local_import_9245_c0004.csv"
-         printf '%s\n' 'employee_id,full_name,job_title,salary,hire_date,is_fulltime,tech_stack' > "${output_file}"
-         for ((id=1; id<=100000; id++)); do
-           printf '%d,user_%06d,engineer,%.2f,2026-08-01,1,SQL\n' "${id}" "${id}" "${id}.00" >> "${output_file}"
-         done
+      4) 使用以下一次性 Bash 命令生成 local_import_9245_c0004.csv：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="local_import_9245_c0004.csv"
+      printf '%s\n' 'employee_id,full_name,job_title,salary,hire_date,is_fulltime,tech_stack' > "${output_file}"
+      for ((id=1; id<=100000; id++)); do
+        printf '%d,user_%06d,engineer,%.2f,2026-08-01,1,SQL\n' "${id}" "${id}" "${id}.00" >> "${output_file}"
+      done
+      BASH
       5) 在 ${SchemaA} 创建带唯一约束的目标表：
          BEGIN
            EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_9245_c0004';
@@ -276,14 +280,15 @@ cases:
       2) 数据源类型：Oracle
       3) 平台表类型：DM Oracle
       4) 存在数据库：${SchemaA}
-      5) 使用以下 Shell 脚本生成 local_import_9245_c0005.csv：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="local_import_9245_c0005.csv"
-         printf '%s\n' 'employee_id,full_name,job_title,salary,hire_date,is_fulltime,tech_stack' > "${output_file}"
-         for ((id=1; id<=100000; id++)); do
-           printf '%d,user_%06d,engineer,%.2f,2026-08-01,1,SQL\n' "${id}" "${id}" "${id}.00" >> "${output_file}"
-         done
+      5) 使用以下一次性 Bash 命令生成 local_import_9245_c0005.csv：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="local_import_9245_c0005.csv"
+      printf '%s\n' 'employee_id,full_name,job_title,salary,hire_date,is_fulltime,tech_stack' > "${output_file}"
+      for ((id=1; id<=100000; id++)); do
+        printf '%d,user_%06d,engineer,%.2f,2026-08-01,1,SQL\n' "${id}" "${id}" "${id}.00" >> "${output_file}"
+      done
+      BASH
       6) 在 ${SchemaA} 创建带唯一约束的目标表：
          BEGIN
            EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_9245_c0005';
@@ -342,14 +347,15 @@ cases:
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：OceanBaseOracle
       3) 存在数据库：${SchemaA}
-      4) 使用以下 Shell 脚本生成 local_import_9245_c0006.csv：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="local_import_9245_c0006.csv"
-         printf '%s\n' 'employee_id,full_name,job_title,salary,hire_date,is_fulltime,tech_stack' > "${output_file}"
-         for ((id=1; id<=100000; id++)); do
-           printf '%d,user_%06d,engineer,%.2f,2026-08-01,1,SQL\n' "${id}" "${id}" "${id}.00" >> "${output_file}"
-         done
+      4) 使用以下一次性 Bash 命令生成 local_import_9245_c0006.csv：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="local_import_9245_c0006.csv"
+      printf '%s\n' 'employee_id,full_name,job_title,salary,hire_date,is_fulltime,tech_stack' > "${output_file}"
+      for ((id=1; id<=100000; id++)); do
+        printf '%d,user_%06d,engineer,%.2f,2026-08-01,1,SQL\n' "${id}" "${id}" "${id}.00" >> "${output_file}"
+      done
+      BASH
       5) 在 ${SchemaA} 创建带唯一约束的目标表：
          BEGIN
            EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_9245_c0006';
@@ -410,14 +416,15 @@ cases:
       2) 数据源类型：PostgreSQL
       3) 平台表类型：Greenplum
       4) 存在数据库：${SchemaA}
-      5) 使用以下 Shell 脚本生成 local_import_9245_c0007.csv：
-         #!/usr/bin/env bash
-         set -euo pipefail
-         output_file="local_import_9245_c0007.csv"
-         printf '%s\n' 'employee_id,full_name,job_title,salary,hire_date,is_fulltime,tech_stack' > "${output_file}"
-         for ((id=1; id<=100000; id++)); do
-           printf '%d,user_%06d,engineer,%.2f,2026-08-01,true,SQL\n' "${id}" "${id}" "${id}.00" >> "${output_file}"
-         done
+      5) 使用以下一次性 Bash 命令生成 local_import_9245_c0007.csv：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="local_import_9245_c0007.csv"
+      printf '%s\n' 'employee_id,full_name,job_title,salary,hire_date,is_fulltime,tech_stack' > "${output_file}"
+      for ((id=1; id<=100000; id++)); do
+        printf '%d,user_%06d,engineer,%.2f,2026-08-01,true,SQL\n' "${id}" "${id}" "${id}.00" >> "${output_file}"
+      done
+      BASH
       6) 在 ${SchemaA} 创建带唯一约束的目标表：
          DROP TABLE IF EXISTS ${SchemaA}.test_table_9245_c0007;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_9245_c0007 (
