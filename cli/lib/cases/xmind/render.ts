@@ -66,6 +66,13 @@ function requirementTopics(file: CasesFile): TopicBuilder[] {
   });
 }
 
+function wrappedRequirementTopics(file: CasesFile, meta: XmindMeta): TopicBuilder[] {
+  let l1 = Topic(file.meta.l1_title ?? buildL1Title(meta)).children(requirementTopics(file));
+  const labels = buildL1Labels(meta);
+  if (labels.length > 0) l1 = l1.labels(labels);
+  return [l1];
+}
+
 function casesMeta(file: CasesFile, projectName: string, context: CaseRenderContext): XmindMeta {
   return {
     project_name: projectName,
@@ -85,7 +92,7 @@ export async function renderXmindBuffer(
   const meta = casesMeta(file, projectName, context);
   let l1Topics: TopicBuilder[];
   if (file.meta.layout === "requirements") {
-    l1Topics = requirementTopics(file);
+    l1Topics = file.meta.l1_title ? wrappedRequirementTopics(file, meta) : requirementTopics(file);
   } else {
     const l1Children = topicChildren(casesToTopicRoot(file));
     let l1 = Topic(buildL1Title(meta)).children(l1Children);

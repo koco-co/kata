@@ -21,6 +21,7 @@ export function serializeCasesYaml(input: CasesFile): string {
   const file = normalizeCasesFile(input);
   const meta = {
     title: file.meta.title,
+    ...(file.meta.l1_title ? { l1_title: file.meta.l1_title } : {}),
     ...(file.meta.requirement_id ? { requirement_id: file.meta.requirement_id } : {}),
     case_module_id: file.meta.case_module_id,
     ...(file.meta.layout ? { layout: file.meta.layout } : {}),

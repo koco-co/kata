@@ -168,6 +168,12 @@ export function parseCasesYaml(yamlText: string): CasesFile {
     }
     meta.layout = m.layout;
   }
+  if (m.l1_title !== undefined) {
+    if (typeof m.l1_title !== "string" || !m.l1_title.trim()) {
+      fail("字段 meta.l1_title 必须是非空字符串");
+    }
+    meta.l1_title = m.l1_title.trim();
+  }
   if (m.requirement_id !== undefined) {
     if (typeof m.requirement_id !== "string" && typeof m.requirement_id !== "number") {
       failType("meta.requirement_id", "数字字符串", m.requirement_id);

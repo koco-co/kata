@@ -49,6 +49,12 @@ export function validateCases(file: CasesFile): string[] {
   if (file.meta.layout && !["flat", "requirements"].includes(file.meta.layout)) {
     problems.push(`meta.layout 非法: ${file.meta.layout}`);
   }
+  if (file.meta.l1_title !== undefined) {
+    if (!file.meta.l1_title.trim()) problems.push("meta.l1_title 不能为空");
+    if (file.meta.layout !== "requirements") {
+      problems.push("meta.l1_title 仅支持 meta.layout: requirements");
+    }
+  }
   if (file.meta.layout === "requirements" && !file.requirements) {
     problems.push("requirements 布局缺 requirements 数组");
   }

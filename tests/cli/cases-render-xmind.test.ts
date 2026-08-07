@@ -90,6 +90,70 @@ describe("renderXmind", () => {
     expect(firstCase?.notes?.plain?.content?.trim()).toBe("已存在可查询的编码数据");
   });
 
+  it("wraps requirement topics under an explicit L1 title when meta.l1_title is set", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "kata-rx-l1-wrap-"));
+    const out = join(dir, "需求名.xmind");
+    const aggregate: CasesFile = {
+      meta: {
+        title: "【15911】【泸州老窖】【数据资产】资产定制化代码剥离",
+        requirement_id: "15911",
+        case_module_id: "",
+        layout: "requirements",
+        l1_title: "【泸州老窖】资产定制化代码剥离",
+      },
+      requirements: [
+        {
+          requirement_id: "13176",
+          title: "【数据资产目录】数据资产编码管理",
+          source: "禅道需求 13176",
+        },
+        {
+          requirement_id: "16178",
+          title: "【泸州老窖】新增行级权限管控",
+          source: "禅道需求 16178",
+        },
+      ],
+      cases: [
+        {
+          id: "C0001",
+          requirement_id: "13176",
+          title: "验证编码查询",
+          priority: "P1",
+          steps: [{ action: "查询", expected: "返回结果" }],
+        },
+        {
+          id: "C0002",
+          requirement_id: "16178",
+          title: "验证行级权限",
+          priority: "P0",
+          steps: [{ action: "访问", expected: "仅显示授权行" }],
+        },
+      ],
+    };
+    await renderXmind(aggregate, out, "dataAssets", {
+      version: "v7.0.0",
+      featureKey: "dataAssets:v7.0.0/【15911】【泸州老窖】【数据资产】资产定制化代码剥离",
+    });
+    const zip = await JSZip.loadAsync(readFileSync(out));
+    const content = zip.file("content.json");
+    if (!content) throw new Error("missing content.json");
+    const sheets = JSON.parse(await content.async("string"));
+    const l1s = sheets[0].rootTopic.children.attached;
+    expect(l1s.map((node: { title: string }) => node.title)).toEqual([
+      "【泸州老窖】资产定制化代码剥离",
+    ]);
+    expect(l1s[0].labels).toEqual(["(#15911)"]);
+    const l2s = l1s[0].children.attached;
+    expect(l2s.map((node: { title: string }) => node.title)).toEqual([
+      "【数据资产目录】数据资产编码管理",
+      "【泸州老窖】新增行级权限管控",
+    ]);
+    expect(l2s.map((node: { labels?: string[] }) => node.labels)).toEqual([
+      ["(#13176)"],
+      ["(#16178)"],
+    ]);
+  });
+
   it("flattens page-less cases under the module (no 模块>同名模块 nesting)", async () => {
     const dir = mkdtempSync(join(tmpdir(), "kata-rx-"));
     const out = join(dir, "需求名.xmind");

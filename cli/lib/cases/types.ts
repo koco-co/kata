@@ -19,6 +19,8 @@ export interface CaseMeta {
   exports?: string[];
   /** XMind layout contract; requirements creates one L1 topic per requirement. */
   layout?: "flat" | "requirements";
+  /** requirements 布局下，把各需求 L1 节点包到指定标题的单个 L1 节点下。 */
+  l1_title?: string;
   /** Digest of cases/test-points.md; required when the feature has prd/prd.md. */
   test_points_digest?: string;
 }

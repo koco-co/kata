@@ -123,6 +123,7 @@ describe("parseCasesYaml", () => {
     const aggregate = `
 meta:
   title: 泸州老窖定制化回归基线
+  l1_title: 【泸州老窖】资产定制化代码剥离
   case_module_id: ""
   layout: requirements
 requirements:
@@ -140,6 +141,7 @@ cases:
 `;
     const f = parseCasesYaml(aggregate);
     expect(f.meta.layout).toBe("requirements");
+    expect(f.meta.l1_title).toBe("【泸州老窖】资产定制化代码剥离");
     expect(f.requirements).toEqual([
       { requirement_id: "16178", title: "【泸州老窖】新增行级权限管控", source: "禅道需求 16178" },
     ]);
