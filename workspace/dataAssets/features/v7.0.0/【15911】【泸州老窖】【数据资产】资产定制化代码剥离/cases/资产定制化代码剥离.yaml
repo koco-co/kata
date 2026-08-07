@@ -1,7 +1,7 @@
 meta:
   title: 【15911】【泸州老窖】【数据资产】资产定制化代码剥离
   requirement_id: '15911'
-  case_module_id: ''
+  case_module_id: '10826'
   layout: requirements
   source: 当前禅道24条子需求、泸州老窖环境、当前15911定制源码、PRD、蓝湖与产品说明书；历史CSV仅作查漏线索
   imports:

@@ -11,6 +11,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { runCasesBuild } from "../../cli/commands/cases-build.ts";
 import { declaredRequirementIds } from "../../cli/lib/cases/requirement-locate.ts";
 import { computePrdDigest } from "../../cli/lib/prd.ts";
 
@@ -166,6 +167,19 @@ cases:
     expect(r.status).not.toBe(0);
     expect(r.stderr).toContain("禅道模块 ID");
     expect(existsSync(join(d, "cases", "exports"))).toBe(false);
+  });
+  it("persists the TUI-provided ZenTao module id into the yaml", async () => {
+    const d = feature();
+    const yamlPath = join(d, "cases", "需求名.yaml");
+    const report = await runCasesBuild(d, {
+      formats: ["xmind", "csv"],
+      caseModuleId: "10826",
+    });
+    expect(report.created).toHaveLength(2);
+    expect(readFileSync(yamlPath, "utf8")).toMatch(/case_module_id:\s*["']?10826["']?/);
+    expect(readFileSync(join(d, "cases", "exports", "需求名.csv"), "utf8")).toContain(
+      "需求名(#10826)",
+    );
   });
   it("rejects unsupported --format values", () => {
     const d = feature();

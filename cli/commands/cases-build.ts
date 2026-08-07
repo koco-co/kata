@@ -309,9 +309,11 @@ export async function runCasesBuild(
   featureDir: string,
   opts: RunCasesBuildOptions = {},
 ): Promise<CasesBuildReport> {
-  const { file, name } = preflightFeature(featureDir);
+  const { file, name, yamlPath } = preflightFeature(featureDir);
   const formats =
     opts.formats ?? caseExports(file.meta.exports, name).map((output) => output.format);
+  const originalYaml = readFileSync(yamlPath, "utf8");
+  let shouldPersistModuleId = false;
   if (formats.includes("csv")) {
     const moduleId = opts.caseModuleId?.trim() || file.meta.case_module_id.trim();
     if (!moduleId) {
@@ -320,11 +322,21 @@ export async function runCasesBuild(
     if (!/^\d+$/.test(moduleId)) {
       throw new Error("禅道模块 ID 必须为数字");
     }
+    shouldPersistModuleId =
+      opts.caseModuleId !== undefined && file.meta.case_module_id !== moduleId;
     file.meta.case_module_id = moduleId;
   }
-  const artifacts = await renderArtifacts(file, featureDir, name, formats);
-  for (const artifact of artifacts) assertWritable(featurePaths(featureDir), artifact.path);
-  return commitArtifacts(artifacts, featureDir, opts.formats === undefined);
+  if (shouldPersistModuleId) {
+    writeFileAtomic(yamlPath, setCaseModuleId(originalYaml, file.meta.case_module_id));
+  }
+  try {
+    const artifacts = await renderArtifacts(file, featureDir, name, formats);
+    for (const artifact of artifacts) assertWritable(featurePaths(featureDir), artifact.path);
+    return commitArtifacts(artifacts, featureDir, opts.formats === undefined);
+  } catch (error) {
+    if (shouldPersistModuleId) writeFileAtomic(yamlPath, originalYaml);
+    throw error;
+  }
 }
 
 interface TargetPlan {
