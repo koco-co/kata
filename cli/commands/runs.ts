@@ -123,7 +123,11 @@ export function runRunsPrune(opts: {
   // 只清 active/standing zone；archived 不清
   let targets: FeatureDirEntry[];
   if (opts.featurePath) {
-    targets = [findFeatureEntry(featuresRoot, opts.featurePath)];
+    const entry = findFeatureEntry(featuresRoot, opts.featurePath);
+    if (entry.zone === "archived") {
+      throw new Error(`归档 feature 不参与 runs prune: ${opts.featurePath}`);
+    }
+    targets = [entry];
   } else {
     targets = listFeatureDirs(featuresRoot).filter((e) => e.zone !== "archived");
   }
