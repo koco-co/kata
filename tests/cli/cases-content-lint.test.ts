@@ -247,7 +247,7 @@ describe("cases content lint", () => {
       precondition: `1) 创建导入文件 field_import.xlsx：
    Sheet: L5
    Title: * 所属数据源,* 字段名,标签（多个标签用英文分号分隔）,安全等级
-   Line1: ${"${DataSourceA}"},code,tag_a,是`,
+   Line1: \${DataSourceA},code,tag_a,是`,
     });
     expect(lintCaseContent(doc(item), config).map((entry) => entry.rule)).not.toContain(
       "case_forbidden_term",
@@ -667,8 +667,7 @@ cases:
           steps: [
             { action: "进入【离线开发 → 数据开发 → 函数管理】页面", expected: "进入成功" },
             {
-              action:
-                "新建GaussDB 存储过程, 配置如下:\n1) 存储过程名称: proc_account_summary\n2) SQL:\nCREATE OR REPLACE PROCEDURE ${项目标识}.proc_account_summary();",
+              action: `新建GaussDB 存储过程, 配置如下:\n1) 存储过程名称: proc_account_summary\n2) SQL:\nCREATE OR REPLACE PROCEDURE \${项目标识}.proc_account_summary();`,
               expected: "Toast提示: 创建成功",
             },
           ],
@@ -1115,8 +1114,8 @@ cases:
         {
           action: `新建监控任务：
 * 规则名称：RuleA
-* 选择数据源：${"${DataSourceA}"}
-* 选择数据库：${"${SchemaA}"}
+* 选择数据源：\${DataSourceA}
+* 选择数据库：\${SchemaA}
 * 选择数据表：test_table_16178_c0001
 抽样检查设置：百分比抽样50%`,
           expected: "进入「监控规则」步骤",
@@ -1186,8 +1185,7 @@ cases:
       steps: [
         { action: "进入【数据质量 → 规则集管理】页面", expected: "进入成功" },
         {
-          action:
-            "点击「新建规则集」，填写规则集名称「RuleSetA」，选择 ${DataSourceA}、${SchemaA}、test_table_16178_c0001",
+          action: `点击「新建规则集」，填写规则集名称「RuleSetA」，选择 \${DataSourceA}、\${SchemaA}、test_table_16178_c0001`,
           expected: "进入规则配置步骤",
         },
       ],

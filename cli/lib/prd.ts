@@ -159,7 +159,7 @@ function assertChecklistVerdicts(session: PrdSession): void {
   if (!verdicts || verdicts.length === 0) {
     throw new Error("session 第 2 轮遗漏扫描缺少 checklist_verdicts");
   }
-  const seedIds = new Set(PRD_CHECKLIST_SEED.map((item) => item.id));
+  const seedIds = new Set<string>(PRD_CHECKLIST_SEED.map((item) => item.id));
   const questionById = new Map(session.questions.map((question) => [question.id, question]));
   const seen = new Set<string>();
   for (const verdict of verdicts) {

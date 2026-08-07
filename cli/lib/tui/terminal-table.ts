@@ -13,7 +13,7 @@ export interface TerminalTableOptions {
   /** Total display width available for the table, including borders and padding. */
   width?: number;
   columns: readonly TerminalTableColumn[];
-  rows: readonly (readonly string[][]);
+  rows: readonly (readonly string[])[];
 }
 
 const DEFAULT_WIDTH = 80;

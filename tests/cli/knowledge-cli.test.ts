@@ -517,7 +517,7 @@ describe("kata knowledge read", () => {
     ]);
     expect(r.status).toBe(0);
     const out = JSON.parse(r.stdout);
-    expect(out.entries.map((e) => e.title)).toContain("岚图数据质量规范");
+    expect(out.entries.map((e: { title: string }) => e.title)).toContain("岚图数据质量规范");
 
     // default 客户不应读到 ltqc 专属条目
     const rd = kata(root, [
@@ -533,7 +533,7 @@ describe("kata knowledge read", () => {
     ]);
     expect(rd.status).toBe(0);
     const outD = JSON.parse(rd.stdout);
-    expect(outD.entries.map((e) => e.title)).not.toContain("岚图数据质量规范");
+    expect(outD.entries.map((e: { title: string }) => e.title)).not.toContain("岚图数据质量规范");
   });
 
   it("standard type requires --customer", () => {
