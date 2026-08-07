@@ -30,6 +30,7 @@ import {
   renderHotfixMarkdown,
 } from "../lib/hotfix-report.ts";
 import { assertWritable } from "../lib/path-policy.ts";
+import { assertReportSlug, assertYyyymm } from "../lib/paths.ts";
 import { locateProject } from "../lib/workspace-locator.ts";
 
 const BUG_VIEW_ID_RE = /bug-view-(\d+)\.html/;
@@ -138,7 +139,8 @@ export function registerDefects(program: Command): void {
         if ((opts.bugId ? 1 : 0) + (opts.url ? 1 : 0) !== 1) {
           throw new Error("必须且只能提供 --bug-id 或 --url");
         }
-        if (!/^\d{6}$/.test(opts.yyyymm)) throw new Error("--yyyymm 必须为 YYYYMM");
+        assertYyyymm(opts.yyyymm);
+        assertReportSlug(opts.slug);
         const projectPaths = locateProject(opts.project);
         const evidence = loadHotfixEvidence(resolve(opts.evidenceFile));
         if (opts.bugId !== undefined && !/^\d+$/.test(opts.bugId)) {
