@@ -139,6 +139,26 @@ describe("plugin configuration", () => {
     expect(config.dingtalk?.enabled).toBe(false);
   });
 
+  test("rejects invalid notification booleans instead of failing open", () => {
+    const top = root();
+    writeFileSync(
+      pluginConfigPath("notify", top),
+      "enabled: maybe\nenabled_events: [cases-built]\n",
+      { mode: 0o600 },
+    );
+    expect(() => loadNotifyConfig(top)).toThrow(/notify 配置 enabled 必须为 true\/false/);
+
+    const channel = root();
+    writeFileSync(
+      pluginConfigPath("notify", channel),
+      "enabled_events: [cases-built]\ndingtalk:\n  enabled: maybe\n  webhook_url: http://hook\n",
+      { mode: 0o600 },
+    );
+    expect(() => loadNotifyConfig(channel)).toThrow(
+      /notify 配置 dingtalk\.enabled 必须为 true\/false/,
+    );
+  });
+
   test("rejects retired notify switches so old configs fail closed", () => {
     const top = root();
     writeFileSync(
