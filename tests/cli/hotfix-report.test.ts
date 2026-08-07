@@ -14,9 +14,7 @@ import {
 describe("hotfix report path validation", () => {
   it("rejects invalid yyyymm and slug values", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-hotfix-path-"));
-    expect(() => hotfixReportPath(root, "dataAssets", "202699", "demo")).toThrow(
-      /非法年月/,
-    );
+    expect(() => hotfixReportPath(root, "dataAssets", "202699", "demo")).toThrow(/非法年月/);
     expect(() => hotfixReportPath(root, "dataAssets", "202607", "../evil")).toThrow(
       /非法报告 slug/,
     );

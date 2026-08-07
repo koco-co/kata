@@ -1,8 +1,8 @@
 import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import {
-  assertSafeRefPath,
   assertRepoOperationAllowed,
+  assertSafeRefPath,
   git,
   isGitSourceRepo,
   loadSourceRepos,

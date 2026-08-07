@@ -4,8 +4,8 @@ import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
-  assertSafeRefPath,
   assertRepoOperationAllowed,
+  assertSafeRefPath,
   loadSourceRepos,
   mainWorktreeRoot,
   quarantineInvalidRemoteRefs,

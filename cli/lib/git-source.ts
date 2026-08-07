@@ -59,11 +59,7 @@ export function safeRef(ref: string): boolean {
 /** Validate a git `show` style `<ref>:<path>` argument before invoking git. */
 export function assertSafeRefPath(refPath: string): void {
   const colon = refPath.indexOf(":");
-  if (
-    colon <= 0 ||
-    !safeRef(refPath.slice(0, colon)) ||
-    !safeGitPath(refPath.slice(colon + 1))
-  ) {
+  if (colon <= 0 || !safeRef(refPath.slice(0, colon)) || !safeGitPath(refPath.slice(colon + 1))) {
     throw new Error(`非法 ref:path: ${refPath}`);
   }
 }
