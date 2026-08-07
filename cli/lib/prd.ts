@@ -45,6 +45,7 @@ export const PRD_CHECKLIST_SEED = [
   { id: "CL-004", title: "失败与恢复" },
   { id: "CL-005", title: "并发与幂等" },
   { id: "CL-006", title: "依赖影响" },
+  { id: "CL-007", title: "历史与跨分支回归用例归属" },
 ] as const;
 
 export interface PrdEvidencePage {
