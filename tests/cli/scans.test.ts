@@ -52,4 +52,24 @@ describe("scans Markdown-only contract", () => {
       readdirSync(join(root, "workspace", "dataAssets")).filter((d) => d === "analyses"),
     ).toHaveLength(0);
   });
+
+  it("rejects --patch combined with branch-pair arguments", () => {
+    const { root, patch } = setup();
+    const result = create(root, [
+      "--patch",
+      patch,
+      "--repo",
+      "group/repo",
+      "--base-branch",
+      "main",
+      "--head-branch",
+      "dev",
+      "--yyyymm",
+      "202607",
+      "--slug",
+      "demo",
+    ]);
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("必须二选一");
+  });
 });
