@@ -72,6 +72,13 @@ const TITLE_OPERATION_CONDITION_RE =
 const TITLE_OPERATION_RE = /^验证【[^】]+】(?:-【[^】]+】)?([^，()]+)，/;
 const NUMBERED_LINE_RE = /^(\d+)\)\s+\S/;
 const GENERATOR_COMMAND_RE = /^\s*(?:mysql|psql|sqlplus|beeline|spark-sql|hive|curl|wget|ssh)\b/im;
+const GENERATOR_HEADER_RE = /使用以下一次性 Bash 命令生成\s+(\S+\.(?:sql|csv|xlsx))/;
+const LEGACY_GENERATOR_RE = /使用以下\s+(?:Shell|Python)\s+脚本生成/;
+const BASH_GENERATOR_RE = /bash <<'BASH'/;
+const PYTHON_GENERATOR_RE = /python3 - <<'PY'/;
+const BASH_TERMINATOR_RE = /^BASH$/m;
+const PYTHON_TERMINATOR_RE = /^PY$/m;
+const BASH_SHEBANG_RE = /#!\/usr\/bin\/env bash/;
 const SAMPLING_SETTING_RE = /抽样检查设置[：:]\s*(?!关闭)/;
 const SAMPLING_QUERY_RESULT_RE = /查询结果[：:]\s*(?:\d+\s*行|[\d,，]+|NULL|null|即|具体|20\d\d)/;
 
@@ -207,7 +214,21 @@ export function lintCaseYamlSource(yamlText: string): CaseContentViolation[] {
     const caseId = yamlScalarString(item, "case_id");
     const caseTitle = yamlScalarString(item, "title");
 
+    let heredocDelimiter: "BASH" | "PY" | undefined;
     const packedLine = precondition.value.split("\n").find((line) => {
+      const trimmed = line.trim();
+      if (heredocDelimiter) {
+        if (trimmed === heredocDelimiter) heredocDelimiter = undefined;
+        return false;
+      }
+      if (/^bash <<'BASH'$/.test(trimmed)) {
+        heredocDelimiter = "BASH";
+        return false;
+      }
+      if (/^python3 - <<'PY'$/.test(trimmed)) {
+        heredocDelimiter = "PY";
+        return false;
+      }
       if (!/[；;]/.test(line)) return false;
       if (/^\s+/.test(line)) return false;
       const structuralLine = line.replace(
@@ -336,9 +357,28 @@ function validateNumberedBlock(text: string): string | undefined {
     .map((line) => line.match(NUMBERED_LINE_RE)?.[1])
     .filter((value): value is string => Boolean(value))
     .map(Number);
-  const invalidTopLevel = lines
-    .slice(1)
-    .find((line) => !/^\s/.test(line) && !NUMBERED_LINE_RE.test(line));
+  let heredocDelimiter: "BASH" | "PY" | undefined;
+  const invalidTopLevel = lines.slice(1).find((line) => {
+    if (heredocDelimiter) {
+      const trimmed = line.trim();
+      if (
+        (heredocDelimiter === "BASH" && /^BASH$/.test(trimmed)) ||
+        (heredocDelimiter === "PY" && /^PY$/.test(trimmed))
+      ) {
+        heredocDelimiter = undefined;
+      }
+      return false;
+    }
+    const trimmed = line.trim();
+    if (/^bash <<'BASH'$/.test(trimmed)) {
+      heredocDelimiter = "BASH";
+      return false;
+    } else if (/^python3 - <<'PY'$/.test(trimmed)) {
+      heredocDelimiter = "PY";
+      return false;
+    }
+    return !/^\s/.test(line) && !NUMBERED_LINE_RE.test(line);
+  });
   if (invalidTopLevel) return `未编号的顶层内容: ${invalidTopLevel}`;
   for (const [index, value] of numbered.entries()) {
     if (value !== index + 1) return `编号序列为 ${numbered.join("、")}`;
@@ -399,7 +439,7 @@ function validateTableNames(
     ];
   }
   const base = `test_table_${requirementId}_${item.id.toLowerCase()}`;
-  const generated = /使用以下\s+(?:Shell|Python)\s+脚本生成\s+\S+\.sql/.test(precondition);
+  const generated = GENERATOR_HEADER_RE.test(precondition);
   const references = tableReferences(precondition).filter((name) => !(generated && name === "%s"));
   const invalidReferences = references.filter((name) => {
     const match = name.match(/^\$\{Schema([A-Z])\d*\}\.(.+)$/);
@@ -509,42 +549,85 @@ function countValuesRows(text: string): number {
 }
 
 function generatorViolation(precondition: string): CaseContentViolation | undefined {
-  const generator = precondition.match(
-    /使用以下\s+(Shell|Python)\s+脚本生成\s+(\S+\.(?:sql|csv|xlsx))/,
-  );
-  if (!generator) return undefined;
-  const [, language, filename] = generator;
-  const shellComplete =
-    language !== "Shell" ||
-    (/#!\/usr\/bin\/env bash/.test(precondition) &&
-      /set -euo pipefail/.test(precondition) &&
-      /output_file=/.test(precondition));
-  const pythonComplete =
-    language !== "Python" ||
-    (/from openpyxl import Workbook/.test(precondition) && /workbook\.save\(/.test(precondition));
-  if (!shellComplete || !pythonComplete) {
+  const legacy = LEGACY_GENERATOR_RE.exec(precondition);
+  if (legacy) {
     return makeViolation(
       "case_generator_scope",
-      "在前置条件中给出可直接复制的完整生成脚本；Shell 包含解释器、严格模式和输出文件，XLSX Python 包含 openpyxl 创建与保存逻辑",
-      `文件生成脚本不完整: ${filename}`,
+      "前置条件必须使用「使用以下一次性 Bash 命令生成 <文件>」格式；Shell 包在 bash <<'BASH' ... BASH，Python 包在 python3 - <<'PY' ... PY",
+      `仍在使用旧格式: ${legacy[0]}`,
     );
   }
-  if (GENERATOR_COMMAND_RE.test(precondition)) {
-    return makeViolation(
-      "case_generator_scope",
-      "生成脚本只生成 SQL、CSV 或 XLSX 文件，不连接、不登录且不执行平台或数据库",
-      "生成脚本包含外部系统执行命令",
-    );
+  const lines = precondition.split("\n");
+  const segments: string[] = [];
+  let start = -1;
+  for (let index = 0; index < lines.length; index += 1) {
+    if (GENERATOR_HEADER_RE.test(lines[index] ?? "")) {
+      if (start >= 0) segments.push(lines.slice(start, index).join("\n"));
+      start = index;
+    }
   }
-  if (
-    filename?.endsWith(".sql") &&
-    !/复制\s+\S+\.sql\s+的内容，在\s+\$\{DataSource[A-Z]\}\s+对应平台或底层执行/.test(precondition)
-  ) {
-    return makeViolation(
-      "case_generator_scope",
-      "SQL 生成脚本后明确写明复制 SQL 文件内容并在对应数据源平台或底层执行",
-      "缺少 SQL 文件的人工执行说明",
-    );
+  if (start >= 0) segments.push(lines.slice(start).join("\n"));
+
+  for (const segment of segments) {
+    const generator = GENERATOR_HEADER_RE.exec(segment);
+    if (!generator) continue;
+    const filename = generator[1] ?? "";
+    const hasBash = BASH_GENERATOR_RE.test(segment);
+    const hasPython = PYTHON_GENERATOR_RE.test(segment);
+    if (hasBash === hasPython) {
+      return makeViolation(
+        "case_generator_scope",
+        "一次性 Bash 命令必须且只能包含一个生成入口：bash <<'BASH' 或 python3 - <<'PY'",
+        hasBash ? "同时包含 Bash 与 Python 生成入口" : "缺少 bash <<'BASH' 或 python3 - <<'PY'",
+      );
+    }
+    const isXlsx = filename.endsWith(".xlsx");
+    if (isXlsx && hasBash) {
+      return makeViolation(
+        "case_generator_scope",
+        "XLSX 生成命令必须使用 python3 - <<'PY' 包 Python + openpyxl，不能使用 Shell",
+        `文件类型与生成语言不匹配: ${filename}`,
+      );
+    }
+    const complete = hasBash
+      ? BASH_TERMINATOR_RE.test(segment) &&
+        /set -euo pipefail/.test(segment) &&
+        /output_file=/.test(segment)
+      : PYTHON_TERMINATOR_RE.test(segment) &&
+        (isXlsx
+          ? /from openpyxl import Workbook/.test(segment) && /workbook\.save\(/.test(segment)
+          : /output_file\s*=/.test(segment));
+    if (!complete) {
+      return makeViolation(
+        "case_generator_scope",
+        "生成命令必须完整：BASH/PY 结束符位于行首，Shell 包含 set -euo pipefail 与 output_file，XLSX Python 包含 openpyxl 创建与保存逻辑",
+        `文件生成命令不完整: ${filename}`,
+      );
+    }
+    if (BASH_SHEBANG_RE.test(segment)) {
+      return makeViolation(
+        "case_generator_scope",
+        "生成命令不得包含 #!/usr/bin/env bash；使用一次性 bash heredoc 命令",
+        "仍包含旧脚本解释器声明",
+      );
+    }
+    if (GENERATOR_COMMAND_RE.test(segment)) {
+      return makeViolation(
+        "case_generator_scope",
+        "生成命令只生成 SQL、CSV 或 XLSX 文件，不连接、不登录且不执行平台或数据库",
+        "生成命令包含外部系统执行命令",
+      );
+    }
+    if (
+      filename.endsWith(".sql") &&
+      !/复制\s+\S+\.sql\s+的内容，在\s+\$\{DataSource[A-Z]\}\s+对应平台或底层执行/.test(segment)
+    ) {
+      return makeViolation(
+        "case_generator_scope",
+        "SQL 生成命令后明确写明复制 SQL 文件内容并在对应数据源平台或底层执行",
+        "缺少 SQL 文件的人工执行说明",
+      );
+    }
   }
   return undefined;
 }
@@ -1021,9 +1104,7 @@ function lintTagNavConsistency(item: CaseItem, leafPages: Set<string>): CaseCont
 
 function lintImportFixture(precondition: string, threshold: number): CaseContentViolation[] {
   if (!/\.(?:csv|xlsx)\b/i.test(precondition)) return [];
-  const generated = /使用以下\s+(?:Shell|Python)\s+脚本生成\s+\S+\.(?:csv|xlsx)/i.test(
-    precondition,
-  );
+  const generated = GENERATOR_HEADER_RE.test(precondition);
   if (generated) return [];
   const isXlsx = /\.xlsx\b/i.test(precondition);
   const hasTitle = /^\s*Title:\s*\S/m.test(precondition);
@@ -1046,7 +1127,7 @@ function lintImportFixture(precondition: string, threshold: number): CaseContent
     violations.push(
       makeViolation(
         "case_import_fixture",
-        `导入记录超过 ${threshold} 行时使用完整文件生成脚本；CSV 优先 Shell，XLSX 使用 Python + openpyxl`,
+        `导入记录超过 ${threshold} 行时使用一次性 Bash 命令生成；CSV 可用 Shell/Python，XLSX 使用 Python + openpyxl`,
         `内联记录已写到 Line${Math.max(...lines)}`,
       ),
     );
@@ -1119,12 +1200,12 @@ function lintDatasourceSql(
     if (
       explicitRows > config.bulk_row_threshold &&
       !/\brange\s*\(/i.test(precondition) &&
-      !/使用以下\s+(?:Shell|Python)\s+脚本生成/.test(precondition)
+      !GENERATOR_HEADER_RE.test(precondition)
     ) {
       violations.push(
         makeViolation(
           "case_bulk_rows",
-          `显式数据最多 ${config.bulk_row_threshold} 行；超过后使用当前方言的集合生成语句，方言不支持时在前置条件中给出完整文件生成脚本`,
+          `显式数据最多 ${config.bulk_row_threshold} 行；超过后使用当前方言的集合生成语句，方言不支持时在前置条件中给出一次性 Bash 命令生成文件`,
           `VALUES 显式写入 ${explicitRows} 行`,
         ),
       );
@@ -1203,12 +1284,12 @@ function lintDatasourceSql(
   if (
     explicitRows > config.bulk_row_threshold &&
     !/\brange\s*\(/i.test(precondition) &&
-    !/使用以下\s+(?:Shell|Python)\s+脚本生成/.test(precondition)
+    !GENERATOR_HEADER_RE.test(precondition)
   ) {
     violations.push(
       makeViolation(
         "case_bulk_rows",
-        `显式数据最多 ${config.bulk_row_threshold} 行；超过后使用当前方言的集合生成语句，方言不支持时在前置条件中给出完整文件生成脚本`,
+        `显式数据最多 ${config.bulk_row_threshold} 行；超过后使用当前方言的集合生成语句，方言不支持时在前置条件中给出一次性 Bash 命令生成文件`,
         `VALUES 显式写入 ${explicitRows} 行`,
       ),
     );
@@ -1797,7 +1878,7 @@ export function lintCaseContent(
       itemViolations.push(
         makeViolation(
           "case_precondition_format",
-          "无前置条件写“无”；一条或多条前置条件均从 1) 开始并使用连续半角编号，SQL、脚本和文件内容作为对应编号的缩进行",
+          "无前置条件写“无”；一条或多条前置条件均从 1) 开始并使用连续半角编号，SQL、脚本和文件内容作为对应编号的缩进行；一次性 Bash heredoc 生成命令的 BASH/PY 块除外",
           preconditionProblem ?? "前置条件为空",
         ),
       );

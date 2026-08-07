@@ -496,6 +496,27 @@ describe("cases content lint", () => {
     expect(lintCaseYamlSource(source)).toEqual([]);
   });
 
+  it("ignores shell semicolons inside one-time bash heredoc preconditions", () => {
+    const source = `cases:
+  - case_id: C0001
+    title: 验证【规则库配置】保存规则，展示规则校验内容
+    priority: P1
+    precondition: |-
+      1) 使用以下一次性 Bash 命令生成 rule_import.csv：
+      bash <<'BASH'
+      set -euo pipefail
+      output_file="rule_import.csv"
+      for ((id=1; id<=2; id++)); do
+        printf '%d\\n' "$id" >> "$output_file"
+      done
+      BASH
+    steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 进入成功
+`;
+    expect(lintCaseYamlSource(source)).toEqual([]);
+  });
+
   it("flags double-quoted preconditions using \\n escapes instead of |-", () => {
     const source = `cases:
   - case_id: C0001
@@ -899,21 +920,22 @@ cases:
     expect(withFunctions.find((item) => item.rule === "case_bulk_rows")?.message).toContain("6 行");
   });
 
-  it("accepts a complete shell SQL generator but rejects scripts that execute external systems", () => {
+  it("accepts a complete one-time bash SQL generator but rejects commands that execute external systems", () => {
     const generator = `1) 授权数据源：\${DataSourceA}
 2) 数据源类型：SparkThrift2.x
 3) 存在数据库：\${SchemaA}
-4) 使用以下 Shell 脚本生成 test_table_16178_c0001.sql：
-   #!/usr/bin/env bash
-   set -euo pipefail
-   output_file="test_table_16178_c0001.sql"
-   schema='\${SchemaA}'
-   table="\${schema}.test_table_16178_c0001"
-   {
-     printf 'DROP TABLE IF EXISTS %s;\\n' "\${table}"
-     printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT, code STRING);\\n' "\${table}"
-     printf 'INSERT INTO %s SELECT id, CONCAT("code_", CAST(id AS STRING)) FROM range(1, 101);\\n' "\${table}"
-   } > "\${output_file}"
+4) 使用以下一次性 Bash 命令生成 test_table_16178_c0001.sql：
+bash <<'BASH'
+set -euo pipefail
+output_file="test_table_16178_c0001.sql"
+schema='\${SchemaA}'
+table="\${schema}.test_table_16178_c0001"
+{
+  printf 'DROP TABLE IF EXISTS %s;\\n' "\${table}"
+  printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT, code STRING);\\n' "\${table}"
+  printf 'INSERT INTO %s SELECT id, CONCAT("code_", CAST(id AS STRING)) FROM range(1, 101);\\n' "\${table}"
+} > "\${output_file}"
+BASH
 5) 复制 test_table_16178_c0001.sql 的内容，在 \${DataSourceA} 对应平台或底层执行`;
     expect(lintCaseContent(doc(testCase({ precondition: generator })), config)).toEqual([]);
     const executes = generator.replace(
@@ -923,6 +945,87 @@ cases:
     expect(
       lintCaseContent(doc(testCase({ precondition: executes })), config).map((item) => item.rule),
     ).toContain("case_generator_scope");
+  });
+
+  it("rejects legacy Shell/Python generator scripts in preconditions", () => {
+    const legacy = `1) 授权数据源：\${DataSourceA}
+2) 数据源类型：SparkThrift2.x
+3) 存在数据库：\${SchemaA}
+4) 使用以下 Shell 脚本生成 test_table_16178_c0001.sql：
+   #!/usr/bin/env bash
+   set -euo pipefail
+   output_file="test_table_16178_c0001.sql"
+5) 复制 test_table_16178_c0001.sql 的内容，在 \${DataSourceA} 对应平台或底层执行`;
+    const violations = lintCaseContent(doc(testCase({ precondition: legacy })), config);
+    expect(violations.map((item) => item.rule)).toContain("case_generator_scope");
+    expect(violations.find((item) => item.rule === "case_generator_scope")?.message).toContain(
+      "一次性 Bash 命令",
+    );
+  });
+
+  it("requires XLSX generation to use python3 heredoc with openpyxl", () => {
+    const pythonXlsx = `1) 使用以下一次性 Bash 命令生成 rule_import_16178_c0001.xlsx：
+python3 - <<'PY'
+from openpyxl import Workbook
+workbook = Workbook()
+ws = workbook.active
+ws.append(["规则名称"])
+for index in range(1, 101):
+    ws.append([f"规则_{index:03d}"])
+workbook.save("rule_import_16178_c0001.xlsx")
+PY`;
+    expect(lintCaseContent(doc(testCase({ precondition: pythonXlsx })), config)).toEqual([]);
+
+    const shellXlsx = pythonXlsx
+      .replace("python3 - <<'PY'", "bash <<'BASH'")
+      .replace(/^PY$/m, "BASH");
+    expect(
+      lintCaseContent(doc(testCase({ precondition: shellXlsx })), config).map((item) => item.rule),
+    ).toContain("case_generator_scope");
+  });
+
+  it("accepts python-generated CSV without openpyxl", () => {
+    const pythonCsv = `1) 使用以下一次性 Bash 命令生成 rule_import_16178_c0001.csv：
+python3 - <<'PY'
+output_file = "rule_import_16178_c0001.csv"
+with open(output_file, "w", encoding="utf-8") as fh:
+    for index in range(1, 101):
+        fh.write(f"规则_{index:03d}\\n")
+PY`;
+    expect(lintCaseContent(doc(testCase({ precondition: pythonCsv })), config)).toEqual([]);
+  });
+
+  it("accepts multiple one-time bash generators in the same precondition", () => {
+    const precondition = `1) 使用以下一次性 Bash 命令生成 rule_import_16178_c0001.xlsx：
+python3 - <<'PY'
+from openpyxl import Workbook
+workbook = Workbook()
+workbook.save("rule_import_16178_c0001.xlsx")
+PY
+2) 使用以下一次性 Bash 命令生成 rule_import_16178_c0001.csv：
+python3 - <<'PY'
+output_file = "rule_import_16178_c0001.csv"
+with open(output_file, "w") as fh:
+    fh.write("规则A\\n")
+PY`;
+    expect(lintCaseContent(doc(testCase({ precondition })), config)).toEqual([]);
+  });
+
+  it("rejects an indented heredoc terminator", () => {
+    const indented = `1) 授权数据源：\${DataSourceA}
+2) 数据源类型：SparkThrift2.x
+3) 存在数据库：\${SchemaA}
+4) 使用以下一次性 Bash 命令生成 test_table_16178_c0001.sql：
+bash <<'BASH'
+set -euo pipefail
+output_file="test_table_16178_c0001.sql"
+   BASH
+5) 复制 test_table_16178_c0001.sql 的内容，在 \${DataSourceA} 对应平台或底层执行`;
+    const violations = lintCaseContent(doc(testCase({ precondition: indented })), config);
+    expect(violations.map((item) => item.rule)).toContain("case_generator_scope");
+    expect(violations.find((item) => item.rule === "case_generator_scope")?.message).toContain(
+      "BASH/PY 结束符位于行首",
+    );
   });
 
   it("requires partition tables and two dynamic partitions for partition-related cases", () => {
@@ -1171,10 +1274,11 @@ cases:
    DROP TABLE IF EXISTS \${SchemaA}.test_table_16178_c0001;
    CREATE TABLE IF NOT EXISTS \${SchemaA}.test_table_16178_c0001 (id BIGINT);
    INSERT INTO \${SchemaA}.test_table_16178_c0001 VALUES (1), (2);
-5) 使用以下 Shell 脚本生成 test_table_16178_c0001.sql：
-   #!/usr/bin/env bash
-   set -euo pipefail
-   output_file="test_table_16178_c0001.sql"
+5) 使用以下一次性 Bash 命令生成 test_table_16178_c0001.sql：
+bash <<'BASH'
+set -euo pipefail
+output_file="test_table_16178_c0001.sql"
+BASH
 6) 复制 test_table_16178_c0001.sql 的内容，在 \${DataSourceA} 对应平台或底层执行`,
     });
     expect(lintCaseContent(doc(item), config)).toEqual([]);

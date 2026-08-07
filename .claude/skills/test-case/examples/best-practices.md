@@ -247,53 +247,58 @@ precondition: |-
 
 ### 生成脚本
 
+一次性 Bash 命令的每一行与所在编号行保持同一 YAML 缩进；`BASH`/`PY` 结束符复制后必须位于第 1 列，不要额外嵌套缩进。
+
 ```yaml
-# Shell 生成 SQL
+# 一次性 Bash 命令生成 SQL
 precondition: |-
   1) 授权数据源：${DataSourceA}
   2) 数据源类型：SparkThrift2.x
   3) 存在数据库：${SchemaA}
-  4) 使用以下 Shell 脚本生成 test_table_13925_c0260.sql：
-     #!/usr/bin/env bash
-     set -euo pipefail
-     output_file="test_table_13925_c0260.sql"
-     schema='${SchemaA}'
-     table="${schema}.test_table_13925_c0260"
-     {
-       printf 'DROP TABLE IF EXISTS %s;\n' "${table}"
-       printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT, code STRING);\n' "${table}"
-       printf 'INSERT INTO %s VALUES\n' "${table}"
-       for ((id=1; id<=100; id++)); do
-         separator=','
-         if (( id == 100 )); then separator=';'; fi
-         printf "(%d, 'code_%d')%s\n" "${id}" "${id}" "${separator}"
-       done
-     } > "${output_file}"
+  4) 使用以下一次性 Bash 命令生成 test_table_13925_c0260.sql：
+bash <<'BASH'
+set -euo pipefail
+output_file="test_table_13925_c0260.sql"
+schema='${SchemaA}'
+table="${schema}.test_table_13925_c0260"
+{
+  printf 'DROP TABLE IF EXISTS %s;\n' "${table}"
+  printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT, code STRING);\n' "${table}"
+  printf 'INSERT INTO %s VALUES\n' "${table}"
+  for ((id=1; id<=100; id++)); do
+    separator=','
+    if (( id == 100 )); then separator=';'; fi
+    printf "(%d, 'code_%d')%s\n" "${id}" "${id}" "${separator}"
+  done
+} > "${output_file}"
+BASH
   5) 复制 test_table_13925_c0260.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
 
-# Shell 生成 CSV
+# 一次性 Bash 命令生成 CSV
 precondition: |-
-  1) 使用以下 Shell 脚本生成 rule_import_13925_c0260.csv：
-     #!/usr/bin/env bash
-     set -euo pipefail
-     output_file="rule_import_13925_c0260.csv"
-     printf '%s\n' '* 规则名称,规则描述,* 表名,表中文名,字段名,字段中文名,* 校验SQL(请输入不符合规则要求的明细数据查询SQL)' > "${output_file}"
-     for ((id=1; id<=100; id++)); do
-       printf '规则_%03d,规则描述_%03d,departments,部门表,amount,金额,SELECT * FROM departments WHERE id = %d\n' "${id}" "${id}" "${id}" >> "${output_file}"
-     done
+  1) 使用以下一次性 Bash 命令生成 rule_import_13925_c0260.csv：
+bash <<'BASH'
+set -euo pipefail
+output_file="rule_import_13925_c0260.csv"
+printf '%s\n' '* 规则名称,规则描述,* 表名,表中文名,字段名,字段中文名,* 校验SQL(请输入不符合规则要求的明细数据查询SQL)' > "${output_file}"
+for ((id=1; id<=100; id++)); do
+  printf '规则_%03d,规则描述_%03d,departments,部门表,amount,金额,SELECT * FROM departments WHERE id = %d\n' "${id}" "${id}" "${id}" >> "${output_file}"
+done
+BASH
 
-# Python 生成 XLSX
+# 一次性 Bash 命令包 Python 生成 XLSX
 precondition: |-
-  1) 使用以下 Python 脚本生成 rule_import_13925_c0260.xlsx：
-     from openpyxl import Workbook
-     output_file = "rule_import_13925_c0260.xlsx"
-     workbook = Workbook()
-     sheet = workbook.active
-     sheet.title = "Sheet1"
-     sheet.append(["规则名称", "规则描述", "表名", "字段名", "校验SQL"])
-     for index in range(1, 101):
-         sheet.append([f"规则_{index:03d}", f"规则描述_{index:03d}", "departments", "amount", f"SELECT * FROM departments WHERE id = {index}"])
-     workbook.save(output_file)
+  1) 使用以下一次性 Bash 命令生成 rule_import_13925_c0260.xlsx：
+python3 - <<'PY'
+from openpyxl import Workbook
+workbook = Workbook()
+sheet = workbook.active
+sheet.title = "Sheet1"
+sheet.append(["规则名称", "规则描述", "表名", "字段名", "校验SQL"])
+for index in range(1, 101):
+    sheet.append([f"规则_{index:03d}", f"规则描述_{index:03d}", "departments", "amount", f"SELECT * FROM departments WHERE id = {index}"])
+workbook.save("rule_import_13925_c0260.xlsx")
+PY
 ```
 
 ### 导入文件（五行以内）
