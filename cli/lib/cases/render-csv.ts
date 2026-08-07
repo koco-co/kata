@@ -4,6 +4,12 @@
 
 import type { CasesFile } from "./types.ts";
 
+const ZENTAO_PRIORITIES: Record<"P0" | "P1" | "P2", string> = {
+  P0: "1",
+  P1: "2",
+  P2: "3",
+};
+
 // RFC 4180:含逗号/引号/换行的字段加引号,引号转双
 function field(v: string): string {
   if (/[",\n\r]/.test(v)) return `"${v.replaceAll('"', '""')}"`;
@@ -31,14 +37,15 @@ export function renderCsv(file: CasesFile): string {
   for (const c of file.cases) {
     const steps = c.steps.map((s, i) => `${i + 1}. ${s.action}`).join("\n");
     const expected = c.steps.map((s, i) => `${i + 1}. ${s.expected}`).join("\n");
+    const precondition = (c.precondition ?? "").replace(/\r?\n/g, "<br>");
     lines.push(
       [
         moduleCell,
         c.title,
-        c.precondition ?? "",
+        precondition,
         steps,
         expected,
-        c.priority,
+        ZENTAO_PRIORITIES[c.priority],
         "功能测试",
         "功能测试阶段",
       ]
@@ -46,6 +53,6 @@ export function renderCsv(file: CasesFile): string {
         .join(","),
     );
   }
-  // 带 BOM 导出,Excel 直接打开时中文不乱码
-  return `\uFEFF${lines.join("\n")}\n`;
+  // 无 BOM：ZenTao 按列头解析时会把 BOM 混入首个列名，导致列错位。
+  return `${lines.join("\n")}\n`;
 }
