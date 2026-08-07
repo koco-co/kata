@@ -506,6 +506,7 @@ export function registerCasesBuild(cases: Command): void {
             for (const path of report.unchanged) console.log(`unchanged ${path}`);
             for (const path of report.deleted) console.log(`deleted ${path}`);
             if ((report.contentChanged?.length ?? 0) > 0) {
+              const changed = report.contentChanged ?? [];
               const projectDir = projectRootFromFeatureDir(featureDir);
               const { context } = renderContextForFeature(featureDir);
               const root = dirname(dirname(projectDir));
@@ -518,10 +519,8 @@ export function registerCasesBuild(cases: Command): void {
                   completed_at: formatTaipeiTime(),
                   case_count: file.cases.length,
                   created_count: report.created.length,
-                  updated_count: Math.max(0, report.contentChanged.length - report.created.length),
-                  artifact_paths: report.contentChanged.map((path) =>
-                    workspaceRelativePath(root, path),
-                  ),
+                  updated_count: Math.max(0, changed.length - report.created.length),
+                  artifact_paths: changed.map((path) => workspaceRelativePath(root, path)),
                   duration_ms: Date.now() - startedAt.getTime(),
                 },
                 { root },
