@@ -322,6 +322,7 @@ export function autoFixFrontmatter(
   else if (filePath.includes("/sites/")) type = "site";
   else if (filePath.includes("/standards/")) type = "standard";
   else if (filePath.includes("/customers/")) type = "customer";
+  else if (filePath.includes("/terms/")) type = "term";
   else if (filePath.endsWith("overview.md")) type = "overview";
   else if (filePath.endsWith("terms.md")) type = "term";
   else type = "module";
