@@ -327,6 +327,22 @@ describe("cases content lint", () => {
         "case_title_operation_condition",
       );
     }
+
+    const operationLabels = [
+      "验证【周期任务】发布 T+1 周期任务，任务状态为成功",
+      "验证【完整性规则】执行完整性非空规则，校验结果正确",
+      "验证【完整性规则】执行非空校验规则，校验结果正确",
+      "验证【完整性规则】执行字段全部非空的完整性规则，校验结果正确",
+      "验证【完整性规则】执行字段级空值数单字段规则，校验结果正确",
+      "验证【完整性规则】执行存在空值的完整性规则，校验结果正确",
+      "验证【完整性规则】添加字符串长度数据精度空值重复枚举规则并执行，结果正确",
+      "验证【完整性规则】执行非空规则并查看明细，明细完整",
+    ];
+    for (const title of operationLabels) {
+      expect(lintCaseContent(doc(testCase({ title })), config).map((i) => i.rule)).not.toContain(
+        "case_title_operation_condition",
+      );
+    }
   });
 
   it("rejects bracket content without a judge keyword and accepts judgment expressions", () => {
