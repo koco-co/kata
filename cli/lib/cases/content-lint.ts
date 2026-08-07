@@ -65,8 +65,15 @@ const CASE_TITLE_RE =
 // 逻辑连接（且、或）或状态断言（为空、非空、非已…等否定式）；纯数字、层级标签、功能点不算条件。
 const TITLE_CONDITION_OPERATOR_RE =
   /[=≠≥≤><+*÷-]|且|或|为空|非空|未配置|非(?:已|未|启|失效|发布|空)/;
+// 操作区出现这些状态/错误/格式/比较条件词时，必须把条件抽到标题末尾 (条件) 中，
+// 不允许把条件埋在 <操作> 正文里；算术符号与「且/或/非」的判断组合也按此处理。
+const TITLE_OPERATION_CONDITION_RE =
+  /(?:为空|非空|不存在|无效|非法|超长|缺失|缺少|留空|空值|未配置|无权限|权限不足|缺少必填项|必填列为空|必填为空|同层重复|名称重复|重复字段|重复编码|重复选项|重复项|重名|已发布|未发布|已下线|草稿|无下级数据|大于|小于|等于|不等于|大于等于|小于等于|超过|不足|高于|低于|不可用|编码无法识别|格式错误|取值错误|且未发布|或不存在|或无效|或超长|或已发布|或未发布|或已下线|或留空|或为空|非置顶|非组|[+\-*÷])/;
+const TITLE_OPERATION_RE = /^验证【[^】]+】(?:-【[^】]+】)?([^，()]+)，/;
 const NUMBERED_LINE_RE = /^(\d+)\)\s+\S/;
 const GENERATOR_COMMAND_RE = /^\s*(?:mysql|psql|sqlplus|beeline|spark-sql|hive|curl|wget|ssh)\b/im;
+const SAMPLING_SETTING_RE = /抽样检查设置[：:]\s*(?!关闭)/;
+const SAMPLING_QUERY_RESULT_RE = /查询结果[：:]\s*(?:\d+\s*行|[\d,，]+|NULL|null|即|具体|20\d\d)/;
 
 function strings(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === "string" && item.length > 0);
@@ -1313,14 +1320,36 @@ function lintPartitionDataSplit(item: CaseItem): CaseContentViolation[] {
 
 function lintSqlExpected(item: CaseItem): CaseContentViolation[] {
   const violations: CaseContentViolation[] = [];
+  const samplingEnabled = semanticText(item).some((text) => SAMPLING_SETTING_RE.test(text));
   for (const step of item.steps) {
     if (!/(?:SQL.*(?:校验|验证)|(?:校验|验证).*SQL|任务校验)/i.test(step.action)) continue;
+    if (samplingEnabled && /已开启抽样检查设置[\s\S]*实际结果[^\n]*查询结果/.test(step.expected)) {
+      continue;
+    }
     if (/\bSELECT\b[\s\S]*查询结果[：:]/i.test(step.expected)) continue;
     violations.push(
       makeViolation(
         "case_sql_expected",
         "SQL 任务校验预期同时写出可执行 SELECT 查询和确定的查询结果",
         step.expected,
+      ),
+    );
+  }
+  return violations;
+}
+
+function lintSamplingExpected(item: CaseItem): CaseContentViolation[] {
+  const violations: CaseContentViolation[] = [];
+  const samplingEnabled = semanticText(item).some((text) => SAMPLING_SETTING_RE.test(text));
+  if (!samplingEnabled) return violations;
+  for (const step of item.steps) {
+    if (!SAMPLING_QUERY_RESULT_RE.test(step.expected)) continue;
+    violations.push(
+      makeViolation(
+        "case_sampling_query_result",
+        "开启抽样检查设置时，预期中不得写固定查询行数或具体查询结果",
+        step.expected,
+        "将固定查询结果替换为「已开启抽样检查设置，实际结果 ≤ 查询结果」",
       ),
     );
   }
@@ -1736,6 +1765,18 @@ export function lintCaseContent(
         );
       }
     }
+    // 操作区出现条件词时必须同步给出末尾 (条件)，不能只把条件写在操作正文里。
+    const operationMatch = item.title.match(TITLE_OPERATION_RE);
+    if (operationMatch && !parenMatch && TITLE_OPERATION_CONDITION_RE.test(operationMatch[1])) {
+      itemViolations.push(
+        makeViolation(
+          "case_title_operation_condition",
+          "标题<操作>中出现了条件词（为空、非空、不存在、无效、非法、必填项、状态、格式错误、比较/算术判断等），" +
+            "必须抽到标题末尾 (条件) 中，如「验证【目录管理】-【L3目录导入】导入目录文件，错误文件逐行标注对应原因(业务定义 = 空)」",
+          operationMatch[1],
+        ),
+      );
+    }
     const fields = semanticText(item);
     const forbiddenFields = fields.map((field) =>
       field.replaceAll("多个标签用英文分号分隔", "英文分号分隔标签"),
@@ -1844,6 +1885,7 @@ export function lintCaseContent(
     if (partitionProblem) itemViolations.push(partitionProblem);
     itemViolations.push(...lintPartitionDataSplit(item));
     itemViolations.push(...lintSqlExpected(item));
+    itemViolations.push(...lintSamplingExpected(item));
     if (item.automation?.executor === "api") {
       itemViolations.push(
         makeViolation(

@@ -249,9 +249,9 @@ describe("cases content lint", () => {
    Title: * 所属数据源,* 字段名,标签（多个标签用英文分号分隔）,安全等级
    Line1: ${"${DataSourceA}"},code,tag_a,是`,
     });
-    expect(
-      lintCaseContent(doc(item), config).map((entry) => entry.rule),
-    ).not.toContain("case_forbidden_term");
+    expect(lintCaseContent(doc(item), config).map((entry) => entry.rule)).not.toContain(
+      "case_forbidden_term",
+    );
   });
 
   it("rejects generic assertion words and the three legacy title formats", () => {
@@ -297,6 +297,34 @@ describe("cases content lint", () => {
     for (const title of legacy) {
       expect(lintCaseContent(doc(testCase({ title })), config).map((item) => item.rule)).toContain(
         "case_title_format",
+      );
+    }
+  });
+
+  it("requires operation condition words to move into the trailing condition", () => {
+    const withCondition = [
+      "验证【目录管理】-【L3目录导入】导入目录文件，错误文件逐行标注对应原因(业务定义 = 空)",
+      "验证【字段导入】导入表元数据，错误文件批注原因(数据源 = 不存在)",
+      "验证【数据计算】计算数值，展示结果(期望值 = 1+2)",
+      "验证【L4导入】导入表元数据，合法文件导入成功(表状态 = 已同步且未发布)",
+      "验证【L4导入】导入表元数据，错误文件批注原因(对象 = 数据源或数据库不存在)",
+    ];
+    for (const title of withCondition) {
+      expect(lintCaseContent(doc(testCase({ title })), config).map((i) => i.rule)).not.toContain(
+        "case_title_operation_condition",
+      );
+    }
+
+    const withoutCondition = [
+      "验证【目录管理】-【L3目录导入】导入业务定义为空的文件，错误文件定位必填项",
+      "验证【字段导入】导入数据源不存在的文件，错误文件批注原因",
+      "验证【数据计算】计算1+2，展示结果",
+      "验证【L4导入】导入已同步且未发布表，更新属性",
+      "验证【L4导入】导入数据源或数据库不存在的文件，提示原因",
+    ];
+    for (const title of withoutCondition) {
+      expect(lintCaseContent(doc(testCase({ title })), config).map((i) => i.rule)).toContain(
+        "case_title_operation_condition",
       );
     }
   });
@@ -1062,6 +1090,39 @@ cases:
       expected: "执行SQL：SELECT COUNT(*) FROM result_table;\n查询结果：2",
     };
     expect(lintCaseContent(doc(item), config)).toEqual([]);
+  });
+
+  it("rejects fixed query results when sampling is enabled", () => {
+    const item = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则库配置】页面", expected: "进入成功" },
+        {
+          action: `新建监控任务：
+* 规则名称：RuleA
+* 选择数据源：${"${DataSourceA}"}
+* 选择数据库：${"${SchemaA}"}
+* 选择数据表：test_table_16178_c0001
+抽样检查设置：百分比抽样50%`,
+          expected: "进入「监控规则」步骤",
+        },
+        {
+          action: "执行SQL任务校验",
+          expected: `执行SQL：SELECT vin, month, sales FROM test_table_16178_c0001 WHERE vin = 'B';
+查询结果：3 行，即 2026-01/80、2026-02/95、2026-03/90`,
+        },
+      ],
+    });
+    const concreteRules = lintCaseContent(doc(item), config).map((entry) => entry.rule);
+    expect(concreteRules).toContain("case_sampling_query_result");
+
+    item.steps[2] = {
+      action: "执行SQL任务校验",
+      expected: `执行SQL：SELECT vin, month, sales FROM test_table_16178_c0001 WHERE vin = 'B';
+已开启抽样检查设置，实际结果 ≤ 查询结果`,
+    };
+    const genericRules = lintCaseContent(doc(item), config).map((entry) => entry.rule);
+    expect(genericRules).not.toContain("case_sampling_query_result");
+    expect(genericRules).not.toContain("case_sql_expected");
   });
 
   it("rejects pure API cases from the functional suite without removing generic executor support", () => {
