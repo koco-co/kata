@@ -26,7 +26,7 @@ cases:
     tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0002
-    title: 验证【数据开发】-【周期任务】RESTful 来源未配置 Path 时运行失败，配置 Path 后同步成功
+    title: 验证【数据开发】-【周期任务】运行 RESTful 来源同步任务，未配置 Path 时运行失败且配置 Path 后同步成功(Path = 未配置/已配置)
     priority: P0
     precondition: |-
       1) 数据源中心存在 POST RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path
@@ -46,7 +46,7 @@ cases:
     tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0003
-    title: 验证【数据开发】-【周期任务】RESTful 来源地址已含 Path 时留空沿用，另配 Path 后运行失败
+    title: 验证【数据开发】-【周期任务】运行 RESTful 来源同步任务，地址已含 Path 时留空沿用且另配 Path 后运行失败(来源地址 = 已含 Path 且另配 Path)
     priority: P0
     precondition: |-
       1) 数据源中心存在 POST RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/post
@@ -66,7 +66,7 @@ cases:
     tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0004
-    title: 验证【数据开发】-【周期任务】RESTful 来源未配置 Path 或配置请求参数时运行失败，仅配置 Path 后同步成功
+    title: 验证【数据开发】-【周期任务】运行 RESTful 来源同步任务，未配置 Path 或配置请求参数时运行失败且仅配置 Path 后同步成功(Path = 未配置/已配置；请求参数 = 配置/未配置)
     priority: P1
     precondition: |-
       1) 数据源中心存在 GET RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path 和请求参数
@@ -86,7 +86,7 @@ cases:
     tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0005
-    title: 验证【数据开发】-【周期任务】RESTful 来源地址已含 Path 时留空沿用，另配 Path 或请求参数后运行失败
+    title: 验证【数据开发】-【周期任务】运行 RESTful 来源同步任务，地址已含 Path 时留空沿用且另配 Path 或请求参数后运行失败(来源地址 = 已含 Path 且另配 Path/请求参数)
     priority: P1
     precondition: |-
       1) 数据源中心存在 GET RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/get?number=1
@@ -123,7 +123,7 @@ cases:
     tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0007
-    title: 验证【数据开发】-【周期任务】RESTful 目标未配置 Path 时运行失败，配置 Path 后同步成功
+    title: 验证【数据开发】-【周期任务】运行 RESTful 目标同步任务，未配置 Path 时运行失败且配置 Path 后同步成功(Path = 未配置/已配置)
     priority: P1
     precondition: |-
       1) 数据源中心存在 POST RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path
@@ -141,7 +141,7 @@ cases:
     tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0008
-    title: 验证【数据开发】-【周期任务】RESTful 目标地址已含 Path 时留空沿用，另配 Path 后运行失败
+    title: 验证【数据开发】-【周期任务】运行 RESTful 目标同步任务，地址已含 Path 时留空沿用且另配 Path 后运行失败(目标地址 = 已含 Path 且另配 Path)
     priority: P1
     precondition: |-
       1) 数据源中心存在 POST RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/post
@@ -157,7 +157,7 @@ cases:
     tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0009
-    title: 验证【数据开发】-【周期任务】RESTful 目标未配置 Path 或配置请求参数时运行失败，仅配置 Path 后同步成功
+    title: 验证【数据开发】-【周期任务】运行 RESTful 目标同步任务，未配置 Path 或配置请求参数时运行失败且仅配置 Path 后同步成功(Path = 未配置/已配置；请求参数 = 配置/未配置)
     priority: P0
     precondition: |-
       1) 数据源中心存在 GET RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path 和请求参数
@@ -175,7 +175,7 @@ cases:
     tags: [数据开发, 周期任务, RESTful同步]
 
   - case_id: C0010
-    title: 验证【数据开发】-【周期任务】RESTful 目标地址已含 Path 时留空沿用，另配 Path 或请求参数后运行失败
+    title: 验证【数据开发】-【周期任务】运行 RESTful 目标同步任务，地址已含 Path 时留空沿用且另配 Path 或请求参数后运行失败(目标地址 = 已含 Path 且另配 Path/请求参数)
     priority: P0
     precondition: |-
       1) 数据源中心存在 GET RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/get?number=1
@@ -210,7 +210,7 @@ cases:
     tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0012
-    title: 验证【数据开发】-【手动任务】RESTful 来源未配置 Path 时运行失败，配置 Path 后同步成功
+    title: 验证【数据开发】-【手动任务】运行 RESTful 来源同步任务，未配置 Path 时运行失败且配置 Path 后同步成功(Path = 未配置/已配置)
     priority: P1
     precondition: |-
       1) 数据源中心存在 POST RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path
@@ -228,7 +228,7 @@ cases:
     tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0013
-    title: 验证【数据开发】-【手动任务】RESTful 来源地址已含 Path 时留空沿用，另配 Path 后运行失败
+    title: 验证【数据开发】-【手动任务】运行 RESTful 来源同步任务，地址已含 Path 时留空沿用且另配 Path 后运行失败(来源地址 = 已含 Path 且另配 Path)
     priority: P1
     precondition: |-
       1) 数据源中心存在 POST RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/manual-post
@@ -246,7 +246,7 @@ cases:
     tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0014
-    title: 验证【数据开发】-【手动任务】RESTful 来源未配置 Path 或配置请求参数时运行失败，仅配置 Path 后同步成功
+    title: 验证【数据开发】-【手动任务】运行 RESTful 来源同步任务，未配置 Path 或配置请求参数时运行失败且仅配置 Path 后同步成功(Path = 未配置/已配置；请求参数 = 配置/未配置)
     priority: P0
     precondition: |-
       1) 数据源中心存在 GET RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path 和请求参数
@@ -264,7 +264,7 @@ cases:
     tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0015
-    title: 验证【数据开发】-【手动任务】RESTful 来源地址已含 Path 时留空沿用，另配 Path 或请求参数后运行失败
+    title: 验证【数据开发】-【手动任务】运行 RESTful 来源同步任务，地址已含 Path 时留空沿用且另配 Path 或请求参数后运行失败(来源地址 = 已含 Path 且另配 Path/请求参数)
     priority: P1
     precondition: |-
       1) 数据源中心存在 GET RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/manual-get?number=1
@@ -299,7 +299,7 @@ cases:
     tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0017
-    title: 验证【数据开发】-【手动任务】RESTful 目标未配置 Path 时运行失败，配置 Path 后同步成功
+    title: 验证【数据开发】-【手动任务】运行 RESTful 目标同步任务，未配置 Path 时运行失败且配置 Path 后同步成功(Path = 未配置/已配置)
     priority: P0
     precondition: |-
       1) 数据源中心存在 POST RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path
@@ -317,7 +317,7 @@ cases:
     tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0018
-    title: 验证【数据开发】-【手动任务】RESTful 目标地址已含 Path 时留空沿用，另配 Path 后运行失败
+    title: 验证【数据开发】-【手动任务】运行 RESTful 目标同步任务，地址已含 Path 时留空沿用且另配 Path 后运行失败(目标地址 = 已含 Path 且另配 Path)
     priority: P1
     precondition: |-
       1) 数据源中心存在 POST RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/manual-post
@@ -333,7 +333,7 @@ cases:
     tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0019
-    title: 验证【数据开发】-【手动任务】RESTful 目标未配置 Path 或配置请求参数时运行失败，仅配置 Path 后同步成功
+    title: 验证【数据开发】-【手动任务】运行 RESTful 目标同步任务，未配置 Path 或配置请求参数时运行失败且仅配置 Path 后同步成功(Path = 未配置/已配置；请求参数 = 配置/未配置)
     priority: P1
     precondition: |-
       1) 数据源中心存在 GET RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path 和请求参数
@@ -351,7 +351,7 @@ cases:
     tags: [数据开发, 手动任务, RESTful同步]
 
   - case_id: C0020
-    title: 验证【数据开发】-【手动任务】RESTful 目标地址已含 Path 时留空沿用，另配 Path 或请求参数后运行失败
+    title: 验证【数据开发】-【手动任务】运行 RESTful 目标同步任务，地址已含 Path 时留空沿用且另配 Path 或请求参数后运行失败(目标地址 = 已含 Path 且另配 Path/请求参数)
     priority: P0
     precondition: |-
       1) 数据源中心存在 GET RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/manual-get?number=1
