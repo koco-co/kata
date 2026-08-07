@@ -107,7 +107,7 @@ cases:
   - case_id: C0005
     automation:
       spec_file: c0005-key-range-default-200-search.spec.ts
-    title: 验证【数据质量】-【规则集管理】加载超过 200 条的校验内容下拉框，默认展示前 200 条且搜索可命中未加载 key
+    title: 验证【数据质量】-【规则集管理】加载校验内容下拉框，默认展示前 200 条且搜索可命中未加载 key(校验内容条数 > 200)
     priority: P1
     precondition: |-
       1) 使用以下 Python 脚本生成 json_key_range_import_250.xlsx：

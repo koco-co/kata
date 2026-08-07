@@ -582,7 +582,7 @@ cases:
       - 规则库
 
   - case_id: C0019
-    title: 验证【规则库配置】-【JSON导入】导入缺少规则名称的JSON文件，ruleName置红提示且列表不新增规则
+    title: 验证【规则库配置】-【JSON导入】导入规则名称的JSON文件，ruleName置红提示且列表不新增规则(规则名称 = 缺失)
     priority: P1
     precondition: |-
       1) 规则库配置页存在可用规则「RuleA」

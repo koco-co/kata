@@ -212,7 +212,7 @@ cases:
     tags:
       ["数据质量", "规则任务配置"]
   - case_id: C0009
-    title: 验证【数据质量】-【规则集管理】枚举值选择 in 但值输入框为空时保存，提示校验错误
+    title: 验证【数据质量】-【规则集管理】保存规则，提示校验错误(枚举值 = in 且值输入框 = 为空)
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
