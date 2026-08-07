@@ -3,7 +3,7 @@ meta:
   requirement_id: "15914"
   case_module_id: ""
   source: "蓝湖需求 #15914"
-  test_points_digest: "sha256:1de64304faab49ca082e3c751f43e2d79827e8e7ebd82831390f79922dd1ca95"
+  test_points_digest: "sha256:bf9af9492ed7bb35f038907fb9105479a67b07b63f10678b0ab42bbb2c2661dc"
   exports:
     - 时效性校验-周期性校验规则调整.xmind
 cases:
@@ -865,7 +865,7 @@ cases:
       - 数据质量报告
 
   - case_id: C0012
-    title: 验证【数据质量报告】-【无维度规则说明】未配置维度并执行达标数据，报告不展示维度描述
+    title: 验证【数据质量报告】-【无维度规则说明】执行达标数据，报告不展示维度描述(维度 = 未配置)
     source_ref: TP-012
     priority: P1
     precondition: |-
@@ -952,7 +952,7 @@ cases:
   - case_id: C0013
     title: 验证【规则任务管理】-【维度字段等于校验字段】保存并执行唯一时间值数据，配置回显且单记录分组达标
     source_ref: TP-013
-    priority: P0
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：SparkThrift2.x
@@ -1041,7 +1041,7 @@ cases:
   - case_id: C0014
     title: 验证【规则任务管理】-【维度字段等于排序字段】保存并执行唯一排序值数据，配置回显且单记录分组达标
     source_ref: TP-014
-    priority: P0
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：SparkThrift2.x

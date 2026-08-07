@@ -3,7 +3,7 @@ meta:
   requirement_id: "15915"
   case_module_id: ""
   source: "蓝湖需求 #15915"
-  test_points_digest: "sha256:bcc681304150bc09adcadee139de5480cf14ca94b1ff57c5ccbddc8f7c186373"
+  test_points_digest: "sha256:e5426193c11b1a4b37fd71756967293962529b1b5bc3178a861746938ef120f8"
   exports:
     - 合理性校验-数据变化趋势规则调整.xmind
 cases:
@@ -52,7 +52,7 @@ cases:
       - 数据质量
       - 规则集管理
   - case_id: C0002
-    title: 验证【维度字段】选择超过10个字段，保存被阻止并提示上限
+    title: 验证【维度字段】选择字段，保存被阻止并提示上限(字段数 > 10)
     source_ref: TP-002
     priority: P1
     precondition: |-
@@ -211,9 +211,8 @@ cases:
            city STRING,
            vin STRING,
            month STRING,
-           sales BIGINT,
-           dt STRING
-         ) PARTITIONED BY (dt);
+           sales BIGINT
+         ) PARTITIONED BY (dt STRING);
          INSERT INTO ${SchemaA}.test_table_15915_c0005 PARTITION (dt)
          SELECT 1, '北京', 'A', '2026-01', 120, '2026-08-04'
          UNION ALL SELECT 2, '北京', 'A', '2026-02', 135, '2026-08-04'
@@ -254,7 +253,7 @@ cases:
           * 选择数据库：${SchemaA}
           * 选择数据表：test_table_15915_c0005
           选择分区：选择已有分区(dt=2026-08-04)
-          抽样检查设置：百分比抽样50%
+          抽样检查设置：关闭
           点击「下一步」
         expected: 进入「监控规则」步骤
       - action: |-
@@ -296,9 +295,8 @@ cases:
            city STRING,
            vin STRING,
            month STRING,
-           sales BIGINT,
-           dt STRING
-         ) PARTITIONED BY (dt);
+           sales BIGINT
+         ) PARTITIONED BY (dt STRING);
          INSERT INTO ${SchemaA}.test_table_15915_c0006 PARTITION (dt)
          SELECT 1, '北京', 'A', '2026-01', 120, '2026-08-04'
          UNION ALL SELECT 2, '北京', 'A', '2026-02', 135, '2026-08-04'
@@ -339,7 +337,7 @@ cases:
           * 选择数据库：${SchemaA}
           * 选择数据表：test_table_15915_c0006
           选择分区：选择已有分区(dt=2026-08-04)
-          抽样检查设置：百分比抽样50%
+          抽样检查设置：关闭
           点击「下一步」
         expected: 进入「监控规则」步骤
       - action: |-
@@ -385,9 +383,8 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15915_c0007 (
            id BIGINT,
            month STRING,
-           sales BIGINT,
-           dt STRING
-         ) PARTITIONED BY (dt);
+           sales BIGINT
+         ) PARTITIONED BY (dt STRING);
          INSERT INTO ${SchemaA}.test_table_15915_c0007 PARTITION (dt)
          SELECT 1, '2026-01', 100, '2026-08-04'
          UNION ALL SELECT 2, '2026-02', 200, '2026-08-04'
@@ -430,7 +427,7 @@ cases:
           * 选择数据库：${SchemaA}
           * 选择数据表：test_table_15915_c0007
           选择分区：选择已有分区(dt=2026-08-04)
-          抽样检查设置：百分比抽样50%
+          抽样检查设置：关闭
           点击「下一步」
         expected: 进入「监控规则」步骤
       - action: |-
@@ -473,9 +470,8 @@ cases:
            id BIGINT,
            vin STRING,
            month STRING,
-           sales BIGINT,
-           dt STRING
-         ) PARTITIONED BY (dt);
+           sales BIGINT
+         ) PARTITIONED BY (dt STRING);
          INSERT INTO ${SchemaA}.test_table_15915_c0008 PARTITION (dt)
          SELECT 1, 'A', '2026-01', 120, '2026-08-04'
          UNION ALL SELECT 2, 'A', '2026-02', 135, '2026-08-04'
@@ -549,19 +545,19 @@ cases:
       - action: 点击「立即执行」
         expected: 提示执行成功，任务进入调度
       - action: 进入【数据质量 → 校验结果查询】页面，查看 RuleA 最新实例的校验结果
-        expected: 实例校验结果为「校验不通过」，展示「查看明细」入口
+        expected: 任务状态为「运行成功」；抽样命中违规数据时实例展示「查看明细」入口，未命中时不产生违规明细
       - action: 点击「查看明细」
         expected: |-
-          1) 明细数据列表展示违规明细数据（脏数据），仅包含 vin=B 的三条记录（80、95、90），保留校验字段 sales、维度字段 vin、排序字段 month
-          2) 校验SQL：SELECT vin, month, sales FROM ${SchemaA}.test_table_15915_c0008 WHERE vin = 'B';
-             查询结果：3 行，即 2026-01/80、2026-02/95、2026-03/90
+          1) 明细数据列表展示抽样命中且不满足单调递增的脏数据，保留校验字段 sales、维度字段 vin、排序字段 month；实际条数 ≤ 全量查询结果
+          2) 校验SQL：SELECT vin, month, sales FROM ${SchemaA}.test_table_15915_c0008 WHERE dt = '2026-08-05' AND vin = 'B';
+             已开启抽样检查设置，实际结果 ≤ 查询结果
     tags:
       - 数据质量
       - 规则任务管理
   - case_id: C0009
     title: 验证【数据变化趋势】数据相同属于单调递增，相等数据不判定违规
     source_ref: TP-009
-    priority: P0
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：SparkThrift2.x
@@ -571,9 +567,8 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15915_c0009 (
            id BIGINT,
            month STRING,
-           sales BIGINT,
-           dt STRING
-         ) PARTITIONED BY (dt);
+           sales BIGINT
+         ) PARTITIONED BY (dt STRING);
          INSERT INTO ${SchemaA}.test_table_15915_c0009 PARTITION (dt)
          SELECT 1, '2026-01', 100, '2026-08-04'
          UNION ALL SELECT 2, '2026-02', 200, '2026-08-04'
@@ -618,7 +613,7 @@ cases:
           * 选择数据库：${SchemaA}
           * 选择数据表：test_table_15915_c0009
           选择分区：选择已有分区(dt=2026-08-04)
-          抽样检查设置：百分比抽样50%
+          抽样检查设置：关闭
           点击「下一步」
         expected: 进入「监控规则」步骤
       - action: |-
@@ -661,9 +656,8 @@ cases:
            id BIGINT,
            vin STRING,
            month STRING,
-           sales BIGINT,
-           dt STRING
-         ) PARTITIONED BY (dt);
+           sales BIGINT
+         ) PARTITIONED BY (dt STRING);
          INSERT INTO ${SchemaA}.test_table_15915_c0010 PARTITION (dt)
          SELECT 1, 'A', '2026-01', 120, '2026-08-04'
          UNION ALL SELECT 2, 'A', '2026-02', 135, '2026-08-04'
@@ -706,7 +700,7 @@ cases:
           * 选择数据库：${SchemaA}
           * 选择数据表：test_table_15915_c0010
           选择分区：选择已有分区(dt=2026-08-04)
-          抽样检查设置：百分比抽样50%
+          抽样检查设置：关闭
           点击「下一步」
         expected: 进入「监控规则」步骤
       - action: |-
@@ -751,9 +745,8 @@ cases:
            id BIGINT,
            vin STRING,
            month STRING,
-           sales BIGINT,
-           dt STRING
-         ) PARTITIONED BY (dt);
+           sales BIGINT
+         ) PARTITIONED BY (dt STRING);
          INSERT INTO ${SchemaA}.test_table_15915_c0011 PARTITION (dt)
          SELECT 1, 'A', '2026-01', 120, '2026-08-04'
          UNION ALL SELECT 2, 'A', '2026-02', 135, '2026-08-04'
@@ -802,7 +795,7 @@ cases:
           * 选择数据库：${SchemaA}
           * 选择数据表：test_table_15915_c0011
           选择分区：选择已有分区(dt=2026-08-05)
-          抽样检查设置：百分比抽样50%
+          抽样检查设置：关闭
           点击「下一步」
         expected: 进入「监控规则」步骤
       - action: |-
@@ -831,7 +824,7 @@ cases:
       - action: 点击「查看明细」
         expected: |-
           1) 明细数据列表展示违规明细数据（脏数据），仅包含 vin=B 的三条记录，保留校验字段 sales、维度字段 vin、排序字段 month
-          2) 校验SQL：SELECT vin, month, sales FROM ${SchemaA}.test_table_15915_c0011 WHERE vin = 'B';
+          2) 校验SQL：SELECT vin, month, sales FROM ${SchemaA}.test_table_15915_c0011 WHERE dt = '2026-08-05' AND vin = 'B';
              查询结果：3 行
       - action: 核对明细列表的字段样式
         expected: 「sales」校验字段标红展示，「vin」维度字段标蓝展示
@@ -851,9 +844,8 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15915_c0012 (
            id BIGINT,
            month STRING,
-           name STRING,
-           dt STRING
-         ) PARTITIONED BY (dt);
+           name STRING
+         ) PARTITIONED BY (dt STRING);
          INSERT INTO ${SchemaA}.test_table_15915_c0012 PARTITION (dt)
          SELECT 1, '2026-01', 'A', '2026-08-04'
          UNION ALL SELECT 2, '2026-02', 'B', '2026-08-04'
@@ -894,7 +886,7 @@ cases:
           * 选择数据库：${SchemaA}
           * 选择数据表：test_table_15915_c0012
           选择分区：选择已有分区(dt=2026-08-05)
-          抽样检查设置：百分比抽样50%
+          抽样检查设置：关闭
           点击「下一步」
         expected: 进入「监控规则」步骤
       - action: |-
@@ -939,9 +931,8 @@ cases:
            id BIGINT,
            vin STRING,
            month STRING,
-           sales BIGINT,
-           dt STRING
-         ) PARTITIONED BY (dt);
+           sales BIGINT
+         ) PARTITIONED BY (dt STRING);
          INSERT INTO ${SchemaA}.test_table_15915_c0013 PARTITION (dt)
          SELECT 1, 'A', '2026-01', 120, '2026-08-04'
          UNION ALL SELECT 2, 'A', '2026-02', 135, '2026-08-04'
@@ -984,7 +975,7 @@ cases:
           * 选择数据库：${SchemaA}
           * 选择数据表：test_table_15915_c0013
           选择分区：选择已有分区(dt=2026-08-04)
-          抽样检查设置：百分比抽样50%
+          抽样检查设置：关闭
           点击「下一步」
         expected: 进入「监控规则」步骤
       - action: |-
@@ -1031,9 +1022,8 @@ cases:
            id BIGINT,
            vin STRING,
            month STRING,
-           sales BIGINT,
-           dt STRING
-         ) PARTITIONED BY (dt);
+           sales BIGINT
+         ) PARTITIONED BY (dt STRING);
          INSERT INTO ${SchemaA}.test_table_15915_c0014 PARTITION (dt)
          SELECT 1, 'A', '2026-01', 120, '2026-08-04'
          UNION ALL SELECT 2, 'A', '2026-02', 135, '2026-08-04'
@@ -1076,7 +1066,7 @@ cases:
           * 选择数据库：${SchemaA}
           * 选择数据表：test_table_15915_c0014
           选择分区：选择已有分区(dt=2026-08-05)
-          抽样检查设置：百分比抽样50%
+          抽样检查设置：关闭
           点击「下一步」
         expected: 进入「监控规则」步骤
       - action: |-
@@ -1124,9 +1114,8 @@ cases:
            city STRING,
            vin STRING,
            month STRING,
-           sales BIGINT,
-           dt STRING
-         ) PARTITIONED BY (dt);
+           sales BIGINT
+         ) PARTITIONED BY (dt STRING);
          INSERT INTO ${SchemaA}.test_table_15915_c0015 PARTITION (dt)
          SELECT 1, '北京', 'A', '2026-01', 120, '2026-08-04'
          UNION ALL SELECT 2, '北京', 'A', '2026-02', 135, '2026-08-04'
@@ -1175,7 +1164,7 @@ cases:
           * 选择数据库：${SchemaA}
           * 选择数据表：test_table_15915_c0015
           选择分区：选择已有分区(dt=2026-08-05)
-          抽样检查设置：百分比抽样50%
+          抽样检查设置：关闭
           点击「下一步」
         expected: 进入「监控规则」步骤
       - action: |-
@@ -1204,7 +1193,7 @@ cases:
       - action: 点击「查看明细」
         expected: |-
           1) 明细数据列表展示违规明细数据（脏数据），仅包含（北京,B）组合的三条记录，保留校验字段 sales、维度字段 city/vin、排序字段 month
-          2) 校验SQL：SELECT city, vin, month, sales FROM ${SchemaA}.test_table_15915_c0015 WHERE city = '北京' AND vin = 'B';
+          2) 校验SQL：SELECT city, vin, month, sales FROM ${SchemaA}.test_table_15915_c0015 WHERE dt = '2026-08-05' AND city = '北京' AND vin = 'B';
              查询结果：3 行
     tags:
       - 数据质量
