@@ -1,9 +1,9 @@
 meta:
   title: 【数据标准】标准目录编辑
   requirement_id: "16209"
-  case_module_id: ""
+  case_module_id: "10812"
   source: "蓝湖需求 #16209"
-  test_points_digest: "sha256:8fbd7b44099a5e95fd6496c9c9227fef6d208ef7bf18b9dfbe1405298905b2fb"
+  test_points_digest: "sha256:f591afe98ef361a9ee765909903bfb58fcfbfa76577fa19c9a989614764b9c3f"
   exports:
     - 标准目录编辑.xmind
 cases:
@@ -20,7 +20,7 @@ cases:
       - action: 在标准名称搜索框输入 StandardA 并执行搜索
         expected: 列表仅展示标准 StandardA，状态为「已上线」
       - action: 查看标准 StandardA 的操作项
-        expected: 操作项包含「下线」「复制」「修改目录」
+        expected: 操作项包含「下线」「修改目录」
       - action: 点击「修改目录」
         expected: 弹出标题为「修改目录」的弹窗，弹窗仅展示必填项「标准目录」及「取消」「保存」按钮
     tags:
@@ -56,7 +56,7 @@ cases:
   - case_id: C0003
     title: 验证【标准定义】-【已上线标准】修改目录保存，标准保持已上线且操作项不变
     source_ref: TP-003
-    priority: P0
+    priority: P1
     precondition: |-
       1) 存在同级末级标准目录 CatalogA 和 CatalogB
       2) 标准 StandardA 唯一存在，标准编号为 StandardCodeA，所属目录为 CatalogA，状态为「已上线」
@@ -70,7 +70,7 @@ cases:
       - action: 刷新标准定义列表查看标准 StandardA 的状态
         expected: 状态仍为「已上线」
       - action: 查看标准 StandardA 的操作项
-        expected: 操作项仍包含「下线」「复制」「修改目录」
+        expected: 操作项仍包含「下线」「修改目录」
     tags:
       - 数据标准
       - 标准管理
@@ -123,25 +123,6 @@ cases:
       - 标准定义
 
   - case_id: C0006
-    title: 验证【标准定义】-【已上线标准】修改目录未选目录保存，字段提示必填且保存被阻止
-    source_ref: TP-006
-    priority: P1
-    precondition: |-
-      1) 存在同级末级标准目录 CatalogA 和 CatalogB
-      2) 标准 StandardA 唯一存在，标准编号为 StandardCodeA，所属目录为 CatalogA，状态为「已上线」
-    steps:
-      - action: 进入【数据标准 → 标准管理 → 标准定义】页面
-        expected: 进入成功
-      - action: 在标准名称搜索框输入 StandardA 并执行搜索
-        expected: 列表仅展示标准 StandardA
-      - action: 点击标准 StandardA 的「修改目录」，不选择「标准目录」，点击「保存」
-        expected: 「标准目录」字段提示必填校验，保存被阻止
-    tags:
-      - 数据标准
-      - 标准管理
-      - 标准定义
-
-  - case_id: C0007
     title: 验证【标准定义】-【待上线与待审批标准】查看操作项，不提供修改目录入口
     source_ref: TP-007
     priority: P1
@@ -165,7 +146,7 @@ cases:
       - 标准管理
       - 标准定义
 
-  - case_id: C0008
+  - case_id: C0007
     title: 验证【标准定义】-【仅查看权限用户】查看操作项，无法执行修改目录
     source_ref: TP-008
     priority: P1
@@ -179,7 +160,7 @@ cases:
       - action: 在标准名称搜索框输入 StandardA 并执行搜索
         expected: 列表仅展示标准 StandardA
       - action: 查看标准 StandardA 的操作项
-        expected: 操作项不展示可用的「修改目录」入口（按钮隐藏或置灰不可点击），无法完成目录变更
+        expected: 「修改目录」按钮置灰不可点击，无法完成目录变更
     tags:
       - 数据标准
       - 标准管理
