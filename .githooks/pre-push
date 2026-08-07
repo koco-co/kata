@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+set -eu
+
+if [ -n "${KATA_SKIP_PRE_PUSH:-}" ]; then
+  echo "kata: pre-push checks skipped (KATA_SKIP_PRE_PUSH is set)"
+  exit 0
+fi
+
+if ! command -v bun >/dev/null 2>&1; then
+  echo "kata: bun is required for pre-push checks; refusing to push" >&2
+  exit 1
+fi
+
+echo "kata: running pre-push checks..."
+bun run pre-push

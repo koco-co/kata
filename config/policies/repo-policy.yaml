@@ -25,6 +25,7 @@ root:
     - .claude
     - .codex-plugin
     - .github
+    - .githooks
     - .repos
     - .vscode
     - assets
@@ -32,6 +33,7 @@ root:
     - config
     - docs
     - runtime
+    - scripts
     - tests
     - workspace
   # 任何命中以下 glob 的路径都会被仓库检查拒绝，即使文件未被 Git 跟踪。
@@ -105,14 +107,14 @@ source_code:
     - cli/lib/cases/content-lint.ts
     - tests/cli/cases-content-lint.test.ts
     - workspace/dataAssets/_shared/automation/flows/sparkthrift-rule-validation/rule-set.ts
-    - workspace/dataAssets/features/v6.4.11/【岚图汽车】【数据资产】数据质量任务性能优化，规则sql合并/automation/tests/fixtures/v6411-ui-case-specs.ts
-    - workspace/dataAssets/features/v6.4.11/【岚图汽车】【数据资产】数据质量任务性能优化，规则sql合并/automation/tests/flows/v6411-result-recheck-flow.ts
-    - workspace/dataAssets/features/v6.4.11/【岚图汽车】【数据资产】数据质量任务性能优化，规则sql合并/automation/tests/flows/v6411-ui-rebuild-flow.ts
+    - workspace/dataAssets/features/v6.4.11/【15862】【岚图汽车】【数据资产】数据质量任务性能优化，规则sql合并/automation/tests/fixtures/v6411-ui-case-specs.ts
+    - workspace/dataAssets/features/v6.4.11/【15862】【岚图汽车】【数据资产】数据质量任务性能优化，规则sql合并/automation/tests/flows/v6411-result-recheck-flow.ts
+    - workspace/dataAssets/features/v6.4.11/【15862】【岚图汽车】【数据资产】数据质量任务性能优化，规则sql合并/automation/tests/flows/v6411-ui-rebuild-flow.ts
     - workspace/dataAssets/features/v6.4.7/【数据资产】集成测试用例/automation/tests/flows/integration-suite.ts
     - workspace/dataAssets/features/v6.4.8/【岚图汽车】【数据质量】支持每个数据表的规则集管理/automation/tests/flows/rule-set-management-suite.ts
-    - workspace/dataAssets/features/v6.4.11/【岚图汽车】【数据资产】数据资产适配lindorm/automation/tests/cases/c0032-view-tags.spec.ts
-    - workspace/dataAssets/features/v6.4.11/【岚图汽车】【数据资产】数据资产适配lindorm/automation/tests/pages/data-quality/reports.ts
-    - workspace/dataAssets/features/v6.4.11/【岚图汽车】【数据资产】数据资产适配lindorm/automation/tests/pages/data-quality/rule-library.ts
-    - workspace/dataAssets/features/v6.4.11/【岚图汽车】【数据资产】数据资产适配lindorm/automation/tests/pages/data-quality/settings.ts
+    - workspace/dataAssets/features/v6.4.11/【15889】【岚图汽车】【数据资产】数据资产适配lindorm/automation/tests/cases/c0032-view-tags.spec.ts
+    - workspace/dataAssets/features/v6.4.11/【15889】【岚图汽车】【数据资产】数据资产适配lindorm/automation/tests/pages/data-quality/reports.ts
+    - workspace/dataAssets/features/v6.4.11/【15889】【岚图汽车】【数据资产】数据资产适配lindorm/automation/tests/pages/data-quality/rule-library.ts
+    - workspace/dataAssets/features/v6.4.11/【15889】【岚图汽车】【数据资产】数据资产适配lindorm/automation/tests/pages/data-quality/settings.ts
     - workspace/dataAssets/features/v6.4.8/【岚图汽车】【数据质量】支持每个数据表的规则集管理/automation/tests/runners/smoke.spec.ts
     - workspace/dataAssets/features/v7.0.0/【岚图汽车】【数据资产】数据资产集成用例/automation/tests/pages/data-standard-page.ts

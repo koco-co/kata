@@ -113,6 +113,10 @@ bun run test:automation-lint
 bun run ci
 ```
 
+### Push Gate
+
+`bun install` 会自动把仓库级 `pre-push` 钩子配置到 `.githooks/pre-push`。钩子执行 `bun run pre-push`，与 GitHub Actions 使用同一套完整项目校验：仓库策略、全量用例 lint、config docs、knowledge lint、Biome、TypeScript、单元/workspace/automation/tools 测试。`KATA_SKIP_PRE_PUSH=1` 可临时跳过本地钩子，但服务器端是否允许无校验直接推送仍需由分支保护规则决定。
+
 ## License
 
 MIT

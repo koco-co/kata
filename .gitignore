@@ -19,6 +19,7 @@ config.json
 .claude/settings.local.json
 
 # Feature runtime products
+/runs/
 workspace/*/features/**/.process/
 workspace/*/features/**/runs/
 workspace/*/.state/

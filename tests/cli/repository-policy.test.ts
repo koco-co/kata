@@ -143,10 +143,10 @@ source_code:
   it("exposes the current-repository check through kata repo lint without a root script", () => {
     const repoRoot = resolve(import.meta.dir, "../..");
     expect(existsSync(join(repoRoot, "scripts", "check-repository-policy.ts"))).toBe(false);
-    expect(checkRepositoryPolicy(repoRoot, ["scripts/ad-hoc.ts"])).toEqual([
+    expect(checkRepositoryPolicy(repoRoot, ["runs/ad-hoc.ts"])).toEqual([
       {
-        path: "scripts/ad-hoc.ts",
-        reason: '顶层目录 "scripts" 不在允许清单中',
+        path: "runs/ad-hoc.ts",
+        reason: '顶层目录 "runs" 不在允许清单中',
       },
     ]);
 

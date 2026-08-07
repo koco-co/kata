@@ -147,6 +147,13 @@ bun run test
 
 全部命令退出码为 `0` 后，再提交代码。任何未运行范围都应在提交说明中明确写出。
 
+`bun install` 会自动启用仓库级 `pre-push` 钩子（`.githooks/pre-push`）；该钩子会在 `git push` 前运行 `bun run pre-push`，与 GitHub Actions 执行同一套完整项目校验（仓库策略、全量用例 lint、config docs、knowledge lint、Biome、TypeScript 与全部测试）。若本地仓库未自动配置，可手动执行：
+
+```bash
+bun run setup-hooks
+bun run pre-push
+```
+
 ## 10. 首次项目引导
 
 基础配置完成后，引导用户在 `workspace/` 下初始化一个项目：

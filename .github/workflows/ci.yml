@@ -5,17 +5,25 @@ on:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
           # base 对比需要完整历史（PR 的 origin/<base> 与 push 的 event.before）
           fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.x
       # 空白/冲突标记检查：与基线对比，而不是对工作区做空转检查
       - name: Whitespace check (git diff --check)
         shell: bash
@@ -25,6 +33,10 @@ jobs:
           else
             git diff --check "${{ github.event.before }}..HEAD"
           fi
+      - name: Validate git hook
+        run: |
+          sh -n .githooks/pre-push
+          bun scripts/setup-hooks.ts
       # 提交消息格式：PR 校验 origin/<base>...HEAD，push 校验 before..HEAD
       - name: Commit message check
         shell: bash
@@ -34,9 +46,6 @@ jobs:
           else
             bun cli/bin/kata.ts repo lint --commit-range "${{ github.event.before }}..HEAD" --exit-code
           fi
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.3.x
       - run: bun install --frozen-lockfile
-      - run: bun run ci
-      - run: bunx tsc --noEmit -p cli/packages/dtstack-sdk/tsconfig.json
+      - name: Full project checks
+        run: bun run pre-push
