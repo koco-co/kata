@@ -6,7 +6,7 @@ meta:
     - 支持每个数据表的规则集管理.xmind
 cases:
   - case_id: C0001
-    title: 验证【数据质量】-【规则集管理】删除被引用规则集，历史任务实例仍按删除前规则执行(历史任务)
+    title: 验证【数据质量】-【规则集管理】删除被引用规则集，历史任务实例仍按删除前规则执行
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -34,7 +34,7 @@ cases:
       - 历史任务
 
   - case_id: C0002
-    title: 验证【数据质量】-【规则集管理】编辑被引用规则集，历史任务实例仍按旧期望值计算(历史配置)
+    title: 验证【数据质量】-【规则集管理】编辑被引用规则集，历史任务实例仍按旧期望值计算
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -178,7 +178,7 @@ cases:
       - 单规则
 
   - case_id: C0008
-    title: 验证【数据质量】-【规则集管理】删除被引用规则包中的规则，任务引用关系保留(引用限制)
+    title: 验证【数据质量】-【规则集管理】删除被引用规则包中的规则，任务引用关系保留
     priority: P1
     precondition: |-
       1) 规则集「RuleSetK」已被任务「TaskD」引用
@@ -196,7 +196,7 @@ cases:
       - 引用限制
 
   - case_id: C0009
-    title: 验证【数据质量】-【规则任务配置】编辑任务切换规则包但不导入，规则内容不隐式替换(未导入)
+    title: 验证【数据质量】-【规则任务配置】编辑任务切换规则包但不导入，规则内容不隐式替换
     priority: P1
     precondition: |-
       1) 规则集「RuleSetL」包含旧规则包「old_pack」和新规则包「new_pack」
@@ -211,7 +211,7 @@ cases:
     tags:
       ["数据质量", "规则任务配置"]
   - case_id: C0010
-    title: 验证【数据质量】-【规则任务配置】导入全部规则包并保存，任务保留3个规则包6条规则(3规则包)
+    title: 验证【数据质量】-【规则任务配置】导入全部规则包并保存，任务保留3个规则包6条规则
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -235,18 +235,20 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 调度配置展示规则包数量 3 和规则数量 6
       - action: 点击【保存】
         expected: Toast提示:「保存成功」，任务详情保留 3 个规则包和 6 条规则
     tags:
       ["数据质量", "规则任务配置"]
   - case_id: C0011
-    title: 验证【数据质量】-【规则任务配置】选择两个规则包并保存，任务详情仅展示所选规则包(2规则包)
+    title: 验证【数据质量】-【规则任务配置】选择两个规则包并保存，任务详情仅展示所选规则包
     priority: P1
     precondition: |-
       1) 规则集「RuleSetH」包含 pack_a、pack_b、pack_c 三个规则包
-      2) 任务「TaskC」处于新建状态
+      2) 任务「TaskC」状态为草稿
     steps:
       - action: 进入【数据质量 → 规则任务配置】页面
         expected: 进入成功
@@ -257,7 +259,7 @@ cases:
     tags:
       ["数据质量", "规则任务配置"]
   - case_id: C0012
-    title: 验证【数据质量】-【规则集管理】打开规则集详情，展示规则包数量与规则配置(20规则包)
+    title: 验证【数据质量】-【规则集管理】打开规则集详情，展示规则包数量与规则配置
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -282,7 +284,7 @@ cases:
       - 详情
 
   - case_id: C0013
-    title: 验证【数据质量】-【规则集管理】新增编辑删除规则包，列表与提示同步更新(规则包CRUD)
+    title: 验证【数据质量】-【规则集管理】新增编辑删除规则包，列表与提示同步更新
     priority: P1
     precondition: |-
       1) 规则集「RuleSetB」已创建，当前包含规则包「RuleSetB」
@@ -302,7 +304,7 @@ cases:
       - 规则包CRUD
 
   - case_id: C0014
-    title: 验证【数据质量】-【规则集管理】新增重名规则包，名称置红且保存禁用(重名)
+    title: 验证【数据质量】-【规则集管理】新增规则包，名称置红且保存禁用(规则包名称重复或已存在)
     priority: P1
     precondition: |-
       1) 规则集「RuleSetD」已存在规则包「duplicate_pack」
@@ -310,12 +312,14 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 在新增规则包表单输入名称「duplicate_pack」并点击【保存】
+      - action: 在新增规则包表单输入名称「duplicate_pack」
+        expected: 点击成功
+      - action: 【保存】
         expected: 「规则包名称」置红提示「名称已存在」，保存按钮保持禁用，列表不新增记录
     tags:
       ["数据质量", "规则集管理"]
   - case_id: C0015
-    title: 验证【数据质量】-【规则集管理】新建规则集选择数据表，已配置规则集的表不可选(按数据表管理)
+    title: 验证【数据质量】-【规则集管理】新建规则集选择数据表，已配置规则集的表不可选
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -348,11 +352,11 @@ cases:
       - 数据表过滤
 
   - case_id: C0016
-    title: 验证【数据质量】-【规则集管理】搜索规则集并翻页，搜索条件保持且重置恢复(分页)
+    title: 验证【数据质量】-【规则集管理】搜索规则集并翻页，搜索条件保持且重置恢复
     priority: P2
     precondition: |-
       1) 规则集管理中存在 25 条规则集记录
-      2) 列表分页大小设置为 10
+      2) 列表分页大小为 10
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
@@ -368,7 +372,7 @@ cases:
       - 分页
 
   - case_id: C0017
-    title: 验证【数据质量】-【规则集管理】查看规则编辑页全局参数，弹窗展示参数信息(全局参数)
+    title: 验证【数据质量】-【规则集管理】查看规则编辑页全局参数，弹窗展示参数信息
     priority: P2
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -390,7 +394,7 @@ cases:
     tags:
       ["数据质量", "规则集管理"]
   - case_id: C0018
-    title: 验证【数据质量】-【规则集管理】新增编辑删除规则，规则数量同步变化(规则CRUD)
+    title: 验证【数据质量】-【规则集管理】新增编辑删除规则，规则数量同步变化
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -417,7 +421,7 @@ cases:
       - 规则CRUD
 
   - case_id: C0019
-    title: 验证【数据质量】-【规则集管理】删除被引用规则集，任务记录保留且规则包区域为空(解除引用)
+    title: 验证【数据质量】-【规则集管理】删除被引用规则集，任务记录保留且规则包区域为空
     priority: P1
     precondition: |-
       1) 规则集「RuleSetS」已被任务「TaskF」引用
@@ -435,7 +439,7 @@ cases:
       - 解除引用
 
   - case_id: C0020
-    title: 验证【数据质量】-【规则集管理】新建规则集关联分区表，列表新增规则集且规则数量为1(按数据表管理)
+    title: 验证【数据质量】-【规则集管理】新建规则集关联分区表，列表新增规则集且规则数量为1
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}

@@ -72,7 +72,7 @@ cases:
     requirement_id: "9634"
     automation:
       spec_file: c0002-data-standard-statistics.spec.ts
-    title: 验证【数据标准】-【标准统计】查看统计卡片与分布图，标准数量、热度、目录分布、趋势与来源分布均展示(词根、码表与标准已存在)
+    title: 验证【数据标准】-【标准统计】查看统计卡片与分布图，标准数量、热度、目录分布、趋势与来源分布均展示
     priority: P1
     precondition: |-
       1) 词根管理中存在词根：简称「email」、全称「email」、中文名「邮箱」
@@ -175,9 +175,9 @@ cases:
       - action: |-
           配置监控对象：
           规则名称：RuleA
-          数据源：${DataSourceA}
-          数据库：${SchemaA}
-          数据表：test_table_9636_c0004
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_9636_c0004
           分区：dt=date_format(current_date(), 'yyyy-MM-dd')
           点击「下一步」
         expected: 进入「监控规则」步骤，监控对象显示为 test_table_9636_c0004

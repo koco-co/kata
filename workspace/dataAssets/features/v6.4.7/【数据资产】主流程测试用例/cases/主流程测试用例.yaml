@@ -29,7 +29,7 @@ cases:
       - 资产盘点
 
   - case_id: C0002
-    title: 验证【数据资产】-【数据地图】新增周期同步任务同步数据表，数据表统计数量加一(删除元表后恢复)
+    title: 验证【数据资产】-【数据地图】新增周期同步任务同步数据表，数据表统计数量加一
     priority: P1
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
@@ -294,7 +294,7 @@ cases:
 
   - case_id: C0010
     title: 验证【数据资产】-【元数据管理】查看数据库下数据表列表，表名与列信息展示正确
-    priority: P0
+    priority: P1
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
       2) 数据源 A 类型：Doris3.x
@@ -397,7 +397,7 @@ cases:
       1) 授权数据源 A：${DataSourceA}
       2) 数据源 A 类型：SparkThrift2.x
       3) 数据源 A 存在数据库：${SchemaA}
-      4) 创建配置表并插入记录：
+      4) 创建数据表并插入记录：
          DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0014;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0014 (user_id BIGINT NOT NULL, name STRING NOT NULL, email STRING NULL, address STRING NULL, age TINYINT NULL, last_active DATETIME NULL);
          INSERT INTO ${SchemaA}.test_table_none_c0014 VALUES (1, '张三', 'zhangsan@example.com', '杭州市', 25, '2026-08-01 10:00:00'), (2, '李四', 'lisi@example.com', '宁波市', 30, '2026-08-01 11:00:00');
@@ -919,7 +919,7 @@ cases:
       - 多表比对
 
   - case_id: C0033
-    title: 验证【数据资产】-【规则任务配置】质量强规则绑定离线任务运行，离线与补数据实例失败(校验不达标)
+    title: 验证【数据资产】-【规则任务配置】质量强规则绑定离线任务运行，离线与补数据实例失败
     priority: P0
     precondition: |-
       1) 授权数据源 A：${DataSourceA}

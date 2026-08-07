@@ -6,13 +6,15 @@ meta:
 cases:
   - case_id: C0001
     title: 验证【数据安全】-【权限配置】查看列级权限配置开关，展示开关名称与悬停提示文案
-    priority: P0
+    priority: P1
     precondition: |-
       1) 使用管理员账号进入数据资产平台
     steps:
       - action: 进入【数据安全 → 权限配置】页面
         expected: 进入成功
-      - action: 查看权限配置开关及其提示图标
+      - action: 查看权限配置开关
+        expected: 开关名称展示正确
+      - action: 悬停查看提示图标
         expected: 开关名称为「是否开启列级权限配置」，悬停提示为「若不配置默认拥有该表的所有列级权限」
     tags:
       ["数据安全", "权限配置"]
@@ -21,7 +23,7 @@ cases:
     priority: P1
     precondition: |-
       1) 使用管理员账号进入数据资产平台
-      2) 「是否开启列级权限配置」开关初始为关闭
+      2) 「列级权限开关」初始为关闭
     steps:
       - action: 进入【数据安全 → 权限配置】页面
         expected: 进入成功
@@ -41,6 +43,8 @@ cases:
       - action: 进入【数据安全 → 权限分配】页面
         expected: 进入成功
       - action: 查看数据表「permission_table_a」的操作项
+        expected: 操作项展示
+      - action: 确认不展示行级权限入口
         expected: 不展示「配置行级权限」按钮或菜单项
     tags:
       ["数据安全", "权限分配"]
@@ -68,7 +72,9 @@ cases:
     steps:
       - action: 进入【数据安全 → 权限分配】页面
         expected: 进入成功
-      - action: 查看列表表头和记录字段
+      - action: 查看列表表头
+        expected: 表头展示
+      - action: 查看记录字段
         expected: 表头及记录均不展示「行级权限」列
     tags:
       ["数据安全", "权限分配"]
@@ -81,7 +87,9 @@ cases:
     steps:
       - action: 进入【数据安全 → 权限申请】页面
         expected: 进入成功
-      - action: 选择数据表「permission_table_a」并进入权限配置步骤
+      - action: 选择数据表「permission_table_a」
+        expected: 进入成功
+      - action: 权限配置步骤
         expected: 原行列级配置区域名称展示为「列级权限配置」
     tags:
       ["数据安全", "权限申请"]
@@ -90,12 +98,14 @@ cases:
     priority: P1
     precondition: |-
       1) 使用审批人账号进入数据资产平台
-      2) 存在升级前提交的权限申请单「permission_apply_history」
-      3) 该申请单原配置包含行级权限和列级权限
+      2) 存在升级前的权限申请单「permission_apply_history」
+      3) 该申请单原内容包含行级权限和列级权限
     steps:
       - action: 进入【数据安全 → 审批详情】页面
         expected: 进入成功
       - action: 打开申请单「permission_apply_history」
+        expected: 打开成功
+      - action: 查看详情内容
         expected: 详情不展示行级权限文案、列表列和条件数据，列级权限信息仍展示
     tags:
       ["数据安全", "审批详情"]
@@ -108,7 +118,9 @@ cases:
     steps:
       - action: 进入【数据安全 → 权限申请】页面
         expected: 进入成功
-      - action: 批量勾选「permission_table_a」「permission_table_b」并点击「批量申请」
+      - action: 批量勾选「permission_table_a」「permission_table_b」
+        expected: 点击成功
+      - action: 「批量申请」
         expected: 不展示列级权限选择控件，提示「若想申请表的列级权限，请针对具体表进行权限申请，批量操作不支持列级权限的申请」
     tags:
       ["数据安全", "权限申请"]
@@ -131,7 +143,7 @@ cases:
     title: 验证【数据安全】-【权限分配】查看历史行级权限用户的数据预览，仅展示命中行级条件的记录
     priority: P2
     precondition: |-
-      1) 升级前管理员为账号「UserA」配置数据表「permission_history_table」的行级权限：department='A'
+      1) 升级前账号「UserA」拥有数据表「permission_history_table」的行级权限：department='A'
       2) 数据表「permission_history_table」包含记录「id=1, department=A」和「id=2, department=B」
       3) 平台已从旧版本升级到当前版本
     steps:
@@ -153,7 +165,9 @@ cases:
     steps:
       - action: 进入【数据安全 → 权限分配】页面
         expected: 进入成功
-      - action: 点击「新增权限策略」并检查全部配置步骤
+      - action: 点击「新增权限策略」
+        expected: 进入成功
+      - action: 全部配置步骤
         expected: 不展示行级权限入口、行过滤表达式或行条件配置项
     tags:
       ["数据安全", "权限分配"]
@@ -162,7 +176,7 @@ cases:
     priority: P1
     precondition: |-
       1) 使用管理员账号进入数据资产平台
-      2) 「是否开启列级权限配置」开关为关闭
+      2) 「列级权限开关」为关闭
       3) 账号「UserB」拥有数据表「permission_table_a」的表级权限
       4) 数据表「permission_table_a」包含字段「id」「name」「amount」
     steps:

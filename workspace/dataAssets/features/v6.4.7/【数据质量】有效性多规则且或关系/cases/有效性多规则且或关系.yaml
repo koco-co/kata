@@ -334,9 +334,19 @@ cases:
     title: 验证【数据质量】-【规则集管理】双数据源分别配置且关系规则，保存后类型与配置保留
     priority: P1
     precondition: |-
-      1) 数据源「${DataSourceA}」类型为 SparkThrift2.x，数据源「${DataSourceB}」类型为 Doris3.x
-      2) 两个数据源均存在数据库和字段 score、category
-      3) 规则库包含「取值范围&枚举范围」内置规则
+      1) 授权数据源：${DataSourceA}
+
+      2) 数据源类型：SparkThrift2.x
+
+      3) 存在数据库：${SchemaA}
+
+      4) 创建表并插入 5 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0015;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0015 (id BIGINT, score DOUBLE, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0015 VALUES (1, 5.0, '2'), (2, 15.0, '4'), (3, 3.0, '1'), (4, -1.0, '3'), (5, 8.0, '5');
+      5) 数据源「${DataSourceB}」类型为 Doris3.x，两个数据源均存在数据库和字段 score、category
+
+      6) 规则库包含「取值范围&枚举范围」内置规则
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功

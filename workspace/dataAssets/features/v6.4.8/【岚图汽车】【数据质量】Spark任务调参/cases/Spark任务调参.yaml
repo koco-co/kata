@@ -25,7 +25,9 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.driver.maxResultSize=2g，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.driver.maxResultSize=2g
@@ -55,7 +57,9 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 logLevel=ERROR，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 logLevel=ERROR
@@ -85,7 +89,9 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.speculation=true，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.speculation=true
@@ -115,7 +121,9 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.network.timeout=300s，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.network.timeout=300s
@@ -145,7 +153,9 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.sql.shuffle.partitions=10，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.sql.shuffle.partitions=10
@@ -175,7 +185,9 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.executor.memory=1g 和 spark.yarn.executor.memoryOverhead=1024，确认配置并保存规则
         expected: 规则详情展示spark.executor.memory=1g和spark.yarn.executor.memoryOverhead=1024
@@ -205,7 +217,9 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.driver.memory=2g，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.driver.memory=2g
@@ -235,7 +249,9 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.driver.cores=2，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.driver.cores=2
@@ -265,7 +281,9 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.executor.memory=2g，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.executor.memory=2g
@@ -295,7 +313,9 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.executor.instances=1、spark.executor.cores=2、spark.driver.cores=1，确认配置并保存规则
         expected: 规则详情回显三个参数及其配置值
@@ -325,7 +345,9 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.executor.instances=3，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.executor.instances=3
@@ -355,7 +377,9 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」
         expected: 默认内容包含spark.driver.cores=1、spark.driver.memory=1g、spark.driver.maxResultSize=1g、spark.executor.instances=1、spark.executor.cores=1、spark.executor.memory=1g、logLevel=INFO、spark.network.timeout=120s、spark.sql.shuffle.partitions=200、spark.speculation=false
@@ -410,7 +434,9 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，将spark.executor.cores改为2并点击「取消」
         expected: 配置窗口关闭，重新打开后spark.executor.cores仍为1

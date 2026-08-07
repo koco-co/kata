@@ -8,7 +8,7 @@ cases:
   - case_id: C0001
     automation:
       spec_file: c0001-export-selected-json-records.spec.ts
-    title: 验证【JSON格式校验管理】-【勾选导出】导出勾选记录，导出文件仅含勾选行(勾选2条)
+    title: 验证【JSON格式校验管理】-【勾选导出】导出勾选记录，导出文件仅含勾选行
     priority: P0
     precondition: |-
       1) JSON格式校验管理列表存在一层级记录「exportA」，中文名称为「导出测试A」，数据源类型为「SparkThrift2.x」
@@ -28,11 +28,11 @@ cases:
     tags:
       ["数据质量", "通用配置", "JSON格式校验管理"]
   - case_id: C0002
-    title: 验证【JSON格式校验管理】-【勾选导出】不勾选记录直接导出，导出文件含当前筛选全量记录(未勾选记录)
+    title: 验证【JSON格式校验管理】-【勾选导出】不勾选记录直接导出，导出文件含当前筛选全量记录
     priority: P0
     precondition: |-
       1) JSON格式校验管理列表存在记录「exportAllA」「exportAllB」
-      2) 页面初始状态未勾选任何记录
+      2) 页面初始状态未选中任何记录
     steps:
       - action: 进入【数据质量 → 通用配置 → JSON格式校验管理】页面
         expected: 进入成功
@@ -45,8 +45,8 @@ cases:
     tags:
       ["数据质量", "通用配置", "JSON格式校验管理"]
   - case_id: C0003
-    title: 验证【JSON格式校验管理】-【勾选导出】导出单条一层级记录，导出文件仅含该条记录(勾选1条)
-    priority: P0
+    title: 验证【JSON格式校验管理】-【勾选导出】导出单条一层级记录，导出文件仅含该条记录
+    priority: P1
     precondition: |-
       1) JSON格式校验管理列表存在一层级记录「singleExport」
       2) 该记录中文名称为「单行导出」，value格式为「^\d+$」，数据源类型为「SparkThrift2.x」
@@ -62,7 +62,7 @@ cases:
     tags:
       ["数据质量", "通用配置", "JSON格式校验管理"]
   - case_id: C0004
-    title: 验证【JSON格式校验管理】-【勾选导出】表头全选后导出，导出文件含当前列表全量记录(全选)
+    title: 验证【JSON格式校验管理】-【勾选导出】表头全选后导出，导出文件含当前列表全量记录
     priority: P1
     precondition: |-
       1) JSON格式校验管理列表当前页存在3条记录「selectAllA」「selectAllB」「selectAllC」
@@ -79,7 +79,7 @@ cases:
     tags:
       ["数据质量", "通用配置", "JSON格式校验管理"]
   - case_id: C0005
-    title: 验证【JSON格式校验管理】-【勾选导出】勾选父节点并导出，子节点自动级联进入导出文件(勾选父节点)
+    title: 验证【JSON格式校验管理】-【勾选导出】勾选父节点并导出，子节点自动级联进入导出文件
     priority: P1
     precondition: |-
       1) JSON格式校验管理列表存在一层级记录「parentExport」
@@ -96,7 +96,7 @@ cases:
     tags:
       ["数据质量", "通用配置", "JSON格式校验管理"]
   - case_id: C0006
-    title: 验证【JSON格式校验管理】-【勾选导出】导出记录并核对文件表头，列结构与顺序完整(勾选1条)
+    title: 验证【JSON格式校验管理】-【勾选导出】导出记录并核对文件表头，列结构与顺序完整
     priority: P1
     precondition: |-
       1) JSON格式校验管理列表存在记录「columnExport」
@@ -111,7 +111,7 @@ cases:
     tags:
       ["数据质量", "通用配置", "JSON格式校验管理"]
   - case_id: C0007
-    title: 验证【JSON格式校验管理】-【勾选导出】导出五层级记录并核对层级字段，层级关系与父Key取值正确(勾选5条)
+    title: 验证【JSON格式校验管理】-【勾选导出】导出五层级记录并核对层级字段，层级关系与父Key取值正确
     priority: P1
     precondition: |-
       1) JSON格式校验管理列表存在一层级记录「lvl1」
@@ -133,7 +133,7 @@ cases:
     tags:
       ["数据质量", "通用配置", "JSON格式校验管理"]
   - case_id: C0008
-    title: 验证【JSON格式校验管理】-【勾选导出】导出三种数据源类型记录，文件数据源类型列依次为SparkThrift2.x、Hive2.x、Doris3.x(各勾选1条)
+    title: 验证【JSON格式校验管理】-【勾选导出】导出三种数据源类型记录，文件数据源类型列依次为SparkThrift2.x、Hive2.x、Doris3.x
     priority: P1
     precondition: |-
       1) JSON格式校验管理列表存在记录「keySpark」，数据源类型为「SparkThrift2.x」
@@ -149,7 +149,7 @@ cases:
     tags:
       ["数据质量", "通用配置", "JSON格式校验管理"]
   - case_id: C0009
-    title: 验证【JSON格式校验管理】-【勾选导出】搜索后勾选导出，导出文件仅含搜索结果中勾选的行(先搜索筛选)
+    title: 验证【JSON格式校验管理】-【勾选导出】搜索后勾选导出，导出文件仅含搜索结果中勾选的行
     priority: P2
     precondition: |-
       1) JSON格式校验管理列表存在记录「vehicle_a」「vehicle_b」「department_a」

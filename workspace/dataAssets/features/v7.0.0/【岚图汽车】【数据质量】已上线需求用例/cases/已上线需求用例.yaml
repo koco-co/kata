@@ -8,7 +8,7 @@ meta:
     - 已上线需求用例.xmind
 cases:
   - case_id: C0001
-    title: 验证【规则任务管理】-【单表规则】手动输入分区执行唯一性校验，结果不达标且异常记录数为1(当日分区含重复id)
+    title: 验证【规则任务管理】-【单表规则】手动输入分区执行唯一性校验，结果不达标且异常记录数为1
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -45,7 +45,7 @@ cases:
       - 唯一性
 
   - case_id: C0002
-    title: 验证【规则任务管理】-【单表规则】选择已有分区执行唯一性校验，结果达标且异常记录数为0(分区数据唯一)
+    title: 验证【规则任务管理】-【单表规则】选择已有分区执行唯一性校验，结果达标且异常记录数为0
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -209,7 +209,7 @@ cases:
            (1, CAST(10.00 AS DECIMAL(10,2))),
            (2, CAST(20.00 AS DECIMAL(10,2))),
            (3, CAST(30.00 AS DECIMAL(10,2)));
-      6) 规则任务「TaskA」配置多表数据行数对比，关系为「且」
+      6) 规则任务「TaskA」已配置多表数据行数对比，关系为「且」
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -299,7 +299,7 @@ cases:
            order_id BIGINT
          ) DISTRIBUTED BY HASH(order_id) BUCKETS 3;
          INSERT INTO ${SchemaA}.test_table_none_c0009 VALUES (1), (2), (3);
-      5) 新建规则任务已选择 test_table_none_c0009 和 order_id，尚未选择字段关系
+      5) 规则任务已关联 test_table_none_c0009 和 order_id，字段关系保持为空
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -329,7 +329,7 @@ cases:
            ('1001'),
            ('1002'),
            ('1003');
-      5) 规则任务「TaskA」配置完整性校验，字段为 order_id，抽样方式为关闭
+      5) 规则任务「TaskA」已配置完整性校验，字段为 order_id，抽样方式为关闭
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -356,7 +356,7 @@ cases:
            order_id BIGINT
          );
          INSERT INTO ${SchemaA}.test_table_none_c0011 VALUES (NULL), (1002), (1003);
-      5) 规则任务「TaskA」配置完整性校验，字段为 order_id，抽样方式为关闭
+      5) 规则任务「TaskA」已配置完整性校验，字段为 order_id，抽样方式为关闭
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -386,7 +386,7 @@ cases:
            ('ORD-1001'),
            ('ORD-1002'),
            ('ORD-1003');
-      5) 规则任务「TaskA」配置有效性校验，字段为 order_code，自定义正则为 ^ORD-[0-9]{4}$
+      5) 规则任务「TaskA」已配置有效性校验，字段为 order_code，自定义正则为 ^ORD-[0-9]{4}$
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -416,7 +416,7 @@ cases:
            ('2026-02-01'),
            ('2026/02/02'),
            ('2026-02-03');
-      5) 规则任务「TaskA」配置有效性校验，字段为 order_date，日期格式为 yyyy-MM-dd
+      5) 规则任务「TaskA」已配置有效性校验，字段为 order_date，日期格式为 yyyy-MM-dd
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -431,7 +431,7 @@ cases:
       - 日期格式
 
   - case_id: C0014
-    title: 验证【规则任务管理】-【抽样】执行开启抽样的规则任务，执行日志显示读取10行(抽样数量10)
+    title: 验证【规则任务管理】-【抽样】执行开启抽样的规则任务，执行日志显示读取10行
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -454,7 +454,7 @@ cases:
            done
          } > "${output_file}"
       5) 复制 test_table_none_c0014.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
-      6) 规则任务「TaskA」配置完整性校验，抽样方式为开启，抽样数量为 10
+      6) 规则任务「TaskA」已配置完整性校验，抽样方式为开启，抽样数量为 10
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -500,7 +500,7 @@ cases:
       - 离线任务
 
   - case_id: C0016
-    title: 验证【规则任务管理】-【规则包】执行单规则包模式的任务，执行详情仅含包内规则(选择单规则包)
+    title: 验证【规则任务管理】-【规则包】执行单规则包模式的任务，执行详情仅含包内规则
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -516,7 +516,7 @@ cases:
            (1, CAST(100.00 AS DECIMAL(10,2))),
            (2, CAST(200.00 AS DECIMAL(10,2))),
            (3, CAST(300.00 AS DECIMAL(10,2)));
-      5) 规则包「RulePackA」包含「金额非空」和「订单号唯一」两条规则，规则任务「TaskA」选择单规则包模式
+      5) 规则包「RulePackA」包含「金额非空」和「订单号唯一」两条规则，规则任务「TaskA」使用单规则包模式
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -531,7 +531,7 @@ cases:
       - 单规则包
 
   - case_id: C0017
-    title: 验证【规则任务管理】-【规则包】执行多规则包模式的任务，执行详情合并去重后共3条规则(选择多规则包)
+    title: 验证【规则任务管理】-【规则包】执行多规则包模式的任务，执行详情合并去重后共3条规则
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -548,7 +548,7 @@ cases:
            (2, CAST(200.00 AS DECIMAL(10,2))),
            (3, CAST(300.00 AS DECIMAL(10,2)));
       5) 规则包「RulePackA」包含「金额非空」「订单号唯一」，规则包「RulePackB」包含「金额非空」「金额范围」
-      6) 规则任务「TaskA」选择多规则包模式
+      6) 规则任务「TaskA」使用多规则包模式
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -566,7 +566,7 @@ cases:
     title: 验证【规则库配置】-【JSON导入】导入规则JSON文件，列表新增规则且表达式为amount IS NOT NULL
     priority: P1
     precondition: |-
-      1) 规则库配置页不存在名称「RuleA」的规则
+      1) 规则库页面不存在名称「RuleA」的规则
       2) 导入文件为 JSON，包含 ruleName=RuleA、ruleType=完整性、field=amount、expression=amount IS NOT NULL
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
@@ -585,7 +585,7 @@ cases:
     title: 验证【规则库配置】-【JSON导入】导入规则名称的JSON文件，ruleName置红提示且列表不新增规则(规则名称 = 缺失)
     priority: P1
     precondition: |-
-      1) 规则库配置页存在可用规则「RuleA」
+      1) 规则库页面存在可用规则「RuleA」
       2) 导入文件为 JSON，包含 ruleType=完整性、field=amount、expression=amount IS NOT NULL，缺少 ruleName
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
@@ -604,8 +604,8 @@ cases:
     title: 验证【规则库配置】-【规则导出】勾选内置规则并导出，下载JSON文件且仅含勾选规则
     priority: P2
     precondition: |-
-      1) 规则库配置页存在内置规则「RuleA」和「RuleB」
-      2) 浏览器下载目录可写，当前列表展示上述两条规则
+      1) 规则库页面存在内置规则「RuleA」和「RuleB」
+      2) 浏览器文件写出能力可用，当前列表展示上述两条规则
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
@@ -690,7 +690,7 @@ cases:
            (1, CAST(100.00 AS DECIMAL(10,2))),
            (2, CAST(200.00 AS DECIMAL(10,2))),
            (3, CAST(300.00 AS DECIMAL(10,2)));
-      5) 规则任务「TaskA」允许配置 Spark 环境参数，参数 spark.executor.memory 当前为空
+      5) 规则任务「TaskA」已允许配置 Spark 环境参数，参数 spark.executor.memory 当前为空
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功

@@ -5,12 +5,14 @@ meta:
     - 菜单名称修改.xmind
 cases:
   - case_id: C0001
-    title: 验证【数据质量】新建项目并打开左侧菜单，5个菜单名称按新规则修改并新增规则集管理(新建项目)
+    title: 验证【数据质量】新建项目并打开左侧菜单，5个菜单名称按新规则修改并新增规则集管理
     priority: P1
     steps:
       - action: 进入【数据质量】页面
         expected: 进入成功
-      - action: 新建项目 ${ProjectA} 并打开项目左侧菜单
+      - action: 新建项目 ${ProjectA}
+        expected: 打开成功
+      - action: 项目左侧菜单
         expected: |-
           1） 「概览」名称改为「总览」
           2） 「规则任务配置」名称改为「规则任务管理」
@@ -19,12 +21,14 @@ cases:
           5） 新增一级菜单「规则集管理」
     precondition: 无
   - case_id: C0002
-    title: 验证【数据质量】打开历史项目左侧菜单，5个菜单名称按新规则修改并新增规则集管理(历史项目)
+    title: 验证【数据质量】打开历史项目左侧菜单，5个菜单名称按新规则修改并新增规则集管理
     priority: P0
     steps:
       - action: 进入【数据质量】页面
         expected: 进入成功
-      - action: 打开版本升级前创建的项目 ${ProjectB} 并查看左侧菜单
+      - action: 打开版本升级前创建的项目 ${ProjectB}
+        expected: 打开成功
+      - action: 左侧菜单
         expected: |-
           1） 「概览」名称改为「总览」
           2） 「规则任务配置」名称改为「规则任务管理」

@@ -26,7 +26,7 @@ cases:
     priority: P1
     precondition: |-
       1) 规则库存在「${RuleA}」「${RuleB}」「${RuleC}」三条启用内置规则
-      2) 浏览器下载目录可写
+      2) 浏览器文件写出能力可用
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功

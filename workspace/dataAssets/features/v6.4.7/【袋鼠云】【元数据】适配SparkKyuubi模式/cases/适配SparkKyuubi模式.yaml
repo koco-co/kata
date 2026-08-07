@@ -441,7 +441,7 @@ cases:
     priority: P1
     precondition: |-
       1) 公共管理数据源「${DataSourceA}」类型为 Kyuubi，连接状态为「可用」
-      2) 离线开发项目「${ProjectA}」具备引入数据源权限
+      2) 离线开发项目「${ProjectA}」已具备引入数据源权限
     steps:
       - action: 进入【离线开发 → 数据源】页面
         expected: 进入成功

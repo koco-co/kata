@@ -21,8 +21,10 @@ cases:
     steps:
       - action: 进入【数据模型 → 建表】页面
         expected: 进入成功
+      - action: 点击「新建表」
+        expected: 配置完成
       - action: |-
-          点击「新建表」并配置基础信息：
+          基础信息：
           数据源：${DataSourceA}
           数据库：${SchemaA}
           数仓层级：${WarehouseLevelA}
@@ -74,7 +76,8 @@ cases:
           生命周期：9999 天
           表类型：内部表
           HDFS 存储路径：留空
-          点击「下一步」，记录结果后返回建表页
+        expected: 表单配置完成
+      - action: 点击「下一步」，记录结果后返回建表页
         expected: |-
           1) 7 组数据均进入「表结构」步骤
           2) 「表中文名」分别保留中文、英文、数字、单个内部空格、括号、连字符和下划线
@@ -98,8 +101,10 @@ cases:
     steps:
       - action: 进入【数据模型 → 建表】页面
         expected: 进入成功
+      - action: 点击「新建表」
+        expected: 配置完成
       - action: |-
-          点击「新建表」并配置基础信息：
+          基础信息：
           数据源：${DataSourceA}
           数据库：${SchemaA}
           数仓层级：${WarehouseLevelA}
@@ -129,8 +134,10 @@ cases:
     steps:
       - action: 进入【数据模型 → 建表】页面
         expected: 进入成功
+      - action: 点击「新建表」
+        expected: 配置完成
       - action: |-
-          点击「新建表」并配置基础信息：
+          基础信息：
           数据源：${DataSourceA}
           数据库：${SchemaA}
           数仓层级：${WarehouseLevelA}
@@ -160,8 +167,10 @@ cases:
     steps:
       - action: 进入【数据模型 → 建表】页面
         expected: 进入成功
+      - action: 点击「新建表」
+        expected: 配置完成
       - action: |-
-          点击「新建表」并配置基础信息：
+          基础信息：
           数据源：${DataSourceA}
           数据库：${SchemaA}
           数仓层级：${WarehouseLevelA}
@@ -202,7 +211,8 @@ cases:
           数仓层级：${WarehouseLevelA}
           存储格式：PARQUET
           表类型：内部表
-          点击「下一步」，记录结果后返回建表页
+        expected: 表单配置完成
+      - action: 点击「下一步」，记录结果后返回建表页
         expected: |-
           1) 3 组「表中文名」输入框均置红
           2) 3 组页面均停留在「基础信息」步骤

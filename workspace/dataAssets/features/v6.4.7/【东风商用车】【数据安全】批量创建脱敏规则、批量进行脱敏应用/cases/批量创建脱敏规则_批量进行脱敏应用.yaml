@@ -6,7 +6,7 @@ meta:
     - 批量创建脱敏规则_批量进行脱敏应用.xmind
 cases:
   - case_id: C0001
-    title: 验证【数据安全】-【数据脱敏管理】导入规则文件，列表新增4条规则(重复则跳过)
+    title: 验证【数据安全】-【数据脱敏管理】导入规则文件，列表新增4条规则
     priority: P0
     precondition: |-
       1) 创建导入文件 `mask_rules.csv`：
@@ -35,7 +35,7 @@ cases:
       - 导入规则
 
   - case_id: C0002
-    title: 验证【数据安全】-【数据脱敏管理】导入脱敏表后取消，记录数保持不变(取消导入)
+    title: 验证【数据安全】-【数据脱敏管理】导入脱敏表后取消，记录数保持不变
     priority: P1
     precondition: |-
       1) 数据脱敏管理列表存在规则「RuleD」，脱敏效果为「全部脱敏」
@@ -52,7 +52,7 @@ cases:
     tags:
       ["数据安全", "数据脱敏管理"]
   - case_id: C0003
-    title: 验证【数据安全】-【数据脱敏管理】导入脱敏表必填项为空，提示导入错误且不新增记录(必填项未填)
+    title: 验证【数据安全】-【数据脱敏管理】导入脱敏表，提示导入错误且不新增记录(脱敏表必填项 = 空)
     priority: P1
     precondition: |-
       1) 数据脱敏管理列表存在规则「RuleD」
@@ -88,7 +88,7 @@ cases:
     tags:
       ["数据安全", "数据脱敏管理"]
   - case_id: C0004
-    title: 验证【数据安全】-【数据脱敏管理】导入脱敏表对象不存在，错误单元格标红(对象不存在)
+    title: 验证【数据安全】-【数据脱敏管理】导入脱敏表，错误单元格标红(对象为空)
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -130,8 +130,8 @@ cases:
     tags:
       ["数据安全", "数据脱敏管理"]
   - case_id: C0005
-    title: 验证【数据安全】-【数据脱敏管理】导入重复脱敏表记录，标记数据已存在(重复记录)
-    priority: P0
+    title: 验证【数据安全】-【数据脱敏管理】导入重复脱敏表记录，标记数据已存在
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：SparkThrift2.x
@@ -158,7 +158,7 @@ cases:
     tags:
       ["数据安全", "数据脱敏管理"]
   - case_id: C0006
-    title: 验证【数据安全】-【数据脱敏管理】导入脱敏字段不一致的记录，列表新增记录(脱敏字段不一致)
+    title: 验证【数据安全】-【数据脱敏管理】导入脱敏字段不一致的记录，列表新增记录
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -187,7 +187,7 @@ cases:
     tags:
       ["数据安全", "数据脱敏管理"]
   - case_id: C0007
-    title: 验证【数据安全】-【数据脱敏管理】导入数据表不一致的记录，列表新增记录(数据表不一致)
+    title: 验证【数据安全】-【数据脱敏管理】导入数据表不一致的记录，列表新增记录
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -213,8 +213,8 @@ cases:
     tags:
       ["数据安全", "数据脱敏管理"]
   - case_id: C0008
-    title: 验证【数据安全】-【数据脱敏管理】导入数据库不一致的记录，列表新增记录(数据库不一致)
-    priority: P0
+    title: 验证【数据安全】-【数据脱敏管理】导入数据库不一致的记录，列表新增记录
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：SparkThrift2.x
@@ -239,7 +239,7 @@ cases:
     tags:
       ["数据安全", "数据脱敏管理"]
   - case_id: C0009
-    title: 验证【数据安全】-【数据脱敏管理】导入未注册数据源，单元格标红提示(数据源未注册)
+    title: 验证【数据安全】-【数据脱敏管理】导入未注册数据源，单元格标红提示
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -256,7 +256,7 @@ cases:
          DROP TABLE IF EXISTS ${SchemaB}.test_table_14700_c0009_target;
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_14700_c0009_target (id BIGINT, phone STRING);
       9) 数据脱敏管理列表存在规则「RuleD」
-      10) 数据源「${DataSourceB}」未引入数据资产平台
+      10) 数据源「${DataSourceB}」未接入数据资产平台
       11) 创建导入文件 `table_import_unregistered.xlsx`：
          Sheet: Sheet1
          Title: 数据源名称,数据库名称,数据表名称,脱敏字段
@@ -271,7 +271,7 @@ cases:
     tags:
       ["数据安全", "数据脱敏管理"]
   - case_id: C0010
-    title: 验证【数据安全】-【数据脱敏管理】下载导入脱敏表模板，模板表头完整(下载模板)
+    title: 验证【数据安全】-【数据脱敏管理】下载导入脱敏表模板，模板表头完整
     priority: P1
     precondition: |-
       1) 数据脱敏管理列表存在规则「RuleD」
@@ -289,14 +289,16 @@ cases:
     tags:
       ["数据安全", "数据脱敏管理"]
   - case_id: C0011
-    title: 验证【数据安全】-【数据脱敏管理】打开导入脱敏表弹窗，展示字段与按钮(导入脱敏表弹窗)
+    title: 验证【数据安全】-【数据脱敏管理】打开导入脱敏表弹窗，展示字段与按钮
     priority: P1
     precondition: |-
       1) 数据脱敏管理列表存在规则「RuleD」
     steps:
       - action: 进入【数据安全 → 数据脱敏管理】页面
         expected: 进入成功
-      - action: 选择「RuleD」，进入「脱敏应用」并点击「导入脱敏表」
+      - action: 选择「RuleD」，进入「脱敏应用」
+        expected: 点击成功
+      - action: 「导入脱敏表」
         expected: |-
           1) 弹窗标题为「导入脱敏表」
           2) 字段为「上传文件」
@@ -304,19 +306,21 @@ cases:
     tags:
       ["数据安全", "数据脱敏管理"]
   - case_id: C0012
-    title: 验证【数据安全】-【数据脱敏管理】进入脱敏应用页面，展示两个入口(脱敏应用页)
+    title: 验证【数据安全】-【数据脱敏管理】进入脱敏应用页面，展示两个入口
     priority: P1
     precondition: |-
       1) 数据脱敏管理列表存在规则「RuleD」
     steps:
       - action: 进入【数据安全 → 数据脱敏管理】页面
         expected: 进入成功
-      - action: 选择「RuleD」，点击「脱敏应用」
+      - action: 选择「RuleD」
+        expected: 进入成功
+      - action: 「脱敏应用」
         expected: 「脱敏应用」页面展示「添加脱敏表」和「导入脱敏表」两个入口
     tags:
       ["数据安全", "数据脱敏管理"]
   - case_id: C0013
-    title: 验证【数据安全】-【数据脱敏管理】导入规则后取消，记录数保持不变(取消导入)
+    title: 验证【数据安全】-【数据脱敏管理】导入规则后取消，记录数保持不变
     priority: P1
     precondition: 无
     steps:
@@ -332,7 +336,7 @@ cases:
       - 导入规则
 
   - case_id: C0014
-    title: 验证【数据安全】-【数据脱敏管理】导入新规则并覆盖更新，规则列表新增(重复则覆盖更新)
+    title: 验证【数据安全】-【数据脱敏管理】导入新规则并覆盖更新，规则列表新增
     priority: P0
     precondition: |-
       1) 规则名称「RuleC」在数据脱敏管理列表中不存在
@@ -353,7 +357,7 @@ cases:
       - 导入规则
 
   - case_id: C0015
-    title: 验证【数据安全】-【数据脱敏管理】导入新规则并跳过重复，规则列表新增(重复则跳过)
+    title: 验证【数据安全】-【数据脱敏管理】导入新规则并跳过重复，规则列表新增
     priority: P1
     precondition: |-
       1) 规则名称「RuleE」在数据脱敏管理列表中不存在
@@ -374,7 +378,7 @@ cases:
       - 导入规则
 
   - case_id: C0016
-    title: 验证【数据安全】-【数据脱敏管理】导入重名规则覆盖更新，规则参数更新(覆盖更新)
+    title: 验证【数据安全】-【数据脱敏管理】导入规则文件并覆盖更新，规则参数更新(规则名称重复或已存在)
     priority: P0
     precondition: |-
       1) 列表存在规则「RuleA」，脱敏效果为「全部脱敏」
@@ -397,7 +401,7 @@ cases:
       - 导入规则
 
   - case_id: C0017
-    title: 验证【数据安全】-【数据脱敏管理】导入重名规则跳过，原规则参数不变(重复则跳过)
+    title: 验证【数据安全】-【数据脱敏管理】导入规则文件并跳过相同规则，原规则参数不变(规则名称重复或已存在)
     priority: P1
     precondition: |-
       1) 列表存在规则「RuleB」，脱敏效果为「全部脱敏」
@@ -418,7 +422,7 @@ cases:
       - 导入规则
 
   - case_id: C0018
-    title: 验证【数据安全】-【数据脱敏管理】导入规则必填项为空，错误单元格标红(必填项未填)
+    title: 验证【数据安全】-【数据脱敏管理】导入规则文件，错误单元格标红(规则必填项 = 空)
     priority: P0
     precondition: |-
       1) 创建导入文件 `mask_required_error.xlsx`：
@@ -446,7 +450,7 @@ cases:
       - 导入规则
 
   - case_id: C0019
-    title: 验证【数据安全】-【数据脱敏管理】导入位数超限规则，错误单元格标红(位数错误)
+    title: 验证【数据安全】-【数据脱敏管理】导入位数超限规则，错误单元格标红
     priority: P1
     precondition: |-
       1) 创建导入文件 `mask_position_error.xlsx`：
@@ -468,7 +472,7 @@ cases:
       - 导入规则
 
   - case_id: C0020
-    title: 验证【数据安全】-【数据脱敏管理】导入脱敏效果填写错误，单元格标红(脱敏效果错误)
+    title: 验证【数据安全】-【数据脱敏管理】导入脱敏效果填写错误，单元格标红
     priority: P1
     precondition: |-
       1) 创建导入文件 `mask_effect_error.xlsx`：
@@ -489,7 +493,7 @@ cases:
       - 导入规则
 
   - case_id: C0021
-    title: 验证【数据安全】-【数据脱敏管理】导入规则名称过长，单元格标红(名称过长)
+    title: 验证【数据安全】-【数据脱敏管理】导入规则名称过长，单元格标红
     priority: P0
     precondition: |-
       1) 创建导入文件 `mask_name_length_error.xlsx`：
@@ -510,7 +514,7 @@ cases:
       - 导入规则
 
   - case_id: C0022
-    title: 验证【数据安全】-【数据脱敏管理】下载导入规则模板，模板表头完整(下载模板)
+    title: 验证【数据安全】-【数据脱敏管理】下载导入规则模板，模板表头完整
     priority: P1
     precondition: 无
     steps:
@@ -529,7 +533,7 @@ cases:
       - 导入规则
 
   - case_id: C0023
-    title: 验证【数据安全】-【数据脱敏管理】选择重复处理规则，提示对应策略(重复处理规则)
+    title: 验证【数据安全】-【数据脱敏管理】选择重复处理规则，提示对应策略
     priority: P1
     precondition: 无
     steps:
@@ -549,13 +553,15 @@ cases:
       - 导入规则
 
   - case_id: C0024
-    title: 验证【数据安全】-【数据脱敏管理】打开导入规则弹窗，展示字段与按钮(导入规则弹窗)
+    title: 验证【数据安全】-【数据脱敏管理】打开导入规则弹窗，展示字段与按钮
     priority: P1
     precondition: 无
     steps:
       - action: 进入【数据安全 → 数据脱敏管理】页面
         expected: 进入成功
       - action: 点击「导入规则」
+        expected: 弹窗打开
+      - action: 查看弹窗字段与按钮
         expected: |-
           1) 弹窗标题为「导入规则」
           2) 字段为「重复处理规则」和「上传文件」
@@ -566,14 +572,16 @@ cases:
       - 导入规则
 
   - case_id: C0025
-    title: 验证【数据安全】-【数据脱敏管理】按规则名称搜索，列表仅展示匹配记录(规则查询)
+    title: 验证【数据安全】-【数据脱敏管理】按规则名称搜索，列表仅展示匹配记录
     priority: P1
     precondition: |-
       1) 数据脱敏管理列表存在规则「RuleD」「mask_name_partial」和「encrypt_id」
     steps:
       - action: 进入【数据安全 → 数据脱敏管理】页面
         expected: 进入成功
-      - action: 在「规则名称」搜索框输入 `mask` 并点击搜索
+      - action: 在「规则名称」搜索框输入 `mask`
+        expected: 点击成功
+      - action: 搜索
         expected: 列表仅展示规则名称包含 `mask` 的「RuleD」和「mask_name_partial」，不展示「encrypt_id」
     tags:
       - 数据安全
@@ -581,13 +589,15 @@ cases:
       - 规则查询
 
   - case_id: C0026
-    title: 验证【数据安全】-【数据脱敏管理】查看管理页面，展示搜索区与列表表头(页面展示)
+    title: 验证【数据安全】-【数据脱敏管理】查看管理页面，展示搜索区与列表表头
     priority: P1
     precondition: 无
     steps:
       - action: 进入【数据安全 → 数据脱敏管理】页面
         expected: 进入成功
-      - action: 查看页面操作区和列表表头
+      - action: 查看页面操作区
+        expected: 搜索区与按钮展示
+      - action: 查看列表表头
         expected: |-
           1) 搜索区展示「规则名称」输入框和「搜索」按钮
           2) 「新增规则」右侧展示「导入规则」按钮

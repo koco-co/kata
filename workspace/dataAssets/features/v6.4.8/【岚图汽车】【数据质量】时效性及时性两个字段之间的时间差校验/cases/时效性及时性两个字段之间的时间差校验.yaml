@@ -107,7 +107,7 @@ cases:
          DROP TABLE IF EXISTS ${SchemaA}.test_table_10182_c0004;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_10182_c0004 (id BIGINT, event_date DATE, event_time TIMESTAMP, amount DECIMAL(10,2), enabled BOOLEAN);
          INSERT INTO ${SchemaA}.test_table_10182_c0004 VALUES (1, DATE '2026-08-01', TIMESTAMP '2026-08-01 08:00:00', 10.50, TRUE), (2, DATE '2026-08-02', TIMESTAMP '2026-08-02 08:00:00', 20.00, FALSE);
-      5) 规则集「${RuleSetA}」已选择 test_table_10182_c0004 与多字段时间差校验
+      5) 规则集「${RuleSetA}」已关联 test_table_10182_c0004 与多字段时间差校验
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
@@ -132,7 +132,7 @@ cases:
          DROP TABLE IF EXISTS ${SchemaA}.test_table_10182_c0005;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_10182_c0005 (id BIGINT, start_time TIMESTAMP, end_time TIMESTAMP);
          INSERT INTO ${SchemaA}.test_table_10182_c0005 VALUES (1, TIMESTAMP '2026-08-01 08:00:00', TIMESTAMP '2026-08-01 08:00:30'), (2, TIMESTAMP '2026-08-01 09:00:00', TIMESTAMP '2026-08-01 09:00:30');
-      5) 规则集「${RuleSetA}」已选择 test_table_10182_c0005 与多字段时间差校验
+      5) 规则集「${RuleSetA}」已关联 test_table_10182_c0005 与多字段时间差校验
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
@@ -157,7 +157,7 @@ cases:
          DROP TABLE IF EXISTS ${SchemaA}.test_table_10182_c0006;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_10182_c0006 (id BIGINT, start_time TIMESTAMP, end_time TIMESTAMP);
          INSERT INTO ${SchemaA}.test_table_10182_c0006 VALUES (1, TIMESTAMP '2026-08-01 08:00:00', TIMESTAMP '2026-08-01 08:00:30'), (2, TIMESTAMP '2026-08-01 09:00:00', TIMESTAMP '2026-08-01 09:00:30');
-      5) 规则集「${RuleSetA}」已选择 test_table_10182_c0006 与多字段时间差校验
+      5) 规则集「${RuleSetA}」已关联 test_table_10182_c0006 与多字段时间差校验
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功

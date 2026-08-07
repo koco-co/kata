@@ -7,7 +7,7 @@ meta:
 cases:
   - case_id: C0001
     title: 验证【数据资产】-【资产盘点】查看已接入数据源统计，昨日新增库表数与存储量正确
-    priority: P0
+    priority: P1
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
       2) 数据源 A 类型：Doris3.x
@@ -37,7 +37,7 @@ cases:
 
   - case_id: C0002
     title: 验证【数据资产】-【资产盘点】查看六类资产数量统计，与平台存量一致
-    priority: P0
+    priority: P1
     precondition: |-
       1) 资产平台存在数据表 3 张、离线任务 2 个、实时任务 1 个、API 1 个、智能标签 2 个、指标 1 个
       2) 上述资产均已完成同步或发布
@@ -289,7 +289,7 @@ cases:
     priority: P1
     precondition: |-
       1) 数据地图存在数据表 orders，数据表统计当前为 3
-      2) 当前用户具有元数据删除权限
+      2) 当前用户为元数据管理员
     steps:
       - action: 进入【数据资产 → 数据地图】页面
         expected: 进入成功
@@ -375,7 +375,7 @@ cases:
          DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0018;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0018 (id BIGINT, amount DECIMAL(10,2));
          INSERT INTO ${SchemaA}.test_table_none_c0018 VALUES (1, 10.00), (2, 20.00), (3, 30.00);
-      5) 规则任务「TaskR」配置 amount 非空校验，状态为「启用」
+      5) 规则任务「TaskR」已配置 amount 非空校验，状态为「启用」
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功

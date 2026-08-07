@@ -10,7 +10,9 @@ cases:
     steps:
       - action: 进入【资产盘点】页面
         expected: 进入成功
-      - action: 查看页面顶部导航栏的模块名称和排列顺序
+      - action: 查看顶部导航栏模块名称
+        expected: 模块名称展示
+      - action: 核对排列顺序
         expected: 从左至右依次显示「资产盘点」「元数据」「数据标准」「数据模型」「数据质量」「代码和文件治理」「数据安全」「平台管理」
     precondition: 无
     tags:

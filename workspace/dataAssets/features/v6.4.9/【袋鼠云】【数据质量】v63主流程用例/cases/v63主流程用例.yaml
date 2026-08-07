@@ -6,7 +6,7 @@ meta:
     - v63主流程用例.xmind
 cases:
   - case_id: C0001
-    title: 验证【元数据】-【数据地图】查看首页资产类型统计，卡片展示各类资产数量(首页统计)
+    title: 验证【元数据】-【数据地图】查看首页资产类型统计，卡片展示各类资产数量
     priority: P1
     precondition: |-
       1) 元数据平台已同步数据表 3 张、视图 1 张和离线任务 2 个
@@ -24,7 +24,7 @@ cases:
       - 首页统计
 
   - case_id: C0002
-    title: 验证【元数据】-【数据地图】按数据源类型筛选搜索结果，数据源与数据表下拉联动(数据源筛选)
+    title: 验证【元数据】-【数据地图】按数据源类型筛选搜索结果，数据源与数据表下拉联动
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceB}
@@ -61,7 +61,7 @@ cases:
       - 筛选
 
   - case_id: C0003
-    title: 验证【元数据】-【数据地图】按资产类型搜索视图，详情展示字段信息(视图)
+    title: 验证【元数据】-【数据地图】按资产类型搜索视图，详情展示字段信息
     priority: P1
     precondition: |-
       1) 数据地图存在视图「v_order_summary」，资产类型为「视图」
@@ -79,7 +79,7 @@ cases:
       - 视图
 
   - case_id: C0004
-    title: 验证【元数据】-【数据地图】批量编辑字段信息，保存后描述与标签生效(批量编辑)
+    title: 验证【元数据】-【数据地图】批量编辑字段信息，保存后描述与标签生效
     priority: P1
     precondition: |-
       1) 数据地图存在数据表「customer_profile」，字段 id、name、status
@@ -96,8 +96,8 @@ cases:
     tags:
       ["元数据", "数据地图"]
   - case_id: C0005
-    title: 验证【元数据】-【数据地图】删除元数据表与源表，底层表分别保留或删除(删除资产)
-    priority: P0
+    title: 验证【元数据】-【数据地图】删除元数据表与源表，底层表分别保留或删除
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceB}
       2) 数据源类型：Hive2.x
@@ -111,7 +111,7 @@ cases:
          INSERT INTO ${SchemaB}.test_table_none_c0005_source_02 VALUES (1);
       5) 数据地图存在资产表「test_table_none_c0005_source_01」，底层 ${DataSourceB}.${SchemaB}.test_table_none_c0005_source_01 仍存在
       6) 数据地图存在资产表「test_table_none_c0005_source_02」，底层 ${DataSourceB}.${SchemaB}.test_table_none_c0005_source_02 仍存在
-      7) 使用数据管理员账号进入元数据平台，具备元数据删除权限
+      7) 数据管理员账号已具备元数据管理权限
     steps:
       - action: 进入【元数据 → 数据地图】页面
         expected: 进入成功
@@ -122,7 +122,7 @@ cases:
     tags:
       ["元数据", "数据地图"]
   - case_id: C0006
-    title: 验证【元数据】-【元数据同步】新增周期同步任务并执行，数据地图新增资产(周期同步)
+    title: 验证【元数据】-【元数据同步】新增周期同步任务并执行，数据地图新增资产
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -147,7 +147,7 @@ cases:
       - 元数据同步
 
   - case_id: C0007
-    title: 验证【元数据】-【元数据同步】配置表过滤并同步，过滤表不同步且目标表已同步(表过滤)
+    title: 验证【元数据】-【元数据同步】配置表过滤并同步，过滤表不同步且目标表已同步
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceB}
@@ -179,8 +179,8 @@ cases:
       - 表过滤
 
   - case_id: C0008
-    title: 验证【元数据】-【数据地图】离线建表与视图后自动同步，资产类型正确展示(自动同步)
-    priority: P0
+    title: 验证【元数据】-【数据地图】离线建表与视图后自动同步，资产类型正确展示
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceB}
       2) 数据源类型：Hive2.x
@@ -202,7 +202,7 @@ cases:
     tags:
       ["元数据", "数据地图"]
   - case_id: C0009
-    title: 验证【元数据】-【元模型管理】切换数据源类型模型，技术属性列表联动展示(技术属性)
+    title: 验证【元数据】-【元模型管理】切换数据源类型模型，技术属性列表联动展示
     priority: P1
     precondition: |-
       1) 元模型管理存在 Hive2.x、Doris3.x 两个数据源类型模型
@@ -220,7 +220,7 @@ cases:
       - 技术属性
 
   - case_id: C0010
-    title: 验证【元数据】-【数据地图】编辑业务属性值，保存后详情页保留(业务属性)
+    title: 验证【元数据】-【数据地图】编辑业务属性值，保存后详情页保留
     priority: P1
     precondition: |-
       1) 元模型管理存在已生效通用业务属性「数据责任人」
@@ -237,7 +237,7 @@ cases:
     tags:
       ["元数据", "数据地图"]
   - case_id: C0011
-    title: 验证【数据标准】-【标准定义】新增上线下线数据标准，状态与描述同步更新(标准CRUD)
+    title: 验证【数据标准】-【标准定义】新增上线下线数据标准，状态与描述同步更新
     priority: P0
     precondition: |-
       1) 标准目录「CatalogA」存在，标准名称「StandardA」当前不存在
@@ -257,7 +257,7 @@ cases:
       - CRUD
 
   - case_id: C0012
-    title: 验证【数据标准】-【标准定义】导出删除导入数据标准，列表恢复记录(导入导出)
+    title: 验证【数据标准】-【标准定义】导出删除导入数据标准，列表恢复记录
     priority: P1
     precondition: |-
       1) 标准定义列表存在「StandardA」，状态为「已上线」
@@ -277,7 +277,7 @@ cases:
     tags:
       ["数据标准", "标准定义"]
   - case_id: C0013
-    title: 验证【数据标准】-【标准映射】为标准配置字段映射，映射记录展示完整路径(字段映射)
+    title: 验证【数据标准】-【标准映射】为标准配置字段映射，映射记录展示完整路径
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceB}
@@ -301,7 +301,7 @@ cases:
       - 标准映射
 
   - case_id: C0014
-    title: 验证【数据模型】-【规范建表】解析建表语句，字段与分区列表完整展示(语句解析)
+    title: 验证【数据模型】-【规范建表】解析建表语句，字段与分区列表完整展示
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceB}
@@ -325,11 +325,11 @@ cases:
     tags:
       ["数据模型", "规范建表"]
   - case_id: C0015
-    title: 验证【数据质量】-【规则库配置】切换内置规则开关，状态在启用停用间变化(内置规则)
+    title: 验证【数据质量】-【规则库配置】切换内置规则开关，状态在启用停用间变化
     priority: P1
     precondition: |-
       1) 规则库存在内置规则「RuleC」，当前状态为「启用」
-      2) 使用数据质量管理员账号进入数据质量平台，具备规则库配置权限
+      2) 数据质量管理员账号已具备规则库配置权限
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
@@ -343,7 +343,7 @@ cases:
       - 内置规则
 
   - case_id: C0016
-    title: 验证【数据质量】-【规则任务配置】新建规则集并执行，实例状态运行完成且异常明细为0(规则执行)
+    title: 验证【数据质量】-【规则任务配置】新建规则集并执行，实例状态运行完成且异常明细为0
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceC}
@@ -373,7 +373,7 @@ cases:
     tags:
       ["数据质量", "规则任务配置"]
   - case_id: C0017
-    title: 验证【数据安全】-【数据分级分类】新增级别并发布字段，字段状态已发布(级别管理)
+    title: 验证【数据安全】-【数据分级分类】新增级别并发布字段，字段状态已发布
     priority: P1
     precondition: |-
       1) 数据分级管理中不存在级别「敏感回归级别」
@@ -388,7 +388,7 @@ cases:
     tags:
       ["数据安全", "数据分级分类", "级别管理"]
   - case_id: C0018
-    title: 验证【数据安全】-【数据脱敏管理】配置全表与字段脱敏，脱敏范围正确展示(数据脱敏)
+    title: 验证【数据安全】-【数据脱敏管理】配置全表与字段脱敏，脱敏范围正确展示
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceD}
@@ -399,7 +399,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaD}.test_table_none_c0018 (id BIGINT, name STRING, phone STRING, email STRING);
          INSERT INTO ${SchemaD}.test_table_none_c0018 VALUES (1, 'Alice', '13800000000', 'a@example.com');
       5) 脱敏规则「RuleA」已启用
-      6) 使用数据安全管理员账号进入数据安全平台，具备数据脱敏配置权限
+      6) 数据安全管理员账号已具备数据脱敏配置权限
     steps:
       - action: 进入【数据安全 → 数据脱敏管理】页面
         expected: 进入成功
@@ -412,7 +412,7 @@ cases:
     tags:
       ["数据安全", "数据脱敏管理"]
   - case_id: C0019
-    title: 验证【数据安全】-【数据权限管理】新增权限策略选择用户，策略列表正确展示(权限策略)
+    title: 验证【数据安全】-【数据权限管理】新增权限策略选择用户，策略列表正确展示
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceD}
@@ -421,7 +421,7 @@ cases:
       4) 创建数据表，该表为空表：
          DROP TABLE IF EXISTS ${SchemaD}.test_table_none_c0019;
          CREATE TABLE IF NOT EXISTS ${SchemaD}.test_table_none_c0019 (id BIGINT, name STRING);
-      5) 使用租户管理员账号进入数据安全平台并具备数据权限配置权限
+      5) 租户管理员账号已具备数据权限配置权限
       6) 用户「UserA」和用户组「UserGroupA」均已存在
     steps:
       - action: 进入【数据安全 → 数据权限管理】页面
@@ -435,10 +435,10 @@ cases:
     tags:
       ["数据安全", "数据权限管理"]
   - case_id: C0020
-    title: 验证【平台管理】-【通知配置】查看任务异常通知记录，邮件与站内信渠道展示(通知记录)
+    title: 验证【平台管理】-【通知配置】查看任务异常通知记录，邮件与站内信渠道展示
     priority: P1
     precondition: |-
-      1) 通知配置存在渠道「邮件」和「站内信」，均为「启用」
+      1) 已配置通知渠道「邮件」和「站内信」，均为「启用」
       2) 质量任务「TaskB」已配置失败通知，收件人包含「qa@example.com」
       3) 任务最近一次实例状态为「校验异常」
     steps:

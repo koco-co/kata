@@ -40,7 +40,7 @@ cases:
 
   - case_id: C0002
     title: 验证【数据质量】-【规则集管理】配置单字段时间差校验规则并执行，实例达标且表级报告展示记录数与报警数
-    priority: P0
+    priority: P1
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
       2) 数据源 A 类型：SparkThrift2.x
@@ -113,7 +113,7 @@ cases:
          DROP TABLE IF EXISTS ${SchemaA}.test_table_10181_c0004;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_10181_c0004 (id BIGINT, standard_time STRING, millis_time STRING, compact_time STRING, slash_time STRING);
          INSERT INTO ${SchemaA}.test_table_10181_c0004 VALUES (1, '2026-08-01 08:00:00', '1722470400000', '20260801080000', '2026/08/01 08:00:00'), (2, '2026-08-01 08:00:02', '1722470402000', '20260801080002', '2026/08/01 08:00:02');
-      5) 规则集「${RuleSetA}」已选择 test_table_10181_c0004 与单字段时间差校验
+      5) 规则集「${RuleSetA}」已关联 test_table_10181_c0004 与单字段时间差校验
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
@@ -138,7 +138,7 @@ cases:
          DROP TABLE IF EXISTS ${SchemaA}.test_table_10181_c0005;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_10181_c0005 (id BIGINT, event_date DATE, event_time TIMESTAMP, amount DECIMAL(10,2), enabled BOOLEAN);
          INSERT INTO ${SchemaA}.test_table_10181_c0005 VALUES (1, DATE '2026-08-01', TIMESTAMP '2026-08-01 08:00:00', 10.50, TRUE), (2, DATE '2026-08-02', TIMESTAMP '2026-08-02 08:00:00', 20.00, FALSE);
-      5) 规则集「${RuleSetA}」已选择 test_table_10181_c0005 与单字段时间差校验
+      5) 规则集「${RuleSetA}」已关联 test_table_10181_c0005 与单字段时间差校验
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
@@ -163,7 +163,7 @@ cases:
          DROP TABLE IF EXISTS ${SchemaA}.test_table_10181_c0006;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_10181_c0006 (id BIGINT, event_time TIMESTAMP);
          INSERT INTO ${SchemaA}.test_table_10181_c0006 VALUES (1, TIMESTAMP '2026-08-01 08:00:00'), (2, TIMESTAMP '2026-08-01 08:00:30');
-      5) 规则集「${RuleSetA}」已选择 test_table_10181_c0006 与单字段时间差校验
+      5) 规则集「${RuleSetA}」已关联 test_table_10181_c0006 与单字段时间差校验
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
@@ -188,7 +188,7 @@ cases:
          DROP TABLE IF EXISTS ${SchemaA}.test_table_10181_c0007;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_10181_c0007 (id BIGINT, event_time TIMESTAMP);
          INSERT INTO ${SchemaA}.test_table_10181_c0007 VALUES (1, TIMESTAMP '2026-08-01 08:00:00'), (2, TIMESTAMP '2026-08-01 08:00:30');
-      5) 规则集「${RuleSetA}」已选择 test_table_10181_c0007 与单字段时间差校验
+      5) 规则集「${RuleSetA}」已关联 test_table_10181_c0007 与单字段时间差校验
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功

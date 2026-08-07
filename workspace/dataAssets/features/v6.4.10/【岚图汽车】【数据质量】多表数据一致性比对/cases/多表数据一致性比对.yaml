@@ -6,7 +6,7 @@ meta:
     - 多表数据一致性比对.xmind
 cases:
   - case_id: C0001
-    title: 验证【数据质量】-【规则集管理】新建多表一致性比对规则并执行，实例不达标且明细展示差异记录(数据不一致)
+    title: 验证【数据质量】-【规则集管理】新建多表一致性比对规则并执行，实例不达标且明细展示差异记录
     priority: P0
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
@@ -26,8 +26,11 @@ cases:
           新建规则集并配置监控对象：
           * 规则集名称：RuleSetA
           * 选择数据源：${DataSourceA}
+          * 数据源：${DataSourceA}
           * 选择数据库：${SchemaA}
+          * 数据库：${SchemaA}
           * 选择数据表：test_table_10183_c0001_source_01
+          * 数据表：test_table_10183_c0001_source_01
           规则集描述：空
           添加多表数据一致性比对，主键选择 id，字段映射 user_name→user_name、age→age，对比表选择 test_table_10183_c0001_comparison_01
           保存并执行
@@ -42,7 +45,7 @@ cases:
       - 异常结果
 
   - case_id: C0002
-    title: 验证【数据质量】-【规则集管理】新建多表一致性比对规则并执行，实例达标且查看明细按钮不可用(数据一致)
+    title: 验证【数据质量】-【规则集管理】新建多表一致性比对规则并执行，实例达标且查看明细按钮不可用
     priority: P0
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
@@ -62,8 +65,11 @@ cases:
           新建规则集并配置监控对象：
           * 规则集名称：RuleSetB
           * 选择数据源：${DataSourceA}
+          * 数据源：${DataSourceA}
           * 选择数据库：${SchemaA}
+          * 数据库：${SchemaA}
           * 选择数据表：test_table_10183_c0002_source_01
+          * 数据表：test_table_10183_c0002_source_01
           规则集描述：空
           添加多表数据一致性比对，主键选择 id，字段映射 user_name→user_name、age→age，对比表选择 test_table_10183_c0002_comparison_01
           保存并执行
@@ -78,7 +84,7 @@ cases:
       - 达标结果
 
   - case_id: C0003
-    title: 验证【数据质量】-【规则集管理】执行多表一致性比对规则，下载明细包含差异与独有记录(数据不一致)
+    title: 验证【数据质量】-【规则集管理】执行多表一致性比对规则，下载明细包含差异与独有记录
     priority: P0
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
@@ -105,7 +111,7 @@ cases:
       - 明细下载
 
   - case_id: C0004
-    title: 验证【数据质量】-【规则集管理】执行多表一致性比对规则，删除对比表后失败且日志正确(对比表不存在)
+    title: 验证【数据质量】-【规则集管理】执行多表一致性比对规则，删除对比表后失败且日志正确
     priority: P1
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
@@ -134,7 +140,7 @@ cases:
       - 执行日志
 
   - case_id: C0005
-    title: 验证【数据质量】-【规则集管理】新增对比表至上限，新增按钮禁用且保留配置区(对比表上限10)
+    title: 验证【数据质量】-【规则集管理】新增对比表至上限，新增按钮禁用且保留配置区
     priority: P2
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
@@ -192,7 +198,7 @@ cases:
       - 对比表上限
 
   - case_id: C0006
-    title: 验证【数据质量】-【规则集管理】不选主键保存规则，主键置红且保存按钮禁用(必填校验)
+    title: 验证【数据质量】-【规则集管理】不选主键保存规则，主键置红且保存按钮禁用
     priority: P1
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
@@ -205,7 +211,7 @@ cases:
          DROP TABLE IF EXISTS ${SchemaA}.test_table_10183_c0006_comparison_01;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_10183_c0006_comparison_01 (id BIGINT, value STRING);
          INSERT INTO ${SchemaA}.test_table_10183_c0006_comparison_01 VALUES (1, 'v1');
-      5) 新建规则集时已选择 ${SchemaA}.test_table_10183_c0006_source_01 和 ${SchemaA}.test_table_10183_c0006_comparison_01
+      5) 规则集已关联 ${SchemaA}.test_table_10183_c0006_source_01 和 ${SchemaA}.test_table_10183_c0006_comparison_01
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功

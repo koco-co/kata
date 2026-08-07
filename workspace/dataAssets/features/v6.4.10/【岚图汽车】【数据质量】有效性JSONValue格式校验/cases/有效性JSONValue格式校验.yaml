@@ -8,7 +8,7 @@ cases:
 - case_id: C0001
   automation:
     spec_file: c0001-json-rule-option-order.spec.ts
-  title: 验证【数据质量】-【规则集管理】查看统计规则下拉选项顺序，格式-json格式校验选项位于格式校验-自定义正则上方(选项位置)
+  title: 验证【数据质量】-【规则集管理】查看统计规则下拉选项顺序，格式-json格式校验选项位于格式校验-自定义正则上方
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -38,7 +38,7 @@ cases:
 - case_id: C0002
   automation:
     spec_file: c0002-json-rule-no-help-icon.spec.ts
-  title: 验证【数据质量】-【规则集管理】查看格式-json格式校验统计函数行，不展示独立悬浮提示图标(提示图标)
+  title: 验证【数据质量】-【规则集管理】查看json格式校验统计函数行，不展示独立悬浮提示图标
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -68,7 +68,7 @@ cases:
 - case_id: C0003
   automation:
     spec_file: c0003-json-rule-visible-for-field-types.spec.ts
-  title: 验证【数据质量】-【规则集管理】切换不同字段类型查看统计规则下拉框，格式-json格式校验选项均可见(int与json字段)
+  title: 验证【数据质量】-【规则集管理】切换不同字段类型查看统计规则下拉框，格式-json格式校验选项均可见
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -109,7 +109,7 @@ cases:
 - case_id: C0004
   automation:
     spec_file: c0004-select-configured-value-format-keys.spec.ts
-  title: 验证【数据质量】-【规则集管理】选择校验key，已配置value格式的key可选且未配置的key不可选(校验key选择)
+  title: 验证【数据质量】-【规则集管理】选择校验key，已配置value格式的key可选且未配置的key不可选
   priority: P0
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -121,13 +121,14 @@ cases:
       字段：info（json）
       统计规则：格式-json格式校验
       展开「校验key」下拉选择框，查看列表中各 key 的可选状态
-    expected: '「校验key」下拉框列表中：
+    expected: |-
+      「校验key」下拉框列表中：
 
       1) 「person-name」（已配置 value 格式）显示为可选状态，可点击勾选
 
       2) 「person-age」（已配置 value 格式）显示为可选状态，可点击勾选
 
-      3) 「person-email」（未配置 value 格式）显示为不可选状态，置灰禁用'
+      3) 「person-email」（未配置 value 格式）显示为不可选状态，置灰禁用
   - action: 点击「person-email」进行选中操作
     expected: 「person-email」无法被选中，复选框保持未勾选状态
   - action: 点击勾选「person-name」和「person-age」
@@ -156,7 +157,7 @@ cases:
 - case_id: C0005
   automation:
     spec_file: c0005-validation-key-multi-select.spec.ts
-  title: 验证【数据质量】-【规则集管理】多选与全选校验key，选中key回显且全选取消生效(校验key多选)
+  title: 验证【数据质量】-【规则集管理】多选与全选校验key，选中key回显且全选取消生效
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -199,7 +200,7 @@ cases:
 - case_id: C0006
   automation:
     spec_file: c0006-search-validation-keys.spec.ts
-  title: 验证【数据质量】-【规则集管理】搜索校验key，下拉列表仅展示命中key(校验key搜索)
+  title: 验证【数据质量】-【规则集管理】搜索校验key，下拉列表仅展示命中key
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -238,7 +239,7 @@ cases:
 - case_id: C0007
   automation:
     spec_file: c0007-large-key-list-initial-load.spec.ts
-  title: 验证【数据质量】-【规则集管理】展开校验key下拉框，默认仅加载前200条且可搜索选中200条后的key(大数据量key)
+  title: 验证【数据质量】-【规则集管理】展开校验key下拉框，默认仅加载前200条且可搜索选中200条后的key
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -264,7 +265,7 @@ cases:
        DROP TABLE IF EXISTS ${SchemaA}.test_table_15694_c0007;
        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15694_c0007 (id INT, info STRING, name VARCHAR(255));
     6) 已在资产平台引入该表
-    7) 创建导入文件 json_value_format_import_15694.xlsx（共210条一层key数据，均配置value格式）：
+    7) 已生成导入文件 json_value_format_import_15694.xlsx（共210条一层key数据，均设置value格式）：
        Sheet: 一层
        Title: key, 中文名称, value格式
        Line1: test-key-001, 测试键001, ^.+$
@@ -286,7 +287,7 @@ cases:
 - case_id: C0008
   automation:
     spec_file: c0008-key-selection-current-level-only.spec.ts
-  title: 验证【数据质量】-【规则集管理】勾选校验key并保存规则，回显以分号分隔key路径(层级key回显)
+  title: 验证【数据质量】-【规则集管理】勾选校验key并保存规则，回显以分号分隔key路径
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -300,11 +301,12 @@ cases:
       展开「校验key」下拉框，勾选「person-name」和「address-city」，点击【保存】
     expected: 规则保存成功；规则行的「校验key」列回显内容为「person-name;address-city」，分号分隔不同key路径，连字符分隔层级
   - action: 编辑该规则，重新展开「校验key」下拉框，查看已勾选的key是否正确回显
-    expected: '1) 「person-name」复选框显示为勾选状态
+    expected: |-
+      1) 「person-name」复选框显示为勾选状态
 
       2) 「address-city」复选框显示为勾选状态
 
-      3) 「person-age」复选框显示为未勾选状态'
+      3) 「person-age」复选框显示为未勾选状态
   - action: 使用 Doris3.x 数据源重复以上步骤
     expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
   precondition: |-
@@ -329,7 +331,7 @@ cases:
 - case_id: C0009
   automation:
     spec_file: c0009-hover-show-all-key-names.spec.ts
-  title: 验证【数据质量】-【规则集管理】悬浮校验key字段，展示全部key名(默认仅展示前两个)
+  title: 验证【数据质量】-【规则集管理】悬浮校验key字段，展示全部key名
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -368,7 +370,7 @@ cases:
 - case_id: C0010
   automation:
     spec_file: c0010-value-format-preview-pagination.spec.ts
-  title: 验证【数据质量】-【规则集管理】打开value格式预览弹窗，仅展示已勾选key的格式信息且支持分页(格式预览)
+  title: 验证【数据质量】-【规则集管理】打开value格式预览弹窗，仅展示已勾选key的格式信息且支持分页
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -382,7 +384,8 @@ cases:
       展开「校验key」下拉框，勾选「check-key-01」「check-key-02」「check-key-03」共3个key
     expected: 3个key成功勾选
   - action: 点击「value格式预览」按钮，等待弹窗加载完成
-    expected: '弹窗正常打开：
+    expected: |-
+      弹窗正常打开：
 
       1) 弹窗内列表仅展示已勾选的3个key对应的信息，未勾选的「check-key-04」至「check-key-15」不显示
 
@@ -390,15 +393,16 @@ cases:
 
       3) 「check-key-01」对应「^[A-Z]{2}\d{4}$」
 
-      4) 「check-key-02」对应「^1[3-9]\d{9}$」'
+      4) 「check-key-02」对应「^1[3-9]\d{9}$」
   - action: 关闭弹窗，取消勾选「check-key-03」，再次点击「value格式预览」按钮，等待弹窗加载完成
     expected: 弹窗内列表更新为仅展示「check-key-01」和「check-key-02」共2条记录，「check-key-03」不再显示
   - action: 关闭弹窗，重新勾选「check-key-03」至「check-key-12」共12个key（合计12个），点击「value格式预览」按钮，查看弹窗分页情况
-    expected: '1) 弹窗展示分页控件
+    expected: |-
+      1) 弹窗展示分页控件
 
       2) 默认展示第1页数据
 
-      3) 可翻页查看剩余key的格式信息'
+      3) 可翻页查看剩余key的格式信息
   - action: 使用 Doris3.x 数据源重复以上步骤
     expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
   precondition: |-
@@ -423,7 +427,7 @@ cases:
 - case_id: C0011
   automation:
     spec_file: c0011-json-rule-disabled-for-other-types.spec.ts
-  title: 验证【数据质量】-【规则集管理】选择int类型字段查看统计规则下拉框，不出现格式-json格式校验选项(字段类型限制)
+  title: 验证【数据质量】-【规则集管理】选择int类型字段查看统计规则下拉框，不出现格式-json格式校验选项
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -453,7 +457,7 @@ cases:
 - case_id: C0012
   automation:
     spec_file: c0012-require-validation-key.spec.ts
-  title: 验证【数据质量】-【规则集管理】未选择校验key保存规则，提示统计函数存在必填项未填写且规则未保存(必填校验)
+  title: 验证【数据质量】-【规则集管理】未选择校验key保存规则，提示统计函数存在必填项未填写且规则未保存
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -488,7 +492,7 @@ cases:
 - case_id: C0013
   automation:
     spec_file: c0013-saved-rule-config-fields.spec.ts
-  title: 验证【数据质量】-【规则集管理】查看已保存规则配置参数区域，各字段值与配置一致(参数展示)
+  title: 验证【数据质量】-【规则集管理】查看已保存规则配置参数区域，各字段值与配置一致
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -496,7 +500,8 @@ cases:
   - action: 等待规则集列表加载完成
     expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
   - action: 找到规则集 RuleSetA，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，查看「参数展示测试包」中已配置的「格式-json格式校验」规则行的参数展示区域
-    expected: '规则配置参数展示区域各字段内容如下：
+    expected: |-
+      规则配置参数展示区域各字段内容如下：
 
       1) 规则类型=「字段级」
 
@@ -506,7 +511,7 @@ cases:
 
       4) 校验key=「person-name」
 
-      5) 强弱规则=「强规则」'
+      5) 强弱规则=「强规则」
   - action: 使用 Doris3.x 数据源重复以上步骤
     expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
   precondition: |-
@@ -529,7 +534,7 @@ cases:
 - case_id: C0014
   automation:
     spec_file: c0014-json-format-passed-flow.spec.ts
-  title: 验证【数据质量】-【规则集管理】配置格式-json格式校验规则集与任务并执行，实例校验结果显示通过(P0主流程)
+  title: 验证【数据质量】-【规则集管理】配置json格式校验规则集与任务并执行，实例校验结果显示通过
   priority: P0
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -572,19 +577,22 @@ cases:
       规则拼接包：2
       资源组：默认资源组
       超时时间：不限制
+      告警方式：无
       无需生成报告：勾选
+      报告名称：空
       点击【保存】
     expected: 规则任务创建成功，返回任务列表后可查询到任务 TaskA
   - action: 在规则任务列表中找到 TaskA，点击操作列的【立即执行】按钮
     expected: 页面弹出提示信息，提示任务已提交执行
   - action: 进入【数据质量 → 校验结果查询】页面，等待列表加载完成，找到 TaskA 最新实例记录并打开实例详情
-    expected: '1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
+    expected: |-
+      1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
 
       2) 实例状态显示「已完成」，最新校验结果显示「通过」
 
       3) 实例详情中「格式-json格式校验」规则行展示：规则类型=「有效性校验」、规则名称=「格式-json格式校验」、字段类型=「json」、质检结果=「通过」、未通过原因=「--」、详情说明=「符合规则key为"person-name;person-age"时的value格式要求」
 
-      4) 操作列不显示「查看详情」链接'
+      4) 操作列不显示「查看详情」链接
   - action: 使用 Doris3.x 数据源重复以上步骤
     expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
   precondition: |-
@@ -614,7 +622,7 @@ cases:
 - case_id: C0015
   automation:
     spec_file: c0015-json-format-failed-flow.spec.ts
-  title: 验证【数据质量】-【规则集管理】配置格式-json格式校验规则集与任务并执行，实例校验结果显示不通过且明细展示标红字段(P0主流程)
+  title: 验证【数据质量】-【规则集管理】配置json格式校验规则集与任务并执行，实例校验结果显示不通过且明细展示标红字段
   priority: P0
   steps:
   - action: 进入【数据质量 → 规则集管理】页面
@@ -657,19 +665,22 @@ cases:
       规则拼接包：2
       资源组：默认资源组
       超时时间：不限制
+      告警方式：无
       无需生成报告：勾选
+      报告名称：空
       点击【保存】
     expected: 规则任务创建成功，返回任务列表后可查询到任务 TaskA
   - action: 在规则任务列表中找到 TaskA，点击操作列的【立即执行】按钮
     expected: 页面弹出提示信息，提示任务已提交执行
   - action: 进入【数据质量 → 校验结果查询】页面，等待列表加载完成，找到 TaskA 最新实例记录并打开实例详情
-    expected: '1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
+    expected: |-
+      1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
 
       2) 实例状态显示「已完成」，最新校验结果显示「不通过」
 
       3) 实例详情中「格式-json格式校验」规则行展示：规则类型=「有效性校验」、规则名称=「格式-json格式校验」、字段类型=「json」、质检结果=「不通过」、未通过原因=「key对应value格式校验未通过」、详情说明=「不符合规则key为"order-amount;order-status"时的value格式要求」
 
-      4) 操作列显示「查看详情」链接'
+      4) 操作列显示「查看详情」链接
   - action: 点击「格式-json格式校验」规则行操作列的【查看详情】链接，等待明细弹窗加载完成
     expected: 弹窗标题显示「查看"有效性校验-格式-json格式校验"明细」；明细列表加载完成，显示不符合要求的数据行（id=2 和 id=3 的记录）；「order_info」字段以红色高亮标红展示，其余字段正常展示
   - action: 使用 Doris3.x 数据源重复以上步骤
@@ -701,7 +712,7 @@ cases:
 - case_id: C0016
   automation:
     spec_file: c0016-json-rule-sparkthrift.spec.ts
-  title: 验证【数据质量】-【规则任务管理】执行SparkThrift2.x数据源任务，实例校验结果与记录明细正确(数据源兼容性)
+  title: 验证【数据质量】-【规则任务管理】执行SparkThrift2.x数据源任务，实例校验结果与记录明细正确
   priority: P0
   steps:
   - action: 进入【数据质量 → 规则任务管理】页面
@@ -711,11 +722,12 @@ cases:
   - action: 找到任务 TaskA，点击【立即执行】按钮
     expected: 页面弹出提示信息，提示任务已提交执行
   - action: 进入【数据质量 → 校验结果查询】页面，找到 TaskA 最新实例记录并打开实例详情
-    expected: '1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
+    expected: |-
+      1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
 
       2) 实例状态显示「已完成」，最新校验结果显示「不通过」
 
-      3) 实例详情中 id=1 记录质检结果=「通过」，id=2 记录因 event.type 值为「unknown」而质检结果=「不通过」'
+      3) 实例详情中 id=1 记录质检结果=「通过」，id=2 记录因 event.type 值为「unknown」而质检结果=「不通过」
   precondition: |-
     1) 使用 admin 账号登录系统
     2) 授权数据源：${DataSourceA}
@@ -738,7 +750,7 @@ cases:
 - case_id: C0017
   automation:
     spec_file: c0017-json-rule-doris.spec.ts
-  title: 验证【数据质量】-【规则任务管理】执行Doris3.x数据源任务，实例校验结果与记录明细正确(数据源兼容性)
+  title: 验证【数据质量】-【规则任务管理】执行Doris3.x数据源任务，实例校验结果与记录明细正确
   priority: P0
   steps:
   - action: 进入【数据质量 → 规则任务管理】页面
@@ -748,11 +760,12 @@ cases:
   - action: 找到任务 TaskA，点击【立即执行】按钮
     expected: 页面弹出提示信息，提示任务已提交执行
   - action: 进入【数据质量 → 校验结果查询】页面，找到 TaskA 最新实例记录并打开实例详情
-    expected: '1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
+    expected: |-
+      1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
 
       2) 实例状态显示「已完成」，最新校验结果显示「不通过」
 
-      3) 实例详情中 id=1 记录质检结果=「通过」，id=2 记录质检结果=「不通过」'
+      3) 实例详情中 id=1 记录质检结果=「通过」，id=2 记录质检结果=「不通过」
   - action: 点击「格式-json格式校验」规则行操作列的【查看详情】按钮，等待明细弹窗加载完成
     expected: 明细列表正确显示 id=2 的不合规记录，「item_info」字段标红展示
   precondition: |-
@@ -780,7 +793,7 @@ cases:
 - case_id: C0018
   automation:
     spec_file: c0018-json-rule-hive.spec.ts
-  title: 验证【数据质量】-【规则任务管理】执行Hive2.x数据源任务，实例校验结果与记录明细正确(数据源兼容性)
+  title: 验证【数据质量】-【规则任务管理】执行Hive2.x数据源任务，实例校验结果与记录明细正确
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则任务管理】页面
@@ -790,11 +803,12 @@ cases:
   - action: 找到任务 TaskA，点击【立即执行】按钮
     expected: 页面弹出提示信息，提示任务已提交执行
   - action: 进入【数据质量 → 校验结果查询】页面，找到 TaskA 最新实例记录并打开实例详情
-    expected: '1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
+    expected: |-
+      1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
 
       2) 实例状态显示「已完成」，最新校验结果显示「不通过」
 
-      3) 实例详情中 id=1 记录质检结果=「通过」，id=2 记录因 score.value 值为「1000」而质检结果=「不通过」'
+      3) 实例详情中 id=1 记录质检结果=「通过」，id=2 记录因 score.value 值为「1000」而质检结果=「不通过」
   precondition: |-
     1) 使用 admin 账号登录系统
     2) 授权数据源：${DataSourceA}
@@ -817,7 +831,7 @@ cases:
 - case_id: C0019
   automation:
     spec_file: c0019-large-json-key-validation.spec.ts
-  title: 验证【数据质量】-【规则任务管理】执行维护上千key的任务，实例详情展示校验结果与明细(大数据量场景)
+  title: 验证【数据质量】-【规则任务管理】执行维护上千key的任务，实例详情展示校验结果与明细
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则任务管理】页面
@@ -827,13 +841,14 @@ cases:
   - action: 找到任务 TaskA，点击【立即执行】按钮
     expected: 页面弹出提示信息，提示任务已提交执行
   - action: 进入【数据质量 → 校验结果查询】页面，找到 TaskA 最新实例记录并打开实例详情
-    expected: '1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
+    expected: |-
+      1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
 
       2) 实例详情可正常打开，不出现超时、空白或报错
 
       3) 实例详情中 id=1 记录质检结果=「通过」，id=2 记录因 perf-key-0001 值为空而质检结果=「不通过」
 
-      4) 详情说明列准确引用校验key「perf-key-0001;perf-key-0002」'
+      4) 详情说明列准确引用校验key「perf-key-0001;perf-key-0002」
   - action: 使用 Doris3.x 数据源重复以上步骤
     expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
   precondition: |-
@@ -847,7 +862,7 @@ cases:
        INSERT INTO ${SchemaA}.test_table_15694_c0019 VALUES
          (1, '{"perf-key-0001":"value_1","perf-key-0002":"value_2"}'),
          (2, '{"perf-key-0001":"","perf-key-0002":"value_2"}');
-    6) 创建导入文件 json_value_format_import_15694.xlsx（共1200条key数据，1000条配置value格式、200条未配置）：
+    6) 已生成导入文件 json_value_format_import_15694.xlsx（共1200条key数据，1000条设置value格式、200条未设置）：
        Sheet: 一层
        Title: key, 中文名称, value格式
        Line1: perf-key-0001, 性能键0001, ^.+$
@@ -889,7 +904,7 @@ cases:
 - case_id: C0020
   automation:
     spec_file: c0020-delete-referenced-key-config.spec.ts
-  title: 验证【数据质量】-【通用配置-json格式校验管理】删除被规则引用的key，规则配置回显移除该key且保存生效(key删除后关联影响)
+  title: 验证【数据质量】-【通用配置-json格式校验管理】删除被规则引用的key，规则配置回显移除该key且保存生效
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
@@ -929,7 +944,7 @@ cases:
 - case_id: C0021
   automation:
     spec_file: c0021-delete-referenced-key-preview-execution.spec.ts
-  title: 验证【数据质量】-【规则任务管理】删除被规则引用的key，value格式预览与任务执行正常(key删除后关联影响)
+  title: 验证【数据质量】-【规则任务管理】删除被规则引用的key，value格式预览与任务执行正常
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则任务管理】页面
@@ -941,13 +956,14 @@ cases:
   - action: 关闭弹窗，返回规则任务列表，找到任务 TaskA，点击【立即执行】按钮
     expected: 页面弹出提示信息，提示任务已提交执行
   - action: 进入【数据质量 → 校验结果查询】页面，找到 TaskA 最新实例记录并打开实例详情
-    expected: '1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
+    expected: |-
+      1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
 
       2) 实例状态显示「已完成」，最新校验结果显示「通过」
 
       3) 实例详情中「格式-json格式校验」规则的详情说明仅引用「preview-key-y」，不再展示已删除的「preview-key-x」
 
-      4) 页面未出现引用已删除 key 的报错信息'
+      4) 页面未出现引用已删除 key 的报错信息
   - action: 使用 Doris3.x 数据源重复以上步骤
     expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
   precondition: |-
@@ -975,7 +991,7 @@ cases:
 - case_id: C0022
   automation:
     spec_file: c0022-json-rule-with-sampling.spec.ts
-  title: 验证【数据质量】-【规则任务管理】配置抽样比例执行任务，实例详情展示抽样数据量与校验结果(抽样场景)
+  title: 验证【数据质量】-【规则任务管理】配置抽样比例执行任务，实例详情展示抽样数据量与校验结果
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则任务管理】页面
@@ -985,13 +1001,14 @@ cases:
   - action: 找到任务 TaskA，点击【立即执行】按钮
     expected: 页面弹出提示信息，提示任务已提交执行
   - action: 进入【数据质量 → 校验结果查询】页面，找到 TaskA 最新实例记录并打开实例详情
-    expected: '1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
+    expected: |-
+      1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
 
       2) 实例详情中的统计信息显示参与校验的数据量约为总数据量的 50%（约10条）
 
       3) 「格式-json格式校验」规则行的质检结果正常显示本次抽样后的实际校验结果（id=11、id=12 的无效数据被抽中时结果为「不通过」，否则为「通过」）
 
-      4) 详情说明列准确显示校验key为「sample-code」时的 value 格式要求'
+      4) 详情说明列准确显示校验key为「sample-code」时的 value 格式要求
   - action: 使用 Doris3.x 数据源重复以上步骤
     expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
   precondition: |-
@@ -1034,7 +1051,7 @@ cases:
 - case_id: C0023
   automation:
     spec_file: c0023-json-rule-partition-validation.spec.ts
-  title: 验证【数据质量】-【规则任务管理】配置分区过滤条件执行任务，仅校验前一日分区数据(分区场景)
+  title: 验证【数据质量】-【规则任务管理】配置分区过滤条件执行任务，仅校验前一日分区数据
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则任务管理】页面
@@ -1044,13 +1061,14 @@ cases:
   - action: 找到任务 TaskA，点击【立即执行】按钮
     expected: 页面弹出提示信息，提示任务已提交执行
   - action: 进入【数据质量 → 校验结果查询】页面，找到 TaskA 最新实例记录并打开实例详情
-    expected: '1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
+    expected: |-
+      1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
 
       2) 仅校验前一日分区下的数据（id=1 和 id=2）
 
       3) id=1 记录质检结果=「通过」，id=2 记录质检结果=「不通过」
 
-      4) 当日分区的数据（id=3、id=4）不参与本次校验'
+      4) 当日分区的数据（id=3、id=4）不参与本次校验
   - action: 使用 Doris3.x 数据源重复以上步骤
     expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
   precondition: |-
@@ -1083,7 +1101,7 @@ cases:
 - case_id: C0024
   automation:
     spec_file: c0024-json-rule-built-in-rule.spec.ts
-  title: 验证【数据质量】-【规则库配置】查看内置规则格式-json格式校验，规则解释与规则描述等字段展示正确(内置规则展示)
+  title: 验证【数据质量】-【规则库配置】查看内置规则json格式校验，规则解释与规则描述等字段展示正确
   priority: P1
   steps:
   - action: 进入【数据质量 → 规则库配置】页面
@@ -1091,7 +1109,8 @@ cases:
   - action: 等待内置规则列表加载完成
     expected: 规则库页面加载完成且显示目标控件加载，内置规则列表展示完成
   - action: 在「内置规则」列表的搜索框中输入「格式-json格式校验」，点击搜索
-    expected: '搜索结果展示「格式-json格式校验」规则条目，各字段显示：
+    expected: |-
+      搜索结果展示「格式-json格式校验」规则条目，各字段显示：
 
       1) 规则名称=「格式-json格式校验」
 
@@ -1101,7 +1120,7 @@ cases:
 
       4) 关联范围=「字段」
 
-      5) 规则描述=「校验json类型的字段中key对应的value值是否符合规范要求」'
+      5) 规则描述=「校验json类型的字段中key对应的value值是否符合规范要求」
   - action: 导出规则库
     expected: 导出内容包含格式校验-格式-json格式校验-有效性校验
   - action: 使用 Doris3.x 数据源重复以上步骤
@@ -1115,7 +1134,7 @@ cases:
 - case_id: C0025
   automation:
     spec_file: c0025-failed-detail-download-marked-fields.spec.ts
-  title: 验证【数据质量】-【校验结果查询】下载校验不通过明细，校验字段单元格标红(明细下载)
+  title: 验证【数据质量】-【校验结果查询】下载校验不通过明细，校验字段单元格标红
   priority: P0
   steps:
   - action: 进入【数据质量 → 校验结果查询】页面
@@ -1154,7 +1173,7 @@ cases:
 - case_id: C0026
   automation:
     spec_file: c0026-passed-validation-no-details.spec.ts
-  title: 验证【数据质量】-【校验结果查询】查看质检结果为通过的实例，未记录明细且不显示查看详情入口(通过场景)
+  title: 验证【数据质量】-【校验结果查询】查看质检结果为通过的实例，未记录明细且不显示查看详情入口
   priority: P1
   steps:
   - action: 进入【数据质量 → 校验结果查询】页面
@@ -1164,11 +1183,12 @@ cases:
   - action: 找到任务 TaskA 最新实例记录并打开实例详情
     expected: 实例详情页面加载完成且显示目标控件打开，数据加载完成
   - action: 找到「格式-json格式校验」规则行，查看「质检结果」「未通过原因」「操作」列内容
-    expected: '1) 「质检结果」列显示「通过」
+    expected: |-
+      1) 「质检结果」列显示「通过」
 
       2) 「未通过原因」列显示「--」
 
-      3) 「操作」列不显示「查看详情」链接'
+      3) 「操作」列不显示「查看详情」链接
   - action: 使用 Doris3.x 数据源重复以上步骤
     expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
   precondition: |-
@@ -1193,7 +1213,7 @@ cases:
 - case_id: C0027
   automation:
     spec_file: c0027-failed-validation-log.spec.ts
-  title: 验证【数据质量】-【校验结果查询】查看校验失败实例日志，日志弹窗展示错误描述(日志查看)
+  title: 验证【数据质量】-【校验结果查询】查看校验失败实例日志，日志弹窗展示错误描述
   priority: P2
   steps:
   - action: 进入【数据质量 → 校验结果查询】页面
@@ -1216,7 +1236,7 @@ cases:
 - case_id: C0028
   automation:
     spec_file: c0028-passed-json-quality-report.spec.ts
-  title: 验证【数据质量】-【数据质量报告】查看质量报告规则行各列，字段值与通过场景一致(质量报告)
+  title: 验证【数据质量】-【数据质量报告】查看质量报告规则行各列，字段值与通过场景一致
   priority: P1
   steps:
   - action: 进入【数据质量 → 数据质量报告】页面
@@ -1226,7 +1246,8 @@ cases:
   - action: 找到任务 TaskA 最新一次执行的报告详情并打开
     expected: 报告详情页正常打开，数据加载完成
   - action: 找到「格式-json格式校验」规则行，逐列核对各字段内容
-    expected: '1) 规则类型列=「有效性校验」
+    expected: |-
+      1) 规则类型列=「有效性校验」
 
       2) 规则名称列=「格式-json格式校验」
 
@@ -1238,7 +1259,7 @@ cases:
 
       6) 详情说明列=「符合规则key为"meta-version"时的value格式要求」
 
-      7) 操作列无内容'
+      7) 操作列无内容
   - action: 使用 Doris3.x 数据源重复以上步骤
     expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
   precondition: |-
@@ -1263,7 +1284,7 @@ cases:
 - case_id: C0029
   automation:
     spec_file: c0029-failed-json-quality-report.spec.ts
-  title: 验证【数据质量】-【数据质量报告】查看质量报告规则行各列，字段值与不通过场景一致(质量报告)
+  title: 验证【数据质量】-【数据质量报告】查看质量报告规则行各列，字段值与不通过场景一致
   priority: P0
   steps:
   - action: 进入【数据质量 → 数据质量报告】页面
@@ -1273,7 +1294,8 @@ cases:
   - action: 找到任务 TaskA 最新一次执行的报告详情并打开
     expected: 报告详情页正常打开，数据加载完成
   - action: 找到「格式-json格式校验」规则行，逐列核对各字段内容
-    expected: '1) 规则类型列=「有效性校验」
+    expected: |-
+      1) 规则类型列=「有效性校验」
 
       2) 规则名称列=「格式-json格式校验」
 
@@ -1285,7 +1307,7 @@ cases:
 
       6) 详情说明列=「不符合规则key为"log-level;log-code"时的value格式要求」
 
-      7) 操作列显示「查看详情」链接'
+      7) 操作列显示「查看详情」链接
   - action: 使用 Doris3.x 数据源重复以上步骤
     expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
   precondition: |-

@@ -11,7 +11,7 @@ cases:
     title: 验证【数据质量】-【规则集管理】选择 key 范围校验统计函数，字段选择框切换为单选
     priority: P0
     precondition: |-
-      1) 通用配置 → JSON 格式校验管理中存在 key1（姓名）、key2（年龄）
+      1) JSON 格式校验管理中已存在 key1（姓名）、key2（年龄）
       2) 规则集「RuleSetF」已关联字段 info，规则包为「key范围规则包」
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
@@ -215,7 +215,9 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 在新增规则表单选择统计函数「key范围校验」，不选择字段并点击【保存】
+      - action: 在新增规则表单选择统计函数「key范围校验」，不选择字段
+        expected: 点击成功
+      - action: 【保存】
         expected: 「字段」置红提示「请选择字段」，规则行不新增
     tags:
       - 数据质量
@@ -270,7 +272,7 @@ cases:
     title: 验证【数据质量】-【规则库配置】查看 key 范围校验内置规则，列表与详情展示配置说明
     priority: P1
     precondition: |-
-      1) 规则库配置中已发布 key 范围校验内置规则
+      1) 规则库页面中已发布 key 范围校验内置规则
       2) JSON 格式校验管理中存在 key1、key2
     steps:
       - action: 进入【数据质量 → 规则库配置】页面

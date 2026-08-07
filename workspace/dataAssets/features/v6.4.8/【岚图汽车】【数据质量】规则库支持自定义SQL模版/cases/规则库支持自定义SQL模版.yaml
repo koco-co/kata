@@ -12,7 +12,9 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
-      - action: 查看正则功能页签与新增按钮文案
+      - action: 查看正则功能页签
+        expected: 页签展示
+      - action: 查看新增按钮文案
         expected: |-
           1) 页签名称：「自定义正则」
           2) 新增按钮名称：「新增自定义正则」
@@ -21,7 +23,7 @@ cases:
       ["数据质量", "规则库配置"]
   - case_id: C0002
     title: 验证【数据质量】-【规则库配置】查看自定义正则列表与表单，不展示规则模式字段
-    priority: P0
+    priority: P1
     precondition: |-
       1) 存在当前版本创建的自定义正则「RuleA」
       2) 存在升级前创建的历史自定义正则「RuleB」
@@ -97,7 +99,9 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
-      - action: 切换到「自定义sql模版」并查看三条模版的列表顺序
+      - action: 切换到「自定义sql模版」
+        expected: 打开成功
+      - action: 三条模版的列表顺序
         expected: 从上至下依次为「RuleC」、「RuleB」、「RuleA」
     tags:
       ["数据质量", "规则库配置"]
@@ -194,7 +198,9 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
-      - action: 切换到「自定义sql模版」，点击「新增自定义sql模版」，保持「关联范围」为空，完整填写其余必填项并点击「保存」
+      - action: 切换到「自定义sql模版」，点击「新增自定义sql模版」，保持「关联范围」为空，完整填写其余必填项
+        expected: 点击成功
+      - action: 「保存」
         expected: 「关联范围」表单项置红，页面停留在新建页
     tags:
       ["数据质量", "规则库配置"]
@@ -205,7 +211,9 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
-      - action: 切换到「自定义sql模版」，点击「新增自定义sql模版」，先选择「字段级」再选择「多表」
+      - action: 切换到「自定义sql模版」
+        expected: 进入成功
+      - action: 「新增自定义sql模版」，先选择「字段级」再选择「多表」
         expected: 「关联范围」仅显示「多表」
     tags:
       ["数据质量", "规则库配置"]
@@ -298,7 +306,9 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
-      - action: 切换到「自定义sql模版」，点击「新增自定义sql模版」，在模版语句编辑器输入「${field_a} + ${field_b} + ${field_a}」
+      - action: 切换到「自定义sql模版」
+        expected: 进入成功
+      - action: 「新增自定义sql模版」，在模版语句编辑器输入「${field_a} + ${field_b} + ${field_a}」
         expected: 参数列表仅展示「field_a」和「field_b」，「field_a」位于「field_b」之前
     tags:
       ["数据质量", "规则库配置"]
@@ -357,7 +367,7 @@ cases:
       ["数据质量", "规则库配置"]
   - case_id: C0022
     title: 验证【数据质量】-【规则库配置】打开模版详情，基本信息和参数列表正确展示
-    priority: P0
+    priority: P1
     precondition: |-
       1) 存在模版「RuleA」，规则分类为「完整性」，关联范围为「字段级」，规则描述为「字段阈值模版」
       2) 模版包含参数 table_name、field_name 和 threshold
@@ -436,9 +446,9 @@ cases:
       - action: |-
           点击「新建监控规则」并配置监控对象：
           规则名称：RuleA
-          数据源：${DataSourceA}
-          数据库：${SchemaA}
-          数据表：test_table_15521_c0025
+          * 数据源：${DataSourceA}
+          * 数据库：${SchemaA}
+          * 数据表：test_table_15521_c0025
           点击「下一步」
         expected: 进入「监控规则」步骤，监控对象显示为 test_table_15521_c0025
       - action: |-
@@ -463,7 +473,9 @@ cases:
           规则拼接包：2
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
           点击「新建」
         expected: 返回规则任务列表，新增「RuleA」且状态显示为「等待调度」
     tags:
@@ -616,7 +628,7 @@ cases:
       ["数据质量", "校验结果查询"]
   - case_id: C0032
     title: 验证【数据质量】-【质量报告】查看规则校验明细，通过未通过记录字段完整
-    priority: P0
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：SparkThrift2.x

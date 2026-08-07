@@ -22,7 +22,7 @@ cases:
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
          UNION ALL
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4);
-      5) 规则任务「TaskA」分区方式为「手动输入」，配置值为 factory_date=20260115、sale_date=20260201
+      5) 规则任务「TaskA」分区方式为「手动输入」，分区值为 factory_date=20260115、sale_date=20260201
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -54,8 +54,8 @@ cases:
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4)
          UNION ALL
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
-      5) 分区列表可选择的值为 factory_date=20260115、sale_date=20260201
-      6) 规则任务「TaskA」分区方式为「手动输入」，配置值为 factory_date=20260115、sale_date=20260201
+      5) 分区列表可选值为 factory_date=20260115、sale_date=20260201
+      6) 规则任务「TaskA」分区方式为「手动输入」，分区值为 factory_date=20260115、sale_date=20260201
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -117,7 +117,7 @@ cases:
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4)
          UNION ALL
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
-      5) 分区列表可选择的值为 factory_date=20260115、sale_date=20260201
+      5) 分区列表可选值为 factory_date=20260115、sale_date=20260201
       6) 规则任务「TaskA」分区方式为「动态分区」，存在状态为「等待运行」的实例
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
@@ -151,7 +151,7 @@ cases:
          UNION ALL
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
       5) 分区列表包含 factory_date=20260115、sale_date=20260201
-      6) 规则任务「TaskA」分区方式为「选择已有分区」，已选 factory_date=20260115、sale_date=20260201
+      6) 规则任务「TaskA」分区方式为「已有分区」，已选 factory_date=20260115、sale_date=20260201
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -183,7 +183,7 @@ cases:
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4)
          UNION ALL
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
-      5) 规则任务「TaskA」分区方式为「选择已有分区」，已选 factory_date=20260115、sale_date=20260201
+      5) 规则任务「TaskA」分区方式为「已有分区」，已选 factory_date=20260115、sale_date=20260201
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -216,7 +216,7 @@ cases:
          UNION ALL
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
       5) 分区列表包含 factory_date=20260115、sale_date=20260201
-      6) 规则任务「TaskA」分区方式为「选择已有分区」，已选 factory_date=20260115、sale_date=20260201
+      6) 规则任务「TaskA」分区方式为「已有分区」，已选 factory_date=20260115、sale_date=20260201
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -291,7 +291,7 @@ cases:
 
   - case_id: C0010
     title: 验证【数据质量】-【规则任务管理】查看动态分区任务详情与最新实例，实例分区值为前一日和当日
-    priority: P0
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：SparkThrift2.x
@@ -429,7 +429,7 @@ cases:
          UNION ALL
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
       5) 不存在 factory_date=20990101、sale_date=20990102 分区
-      6) 规则任务「TaskA」分区方式为「选择已有分区」
+      6) 规则任务「TaskA」分区方式为「已有分区」
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -459,7 +459,7 @@ cases:
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
          UNION ALL
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4);
-      5) 规则任务「TaskA」分区方式为手动输入，配置 sale_date=20260201
+      5) 规则任务「TaskA」分区方式为手动输入，分区值为 sale_date=20260201
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
@@ -524,7 +524,7 @@ cases:
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4)
          UNION ALL
          SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
-      5) 规则任务「TaskA」分区方式为「选择已有分区」，已选 factory_date=20260115、sale_date=20260201
+      5) 规则任务「TaskA」分区方式为「已有分区」，已选 factory_date=20260115、sale_date=20260201
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功

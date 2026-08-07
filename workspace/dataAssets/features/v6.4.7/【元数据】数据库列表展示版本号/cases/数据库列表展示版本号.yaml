@@ -20,7 +20,9 @@ cases:
     steps:
       - action: 进入【元数据 → 元数据管理】页面
         expected: 进入成功
-      - action: 查看九条数据源记录的「版本号」列
+      - action: 查看九条数据源记录
+        expected: 列表展示九条记录
+      - action: 核对版本号列
         expected: 九条记录均展示非空版本号，取值分别等于对应前置条件中的底层版本号
     tags:
       - 元数据
@@ -36,7 +38,9 @@ cases:
     steps:
       - action: 进入【元数据 → 元数据管理】页面
         expected: 进入成功
-      - action: 搜索并查看数据源「${DataSourceA}」
+      - action: 搜索
+        expected: 打开成功
+      - action: 数据源「${DataSourceA}」
         expected: 「版本号」列展示「${HANAVersion}」
     tags:
       - 元数据
@@ -52,7 +56,9 @@ cases:
     steps:
       - action: 进入【元数据 → 元数据管理】页面
         expected: 进入成功
-      - action: 搜索并查看数据源「${DataSourceA}」
+      - action: 搜索
+        expected: 打开成功
+      - action: 数据源「${DataSourceA}」
         expected: 「版本号」列展示「${Doris2Version}」
     tags:
       - 元数据
@@ -68,7 +74,9 @@ cases:
     steps:
       - action: 进入【元数据 → 元数据管理】页面
         expected: 进入成功
-      - action: 搜索并查看数据源「${DataSourceA}」
+      - action: 搜索
+        expected: 打开成功
+      - action: 数据源「${DataSourceA}」
         expected: 「版本号」列展示「${DMVersion}」
     tags:
       - 元数据
@@ -84,7 +92,9 @@ cases:
     steps:
       - action: 进入【元数据 → 元数据管理】页面
         expected: 进入成功
-      - action: 搜索并查看数据源「${DataSourceA}」
+      - action: 搜索
+        expected: 打开成功
+      - action: 数据源「${DataSourceA}」
         expected: 「版本号」列展示「${PostgreSQLVersion}」
     tags:
       - 元数据
@@ -93,14 +103,16 @@ cases:
 
   - case_id: C0006
     title: 验证【元数据】-【元数据管理】搜索并查看 SQL Server 数据源版本号，版本号列展示底层版本值
-    priority: P0
+    priority: P1
     precondition: |-
       1) 元数据管理已引入SQL Server数据源「${DataSourceA}」
       2) 该数据源底层版本号记录为「${SQLServerVersion}」
     steps:
       - action: 进入【元数据 → 元数据管理】页面
         expected: 进入成功
-      - action: 搜索并查看数据源「${DataSourceA}」
+      - action: 搜索
+        expected: 打开成功
+      - action: 数据源「${DataSourceA}」
         expected: 「版本号」列展示「${SQLServerVersion}」
     tags:
       - 元数据
@@ -116,7 +128,9 @@ cases:
     steps:
       - action: 进入【元数据 → 元数据管理】页面
         expected: 进入成功
-      - action: 搜索并查看数据源「${DataSourceA}」
+      - action: 搜索
+        expected: 打开成功
+      - action: 数据源「${DataSourceA}」
         expected: 「版本号」列展示「${OracleVersion}」
     tags:
       - 元数据
@@ -132,7 +146,9 @@ cases:
     steps:
       - action: 进入【元数据 → 元数据管理】页面
         expected: 进入成功
-      - action: 搜索并查看数据源「${DataSourceA}」
+      - action: 搜索
+        expected: 打开成功
+      - action: 数据源「${DataSourceA}」
         expected: 「版本号」列展示「${MySQLVersion}」
     tags:
       - 元数据
@@ -148,7 +164,9 @@ cases:
     steps:
       - action: 进入【元数据 → 元数据管理】页面
         expected: 进入成功
-      - action: 搜索并查看数据源「${DataSourceA}」
+      - action: 搜索
+        expected: 打开成功
+      - action: 数据源「${DataSourceA}」
         expected: 「版本号」列展示「${TrinoVersion}」
     tags:
       - 元数据
@@ -157,14 +175,16 @@ cases:
 
   - case_id: C0010
     title: 验证【元数据】-【元数据管理】搜索并查看 SparkThrift 数据源版本号，版本号列展示底层版本值
-    priority: P0
+    priority: P1
     precondition: |-
       1) 元数据管理已引入SparkThrift数据源「${DataSourceA}」
       2) 该数据源底层版本号记录为「${SparkVersion}」
     steps:
       - action: 进入【元数据 → 元数据管理】页面
         expected: 进入成功
-      - action: 搜索并查看数据源「${DataSourceA}」
+      - action: 搜索
+        expected: 打开成功
+      - action: 数据源「${DataSourceA}」
         expected: 「版本号」列展示「${SparkVersion}」
     tags:
       - 元数据
@@ -180,7 +200,9 @@ cases:
     steps:
       - action: 进入【元数据 → 元数据管理】页面
         expected: 进入成功
-      - action: 搜索并查看数据源「${DataSourceA}」
+      - action: 搜索
+        expected: 打开成功
+      - action: 数据源「${DataSourceA}」
         expected: 「版本号」列展示「${HiveVersion}」
     tags:
       - 元数据
@@ -214,6 +236,8 @@ cases:
       - action: 进入【元数据 → 元数据管理】页面
         expected: 进入成功
       - action: 查看列表表头
+        expected: 表头展示
+      - action: 核对版本号列位置
         expected: 「版本号」列位于「数据库」列右侧
     tags:
       - 元数据

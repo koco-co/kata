@@ -146,7 +146,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15648_c0006 (id BIGINT, name STRING);
          INSERT INTO ${SchemaA}.test_table_15648_c0006 VALUES (1, 'user1');
       5) 用户「UserA」和用户组「UserGroupA」均已存在
-      6) ${DataSourceA}.${SchemaA}.test_table_15648_c0006 可配置权限策略
+      6) ${DataSourceA}.${SchemaA}.test_table_15648_c0006 已设置权限策略
     steps:
       - action: 进入【数据安全 → 数据权限管理 → 权限分配】页面
         expected: 进入成功
@@ -331,7 +331,7 @@ cases:
          DROP TABLE IF EXISTS ${SchemaA}.test_table_15648_c0013;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15648_c0013 (id BIGINT, name STRING, dept STRING, salary BIGINT);
          INSERT INTO ${SchemaA}.test_table_15648_c0013 VALUES (1, 'user1', 'rd', 100), (2, 'user2', 'mkt', 200);
-      5) 用户「UserA」策略开启行列权限，列权限仅选择 id、name
+      5) 用户「UserA」策略已开启行列权限，列权限仅含 id、name
     steps:
       - action: 进入【数据安全 → 数据权限管理 → 权限分配】页面
         expected: 进入成功
@@ -443,7 +443,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15648_c0017_source_02 (id BIGINT, order_id STRING);
          INSERT INTO ${SchemaA}.test_table_15648_c0017_source_02 VALUES (1, 'O1');
       5) 用户「UserA」拥有 ${SchemaA}.test_table_15648_c0017_source_01 和 ${SchemaA}.test_table_15648_c0017_source_02 两条 DQL 策略
-      6) 当前用户具有权限策略删除权限
+      6) 当前用户已具备权限策略管理权限
     steps:
       - action: 进入【数据安全 → 数据权限管理 → 权限分配】页面
         expected: 进入成功

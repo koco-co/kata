@@ -60,7 +60,7 @@ cases:
       1) 授权数据源：${DataSourceA}
       2) 数据源 A 类型：Doris3.x
       3) ${DataSourceA} 已授权质量项目 ${ProjectA}，脏数据存储状态为「开启」
-      4) 当前用户具有脏数据配置权限
+      4) 当前用户已具备脏数据管理权限
     steps:
       - action: 进入【数据质量 → 脏数据管理】页面
         expected: 进入成功
@@ -75,7 +75,7 @@ cases:
 
   - case_id: C0004
     title: 验证【元数据】-【元数据同步】执行 Doris3.x 数据表同步任务，数据目录展示表结构与字段数量
-    priority: P0
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源 A 类型：Doris3.x
@@ -212,7 +212,7 @@ cases:
 
   - case_id: C0009
     title: 验证【元数据】-【数据表】查看 Doris3.x 数据表结构与建表语句，字段列表展示 3 个字段及中文名
-    priority: P0
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源 A 类型：Doris3.x
@@ -255,7 +255,7 @@ cases:
          );
          INSERT INTO ${SchemaA}.test_table_15603_c0010 VALUES (1, 'A', 10.00), (2, 'B', 20.00);
       5) ${SchemaA}.test_table_15603_c0010 已完成元数据同步
-      6) 浏览器下载目录可写
+      6) 浏览器文件写出能力可用
     steps:
       - action: 进入【元数据 → 数据目录 → 数据表】页面
         expected: 进入成功
@@ -283,7 +283,7 @@ cases:
            name STRING
          );
          INSERT INTO ${SchemaA}.test_table_15603_c0011 VALUES (1, 'A'), (2, 'B'), (3, 'C');
-      5) 规则任务「${TaskA}」配置完整性校验，字段为 name，期望空值数为 0
+      5) 规则任务「${TaskA}」已配置完整性校验，字段为 name，期望空值数为 0
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
@@ -310,7 +310,7 @@ cases:
            name STRING
          );
          INSERT INTO ${SchemaA}.test_table_15603_c0012 VALUES (1, NULL), (2, 'Alice'), (3, 'Bob');
-      5) 规则任务「${TaskB}」配置 name 非空校验
+      5) 规则任务「${TaskB}」已配置 name 非空校验
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
@@ -337,7 +337,7 @@ cases:
            amount DECIMAL(10,2)
          );
          INSERT INTO ${SchemaA}.test_table_15603_c0013 VALUES (1, 10.00), (2, 20.00), (3, 30.00);
-      5) 规则任务「${TaskC}」配置有效性校验，字段为 amount，范围为 0 至 100000
+      5) 规则任务「${TaskC}」已配置有效性校验，字段为 amount，范围为 0 至 100000
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
@@ -371,7 +371,7 @@ cases:
            name STRING
          );
          INSERT INTO ${SchemaA}.test_table_15603_c0014_comparison VALUES (1, 'A'), (2, 'B'), (3, 'C');
-      5) 规则任务「${TaskD}」配置两张表行数对比
+      5) 规则任务「${TaskD}」已配置两张表行数对比
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
@@ -444,7 +444,7 @@ cases:
            name STRING
          );
          INSERT INTO ${SchemaA}.test_table_15603_c0016_source_03 VALUES (1, 'C');
-      5) 数据表列表中只选择前两张表执行同步
+      5) 数据表列表中仅前两张表参与同步
     steps:
       - action: 进入【元数据 → 元数据同步】页面
         expected: 进入成功
@@ -471,7 +471,7 @@ cases:
            name STRING
          );
          INSERT INTO ${SchemaA}.test_table_15603_c0017 VALUES (1, 'A'), (2, 'B');
-      5) 元数据同步任务「${TaskE}」配置为同步表负责人信息，该表负责人为「王五」
+      5) 元数据同步任务「${TaskE}」已配置为同步表负责人信息，该表负责人为「王五」
     steps:
       - action: 进入【元数据 → 元数据同步】页面
         expected: 进入成功
@@ -498,7 +498,7 @@ cases:
            name STRING
          );
          INSERT INTO ${SchemaA}.test_table_15603_c0018 VALUES (1, 'A'), (2, 'B'), (3, 'C');
-      5) 规则任务「${TaskF}」允许配置 Spark 参数
+      5) 规则任务「${TaskF}」已允许配置 Spark 参数
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功

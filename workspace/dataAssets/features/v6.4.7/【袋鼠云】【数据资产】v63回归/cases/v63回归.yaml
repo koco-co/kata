@@ -64,7 +64,9 @@ cases:
           规则拼接包：1
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 页面展示调度配置、规则拼接包、资源组、高级配置、告警配置、实例生成方式
       - action: 设置实例生成方式为【立即生成】，规则拼接包保持默认 1，点击【完成】，等待返回规则任务配置页面
         expected: 提示规则集创建完成，规则集列表或卡片展示「${RuleSetA}」
@@ -114,7 +116,9 @@ cases:
           规则拼接包：1
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
           点击【完成】，等待返回规则任务配置页面
         expected: 提示规则集编辑完成
       - action: 展开或查看「${RuleSetA}」详情
@@ -141,7 +145,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0003 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
          INSERT INTO ${SchemaA}.test_table_none_c0003 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
       5) 已执行基础统计 SQL 获取单字段空值/空串预期值，以及多字段 `and`、`or` 逻辑预期值：{user_code_null_cnt}、{user_code_null_rate}、{user_name_empty_cnt}、{user_name_empty_rate}、{user_code_remark_null_and_cnt}、{user_code_remark_null_and_rate}、{user_code_remark_null_or_cnt}、{user_code_remark_null_or_rate}、{user_name_remark_empty_and_cnt}、{user_name_remark_empty_and_rate}、{user_name_remark_empty_or_cnt}、{user_name_remark_empty_or_rate}
-      6) 规则库配置中的完整性校验处于开启状态
+      6) 规则库页面中完整性校验已开启
     steps:
       - action: 进入【数据资产 → 完整性校验】页面
         expected: 进入成功
@@ -231,7 +235,9 @@ cases:
           规则拼接包：1
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
         expected: 页面展示调度配置、规则拼接包、资源组、告警配置、任务关联、实例生成方式
       - action: 实例生成方式选择【立即生成】，点击【保存】，等待任务列表刷新完成
         expected: 任务列表展示「${TaskA}」
@@ -284,7 +290,9 @@ cases:
           规则拼接包：1
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
           实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
         expected: 任务「${TaskB}」创建成功
       - action: 在任务详情点击【立即执行】，等待任务实例查询生成最新实例
@@ -307,7 +315,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0005 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
          INSERT INTO ${SchemaA}.test_table_none_c0005 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
       5) 已执行重复统计 SQL 获取 {nick_name_dup_cnt}、{nick_name_dup_rate}、{user_type_status_dup_cnt}、{user_type_status_dup_rate}
-      6) 规则库配置中的唯一性校验处于开启状态
+      6) 规则库页面中唯一性校验已开启
     steps:
       - action: 进入【数据资产 → 唯一性与自定义规则】页面
         expected: 进入成功
@@ -349,7 +357,9 @@ cases:
           规则拼接包：1
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
           实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
         expected: 任务「${TaskC}」创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例
@@ -399,7 +409,9 @@ cases:
           规则拼接包：1
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
           实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
         expected: 任务「${TaskD}」创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例
@@ -451,7 +463,9 @@ cases:
           规则拼接包：1
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
           实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
         expected: 任务「${TaskE}」创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例
@@ -474,7 +488,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0008 (id BIGINT, age_str STRING, score_str STRING, enum_num_str STRING, unique_num_str STRING);
          INSERT INTO ${SchemaA}.test_table_none_c0008 VALUES (1, '25', '90.5', '0', 'A1'), (2, NULL, '-5.0', '1', 'B2'), (3, '17', '60.0', '2', 'C3'), (4, '22', '80.0', '0', 'D4'), (5, '28', '70.0', '1', 'E5');
       5) 已执行强转统计 SQL 获取 {age_str_null_cnt}、{age_str_null_rate}、{score_str_sum}、{score_str_avg}、{score_str_negative_rate}、{score_str_zero_rate}、{score_str_positive_rate}、{age_str_range_invalid_cnt}、{enum_num_str_enum_invalid_cnt}、{enum_num_str_enum_cnt}、{unique_num_str_dup_cnt}、{unique_num_str_dup_rate}、{unique_num_str_non_dup_cnt}、{unique_num_str_non_dup_rate}、{score_str_positive_cnt}
-      6) 规则库配置中的完整性、准确性、规范性、唯一性和自定义 SQL 规则均处于开启状态
+      6) 规则库页面中完整性、准确性、规范性、唯一性和自定义 SQL 规则均已开启
     steps:
       - action: 进入【数据资产 → 数据类型强转】页面
         expected: 进入成功
@@ -536,7 +550,9 @@ cases:
           规则拼接包：1
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
           实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
         expected: 任务「${TaskF}」创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例
@@ -604,7 +620,9 @@ cases:
           规则拼接包：1
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
           实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
         expected: 任务「${TaskG}」创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例
@@ -660,7 +678,9 @@ cases:
           规则拼接包：1
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
           实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
         expected: 任务「${TaskH}」创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例
@@ -738,7 +758,9 @@ cases:
           规则拼接包：1
           资源组：默认资源组
           超时时间：不限制
+          告警方式：无
           无需生成报告：勾选
+          报告名称：空
           实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
         expected: 任务「${TaskI}」创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例

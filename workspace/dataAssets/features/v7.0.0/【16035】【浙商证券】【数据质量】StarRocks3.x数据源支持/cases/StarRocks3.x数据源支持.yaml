@@ -25,7 +25,7 @@ cases:
 
   - case_id: C0002
     title: 验证【规则库配置】-【新建监控规则】选择StarRocks3.x数据源并配置监控对象，数据库与数据表下拉框加载对应数据
-    priority: P0
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：StarRocks3.x
@@ -109,7 +109,7 @@ cases:
       - StarRocks3.x
 
   - case_id: C0005
-    title: 验证【规则库配置】-【规则集执行】执行StarRocks3.x规则集，新增执行实例且状态为运行成功(立即执行)
+    title: 验证【规则库配置】-【规则集执行】执行StarRocks3.x规则集，新增执行实例且状态为运行成功
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -156,7 +156,7 @@ cases:
            (1, CAST(100.00 AS DECIMAL(10,2))),
            (2, CAST(200.00 AS DECIMAL(10,2))),
            (3, CAST(300.00 AS DECIMAL(10,2)));
-      5) 规则任务「TaskA」配置完整性校验，字段为 amount，期望空值数为 0
+      5) 规则任务「TaskA」已配置完整性校验，字段为 amount，期望空值数为 0
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
@@ -186,7 +186,7 @@ cases:
            ('ORD-1001'),
            ('BAD1002'),
            ('ORD-1003');
-      5) 规则任务「TaskA」配置自定义正则 ^ORD-[0-9]{4}$，字段为 order_code
+      5) 规则任务「TaskA」已配置自定义正则 ^ORD-[0-9]{4}$，字段为 order_code
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
@@ -216,7 +216,7 @@ cases:
            (DATE '2026-02-01'),
            (DATE '2026-02-02'),
            (DATE '2026-02-03');
-      5) 规则任务「TaskA」配置日期格式 yyyy-MM-dd，字段为 order_date
+      5) 规则任务「TaskA」已配置日期格式 yyyy-MM-dd，字段为 order_date
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
@@ -249,7 +249,7 @@ cases:
            order_id BIGINT
          );
          INSERT INTO ${SchemaA}.test_table_16035_c0009_comparison_01 VALUES (1), (2), (3);
-      6) 规则任务「TaskA」配置多表唯一性，表关系为「且」
+      6) 规则任务「TaskA」已配置多表唯一性，表关系为「且」
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
@@ -282,7 +282,7 @@ cases:
            order_id BIGINT
          );
          INSERT INTO ${SchemaA}.test_table_16035_c0010_comparison_01 VALUES (1), (2);
-      6) 规则任务「TaskA」配置多表数据行数对比
+      6) 规则任务「TaskA」已配置多表数据行数对比
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
@@ -298,7 +298,7 @@ cases:
 
   - case_id: C0011
     title: 验证【规则库配置】-【动态分区】执行动态分区规则，执行日志显示读取前一日与当日共4行记录
-    priority: P0
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：StarRocks3.x
@@ -318,7 +318,7 @@ cases:
            (2, 'beta', DATE_SUB(current_date(), 1)),
            (3, 'gamma', current_date()),
            (4, 'delta', current_date());
-      5) 规则任务「TaskA」配置动态分区
+      5) 规则任务「TaskA」已配置动态分区
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
         expected: 进入成功
@@ -333,7 +333,7 @@ cases:
       - 动态分区
 
   - case_id: C0012
-    title: 验证【规则库配置】-【抽样】执行开启抽样的规则任务，执行日志显示本次读取10行(抽样数量10)
+    title: 验证【规则库配置】-【抽样】执行开启抽样的规则任务，执行日志显示本次读取10行
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -434,7 +434,7 @@ cases:
     title: 验证【规则库配置】-【JSON导入】导入规则JSON文件，列表新增规则且表达式为amount BETWEEN 0 AND 100000
     priority: P1
     precondition: |-
-      1) 规则库配置页不存在名称为「RuleA」的规则
+      1) 规则库页面不存在名称为「RuleA」的规则
       2) 导入文件为 JSON，包含 ruleName=RuleA、ruleType=有效性、field=amount、expression=amount BETWEEN 0 AND 100000
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
