@@ -34,7 +34,7 @@ export function renderTerminalTable(options: TerminalTableOptions): string {
   );
   const allRows = [columns.map((column) => column.header), ...normalizedRows];
   const naturalWidths = allRows.map((row) =>
-    row.map((cell) => displayWidth(cell.replaceAll(/\s+/g, " "))),
+    row.map((cell) => Math.max(...cell.split("\n").map((line) => displayWidth(line)), 1)),
   );
   const columnNaturalWidths = columns.map((_, index) =>
     Math.max(...naturalWidths.map((row) => row[index]), 1),
@@ -45,7 +45,7 @@ export function renderTerminalTable(options: TerminalTableOptions): string {
   const columnWidths = fitWidths(columnNaturalWidths, minimums, widths, availableWidth);
 
   const wrappedCells = normalizedRows.map((row) =>
-    row.map((cell, index) => wrapCell(cell.replaceAll(/\s+/g, " "), columnWidths[index])),
+    row.map((cell, index) => wrapCell(cell, columnWidths[index])),
   );
   const wrappedHeaders = columns.map((column, index) =>
     wrapCell(column.header, columnWidths[index]),
@@ -130,6 +130,14 @@ function padDisplay(text: string, width: number): string {
 }
 
 function wrapCell(text: string, width: number): string[] {
+  const lines: string[] = [];
+  for (const line of text.split("\n")) {
+    lines.push(...wrapLine(line, width));
+  }
+  return lines.length > 0 ? lines : [""];
+}
+
+function wrapLine(text: string, width: number): string[] {
   const words = splitWords(text);
   const lines: string[] = [];
   let line = "";

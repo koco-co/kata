@@ -34,8 +34,8 @@ function stepsTable(steps: readonly { action: string; expected: string }[]): str
     columns,
     rows: steps.map((step, index) => [
       String(index + 1),
-      normalizeStructuredText(step.action).replace(/\s*\n\s*/g, " "),
-      normalizeStructuredText(step.expected).replace(/\s*\n\s*/g, " "),
+      normalizeStructuredText(step.action),
+      normalizeStructuredText(step.expected),
     ]),
   });
 }
