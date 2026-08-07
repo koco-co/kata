@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  assertSafeRefPath,
   assertRepoOperationAllowed,
   loadSourceRepos,
   mainWorktreeRoot,
@@ -11,6 +12,26 @@ import {
   RepoOperationNotAllowedError,
   resolveSourceRepo,
 } from "../../cli/lib/git-source.ts";
+
+describe("assertSafeRefPath", () => {
+  it("accepts valid git show ref:path inputs", () => {
+    expect(() => assertSafeRefPath("HEAD:src/a.ts")).not.toThrow();
+    expect(() => assertSafeRefPath("release/7.0:workspace/feature/a.ts")).not.toThrow();
+  });
+
+  it("rejects option-like refs, empty paths and traversal", () => {
+    for (const bad of [
+      "HEAD",
+      ":src/a.ts",
+      "-n:src/a.ts",
+      "HEAD:/etc/passwd",
+      "HEAD:../a",
+      "HEAD:a\0b",
+    ]) {
+      expect(() => assertSafeRefPath(bad)).toThrow(/非法 ref:path/);
+    }
+  });
+});
 
 const YAML = `repos:
   - name: customltem/dt-center-assets

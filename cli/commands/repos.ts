@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import {
+  assertSafeRefPath,
   assertRepoOperationAllowed,
   git,
   isGitSourceRepo,
@@ -71,6 +72,7 @@ export function registerRepos(program: Command): void {
     .argument("<repo>", "group/repo 或 repo")
     .argument("<refPath>", "如 HEAD:src/a.ts")
     .action((repo: string, refPath: string) => {
+      assertSafeRefPath(refPath);
       const { absPath } = resolveRepo(repo);
       if (!isGitSourceRepo(absPath)) throw new Error(`${absPath} 不是 git 仓库`);
       process.stdout.write(git(absPath, ["show", refPath]));
