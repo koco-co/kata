@@ -361,7 +361,9 @@ cases:
     steps:
       - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
-      - action: 新建 Inceptor 到 Vastbase 手动同步任务，主键冲突选择「on duplicate key update」，映射 id、name，保存并运行
+      - action: 新建 Inceptor 到 Vastbase 手动同步任务，主键冲突选择「on duplicate key update」，映射 id、name，保存
+        expected: 保存成功
+      - action: 运行任务
         expected: |-
           1) 任务运行状态：「成功」
           2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0010_target_01 ORDER BY id;
@@ -389,7 +391,9 @@ cases:
     steps:
       - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
-      - action: 新建 MySQL 到 Vastbase 手动同步任务，主键冲突选择「on duplicate key update」，映射 id、name，保存并运行
+      - action: 新建 MySQL 到 Vastbase 手动同步任务，主键冲突选择「on duplicate key update」，映射 id、name，保存
+        expected: 保存成功
+      - action: 运行任务
         expected: |-
           1) 任务运行状态：「成功」
           2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0011_target_01 ORDER BY id;
@@ -425,7 +429,9 @@ cases:
     steps:
       - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
-      - action: 新建 Oracle 到 Vastbase 手动同步任务，主键冲突选择「on duplicate key update」，映射 id、name，保存并运行
+      - action: 新建 Oracle 到 Vastbase 手动同步任务，主键冲突选择「on duplicate key update」，映射 id、name，保存
+        expected: 保存成功
+      - action: 运行任务
         expected: |-
           1) 任务运行状态：「成功」
           2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0012_target_01 ORDER BY id;

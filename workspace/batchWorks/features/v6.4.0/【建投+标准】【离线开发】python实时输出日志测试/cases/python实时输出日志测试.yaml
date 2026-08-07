@@ -7,10 +7,10 @@ meta:
     - python实时输出日志测试.xmind
 cases:
   - case_id: C0001
-    title: 验证【数据开发】-【周期任务】运行Python Agent任务，实时打印任务运行日志(Python2)
+    title: 验证【数据开发】-【周期任务】运行Python Agent任务，实时打印任务运行日志
     priority: P0
     precondition: |-
-      1) 周期任务可选择运行 Python2 的节点标签 agent_py2
+      1) 周期任务运行节点标签为 agent_py2
       2) Python2 实时输出脚本为：
          #!/usr/bin/env python2
          # -*- coding: utf-8 -*-
@@ -37,10 +37,10 @@ cases:
     tags: [数据开发, 周期任务, Python2日志]
 
   - case_id: C0002
-    title: 验证【数据开发】-【周期任务】运行Python Agent任务，实时打印任务运行日志(Python3)
+    title: 验证【数据开发】-【周期任务】运行Python Agent任务，实时打印任务运行日志
     priority: P1
     precondition: |-
-      1) 周期任务可选择运行 Python3 的节点标签 agent_py3
+      1) 周期任务运行节点标签为 agent_py3
       2) Python3 持续输出脚本为：
          import time
          for index in range(1, 6):
@@ -63,10 +63,10 @@ cases:
     tags: [数据开发, 周期任务, Python3日志]
 
   - case_id: C0003
-    title: 验证【数据开发】-【手动任务】运行Python Agent任务，实时打印任务运行日志(Python2)
+    title: 验证【数据开发】-【手动任务】运行Python Agent任务，实时打印任务运行日志
     priority: P1
     precondition: |-
-      1) 手动任务可选择运行 Python2 的节点标签 agent_py2
+      1) 手动任务运行节点标签为 agent_py2
       2) Python2 持续输出脚本为：
          #!/usr/bin/env python2
          from __future__ import print_function
@@ -94,10 +94,10 @@ cases:
     tags: [数据开发, 手动任务, Python2日志]
 
   - case_id: C0004
-    title: 验证【数据开发】-【手动任务】运行Python Agent任务，实时打印任务运行日志(Python3)
+    title: 验证【数据开发】-【手动任务】运行Python Agent任务，实时打印任务运行日志
     priority: P0
     precondition: |-
-      1) 手动任务可选择运行 Python3 的节点标签 agent_py3
+      1) 手动任务运行节点标签为 agent_py3
       2) Python3 实时输出脚本为：
          import time
          for index in range(1, 6):

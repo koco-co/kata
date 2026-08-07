@@ -40,7 +40,7 @@ cases:
     tags: ["数据开发", "周期任务"]
 
   - case_id: C0002
-    title: 验证【数据开发】-【周期任务】新建并运行数据同步任务，目标表同步3行数据(MySQL→Hive)
+    title: 验证【数据开发】-【周期任务】新建并运行数据同步任务，目标表同步3行数据
     priority: P0
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
@@ -91,7 +91,7 @@ cases:
     tags: ["数据开发", "周期任务"]
 
   - case_id: C0003
-    title: 验证【数据开发】-【周期任务】新建并运行数据同步任务，目标表同步3行数据(StarRocks→Hive)
+    title: 验证【数据开发】-【周期任务】新建并运行数据同步任务，目标表同步3行数据
     priority: P2
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
@@ -144,7 +144,7 @@ cases:
     tags: ["数据开发", "周期任务"]
 
   - case_id: C0004
-    title: 验证【数据开发】-【周期任务】新建并运行数据同步任务，目标表同步2行数据(Hive→MySQL)
+    title: 验证【数据开发】-【周期任务】新建并运行数据同步任务，目标表同步2行数据
     priority: P2
     precondition: |-
       1) 授权数据源 A：${DataSourceA}
@@ -195,7 +195,7 @@ cases:
     tags: ["数据开发", "周期任务"]
 
   - case_id: C0005
-    title: 验证【数据开发】-【周期任务】新建并运行数据同步任务，目标表同步2行数据(Hive→StarRocks)
+    title: 验证【数据开发】-【周期任务】新建并运行数据同步任务，目标表同步2行数据
     priority: P0
     precondition: |-
       1) 授权数据源 A：${DataSourceA}

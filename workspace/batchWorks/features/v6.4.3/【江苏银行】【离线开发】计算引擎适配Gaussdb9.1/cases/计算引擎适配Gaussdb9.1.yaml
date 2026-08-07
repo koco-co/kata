@@ -105,7 +105,7 @@ cases:
     priority: P0
     precondition: |-
       1) 平台中已配置 GaussDB 数据源，连接状态正常
-      2) 配置三个对接GaussDB的离线SQL任务：
+      2) 已配置三个对接GaussDB的离线SQL任务：
          ${TaskA}
          drop table if exists t_user;
          CREATE TABLE t_user (
@@ -158,7 +158,7 @@ cases:
          );
 
 
-      3) 配置三个对接GaussDB的离线SQL任务：
+      3) 已配置三个对接GaussDB的离线SQL任务：
          ${TaskA}
          INSERT INTO t_user (name, age, email) VALUES ('Alice', 25, 'alice@example.com');
 
@@ -201,7 +201,7 @@ cases:
          );
 
 
-      3) 配置三个对接GaussDB的离线SQL任务：
+      3) 已配置三个对接GaussDB的离线SQL任务：
          ${TaskA}
          SELECT * FROM t_user;
 
@@ -252,7 +252,7 @@ cases:
          GRANT USAGE ON SCHEMA public TO test_role;
       10) 授予对 public 模式下所有现有表的 SELECT, INSERT 等权限：
           GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO test_role;
-      11) 设置未来新建表也自动授权：
+      11) 已设置未来新建表也自动授权：
           ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO test_role;
       12) 把角色授予用户：
           GRANT test_role TO test_user;
@@ -283,10 +283,16 @@ cases:
     title: 验证【数据开发】-【周期任务】GaussDB 全数据类型建表查询，周期任务、手动任务与临时查询均返回结果
     priority: P1
     precondition: |-
-      1) gaussdb建表语句：
+      1) 授权数据源：${DataSourceA}
+
+      2) 数据源类型：GaussDB
+
+      3) 存在数据库：${SchemaA}
+
+      4) gaussdb建表语句：
          -- 创建银行客户账户与交易数据表，涵盖多种 openGauss 支持的数据类型
-         drop table if exists bank_customer_account;
-         CREATE TABLE bank_customer_account (
+         drop table if exists ${SchemaA}.test_table_14913_c0009;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14913_c0009 (
           customer_id            BIGINT,                          -- 数值类型（整型）
           account_number          INTEGER,                         -- 账号（整型）
           credit_limit             NUMERIC(18,2),                  -- 任意精度（货币类型）
@@ -308,7 +314,7 @@ cases:
          );
 
          -- 插入一条模拟银行客户账户数据
-         INSERT INTO bank_customer_account VALUES (
+         INSERT INTO ${SchemaA}.test_table_14913_c0009 VALUES (
           1000000000001,                     -- customer_id
           12345678,                           -- account_number
           250000. 50,                          -- credit_limit
@@ -333,7 +339,7 @@ cases:
          );
 
          -- 查询所有列，验证插入
-         SELECT * FROM bank_customer_account;
+         SELECT * FROM ${SchemaA}.test_table_14913_c0009;
     steps:
       - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
@@ -378,7 +384,7 @@ cases:
     title: 验证【数据开发】-【周期任务】运行长时间 SQL 任务，点击停止后运行终止
     priority: P1
     precondition: |-
-      1) 配置长时间执行 SQL：
+      1) 已配置长时间执行 SQL：
          select pg_sleep(100);
     steps:
       - action: 进入【数据开发 → 周期任务】页面
@@ -395,10 +401,16 @@ cases:
     title: 验证【数据开发】-【周期任务】GaussDB 系统函数 SQL 执行，返回 3 行结果
     priority: P0
     precondition: |-
-      1) gaussdb建表语句：
+      1) 授权数据源：${DataSourceA}
+
+      2) 数据源类型：GaussDB
+
+      3) 存在数据库：${SchemaA}
+
+      4) gaussdb建表语句：
          -- 创建数据表
-         DROP TABLE IF EXISTS customer_transactions;
-         CREATE TABLE customer_transactions (
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14913_c0012;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14913_c0012 (
           customer_id       BIGINT,
           transaction_id     BIGINT,
           amount             NUMERIC(12,2),
@@ -410,7 +422,7 @@ cases:
          );
 
          -- 插入1 条示例数据
-         INSERT INTO customer_transactions VALUES
+         INSERT INTO ${SchemaA}.test_table_14913_c0012 VALUES
           (1, 1001, 200.00, '2025-11-15 10:00:00+08', 'web', ARRAY['first', 'promo'], hll_add(hll_empty(), hll_hash_integer(1)), '首次登录'),
           (1, 1002, 150.00, '2025-11-16 12:10:00+08', 'mobile', ARRAY['repeat'], hll_add(hll_empty(), hll_hash_integer(2)), '常规交易'),
           (2, 2001, 300.00, '2025-11-15 09:00:00+08', 'web', ARRAY['vip'], hll_add(hll_empty(), hll_hash_integer(1)), 'VIP 客户交易'),
@@ -428,7 +440,7 @@ cases:
           MAX(amount) AS max_amount,
           MIN(transaction_time) AS first_txn_time,
           MAX(transaction_time) AS last_txn_time
-        FROM customer_transactions
+        FROM ${SchemaA}.test_table_14913_c0012
         GROUP BY customer_id
          )
          SELECT
@@ -479,9 +491,16 @@ cases:
     title: 验证【数据开发】-【周期任务】GaussDB 自定义函数创建并执行，SQL 返回结果
     priority: P0
     precondition: |-
-      1) 建表语句：
+      1) 授权数据源：${DataSourceA}
+
+      2) 数据源类型：GaussDB
+
+      3) 存在数据库：${SchemaA}
+
+      4) 建表语句：
          -- 1. 创建银行交易表
-         CREATE TABLE bank_transaction (
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14913_c0013;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14913_c0013 (
           txn_id          BIGINT PRIMARY KEY,
           account_id       BIGINT NOT NULL,
           txn_amount       NUMERIC(18,2) NOT NULL,
@@ -493,7 +512,7 @@ cases:
 
 
          -- 2. 插入几条测试交易数据
-         INSERT INTO bank_transaction(txn_id, account_id, txn_amount, txn_type, txn_time, txn_currency, description) VALUES
+         INSERT INTO ${SchemaA}.test_table_14913_c0013(txn_id, account_id, txn_amount, txn_type, txn_time, txn_currency, description) VALUES
          (1, 1001, 1000.00, 'deposit', '2025-11-17 10:00:00+08', 'USD', 'Initial deposit'),
          (2, 1001, 200.00, 'withdraw', '2025-11-17 11:00:00+08', 'USD', 'ATM withdrawal'),
          (3, 1002, 500.00, 'deposit', '2025-11-17 12:00:00+08', 'EUR', 'Salary deposit'),
@@ -570,7 +589,7 @@ cases:
               calculate_fee(txn_amount, txn_type) AS fee,
               txn_amount - calculate_fee(txn_amount, txn_type) AS net_amount,
               txn_time
-          FROM bank_transaction;
+          FROM test_table_14913_c0013;
         expected: SQL执行成功, 结果正常返回
   - case_id: C0014
     title: 验证【数据开发】-【函数管理】新建 GaussDB 自定义函数，名称、用途与参数非法值均提示校验
@@ -673,9 +692,16 @@ cases:
     title: 验证【数据开发】-【函数管理】GaussDB 存储过程创建并执行，SQL 返回结果
     priority: P0
     precondition: |-
-      1) 建表语句：
+      1) 授权数据源：${DataSourceA}
+
+      2) 数据源类型：GaussDB
+
+      3) 存在数据库：${SchemaA}
+
+      4) 建表语句：
          -- 1. 创建银行交易表
-         CREATE TABLE bank_transaction (
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14913_c0016;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14913_c0016 (
           txn_id          BIGINT PRIMARY KEY,
           account_id       BIGINT NOT NULL,
           txn_amount       NUMERIC(18,2) NOT NULL,
@@ -687,7 +713,7 @@ cases:
 
 
          -- 2. 插入几条测试交易数据
-         INSERT INTO bank_transaction(txn_id, account_id, txn_amount, txn_type, txn_time, txn_currency, description) VALUES
+         INSERT INTO ${SchemaA}.test_table_14913_c0016(txn_id, account_id, txn_amount, txn_type, txn_time, txn_currency, description) VALUES
          (1, 1001, 1000.00, 'deposit', '2025-11-17 10:00:00+08', 'USD', 'Initial deposit'),
          (2, 1001, 200.00, 'withdraw', '2025-11-17 11:00:00+08', 'USD', 'ATM withdrawal'),
          (3, 1002, 500.00, 'deposit', '2025-11-17 12:00:00+08', 'EUR', 'Salary deposit'),
@@ -730,12 +756,12 @@ cases:
           ) IS
           BEGIN
               -- 删除 txn_type = 'other' 的记录
-              DELETE FROM bank_transaction
+              DELETE FROM test_table_14913_c0016
               WHERE account_id = p_account_id AND txn_type = 'other';
               deleted_count := SQL%ROWCOUNT;
 
               -- 更新 deposit 交易金额（增加10%）
-              UPDATE bank_transaction
+              UPDATE test_table_14913_c0016
               SET txn_amount = txn_amount * 1.10
               WHERE account_id = p_account_id AND txn_type = 'deposit';
               updated_count := SQL%ROWCOUNT;
@@ -758,7 +784,7 @@ cases:
               RAISE NOTICE 'Deleted % rows, Updated % rows', v_deleted, v_updated;
           END;
         expected: SQL执行成功, 结果正常返回
-      - action: "执行: select  * from bank_transaction;"
+      - action: "执行: select  * from test_table_14913_c0016;"
         expected: 存储过程执行生效
   - case_id: C0017
     title: 验证【数据开发】-【函数管理】新建 GaussDB 存储过程，名称、用途与参数非法值均提示校验
@@ -853,11 +879,18 @@ cases:
     title: 验证【数据开发】-【周期任务】GaussDB 任务一键发布与导入导出发布，目标项目任务可运行
     priority: P0
     precondition: |-
-      1) 存在两个项目projectA(测试项目), projectB(生产项目), 项目A, B均已对接gaussdb数据源
-      2) gaussdb建表语句：
+      1) 授权数据源：${DataSourceA}
+
+      2) 数据源类型：GaussDB
+
+      3) 存在数据库：${SchemaA}
+
+      4) 存在两个项目projectA(测试项目), projectB(生产项目), 项目A, B均已对接gaussdb数据源
+
+      5) gaussdb建表语句：
          -- 创建银行客户账户与交易数据表，涵盖多种 openGauss 支持的数据类型
-         drop table if exists bank_customer_account;
-         CREATE TABLE bank_customer_account (
+         drop table if exists ${SchemaA}.test_table_14913_c0019;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14913_c0019 (
           customer_id            BIGINT,                          -- 数值类型（整型）
           account_number          INTEGER,                         -- 账号（整型）
           credit_limit             NUMERIC(18,2),                  -- 任意精度（货币类型）
@@ -879,7 +912,7 @@ cases:
          );
 
          -- 插入一条模拟银行客户账户数据
-         INSERT INTO bank_customer_account VALUES (
+         INSERT INTO ${SchemaA}.test_table_14913_c0019 VALUES (
           1000000000001,                     -- customer_id
           12345678,                           -- account_number
           250000. 50,                          -- credit_limit
@@ -904,7 +937,7 @@ cases:
          );
 
          -- 查询所有列，验证插入
-         SELECT * FROM bank_customer_account;
+         SELECT * FROM ${SchemaA}.test_table_14913_c0019;
     steps:
       - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功

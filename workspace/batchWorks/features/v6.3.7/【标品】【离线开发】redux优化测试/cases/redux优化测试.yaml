@@ -19,6 +19,8 @@ cases:
       - action: 进入【数据源管理 → 整库同步】页面
         expected: 进入成功
       - action: 点击「数据同步目标」下拉框
+        expected: 下拉框展开
+      - action: 查看下拉选项
         expected: 下拉选项包含 ${DataSourceA}、${DataSourceB}，名称、类型和可用状态与数据源管理列表一致
     tags: ["数据源管理", "整库同步"]
 
@@ -35,6 +37,8 @@ cases:
       - action: 进入【数据开发 → 批量操作】页面
         expected: 进入成功
       - action: 点击「数据源」下拉框
+        expected: 下拉框展开
+      - action: 查看下拉选项
         expected: 下拉选项包含 ${DataSourceA}、${DataSourceB}，名称、类型和可用状态与数据源管理列表一致
     tags: ["数据开发", "批量操作"]
 
@@ -95,7 +99,9 @@ cases:
     steps:
       - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 打开 redux_filecopy_c0005 并展开「数据源」下拉框
+      - action: 打开 redux_filecopy_c0005
+        expected: 打开成功
+      - action: 「数据源」下拉框
         expected: 下拉选项包含「redux_file_source」，名称和可用状态与数据源管理列表一致
     tags: ["数据开发", "周期任务", "FileCopy"]
 
@@ -110,6 +116,8 @@ cases:
       - action: 进入【数据地图 → 查找数据】页面
         expected: 进入成功
       - action: 点击「项目名称」下拉框
+        expected: 下拉框展开
+      - action: 查看下拉选项
         expected: 下拉选项包含「redux_project_a」「redux_project_b」，项目名称与项目列表一致
     tags: ["数据地图", "查找数据"]
 
@@ -124,5 +132,7 @@ cases:
       - action: 进入【数据地图 → 数据表管理】页面
         expected: 进入成功
       - action: 点击「项目名称」下拉框
+        expected: 下拉框展开
+      - action: 查看下拉选项
         expected: 下拉选项包含「redux_project_a」「redux_project_b」，项目名称与项目列表一致
     tags: ["数据地图", "数据表管理"]

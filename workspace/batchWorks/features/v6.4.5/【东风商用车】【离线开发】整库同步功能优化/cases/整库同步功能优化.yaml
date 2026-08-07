@@ -8,7 +8,7 @@ meta:
     - 整库同步功能优化.xmind
 cases:
   - case_id: C0001
-    title: 验证【数据源】-【整库同步】进入配置页面新增过滤条件，展示提示与源端信息(mysql)
+    title: 验证【数据源】-【整库同步】进入配置页面新增过滤条件，展示提示与源端信息
     priority: P1
     precondition: |-
       1) 数据源test_mysql中存在用户表t_user和订单表t_order, 建表语句如下:
@@ -49,7 +49,7 @@ cases:
     tags: [数据源, 整库同步, 数据过滤, mysql]
 
   - case_id: C0002
-    title: 验证【数据源】-【整库同步】输入where条件发布任务，任务配置回显过滤条件(mysql)
+    title: 验证【数据源】-【整库同步】输入where条件发布任务，任务配置回显过滤条件
     priority: P0
     precondition: |-
       1) 数据源: MySQL
@@ -80,7 +80,7 @@ cases:
     tags: [数据源, 整库同步, 数据过滤, mysql]
 
   - case_id: C0003
-    title: 验证【数据源】-【整库同步】不输入过滤条件发布任务，任务配置过滤为空(mysql)
+    title: 验证【数据源】-【整库同步】不输入过滤条件发布任务，任务配置过滤为空
     priority: P2
     precondition: |-
       1) 数据源: MySQL
@@ -109,7 +109,7 @@ cases:
     tags: [数据源, 整库同步, 数据过滤, mysql]
 
   - case_id: C0004
-    title: 验证【数据源】-【整库同步】进入配置页面新增过滤条件，展示提示与源端信息(oracle)
+    title: 验证【数据源】-【整库同步】进入配置页面新增过滤条件，展示提示与源端信息
     priority: P1
     precondition: |-
       1) 数据源test_oracle中存在用户表t_user和订单表t_order, 建表语句如下:
@@ -150,7 +150,7 @@ cases:
     tags: [数据源, 整库同步, 数据过滤, oracle]
 
   - case_id: C0005
-    title: 验证【数据源】-【整库同步】输入where条件发布任务，任务配置回显过滤条件(oracle)
+    title: 验证【数据源】-【整库同步】输入where条件发布任务，任务配置回显过滤条件
     priority: P1
     precondition: 1) 源端表user表中包含create_time字段
     steps:
@@ -171,7 +171,7 @@ cases:
     tags: [数据源, 整库同步, 数据过滤, oracle]
 
   - case_id: C0006
-    title: 验证【数据源】-【整库同步】不输入过滤条件发布任务，任务配置过滤为空(oracle)
+    title: 验证【数据源】-【整库同步】不输入过滤条件发布任务，任务配置过滤为空
     priority: P2
     precondition: 1) 源端表user表中包含create_time字段
     steps:
@@ -192,7 +192,7 @@ cases:
     tags: [数据源, 整库同步, 数据过滤, oracle]
 
   - case_id: C0007
-    title: 验证【数据源】-【整库同步】勾选记录保存展开脏数据配置，取消勾选隐藏配置(hive)
+    title: 验证【数据源】-【整库同步】勾选记录保存展开脏数据配置，取消勾选隐藏配置
     priority: P2
     precondition: 无
     steps:
@@ -216,7 +216,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, hive]
 
   - case_id: C0008
-    title: 验证【数据源】-【整库同步】脏数据存储生命周期填90保存，任务配置回显90天(hive)
+    title: 验证【数据源】-【整库同步】脏数据存储生命周期填90保存，任务配置回显90天
     priority: P1
     precondition: 无
     steps:
@@ -239,7 +239,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, hive]
 
   - case_id: C0009
-    title: 验证【数据源】-【整库同步】脏数据存储生命周期填1保存，任务配置回显1天(hive)
+    title: 验证【数据源】-【整库同步】脏数据存储生命周期填1保存，任务配置回显1天
     priority: P0
     precondition: 无
     steps:
@@ -283,7 +283,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, hive]
 
   - case_id: C0011
-    title: 验证【数据源】-【整库同步】脏数据超过条数填10保存，超过10条则报错(hive)
+    title: 验证【数据源】-【整库同步】保存脏数据条数阈值，阈值配置生效(脏数据条数阈值 = 10)
     priority: P1
     precondition: 无
     steps:
@@ -304,7 +304,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, hive]
 
   - case_id: C0012
-    title: 验证【数据源】-【整库同步】脏数据超过条数填0保存，限制条数为0(hive)
+    title: 验证【数据源】-【整库同步】保存脏数据条数阈值，阈值配置生效(脏数据条数阈值 = 0)
     priority: P2
     precondition: 无
     steps:
@@ -325,7 +325,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, hive]
 
   - case_id: C0013
-    title: 验证【数据源】-【整库同步】脏数据超过条数填-1保存，不限制条数(hive)
+    title: 验证【数据源】-【整库同步】保存脏数据条数阈值，阈值配置生效(脏数据条数阈值 = -1)
     priority: P0
     precondition: 无
     steps:
@@ -346,7 +346,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, hive]
 
   - case_id: C0014
-    title: 验证【数据源】-【整库同步】脏数据超过条数不填写保存，限制条数为0(hive)
+    title: 验证【数据源】-【整库同步】保存脏数据条数阈值，阈值配置生效(脏数据条数阈值 = 空)
     priority: P1
     precondition: 无
     steps:
@@ -367,7 +367,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, hive]
 
   - case_id: C0015
-    title: 验证【数据源】-【整库同步】脏数据记录比例填10保存，任务配置回显10%(hive)
+    title: 验证【数据源】-【整库同步】脏数据记录比例填10保存，任务配置回显10%
     priority: P1
     precondition: 无
     steps:
@@ -388,7 +388,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, hive]
 
   - case_id: C0016
-    title: 验证【数据源】-【整库同步】勾选记录保存展开脏数据配置，展示全部配置项(sparkthrift)
+    title: 验证【数据源】-【整库同步】勾选记录保存展开脏数据配置，展示全部配置项
     priority: P2
     precondition: 无
     steps:
@@ -415,7 +415,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, sparkthrift]
 
   - case_id: C0017
-    title: 验证【数据源】-【整库同步】脏数据存储生命周期填90保存，任务配置回显90天(sparkthrift)
+    title: 验证【数据源】-【整库同步】脏数据存储生命周期填90保存，任务配置回显90天
     priority: P1
     precondition: 无
     steps:
@@ -436,7 +436,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, sparkthrift]
 
   - case_id: C0018
-    title: 验证【数据源】-【整库同步】脏数据存储生命周期填1保存，任务配置回显1天(sparkthrift)
+    title: 验证【数据源】-【整库同步】脏数据存储生命周期填1保存，任务配置回显1天
     priority: P1
     precondition: 无
     steps:
@@ -478,7 +478,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, sparkthrift]
 
   - case_id: C0020
-    title: 验证【数据源】-【整库同步】脏数据超过条数填10保存，超过10条则报错(sparkthrift)
+    title: 验证【数据源】-【整库同步】保存脏数据条数阈值，阈值配置生效(脏数据条数阈值 = 10)
     priority: P1
     precondition: 无
     steps:
@@ -499,7 +499,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, sparkthrift]
 
   - case_id: C0021
-    title: 验证【数据源】-【整库同步】脏数据超过条数填0保存，限制条数为0(sparkthrift)
+    title: 验证【数据源】-【整库同步】保存脏数据条数阈值，阈值配置生效(脏数据条数阈值 = 0)
     priority: P2
     precondition: 无
     steps:
@@ -520,7 +520,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, sparkthrift]
 
   - case_id: C0022
-    title: 验证【数据源】-【整库同步】脏数据超过条数填-1保存，不限制条数(sparkthrift)
+    title: 验证【数据源】-【整库同步】保存脏数据条数阈值，阈值配置生效(脏数据条数阈值 = -1)
     priority: P1
     precondition: 无
     steps:
@@ -541,7 +541,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, sparkthrift]
 
   - case_id: C0023
-    title: 验证【数据源】-【整库同步】脏数据超过条数不填写保存，限制条数为0(sparkthrift)
+    title: 验证【数据源】-【整库同步】保存脏数据条数阈值，阈值配置生效(脏数据条数阈值 = 空)
     priority: P0
     precondition: 无
     steps:
@@ -562,7 +562,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, sparkthrift]
 
   - case_id: C0024
-    title: 验证【数据源】-【整库同步】脏数据记录比例填10保存，任务配置回显10%(sparkthrift)
+    title: 验证【数据源】-【整库同步】脏数据记录比例填10保存，任务配置回显10%
     priority: P1
     precondition: 无
     steps:
@@ -583,7 +583,7 @@ cases:
     tags: [数据源, 整库同步, 脏数据管理, sparkthrift]
 
   - case_id: C0025
-    title: 验证【数据源】-【整库同步】点击建表语句打开可编辑弹窗，展示CREATE TABLE语句(hive)
+    title: 验证【数据源】-【整库同步】点击建表语句打开可编辑弹窗，展示CREATE TABLE语句
     priority: P1
     precondition: 1) 目标表列表中存在user表
     steps:
@@ -1107,7 +1107,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, hive]
 
   - case_id: C0046
-    title: 验证【数据源】-【整库同步】点击建表语句打开可编辑弹窗，展示CREATE TABLE语句(sparkthrift)
+    title: 验证【数据源】-【整库同步】点击建表语句打开可编辑弹窗，展示CREATE TABLE语句
     priority: P1
     precondition: 1) 目标表列表中存在user表
     steps:
@@ -1129,7 +1129,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0047
-    title: 验证【数据源】-【整库同步】分区字段输入pt发布任务，任务配置回显pt=xx(sparkthrift)
+    title: 验证【数据源】-【整库同步】分区字段输入pt发布任务，任务配置回显pt=xx
     priority: P0
     precondition: |-
       1) 数据源test_mysql中存在user表, 建表语句如下:
@@ -1165,7 +1165,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0048
-    title: 验证【数据源】-【整库同步】分区字段不输入发布任务，配置无分区项(sparkthrift)
+    title: 验证【数据源】-【整库同步】分区字段不输入发布任务，配置无分区项
     priority: P1
     precondition: |-
       1) 数据源test_mysql中存在user表, 建表语句如下:
@@ -1203,7 +1203,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0049
-    title: 验证【数据源】-【整库同步】Monaco保留分区时清空分区输入框，以SQL为准生成分区表(sparkthrift)
+    title: 验证【数据源】-【整库同步】Monaco保留分区时清空分区输入框，以SQL为准生成分区表
     priority: P1
     precondition: |-
       1) 数据源test_mysql中存在user表, 建表语句如下:
@@ -1239,7 +1239,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0050
-    title: 验证【数据源】-【整库同步】Monaco不配置分区时填写分区输入框，以SQL为准不生成分区(sparkthrift)
+    title: 验证【数据源】-【整库同步】Monaco不配置分区时填写分区输入框，以SQL为准不生成分区
     priority: P0
     precondition: |-
       1) 数据源test_mysql中存在user表, 建表语句如下:
@@ -1275,7 +1275,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0051
-    title: 验证【数据源】-【整库同步】未点击建表语句发布任务，高级设置规则生效(sparkthrift)
+    title: 验证【数据源】-【整库同步】未点击建表语句发布任务，高级设置规则生效
     priority: P1
     precondition: 无
     steps:
@@ -1304,7 +1304,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0052
-    title: 验证【数据源】-【整库同步】点击建表语句确定后发布，多规则均不生效(sparkthrift)
+    title: 验证【数据源】-【整库同步】点击建表语句确定后发布，多规则均不生效
     priority: P1
     precondition: 无
     steps:
@@ -1333,7 +1333,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0053
-    title: 验证【数据源】-【整库同步】建表语句非create开头保存，提示解析建表SQL失败(sparkthrift)
+    title: 验证【数据源】-【整库同步】建表语句非create开头保存，提示解析建表SQL失败
     priority: P1
     precondition: 无
     steps:
@@ -1350,7 +1350,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0054
-    title: 验证【数据源】-【整库同步】建表语句SQL语法错误发布，任务发布失败且无同步任务(sparkthrift)
+    title: 验证【数据源】-【整库同步】建表语句SQL语法错误发布，任务发布失败且无同步任务
     priority: P0
     precondition: 无
     steps:
@@ -1371,7 +1371,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0055
-    title: 验证【数据源】-【整库同步】SQL编辑修改字段类型，保存后回显且映射正确(sparkthrift)
+    title: 验证【数据源】-【整库同步】SQL编辑修改字段类型，保存后回显且映射正确
     priority: P1
     precondition: 无
     steps:
@@ -1396,7 +1396,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0056
-    title: 验证【数据源】-【整库同步】SQL编辑修改字段名，保存后回显且映射正确(sparkthrift)
+    title: 验证【数据源】-【整库同步】SQL编辑修改字段名，保存后回显且映射正确
     priority: P0
     precondition: 无
     steps:
@@ -1430,7 +1430,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0057
-    title: 验证【数据源】-【整库同步】SQL编辑修改存储格式，保存后回显且映射正确(sparkthrift)
+    title: 验证【数据源】-【整库同步】SQL编辑修改存储格式，保存后回显且映射正确
     priority: P1
     precondition: 无
     steps:
@@ -1453,7 +1453,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0058
-    title: 验证【数据源】-【整库同步】SQL编辑修改表名，保存后回显且映射正确(sparkthrift)
+    title: 验证【数据源】-【整库同步】SQL编辑修改表名，保存后回显且映射正确
     priority: P1
     precondition: 无
     steps:
@@ -1476,7 +1476,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0059
-    title: 验证【数据源】-【整库同步】建表SQL删除全部内容保存，提示建表SQL不能为空(sparkthrift)
+    title: 验证【数据源】-【整库同步】建表SQL删除全部内容保存，提示建表SQL不能为空
     priority: P2
     precondition: 无
     steps:
@@ -1491,7 +1491,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0060
-    title: 验证【数据源】-【整库同步】Monaco编辑器输入关键字，自动提示并语法高亮(sparkthrift)
+    title: 验证【数据源】-【整库同步】Monaco编辑器输入关键字，自动提示并语法高亮
     priority: P2
     precondition: 无
     steps:
@@ -1508,7 +1508,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0061
-    title: 验证【数据源】-【整库同步】SQL编辑删除部分字段发布，映射方式为同名映射(sparkthrift)
+    title: 验证【数据源】-【整库同步】SQL编辑删除部分字段发布，映射方式为同名映射
     priority: P1
     precondition: 无
     steps:
@@ -1531,7 +1531,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0062
-    title: 验证【数据源】-【整库同步】SQL编辑添加部分字段发布，缺失字段补NULL(sparkthrift)
+    title: 验证【数据源】-【整库同步】SQL编辑添加部分字段发布，缺失字段补NULL
     priority: P1
     precondition: 无
     steps:
@@ -1554,7 +1554,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0063
-    title: 验证【数据源】-【整库同步】多表全部修改建表SQL发布，表结构与映射均正确(sparkthrift)
+    title: 验证【数据源】-【整库同步】多表全部修改建表SQL发布，表结构与映射均正确
     priority: P1
     precondition: 1) 存在2个mysql表
     steps:
@@ -1575,7 +1575,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0064
-    title: 验证【数据源】-【整库同步】多表部分修改建表SQL发布，表结构与映射均正确(sparkthrift)
+    title: 验证【数据源】-【整库同步】多表部分修改建表SQL发布，表结构与映射均正确
     priority: P0
     precondition: 1) 存在2个mysql表
     steps:
@@ -1596,7 +1596,7 @@ cases:
     tags: [数据源, 整库同步, 建表语句, sparkthrift]
 
   - case_id: C0065
-    title: 验证【数据开发】-【周期任务】升级前整库同步任务可编辑运行，数据同步成功(MySQL2Hive)
+    title: 验证【数据开发】-【周期任务】升级前整库同步任务可编辑运行，数据同步成功
     priority: P0
     precondition: |-
       1) 存在升级之前创建的整库同步任务
@@ -1615,7 +1615,7 @@ cases:
     tags: [数据开发, 周期任务, 历史任务兼容性]
 
   - case_id: C0066
-    title: 验证【数据开发】-【周期任务】升级前整库同步任务可查看详情运行，数据同步成功(Oracle2Hive)
+    title: 验证【数据开发】-【周期任务】升级前整库同步任务可查看详情运行，数据同步成功
     priority: P1
     precondition: |-
       1) 存在升级之前创建的整库同步任务
@@ -1641,7 +1641,7 @@ cases:
     tags: [数据开发, 周期任务, 历史任务兼容性]
 
   - case_id: C0067
-    title: 验证【数据开发】-【周期任务】升级前整库同步任务可查看详情运行，数据同步成功(MySQL2SparkThrift)
+    title: 验证【数据开发】-【周期任务】升级前整库同步任务可查看详情运行，数据同步成功
     priority: P1
     precondition: |-
       1) 存在升级之前创建的整库同步任务
@@ -1667,7 +1667,7 @@ cases:
     tags: [数据开发, 周期任务, 历史任务兼容性]
 
   - case_id: C0068
-    title: 验证【数据开发】-【周期任务】升级前整库同步任务可编辑运行，数据同步成功(Oracle2SparkThrift)
+    title: 验证【数据开发】-【周期任务】升级前整库同步任务可编辑运行，数据同步成功
     priority: P1
     precondition: |-
       1) 存在升级之前创建的整库同步任务

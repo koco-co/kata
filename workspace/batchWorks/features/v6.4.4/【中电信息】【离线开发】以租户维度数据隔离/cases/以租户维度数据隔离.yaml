@@ -8,7 +8,7 @@ meta:
     - 以租户维度数据隔离.xmind
 cases:
   - case_id: C0001
-    title: 验证【项目管理】-【创建项目】Schema列表租户隔离，不展示其他租户的Schema(创建)
+    title: 验证【项目管理】-【创建项目】Schema列表租户隔离，不展示其他租户的Schema
     priority: P1
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
@@ -33,7 +33,7 @@ cases:
     tags: [项目管理, 创建项目]
 
   - case_id: C0002
-    title: 验证【项目管理】-【创建项目】Schema列表租户隔离，不展示其他租户的Schema(对接已有Schema)
+    title: 验证【项目管理】-【创建项目】Schema列表租户隔离，不展示其他租户的Schema
     priority: P0
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
@@ -118,7 +118,7 @@ cases:
     tags: [项目管理, 创建项目]
 
   - case_id: C0006
-    title: 验证【项目管理】-【创建项目】添加计算引擎Schema列表隔离，不展示其他租户的Schema(创建)
+    title: 验证【项目管理】-【创建项目】添加计算引擎Schema列表隔离，不展示其他租户的Schema
     priority: P2
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
@@ -146,7 +146,7 @@ cases:
     tags: [项目管理, 创建项目, 添加计算引擎]
 
   - case_id: C0007
-    title: 验证【项目管理】-【创建项目】添加计算引擎Schema列表隔离，不展示其他租户的Schema(对接已有Schema)
+    title: 验证【项目管理】-【创建项目】添加计算引擎Schema列表隔离，不展示其他租户的Schema
     priority: P1
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
@@ -198,7 +198,7 @@ cases:
     tags: [项目管理, 创建项目, 添加计算引擎]
 
   - case_id: C0009
-    title: 验证【数据源】-【映射配置】Schema列表租户隔离，仅展示本租户项目的Schema(创建)
+    title: 验证【数据源】-【映射配置】Schema列表租户隔离，仅展示本租户项目的Schema
     priority: P1
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
@@ -228,7 +228,7 @@ cases:
     tags: [数据源, 映射配置]
 
   - case_id: C0010
-    title: 验证【数据源】-【映射配置】Schema列表租户隔离，仅展示本租户项目的Schema(对接已有Schema)
+    title: 验证【数据源】-【映射配置】Schema列表租户隔离，仅展示本租户项目的Schema
     priority: P1
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
@@ -288,13 +288,13 @@ cases:
     tags: [数据源, 映射配置]
 
   - case_id: C0012
-    title: 验证【数据源】-【整库同步】Sink端Schema列表租户隔离，不展示其他租户的Schema(创建)
+    title: 验证【数据源】-【整库同步】Sink端Schema列表租户隔离，不展示其他租户的Schema
     priority: P1
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
       2) 数据源中心已配置Doris、Dmmysql数据源
       3) 已存在至少两个租户TenantA、TenantB(对接同一套集群和数据源)
-      4) 开启离线配置项default.data.source.show.all.schema = true
+      4) 已开启离线配置项default.data.source.show.all.schema = true
       5) 租户A存在项目Project01~05: Project01(创建新schema)、Project02(对接已有schema)、Project03(不创建且不对接Schema)、Project04(创建过的Schema被删除的项目)、Project05(对接过的Schema被删除的项目)
       6) 租户B存在项目Project06~10: Project06(创建新schema)、Project07(对接已有schema)、Project08(不创建且不对接Schema)、Project09(创建过的Schema被删除的项目)、Project10(对接过的Schema被删除的项目)
       7) 以上每个项目的计算引擎均以创建、对接、不创建且不对接的方式对接hive、doris、dmmysql三种计算引擎
@@ -328,13 +328,13 @@ cases:
     tags: [数据源, 整库同步]
 
   - case_id: C0013
-    title: 验证【数据源】-【整库同步】Sink端Schema列表租户隔离，不展示其他租户的Schema(对接已有Schema)
+    title: 验证【数据源】-【整库同步】Sink端Schema列表租户隔离，不展示其他租户的Schema
     priority: P1
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
       2) 数据源中心已配置Doris、Dmmysql数据源
       3) 已存在至少两个租户TenantA、TenantB(对接同一套集群和数据源)
-      4) 开启离线配置项default.data.source.show.all.schema = true
+      4) 已开启离线配置项default.data.source.show.all.schema = true
       5) 租户A存在项目Project01~05: Project01(创建新schema)、Project02(对接已有schema)、Project03(不创建且不对接Schema)、Project04(创建过的Schema被删除的项目)、Project05(对接过的Schema被删除的项目)
       6) 租户B存在项目Project06~10: Project06(创建新schema)、Project07(对接已有schema)、Project08(不创建且不对接Schema)、Project09(创建过的Schema被删除的项目)、Project10(对接过的Schema被删除的项目)
       7) 以上每个项目的计算引擎均以创建、对接、不创建且不对接的方式对接hive、doris、dmmysql三种计算引擎
@@ -368,7 +368,7 @@ cases:
     tags: [数据源, 整库同步]
 
   - case_id: C0014
-    title: 验证【数据开发】-【临时查询】表查询Schema列表租户隔离，不展示其他租户的Schema(创建)
+    title: 验证【数据开发】-【临时查询】表查询Schema列表租户隔离，不展示其他租户的Schema
     priority: P0
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
@@ -399,7 +399,7 @@ cases:
     tags: [数据开发, 临时查询, 表查询]
 
   - case_id: C0015
-    title: 验证【数据开发】-【临时查询】表查询Schema列表租户隔离，不展示其他租户的Schema(对接已有Schema)
+    title: 验证【数据开发】-【临时查询】表查询Schema列表租户隔离，不展示其他租户的Schema
     priority: P1
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
@@ -461,7 +461,7 @@ cases:
     tags: [数据开发, 临时查询, 表查询]
 
   - case_id: C0017
-    title: 验证【数据开发】-【函数管理】自定义函数Schema列表租户隔离，不展示其他租户的Schema(Hive SQL)
+    title: 验证【数据开发】-【函数管理】自定义函数Schema列表租户隔离，不展示其他租户的Schema
     priority: P1
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
@@ -486,7 +486,7 @@ cases:
     tags: [数据开发, 函数管理, 自定义函数]
 
   - case_id: C0018
-    title: 验证【数据开发】-【函数管理】自定义函数Schema列表租户隔离，不展示其他租户的Schema(Doris SQL)
+    title: 验证【数据开发】-【函数管理】自定义函数Schema列表租户隔离，不展示其他租户的Schema
     priority: P0
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
@@ -511,7 +511,7 @@ cases:
     tags: [数据开发, 函数管理, 自定义函数]
 
   - case_id: C0019
-    title: 验证【数据开发】-【函数管理】自定义函数Schema列表租户隔离，不展示其他租户的Schema(DMMySQL)
+    title: 验证【数据开发】-【函数管理】自定义函数Schema列表租户隔离，不展示其他租户的Schema
     priority: P1
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
@@ -569,13 +569,13 @@ cases:
     tags: [数据开发, 周期任务, 任务开发]
 
   - case_id: C0021
-    title: 验证【数据开发】-【数据同步】数据同步Schema列表租户隔离，不展示其他租户的Schema(Meta源)
+    title: 验证【数据开发】-【数据同步】数据同步Schema列表租户隔离，不展示其他租户的Schema
     priority: P0
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
       2) 数据源中心已配置Doris、Dmmysql数据源
       3) 已存在至少两个租户TenantA、TenantB(对接同一套集群和数据源)
-      4) 开启离线配置项default.data.source.show.all.schema = true
+      4) 已开启离线配置项default.data.source.show.all.schema = true
       5) 租户A存在项目Project01~05: Project01(创建新schema)、Project02(对接已有schema)、Project03(不创建且不对接Schema)、Project04(创建过的Schema被删除的项目)、Project05(对接过的Schema被删除的项目)
       6) 租户B存在项目Project06~10: Project06(创建新schema)、Project07(对接已有schema)、Project08(不创建且不对接Schema)、Project09(创建过的Schema被删除的项目)、Project10(对接过的Schema被删除的项目)
       7) 以上每个项目的计算引擎均以创建、对接、不创建且不对接的方式对接hive、doris、dmmysql三种计算引擎
@@ -624,13 +624,13 @@ cases:
     tags: [数据开发, 数据同步, 任务开发]
 
   - case_id: C0022
-    title: 验证【数据开发】-【数据同步】数据同步Schema列表不隔离，展示数据源全部Schema(非Meta源)
+    title: 验证【数据开发】-【数据同步】数据同步Schema列表不隔离，展示数据源全部Schema
     priority: P1
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
       2) 数据源中心已配置Doris、Dmmysql数据源
       3) 已存在至少两个租户TenantA、TenantB(对接同一套集群和数据源)
-      4) 开启配置项default.data.source.show.all.schema = true
+      4) 已开启配置项default.data.source.show.all.schema = true
       5) 租户A存在项目Project01~05: Project01(创建新schema)、Project02(对接已有schema)、Project03(不创建且不对接Schema)、Project04(创建过的Schema被删除的项目)、Project05(对接过的Schema被删除的项目)
       6) 租户B存在项目Project06~10: Project06(创建新schema)、Project07(对接已有schema)、Project08(不创建且不对接Schema)、Project09(创建过的Schema被删除的项目)、Project10(对接过的Schema被删除的项目)
       7) 以上每个项目的计算引擎均以创建、对接、不创建且不对接的方式对接hive、doris、dmmysql三种计算引擎
@@ -657,13 +657,13 @@ cases:
     tags: [数据开发, 数据同步, 任务开发]
 
   - case_id: C0023
-    title: 验证【数据开发】-【周期任务】数据同步自定义SQL租户隔离不生效，可访问全部Schema(Meta源)
+    title: 验证【数据开发】-【周期任务】数据同步自定义SQL租户隔离不生效，可访问全部Schema
     priority: P1
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
       2) 数据源中心已配置Doris、Dmmysql数据源
       3) 已存在至少两个租户TenantA、TenantB(对接同一套集群和数据源)
-      4) 开启离线配置项default.data.source.show.all.schema = true
+      4) 已开启离线配置项default.data.source.show.all.schema = true
       5) 租户A存在项目Project01~05: Project01(创建新schema)、Project02(对接已有schema)、Project03(不创建且不对接Schema)、Project04(创建过的Schema被删除的项目)、Project05(对接过的Schema被删除的项目)
       6) 以上每个项目的计算引擎均以创建、对接、不创建且不对接的方式对接mysql计算引擎
       7) mysql在外部平台执行建库语句Create database Project11;
@@ -697,14 +697,14 @@ cases:
     tags: [数据开发, 周期任务, 任务开发]
 
   - case_id: C0024
-    title: 验证【数据开发】-【周期任务】数据同步自定义SQL租户隔离不生效，可访问全部Schema(非Meta源)
+    title: 验证【数据开发】-【周期任务】数据同步自定义SQL租户隔离不生效，可访问全部Schema
     priority: P2
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
       2) 数据源中心已配置Doris、Dmmysql数据源
       3) 已存在至少两个租户TenantA、TenantB(对接同一套集群和数据源)
-      4) 开启离线配置项default.data.source.show.all.schema = true
-      5) 租户A项目Project01(引入schema)
+      4) 已开启离线配置项default.data.source.show.all.schema = true
+      5) 租户A项目Project01已引入schema
     steps:
       - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
@@ -721,7 +721,7 @@ cases:
     tags: [数据开发, 周期任务, 任务开发]
 
   - case_id: C0025
-    title: 验证【数据开发】-【周期任务】SQL代码不受Schema租户隔离影响，可访问全部租户表(Meta源)
+    title: 验证【数据开发】-【周期任务】SQL代码不受Schema租户隔离影响，可访问全部租户表
     priority: P0
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
@@ -745,7 +745,7 @@ cases:
     tags: [数据开发, 周期任务, 任务开发]
 
   - case_id: C0026
-    title: 验证【数据开发】-【手动任务】SQL代码不受Schema租户隔离影响，可访问全部租户表(Meta源)
+    title: 验证【数据开发】-【手动任务】SQL代码不受Schema租户隔离影响，可访问全部租户表
     priority: P2
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
@@ -769,7 +769,7 @@ cases:
     tags: [数据开发, 手动任务, 任务开发]
 
   - case_id: C0027
-    title: 验证【数据开发】-【临时查询】SQL代码不受Schema租户隔离影响，可访问全部租户表(Meta源)
+    title: 验证【数据开发】-【临时查询】SQL代码不受Schema租户隔离影响，可访问全部租户表
     priority: P2
     precondition: |-
       1) 控制台已配置Hive、Doris、Dmmysql计算组件
@@ -843,7 +843,7 @@ cases:
       6) 以上每个项目的计算引擎均以创建、对接、不创建且不对接的方式对接hive、doris、dmmysql三种计算引擎
       7) Hive、Doris、Dmmysql分别在外部平台执行建库语句Create database Project11;
       8) 将Project03和Project08绑定为发布关系: Project03 > Project08
-      9) 开启离线配置项(默认不开启, 默认值: false): default.data.source.show.all.schema = true
+      9) 已开启离线配置项(默认不开启, 默认值: false): default.data.source.show.all.schema = true
     steps:
       - action: 进入【项目管理 → 创建项目】页面
         expected: 进入成功

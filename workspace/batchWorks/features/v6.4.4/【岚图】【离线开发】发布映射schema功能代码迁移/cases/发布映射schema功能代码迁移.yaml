@@ -63,10 +63,10 @@ cases:
     tags: [数据源, 映射配置]
 
   - case_id: C0004
-    title: 验证【数据源】-【映射配置】查看meta数据源Schema下拉框，展示全部schema(配置项开启)
+    title: 验证【数据源】-【映射配置】查看meta数据源Schema下拉框，展示全部schema
     priority: P0
     precondition: |-
-      1) 添加或更改离线配置项: default.data.source.show.all.schema = true
+      1) 已设置离线配置项: default.data.source.show.all.schema = true
       2) 项目A绑定项目B为发布目标
       3) 项目A、B对接三个doris集群, 初始化方式分别为: 创建、对接已有doris schema、不创建且不对接schema
       4) 三个doris集群分别为dorisA1、dorisA2、dorisA3和dorisB1、dorisB2、dorisB3
@@ -90,9 +90,9 @@ cases:
     tags: [数据源, 映射配置]
 
   - case_id: C0005
-    title: 验证【数据源】-【映射配置】查看meta数据源Schema下拉框，展示默认schema(配置项关闭)
+    title: 验证【数据源】-【映射配置】查看meta数据源Schema下拉框，展示默认schema
     priority: P1
-    precondition: '1) 添加或更改离线配置项: default.data.source.show.all.schema = false'
+    precondition: '1) 已设置离线配置项: default.data.source.show.all.schema = false'
     steps:
       - action: 进入【数据源】页面
         expected: 进入成功
@@ -188,13 +188,13 @@ cases:
     tags: [数据源, 映射配置]
 
   - case_id: C0009
-    title: 验证【项目管理】-【发布包管理】一键发布doris2doris任务，数据源回填映射目标(无Schema映射)
+    title: 验证【项目管理】-【发布包管理】一键发布doris2doris任务，数据源回填映射目标
     priority: P2
     precondition: |-
       1) 项目A绑定项目B为发布目标
       2) 数据源映射关系: dorisA(meta)映射至dorisB(meta)
       3) Schema映射关系: 无
-      4) 离线配置项default.data.source.show.all.schema = true
+      4) 已设置离线配置项default.data.source.show.all.schema = true
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -213,12 +213,12 @@ cases:
     tags: [项目管理, 发布包管理, 一键发布]
 
   - case_id: C0010
-    title: 验证【项目管理】-【发布包管理】一键发布doris2doris任务，schema缺失校验报错(配置项关闭)
+    title: 验证【项目管理】-【发布包管理】一键发布doris2doris任务，schema缺失校验报错
     priority: P2
     precondition: |-
       1) 项目A绑定项目B为发布目标
       2) meta数据源dorisA映射至meta数据源dorisB
-      3) 离线配置项default.data.source.show.all.schema = false
+      3) 已设置离线配置项default.data.source.show.all.schema = false
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -243,7 +243,7 @@ cases:
       1) 项目A绑定项目B为发布目标
       2) show.all.schema = true
       3) meta数据源dorisA映射至非meta数据源doris1, 不同集群, doris1下存在schemaA, 不存在schemaB
-      4) 离线配置项default.data.source.show.all.schema = true
+      4) 已设置离线配置项default.data.source.show.all.schema = true
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -269,8 +269,8 @@ cases:
     precondition: |-
       1) 项目A绑定项目B为发布目标
       2) meta数据源dorisA映射至meta数据源dorisB
-      3) schema映射配置: schemaA-schemaB, scheamB-scheamA
-      4) 离线配置项default.data.source.show.all.schema = true
+      3) schema映射关系: schemaA-schemaB, scheamB-scheamA
+      4) 已设置离线配置项default.data.source.show.all.schema = true
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -299,8 +299,8 @@ cases:
     precondition: |-
       1) 项目A绑定项目B为发布目标
       2) meta数据源dorisA映射至非meta数据源doris1
-      3) schema映射配置: schemaA-schema1, scheamB-scheam2
-      4) 离线配置项default.data.source.show.all.schema = true
+      3) schema映射关系: schemaA-schema1, scheamB-scheam2
+      4) 已设置离线配置项default.data.source.show.all.schema = true
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -329,8 +329,8 @@ cases:
     precondition: |-
       1) 项目A绑定项目B为发布目标
       2) meta数据源dorisA映射至meta数据源dorisB
-      3) schema映射配置: schemaA-schemaB, scheamB-scheamB
-      4) 离线配置项default.data.source.show.all.schema = true
+      3) schema映射关系: schemaA-schemaB, scheamB-scheamB
+      4) 已设置离线配置项default.data.source.show.all.schema = true
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -359,8 +359,8 @@ cases:
     precondition: |-
       1) 项目A绑定项目B为发布目标
       2) meta数据源dorisA映射至非meta数据源doris1
-      3) schema映射配置: schemaA-schema1, scheamB-scheam1
-      4) 离线配置项default.data.source.show.all.schema = true
+      3) schema映射关系: schemaA-schema1, scheamB-scheam1
+      4) 已设置离线配置项default.data.source.show.all.schema = true
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -389,8 +389,8 @@ cases:
     precondition: |-
       1) 项目A绑定项目B为发布目标
       2) meta数据源dorisA映射至meta数据源dorisB
-      3) schema映射配置: schemaA-schemaB, scheamB-scheamB, schemaC-schemaA, schemaD未进行映射配置
-      4) 离线配置项default.data.source.show.all.schema = true
+      3) schema映射关系: schemaA-schemaB, scheamB-scheamB, schemaC-schemaA, schemaD未映射
+      4) 已设置离线配置项default.data.source.show.all.schema = true
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -419,8 +419,8 @@ cases:
     precondition: |-
       1) 项目A绑定项目B为发布目标
       2) meta数据源dorisA映射至非meta数据源doris1
-      3) schema映射配置: schemaA-schema2, scheamB-scheam2, schemaC-schema1, schemaD未进行映射配置, doris1下不存在schemaD
-      4) 离线配置项default.data.source.show.all.schema = true
+      3) schema映射关系: schemaA-schema2, scheamB-scheam2, schemaC-schema1, schemaD未映射, doris1下不存在schemaD
+      4) 已设置离线配置项default.data.source.show.all.schema = true
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -450,9 +450,9 @@ cases:
     priority: P2
     precondition: |-
       1) 项目A绑定项目B为发布目标, 项目A的非meta数据源doris1映射至项目B的meta数据源dorisB, 不是同一套doris, schemaA、schemaB下有对应的表
-      2) schema映射配置: schema1-schemaA, schema2-schemaB
-      3) 项目C引入了meta数据源dorisB
-      4) 离线配置项default.data.source.show.all.schema = true
+      2) schema映射关系: schema1-schemaA, schema2-schemaB
+      3) 项目C已引入meta数据源dorisB
+      4) 已设置离线配置项default.data.source.show.all.schema = true
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -477,10 +477,10 @@ cases:
     priority: P2
     precondition: |-
       1) 项目A绑定项目B为发布目标
-      2) 项目A引入dorisA(meta)和doris1(非meta), 项目B引入dorisB(meta)和dorisA(非meta)
+      2) 项目A已引入dorisA(meta)和doris1(非meta), 项目B已引入dorisB(meta)和dorisA(非meta)
       3) 数据源映射关系: dorisA(meta)映射至dorisB(meta), doris1(非meta)映射至dorisA(非meta)
       4) Schema映射关系: 无
-      5) 离线配置项default.data.source.show.all.schema = true
+      5) 已设置离线配置项default.data.source.show.all.schema = true
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -509,10 +509,10 @@ cases:
     priority: P2
     precondition: |-
       1) 项目A绑定项目B为发布目标
-      2) 项目A引入dorisA(meta)和doris1(非meta), 项目B引入dorisB(meta)和dorisA(非meta)
+      2) 项目A已引入dorisA(meta)和doris1(非meta), 项目B已引入dorisB(meta)和dorisA(非meta)
       3) 数据源映射关系: dorisA(meta)映射至dorisB(meta), doris1(非meta)映射至dorisA(非meta)
       4) Schema映射关系: 无
-      5) 离线配置项default.data.source.show.all.schema = false
+      5) 已设置离线配置项default.data.source.show.all.schema = false
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -537,9 +537,9 @@ cases:
     priority: P2
     precondition: |-
       1) 项目A绑定项目B为发布目标
-      2) 项目A引入dorisA(meta)和doris1(非meta), 项目B引入dorisB(meta)和dorisA(非meta)
+      2) 项目A已引入dorisA(meta)和doris1(非meta), 项目B已引入dorisB(meta)和dorisA(非meta)
       3) 数据源映射关系: dorisA(meta)映射至dorisB(meta), doris1(非meta)映射至dorisA(非meta)
-      4) 离线配置项default.data.source.show.all.schema = false
+      4) 已设置离线配置项default.data.source.show.all.schema = false
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -567,10 +567,10 @@ cases:
     priority: P2
     precondition: |-
       1) 项目A绑定项目B为发布目标
-      2) 项目B引入meta数据源dorisA
+      2) 项目B已引入meta数据源dorisA
       3) 数据源映射关系: meta数据源dorisA映射至meta数据源dorisB, 非meta数据源doris1映射至dorisA
-      4) schema映射配置: schemaA-schemaB, schema1-schemaA, schema2-schemaA, schemaC-schemaB, schemaD未配置
-      5) 离线配置项default.data.source.show.all.schema = false
+      4) schema映射关系: schemaA-schemaB, schema1-schemaA, schema2-schemaA, schemaC-schemaB, schemaD未映射
+      5) 已设置离线配置项default.data.source.show.all.schema = false
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -598,10 +598,10 @@ cases:
     priority: P2
     precondition: |-
       1) 项目A绑定项目B为发布目标
-      2) 项目A引入dorisA(meta)和doris1(非meta), 项目B引入dorisB(meta)和dorisA(非meta)
+      2) 项目A已引入dorisA(meta)和doris1(非meta), 项目B已引入dorisB(meta)和dorisA(非meta)
       3) 数据源映射关系: dorisA(meta)映射至dorisB(meta), doris1(非meta)映射至dorisA(非meta), doris2(非meta)映射至dorisA(非meta), dorisC(非meta)映射至dorisB(meta)
-      4) schemaD、schema3未配置
-      5) 离线配置项default.data.source.show.all.schema = false
+      4) schemaD、schema3未映射
+      5) 已设置离线配置项default.data.source.show.all.schema = false
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -630,8 +630,8 @@ cases:
     title: 验证【项目管理】-【发布包管理】一键发布hive2sr任务，映射数据源相同且schema回填一致
     priority: P1
     precondition: |-
-      1) 添加离线配置项default.data.source.show.all.schema = true
-      2) 存在四个项目Project01~04, Project01引入hiveA(meta)、srA(meta), Project02引入hiveA(meta)、srA(meta), Project01(测试项目) > Project02(生产项目), Project03引入hiveA(meta)、srA(非meta), Project04引入hiveB(meta)、srB(非meta), Project03(测试项目) > Project04(生产项目)
+      1) 已设置离线配置项default.data.source.show.all.schema = true
+      2) 存在四个项目Project01~04, Project01已引入hiveA(meta)、srA(meta), Project02已引入hiveA(meta)、srA(meta), Project01(测试项目) > Project02(生产项目), Project03已引入hiveA(meta)、srA(非meta), Project04已引入hiveB(meta)、srB(非meta), Project03(测试项目) > Project04(生产项目)
       3) 数据源映射关系: hiveA(meta)映射至hiveA(meta), srA(meta)映射至srA(meta)
       4) Schema映射关系: 无
     steps:
@@ -661,8 +661,8 @@ cases:
     title: 验证【项目管理】-【发布包管理】一键发布hive2sr任务，映射数据源不同且schema校验报错
     priority: P1
     precondition: |-
-      1) 添加离线配置项default.data.source.show.all.schema = false
-      2) 存在四个项目Project01~04, Project01引入hiveA(meta)、srA(meta), Project02引入hiveA(meta)、srA(meta), Project01(测试项目) > Project02(生产项目), Project03引入hiveA(meta)、srA(非meta), Project04引入hiveB(meta)、srB(非meta), Project03(测试项目) > Project04(生产项目)
+      1) 已设置离线配置项default.data.source.show.all.schema = false
+      2) 存在四个项目Project01~04, Project01已引入hiveA(meta)、srA(meta), Project02已引入hiveA(meta)、srA(meta), Project01(测试项目) > Project02(生产项目), Project03已引入hiveA(meta)、srA(非meta), Project04已引入hiveB(meta)、srB(非meta), Project03(测试项目) > Project04(生产项目)
       3) 数据源映射关系: hiveA(meta)映射至hiveB(meta), srA(非meta)映射至srB(非meta)
       4) Schema映射关系: 无
     steps:
@@ -689,10 +689,10 @@ cases:
     priority: P0
     precondition: |-
       1) 项目A绑定项目B为发布目标
-      2) 项目A引入hiveA(meta)、srA(meta), 项目B引入hiveB(meta)、srB(非meta)
+      2) 项目A已引入hiveA(meta)、srA(meta), 项目B已引入hiveB(meta)、srB(非meta)
       3) 数据源映射关系: hiveA(meta)映射至hiveB(meta), srA(meta)映射至srB(非meta)
-      4) Schema映射关系: 配置一对一的映射关系
-      5) 添加离线配置项default.data.source.show.all.schema = true
+      4) Schema映射关系: 一对一映射关系
+      5) 已设置离线配置项default.data.source.show.all.schema = true
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -720,11 +720,11 @@ cases:
     title: 验证【项目管理】-【发布包管理】一键发布hive2sr多对一映射任务，按映射回填且运行成功
     priority: P0
     precondition: |-
-      1) 添加离线配置项default.data.source.show.all.schema = true
-      2) 存在项目Project01、Project02, Project01引入hiveA(meta)、srA(meta), Project02引入hiveA(meta)、srB(meta), Project01(测试项目) > Project02(生产项目)
+      1) 已设置离线配置项default.data.source.show.all.schema = true
+      2) 存在项目Project01、Project02, Project01已引入hiveA(meta)、srA(meta), Project02已引入hiveA(meta)、srB(meta), Project01(测试项目) > Project02(生产项目)
       3) 数据源映射关系: hiveA(meta)映射至hiveA(meta), srA(meta)映射至srB(meta)
       4) Schema映射关系(hive): schemaA-schemaB
-      5) Schema映射关系(sr): schema1-schemaA、schema2-schemaA、schemaC-schemaB, schemaD未配置
+      5) Schema映射关系(sr): schema1-schemaA、schema2-schemaA、schemaC-schemaB, schemaD未映射
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功
@@ -751,11 +751,11 @@ cases:
     priority: P0
     precondition: |-
       1) 项目A绑定项目B为发布目标
-      2) 项目A引入hiveA(meta)、srA(非meta), 项目B引入hiveB(meta)、srB(非meta)
+      2) 项目A已引入hiveA(meta)、srA(非meta), 项目B已引入hiveB(meta)、srB(非meta)
       3) 数据源映射关系: hiveA(meta)映射至hiveB(meta), srA(meta)映射至srB(非meta)
-      4) Schema映射关系(hive): schemaA > SchemaB、SchemaC > SchemaB, Schema3不配置
-      5) Schema映射关系(sr): schema1 > schemaA、schema2 > schemaA, schemaD不配置
-      6) 添加离线配置项default.data.source.show.all.schema = true
+      4) Schema映射关系(hive): schemaA > SchemaB、SchemaC > SchemaB, Schema3无映射
+      5) Schema映射关系(sr): schema1 > schemaA、schema2 > schemaA, schemaD无映射
+      6) 已设置离线配置项default.data.source.show.all.schema = true
     steps:
       - action: 进入【项目管理 → 发布包管理】页面
         expected: 进入成功

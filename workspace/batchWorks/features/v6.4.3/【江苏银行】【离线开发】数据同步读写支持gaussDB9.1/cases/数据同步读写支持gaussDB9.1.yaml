@@ -36,7 +36,9 @@ cases:
     steps:
       - action: 进入【平台管理 → 数据源中心】页面
         expected: 进入成功
-      - action: 编辑已经被任务引用的 GaussDB 数据源，修改 jdbc、高可用配置，查看离线数据同步任务中对应的 GaussDB 信息
+      - action: 编辑已经被任务引用的 GaussDB 数据源，修改 jdbc、高可用配置
+        expected: 操作完成
+      - action: 离线数据同步任务中对应的 GaussDB 信息
         expected: 离线数据同步任务中的 GaussDB 数据源信息、高可用配置同步修改
     tags:
       - 平台管理
@@ -50,7 +52,9 @@ cases:
     steps:
       - action: 进入【平台管理 → 数据源中心】页面
         expected: 进入成功
-      - action: 编辑已经引入到离线项目中的 GaussDB 数据源，修改描述、jdbc 等，查看离线中对应的 GaussDB 数据源信息
+      - action: 编辑已经引入到离线项目中的 GaussDB 数据源，修改描述、jdbc 等
+        expected: 操作完成
+      - action: 离线中对应的 GaussDB 数据源信息
         expected: 离线中的 GaussDB 数据源信息同步修改
     tags:
       - 平台管理
@@ -135,7 +139,9 @@ cases:
     steps:
       - action: 进入【数据源】页面
         expected: 进入成功
-      - action: 进入生产项目，点击 GaussDB 数据源操作列的「操作」
+      - action: 进入生产项目
+        expected: 进入成功
+      - action: GaussDB 数据源操作列的「操作」
         expected: 操作支持取消引入，无映射配置选项
     tags:
       - 数据源
@@ -2491,14 +2497,21 @@ cases:
     title: 验证【数据开发】-【周期任务】向导模式组合配置数据同步任务，运行成功且转换为脚本回显一致
     priority: P0
     precondition: |-
-      1) 资源管理已存在资源 jar 包，可用于 id 类型转换为 string 类型
-      2) 建表语句：
-         DROP TABLE IF EXISTS test_001;
-         CREATE TABLE IF NOT EXISTS test_001 (id INT, name VARCHAR(255)) PARTITIONED BY (dt STRING);
-         DROP TABLE IF EXISTS test_002;
-         CREATE TABLE IF NOT EXISTS test_002 (id INT, name VARCHAR(255));
-      3) 写入前一日和当日两个分区：
-         INSERT INTO test_001 PARTITION (dt)
+      1) 授权数据源：${DataSourceA}
+
+      2) 数据源类型：Hive
+
+      3) 存在数据库：${SchemaA}
+
+      4) 资源管理已存在资源 jar 包，可用于 id 类型转换为 string 类型
+
+      5) 建表语句：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14912_c0056_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14912_c0056_source_01 (id INT, name VARCHAR(255)) PARTITIONED BY (dt STRING);
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14912_c0056_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14912_c0056_target_01 (id INT, name VARCHAR(255));
+      6) 写入前一日和当日两个分区：
+         INSERT INTO ${SchemaA}.test_table_14912_c0056_source_01 PARTITION (dt)
          SELECT 1, 'mengfei', date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
          UNION ALL
          SELECT 2, 'kako', date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
@@ -2506,11 +2519,11 @@ cases:
          SELECT 3, 'lala', date_format(current_date(), 'yyyy-MM-dd')
          UNION ALL
          SELECT 4, 'puxi', date_format(current_date(), 'yyyy-MM-dd');
-      4) 写入前语句：
-         ALTER TABLE test_002
+      7) 写入前语句：
+         ALTER TABLE ${SchemaA}.test_table_14912_c0056_target_01
          ADD COLUMN bir INT DEFAULT 1;
-      5) 写入后语句：
-         DELETE FROM test_002
+      8) 写入后语句：
+         DELETE FROM ${SchemaA}.test_table_14912_c0056_target_01
          WHERE id = 1;
     steps:
       - action: 进入【数据开发 → 周期任务】页面
@@ -2521,17 +2534,17 @@ cases:
           选择数据来源（hive-meta 数据源）
           数据库
           schema
-          表名：test_001
+          表名：test_table_14912_c0056_source_01
           分区：dt=${bdp.system.bizdate}
           点击下一步
         expected: 进入选择目标界面
-      - action: 点击一键生成目标表，表名修改为 test_002
+      - action: 点击一键生成目标表，表名修改为 test_table_14912_c0056_target_01
         expected: 建表成功
       - action: |-
           选择数据目标（mysql-meta 数据源）
           数据库
           schema
-          表名：test_002
+          表名：test_table_14912_c0056_target_01
           presql、postsql：前置条件内的前后配置语句
           主键冲突：replace into
           点击下一步
@@ -2559,13 +2572,19 @@ cases:
     title: 验证【数据开发】-【周期任务】数据同步任务全流程创建、发布与补数据运行，发布包导入导出后任务可运行
     priority: P1
     precondition: |-
-      1) 建表语句：
-         DROP TABLE IF EXISTS test_001;
-         CREATE TABLE IF NOT EXISTS test_001 (id INT, name VARCHAR(255));
-         DROP TABLE IF EXISTS test_002;
-         CREATE TABLE IF NOT EXISTS test_002 (id INT, name VARCHAR(255));
-      2) 插入数据：
-         INSERT INTO test_001 VALUES (1, 'mengfei'), (2, 'kako');
+      1) 授权数据源：${DataSourceA}
+
+      2) 数据源类型：Hive
+
+      3) 存在数据库：${SchemaA}
+
+      4) 建表语句：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14912_c0057_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14912_c0057_source_01 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14912_c0057_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14912_c0057_target_01 (id INT, name VARCHAR(255));
+      5) 插入数据：
+         INSERT INTO ${SchemaA}.test_table_14912_c0057_source_01 VALUES (1, 'mengfei'), (2, 'kako');
     steps:
       - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
@@ -2593,14 +2612,14 @@ cases:
           选择数据来源（上述创建的 meta 数据源）
           数据库
           schema
-          表名：test_001
+          表名：test_table_14912_c0057_source_01
           点击下一步
         expected: 进入选择目标界面
       - action: |-
           选择数据目标（上述引入的数据源）
           数据库
           schema
-          表名：test_002
+          表名：test_table_14912_c0057_target_01
           点击下一步
         expected: 进入选择字段映射界面
       - action: 配置同字段映射，点击下一步
@@ -2652,7 +2671,7 @@ cases:
     priority: P0
     precondition: |-
       1) 当前项目中已经成功引入 GaussDB 数据源
-      2) 当前项目中存在新建成功的写 GaussDB 向导模式的数据同步任务
+      2) 当前项目中已存在写 GaussDB 向导模式的数据同步任务
       3) 当前项目已经成功绑定发布目标项目，且 GaussDB 数据源成功配置了映射配置（发布目标）
     steps:
       - action: 进入【数据开发 → 数据同步】页面
@@ -2683,7 +2702,7 @@ cases:
     priority: P0
     precondition: |-
       1) 当前项目中已经成功引入 GaussDB 数据源
-      2) 当前项目中存在新建成功的写 GaussDB 向导模式的数据同步任务
+      2) 当前项目中已存在写 GaussDB 向导模式的数据同步任务
       3) 当前项目已经成功绑定发布目标项目，且 GaussDB 数据源成功配置了映射配置（发布目标）
     steps:
       - action: 进入【数据开发 → 数据同步】页面
@@ -2718,7 +2737,7 @@ cases:
     priority: P1
     precondition: |-
       1) 当前项目中已经成功引入 GaussDB 数据源
-      2) 当前项目中存在新建成功的读 GaussDB 向导模式的数据同步任务（来源配置方式为自定义sql）
+      2) 当前项目中已存在读 GaussDB 向导模式的数据同步任务（来源方式为自定义sql）
       3) 当前项目已经成功绑定发布目标项目，且 GaussDB 数据源成功配置了映射配置（发布目标）
     steps:
       - action: 进入【数据开发 → 数据同步】页面
@@ -2752,9 +2771,9 @@ cases:
     priority: P1
     precondition: |-
       1) 当前项目中已经成功引入 GaussDB 数据源
-      2) 当前项目中存在新建成功的读 GaussDB 向导模式的数据同步任务
+      2) 当前项目中已存在读 GaussDB 向导模式的数据同步任务
       3) 当前项目已经成功绑定发布目标项目，且 GaussDB 数据源成功配置了映射配置（发布目标）
-      4) 存在非数据同步配置的 hive、mysql 表：test_hive_01、test_mysql_01，表内各包含五条数据
+      4) 存在非数据同步的 hive、mysql 表：test_hive_01、test_mysql_01，表内各包含五条数据
     steps:
       - action: 进入【数据开发 → 数据同步】页面
         expected: 进入成功
@@ -2786,7 +2805,7 @@ cases:
     priority: P1
     precondition: |-
       1) 当前项目中已经成功引入 GaussDB 数据源
-      2) 当前项目中存在 2 个新建成功的读 GaussDB 向导模式的数据同步任务
+      2) 当前项目中已存在 2 个读 GaussDB 向导模式的数据同步任务
       3) 当前项目已经成功绑定发布目标项目，且 GaussDB 数据源成功配置了映射配置（发布目标）
     steps:
       - action: 进入【数据开发 → 数据同步】页面
@@ -2817,7 +2836,7 @@ cases:
     priority: P1
     precondition: |-
       1) 当前项目中已经成功引入 GaussDB 数据源
-      2) 当前项目中存在新建成功的读 GaussDB 向导模式的数据同步任务（脚本模式）
+      2) 当前项目中已存在读 GaussDB 向导模式的数据同步任务（脚本模式）
       3) 当前项目已经成功绑定发布目标项目，且 GaussDB 数据源成功配置了映射配置（发布目标）
     steps:
       - action: 进入【数据开发 → 数据同步】页面

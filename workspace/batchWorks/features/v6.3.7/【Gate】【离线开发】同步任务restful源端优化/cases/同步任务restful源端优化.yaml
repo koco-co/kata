@@ -10,7 +10,7 @@ cases:
     title: 验证【数据开发】-【周期任务】新建同步任务选择 RESTful 来源，展示 Path 输入框并校验格式
     priority: P0
     precondition: |-
-      1) 周期任务支持新建数据同步任务
+      1) 周期任务创建数据同步任务入口可用
       2) 数据源中心存在 RESTful 数据源 ${DataSourceA}，支持 POST 请求
     steps:
       - action: 进入【数据开发 → 周期任务】页面
@@ -107,7 +107,7 @@ cases:
     title: 验证【数据开发】-【周期任务】新建同步任务选择 RESTful 目标，展示 Path 输入框并校验格式
     priority: P1
     precondition: |-
-      1) 周期任务支持新建数据同步任务
+      1) 周期任务创建数据同步任务入口可用
       2) 数据源中心存在 RESTful 目标数据源 ${DataSourceA}
     steps:
       - action: 进入【数据开发 → 周期任务】页面
@@ -196,7 +196,7 @@ cases:
     title: 验证【数据开发】-【手动任务】新建同步任务选择 RESTful 来源，展示 Path 输入框并校验格式
     priority: P1
     precondition: |-
-      1) 手动任务支持新建数据同步任务
+      1) 手动任务创建数据同步任务入口可用
       2) 数据源中心存在 RESTful 数据源 ${DataSourceA}
     steps:
       - action: 进入【数据开发 → 手动任务】页面
@@ -285,7 +285,7 @@ cases:
     title: 验证【数据开发】-【手动任务】新建同步任务选择 RESTful 目标，展示 Path 输入框并校验格式
     priority: P1
     precondition: |-
-      1) 手动任务支持新建数据同步任务
+      1) 手动任务创建数据同步任务入口可用
       2) 数据源中心存在 RESTful 目标数据源 ${DataSourceA}
     steps:
       - action: 进入【数据开发 → 手动任务】页面

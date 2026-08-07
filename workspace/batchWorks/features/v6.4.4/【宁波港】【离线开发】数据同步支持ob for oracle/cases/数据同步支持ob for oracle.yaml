@@ -43,7 +43,7 @@ cases:
   - 数据源中心
   - 编辑数据源
 - case_id: C0003
-  title: 验证【数据源】-【取消引入】取消被任务引用的数据源，提示无法取消且列表保留该数据源(被任务引用)
+  title: 验证【数据源】-【取消引入】取消被任务引用的数据源，提示无法取消且列表保留该数据源
   priority: P1
   precondition: |-
     1) 离线项目「${ProjectA}」已引入「${DataSourceA}」
@@ -59,7 +59,7 @@ cases:
   - 数据源
   - 取消引入
 - case_id: C0004
-  title: 验证【数据源】-【取消引入】取消未被任务引用的数据源，提示取消成功且列表不再显示该数据源(未被任务引用)
+  title: 验证【数据源】-【取消引入】取消未被任务引用的数据源，提示取消成功且列表不再显示该数据源
   priority: P1
   precondition: |-
     1) 离线项目「${ProjectA}」已引入「${DataSourceA}」
@@ -67,7 +67,9 @@ cases:
   steps:
   - action: 进入【数据源】页面
     expected: 进入成功
-  - action: 点击「${DataSourceA}」操作列的「取消引入」并点击「确定」
+  - action: 点击「${DataSourceA}」操作列的「取消引入」
+    expected: 点击成功
+  - action: 「确定」
     expected: Toast提示:「取消引入成功」,列表不再显示「${DataSourceA}」
   tags:
   - 数据源
@@ -111,7 +113,7 @@ cases:
   title: 验证【计算组件】-【项目管理】新建OBOracle组件项目，项目数据源列表新增关联组件的Meta数据源
   priority: P1
   precondition: |-
-    1) 平台组件配置中存在名称为「ob-oracle-component-15077」的 OBOracle 计算组件
+    1) 平台组件中存在名称为「ob-oracle-component-15077」的 OBOracle 计算组件
     2) 组件状态为「启用」
   steps:
   - action: 进入【平台管理 → 计算组件】页面
@@ -194,7 +196,7 @@ cases:
   - 数据源
   - 整库同步
 - case_id: C0010
-  title: 验证【数据同步任务】-【整库同步】配置MySQL到OBOracle整库同步并临时运行，任务运行成功且目标表记录数为2(非Meta目标)
+  title: 验证【数据同步任务】-【整库同步】配置MySQL到OBOracle整库同步并临时运行，任务运行成功且目标表记录数为2
   priority: P1
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -223,7 +225,7 @@ cases:
   - 任务开发
   - 整库同步
 - case_id: C0011
-  title: 验证【数据同步任务】-【整库同步】配置Hive到OBOracle整库同步并临时运行，任务运行成功且目标表记录数为2(Meta目标)
+  title: 验证【数据同步任务】-【整库同步】配置Hive到OBOracle整库同步并临时运行，任务运行成功且目标表记录数为2
   priority: P1
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -481,7 +483,7 @@ cases:
   - 任务开发
   - 自定义SQL
 - case_id: C0018
-  title: 验证【数据同步任务】-【字段映射】同步含NULL值的来源数据，目标表首行code值为NULL(OBOracle到OBOracle)
+  title: 验证【数据同步任务】-【字段映射】同步含NULL值的来源数据，目标表首行code值为NULL
   priority: P1
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -528,7 +530,7 @@ cases:
   - 字段映射
   - NULL值
 - case_id: C0019
-  title: 验证【数据同步任务】-【字段映射】同步含空串的来源数据，目标表首行code值为空字符串(OBOracle到OBOracle)
+  title: 验证【数据同步任务】-【字段映射】同步含空串的来源数据，目标表首行code值为空字符串
   priority: P1
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -575,7 +577,7 @@ cases:
   - 字段映射
   - 空字符串
 - case_id: C0020
-  title: 验证【数据同步任务】-【自定义SQL】配置切分键并运行任务，运行日志显示2个切分区间(OBOracle到OBOracle)
+  title: 验证【数据同步任务】-【自定义SQL】配置切分键并运行任务，运行日志显示2个切分区间
   priority: P1
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -601,7 +603,7 @@ cases:
        INSERT INTO ${SchemaA}.test_table_15077_c0020 (id, code, dt) VALUES (1, 'A001', current_date - interval '1 day');
        INSERT INTO ${SchemaA}.test_table_15077_c0020 (id, code, dt) VALUES (2, 'A002', current_date);
        COMMIT;
-    5) 任务并发配置为 2，目标 schema 为「${SchemaA2}」
+    5) 任务并发数为 2，目标 schema 为「${SchemaA2}」
   steps:
   - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
@@ -615,7 +617,7 @@ cases:
   - 自定义SQL
   - 切分键
 - case_id: C0021
-  title: 验证【数据同步任务】-【主键冲突】选择Insert策略并运行，任务状态为失败且日志提示主键已存在(Hive到OBOracle)
+  title: 验证【数据同步任务】-【主键冲突】选择Insert策略并运行，任务状态为失败且日志提示主键已存在
   priority: P1
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -658,7 +660,7 @@ cases:
   - 主键冲突
   - Insert
 - case_id: C0022
-  title: 验证【数据同步任务】-【主键冲突】选择Update策略并运行，目标表code更新为NEW(Hive到OBOracle)
+  title: 验证【数据同步任务】-【主键冲突】选择Update策略并运行，目标表code更新为NEW
   priority: P0
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -749,7 +751,7 @@ cases:
   - 字段映射
   - 常量字段
 - case_id: C0024
-  title: 验证【数据同步任务】-【字段映射】以常量补齐字段数量差异并运行，目标表amount值为0.00(OBOracle到Hive)
+  title: 验证【数据同步任务】-【字段映射】以常量补齐字段数量差异并运行，目标表amount值为0.00
   priority: P1
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -793,7 +795,7 @@ cases:
   - 字段映射
   - 常量字段
 - case_id: C0025
-  title: 验证【数据同步任务】-【字段映射】变更字段类型并刷新后运行，目标表amount值为10.50(Hive到OBOracle)
+  title: 验证【数据同步任务】-【字段映射】变更字段类型并刷新后运行，目标表amount值为10.50
   priority: P1
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -837,7 +839,7 @@ cases:
   - 字段映射
   - 类型转换
 - case_id: C0026
-  title: 验证【数据同步任务】-【字段映射】同名映射并运行，目标表记录数与来源表相同(OBOracle到OBOracle)
+  title: 验证【数据同步任务】-【字段映射】同名映射并运行，目标表记录数与来源表相同
   priority: P1
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -997,7 +999,7 @@ cases:
   - 字段映射
   - 任务切换
 - case_id: C0030
-  title: 验证【数据同步任务】-【通道控制】启用断点续传并在传输中停止后重新运行，目标表最终记录数为100(Hive到OBOracle)
+  title: 验证【数据同步任务】-【通道控制】启用断点续传并在传输中停止后重新运行，目标表最终记录数为100
   priority: P1
   precondition: |-
     1) 来源数据源「${DataSourceB}」中表「test_table_15077_c0030_source_01」含 100 行记录，id=1..100
@@ -1017,7 +1019,7 @@ cases:
   - 通道控制
   - 断点续传
 - case_id: C0031
-  title: 验证【数据同步任务】-【通道控制】启用脏数据管理并运行，目标表仅写入合法记录且脏数据表保存异常记录(Hive到OBOracle)
+  title: 验证【数据同步任务】-【通道控制】启用脏数据管理并运行，目标表仅写入合法记录且脏数据表保存异常记录
   priority: P1
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -1100,7 +1102,7 @@ cases:
   priority: P1
   precondition: |-
     1) 离线项目名称：「${ProjectA}」
-    2) 脚本模式任务「${TaskA}」运行配置中的 Hadoop 用户名为空
+    2) 脚本模式任务「${TaskA}」运行信息中的 Hadoop 用户名为空
   steps:
   - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
@@ -1152,7 +1154,7 @@ cases:
   - 版本管理
   - 版本对比
 - case_id: C0037
-  title: 验证【数据同步任务】-【增量模式】选择当日分区并发布运行，目标表仅新增当日分区记录(OBOracle到OBOracle)
+  title: 验证【数据同步任务】-【增量模式】选择当日分区并发布运行，目标表仅新增当日分区记录
   priority: P0
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -1194,7 +1196,7 @@ cases:
   - 增量模式
   - 分区扫描
 - case_id: C0038
-  title: 验证【数据同步任务】-【增量模式】按当日分区过滤自定义SQL并运行，目标表记录仅来自当日分区(OBOracle到OBOracle)
+  title: 验证【数据同步任务】-【增量模式】按当日分区过滤自定义SQL并运行，目标表记录仅来自当日分区
   priority: P0
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -1235,7 +1237,7 @@ cases:
   - 自定义SQL
   - 分区扫描
 - case_id: C0039
-  title: 验证【数据同步任务】-【数据开发流程】配置来源目标映射与通道控制并发布运行，任务运行成功且目标表记录数为2(Hive到OBOracle)
+  title: 验证【数据同步任务】-【数据开发流程】配置来源目标映射与通道控制并发布运行，任务运行成功且目标表记录数为2
   priority: P1
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -1279,7 +1281,7 @@ cases:
   - 任务开发
   - 数据开发流程
 - case_id: C0040
-  title: 验证【数据同步任务】-【数据开发流程】完成全流程配置并发布运行，目标表记录数为2(OBOracle到OBOracle)
+  title: 验证【数据同步任务】-【数据开发流程】完成全流程配置并发布运行，目标表记录数为2
   priority: P1
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -1315,7 +1317,7 @@ cases:
   - 任务开发
   - 数据开发流程
 - case_id: C0041
-  title: 验证【数据同步任务】-【任务发布】一键发布任务并临时运行，发布记录目标项目正确且目标表记录数为2(Hive到OBOracle)
+  title: 验证【数据同步任务】-【任务发布】一键发布任务并临时运行，发布记录目标项目正确且目标表记录数为2
   priority: P1
   precondition: |-
     1) 已保存 Hive 到 OBOracle 任务「${TaskA}」，来源表含 id=1、id=2 两行
@@ -1333,7 +1335,7 @@ cases:
   - 任务发布
   - 一键发布
 - case_id: C0042
-  title: 验证【数据同步任务】-【任务发布】发布自定义SQL任务并临时运行，任务运行成功且目标表包含SQL返回字段(OBOracle到Hive)
+  title: 验证【数据同步任务】-【任务发布】发布自定义SQL任务并临时运行，任务运行成功且目标表包含SQL返回字段
   priority: P1
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -1377,7 +1379,7 @@ cases:
   - 任务发布
   - 自定义SQL
 - case_id: C0043
-  title: 验证【数据同步任务】-【批量发布】批量发布两条多表同步任务并运行，发布记录包含2条任务且每张目标表记录数为2(OBOracle到Hive)
+  title: 验证【数据同步任务】-【批量发布】批量发布两条多表同步任务并运行，发布记录包含2条任务且每张目标表记录数为2
   priority: P1
   precondition: |-
     1) 授权数据源 A：${DataSourceA}
@@ -1433,7 +1435,7 @@ cases:
   - 任务发布
   - 批量发布
 - case_id: C0044
-  title: 验证【数据同步任务】-【批量发布】批量发布两条同步任务，发布结果列表包含2条成功记录(OBOracle到Hive)
+  title: 验证【数据同步任务】-【批量发布】批量发布两条同步任务，发布结果列表包含2条成功记录
   priority: P1
   precondition: |-
     1) 离线项目「${ProjectA}」存在任务「${TaskA}」和「${TaskB}」，来源均为「${DataSourceA}」
@@ -1441,7 +1443,9 @@ cases:
   steps:
   - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
-  - action: 勾选「${TaskA}」和「${TaskB}」并点击「批量发布」
+  - action: 勾选「${TaskA}」和「${TaskB}」
+    expected: 点击成功
+  - action: 「批量发布」
     expected: Toast提示:「发布成功」,发布结果列表包含 2 条成功记录
   tags:
   - 数据开发
@@ -1449,7 +1453,7 @@ cases:
   - 任务发布
   - 批量操作
 - case_id: C0045
-  title: 验证【数据同步任务】-【任务发布】发布脚本模式任务并临时运行，任务运行成功(OBOracle到Hive)
+  title: 验证【数据同步任务】-【任务发布】发布脚本模式任务并临时运行，任务运行成功
   priority: P2
   precondition: |-
     1) 脚本模式任务「${TaskA}」来源为「${DataSourceA}」
@@ -1467,7 +1471,7 @@ cases:
   - 脚本模式
   - 任务发布
 - case_id: C0046
-  title: 验证【数据同步任务】-【调度】启用每日调度并查看运行记录，运行记录新增1条且状态为成功(OBOracle到Hive)
+  title: 验证【数据同步任务】-【调度】启用每日调度并查看运行记录，运行记录新增1条且状态为成功
   priority: P1
   precondition: |-
     1) 任务「${TaskA}」来源为「${DataSourceA}」、目标为「${DataSourceB}」
@@ -1485,7 +1489,7 @@ cases:
   - 调度
   - 任务运行
 - case_id: C0047
-  title: 验证【数据同步任务】-【调度】启用每日调度并查看运行记录，运行记录新增1条且状态为成功(Hive到OBOracle)
+  title: 验证【数据同步任务】-【调度】启用每日调度并查看运行记录，运行记录新增1条且状态为成功
   priority: P1
   precondition: |-
     1) 任务「${TaskA}」来源为「${DataSourceB}」、目标为「${DataSourceA}」

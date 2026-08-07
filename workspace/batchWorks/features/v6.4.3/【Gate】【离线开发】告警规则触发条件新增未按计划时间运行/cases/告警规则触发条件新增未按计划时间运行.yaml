@@ -60,7 +60,9 @@ cases:
     steps:
       - action: 进入【运维中心 → 监控告警 → 告警规则】页面
         expected: 进入成功
-      - action: 编辑 RuleA，勾选「未按计划时间运行」，阈值设置为 0 小时 5 分钟并点击「确认」
+      - action: 编辑 RuleA，勾选「未按计划时间运行」，阈值设置为 0 小时 5 分钟
+        expected: 点击成功
+      - action: 「确认」
         expected: Toast提示:「修改成功」,RuleA 的触发条件展示「完成」「未按计划时间运行」
     tags: ["运维中心", "监控告警", "告警规则"]
 
@@ -72,7 +74,9 @@ cases:
     steps:
       - action: 进入【运维中心 → 监控告警 → 告警规则】页面
         expected: 进入成功
-      - action: 编辑 RuleB，取消勾选「未按计划时间运行」并点击「确认」
+      - action: 编辑 RuleB，取消勾选「未按计划时间运行」
+        expected: 点击成功
+      - action: 「确认」
         expected: Toast提示:「修改成功」,RuleB 的触发条件仅展示「完成」
     tags: ["运维中心", "监控告警", "告警规则"]
 
@@ -226,7 +230,7 @@ cases:
     title: 验证【监控告警】-【告警信息】YARN 资源队列阻塞导致任务等待提交，触发未按计划时间告警
     priority: P0
     precondition: |-
-      1) Flink on YARN 1.12 的 yarnAccepterTaskNumber 配置为 1
+      1) Flink on YARN 1.12 的 yarnAccepterTaskNumber 已配置为 1
       2) 存在Shell周期任务 TaskI、yarn_blocker_02，调度周期为5分钟且单次运行时长超过10分钟
       3) 存在日调度周期任务 TaskH，计划开始时间为 12:00
       4) 存在规则 RuleI，监控 TaskH，阈值为 0 小时 2 分钟，告警方式为钉钉、邮箱

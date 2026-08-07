@@ -8,7 +8,7 @@ meta:
     - 离线Doris3.x适配.xmind
 cases:
   - case_id: C0001
-    title: 验证【数据源】-【引入数据源】引入并筛选Doris3.x数据源，列表仅展示该类型(数据源类型)
+    title: 验证【数据源】-【引入数据源】引入并筛选Doris3.x数据源，列表仅展示该类型
     priority: P2
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -29,7 +29,7 @@ cases:
       - Doris3.x
 
   - case_id: C0002
-    title: 验证【数据源】-【整库同步】配置整库同步任务，目标端同步3行数据(Doris3.x → Other)
+    title: 验证【数据源】-【整库同步】配置Doris3.x到Other的整库同步任务，目标端同步3行数据
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -65,7 +65,7 @@ cases:
     tags:
       ["数据源", "整库同步"]
   - case_id: C0003
-    title: 验证【数据源】-【整库同步】配置整库同步任务，目标端同步3行数据(Doris2.x → Other)
+    title: 验证【数据源】-【整库同步】配置Doris2.x到Other的整库同步任务，目标端同步3行数据
     priority: P2
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -94,7 +94,7 @@ cases:
     tags:
       ["数据源", "整库同步"]
   - case_id: C0004
-    title: 验证【数据源】-【整库同步】配置整库同步任务，目标端同步3行数据(Other → Doris3.x)
+    title: 验证【数据源】-【整库同步】配置Other到Doris3.x的整库同步任务，目标端同步3行数据
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceC}
@@ -123,7 +123,7 @@ cases:
     tags:
       ["数据源", "整库同步"]
   - case_id: C0005
-    title: 验证【数据源】-【整库同步】配置整库同步任务，目标端同步3行数据(Other → Doris2.x)
+    title: 验证【数据源】-【整库同步】配置Other到Doris2.x的整库同步任务，目标端同步3行数据
     priority: P2
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -152,7 +152,7 @@ cases:
     tags:
       ["数据源", "整库同步"]
   - case_id: C0006
-    title: 验证【数据开发】-【数据同步】配置数据同步任务，目标端同步3行数据(Doris3.x → Other、session模式)
+    title: 验证【数据开发】-【数据同步】配置Doris3.x到Other的session模式数据同步任务，目标端同步3行数据
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -184,7 +184,7 @@ cases:
       - session模式
 
   - case_id: C0007
-    title: 验证【数据开发】-【数据同步】配置数据同步任务，目标端同步3行数据(Other → Doris3.x、perJob模式)
+    title: 验证【数据开发】-【数据同步】配置Other到Doris3.x的perJob模式数据同步任务，目标端同步3行数据
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceB}
@@ -216,7 +216,7 @@ cases:
       - per_job模式
 
   - case_id: C0008
-    title: 验证【数据开发】-【数据同步】导入任务配置，任务详情保留源表目标表与执行模式(导入配置)
+    title: 验证【数据开发】-【数据同步】导入任务配置，任务详情保留源表目标表与执行模式
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -248,7 +248,7 @@ cases:
       - 导入配置
 
   - case_id: C0009
-    title: 验证【平台管理】-【组件版本管理】新增Doris3.x组件版本，列表新增且状态启用(组件版本)
+    title: 验证【平台管理】-【组件版本管理】新增Doris3.x组件版本，列表新增且状态启用
     priority: P1
     precondition: |-
       1) 使用租户管理员账号进入平台管理，具备组件版本管理权限
@@ -266,7 +266,7 @@ cases:
       - Doris3.x
 
   - case_id: C0010
-    title: "验证【项目管理】-【创建项目】创建项目添加Doris3.x数据源，连接测试成功且详情展示(初始化方式: 创建)"
+    title: 验证【项目管理】-【创建项目】以创建方式创建项目并添加Doris3.x数据源，连接测试成功且详情展示
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -293,7 +293,7 @@ cases:
       - Doris3.x
 
   - case_id: C0011
-    title: "验证【项目管理】-【创建项目】创建项目对接Doris3.x数据源，项目详情展示数据源(初始化方式: 对接)"
+    title: 验证【项目管理】-【创建项目】以对接方式创建项目并对接Doris3.x数据源，项目详情展示数据源
     priority: P1
     precondition: |-
       1) 使用租户管理员账号进入项目管理，具备项目创建权限
@@ -329,7 +329,7 @@ cases:
       - 创建项目
 
   - case_id: C0013
-    title: 验证【数据开发】-【任务开发】新建Doris SQL任务，任务保存且SQL完整(新建SQL任务)
+    title: 验证【数据开发】-【任务开发】新建Doris SQL任务，任务保存且SQL完整
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -353,7 +353,7 @@ cases:
       - SQL任务
 
   - case_id: C0014
-    title: 验证【数据开发】-【任务开发】运行Doris SQL任务，结果集返回统计值(SQL执行)
+    title: 验证【数据开发】-【任务开发】运行Doris SQL任务，结果集返回统计值
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -377,7 +377,7 @@ cases:
       - SQL执行
 
   - case_id: C0015
-    title: 验证【数据开发】-【任务开发】输入错误语法运行任务，标记错误且运行失败(语法校验)
+    title: 验证【数据开发】-【任务开发】输入错误语法运行任务，标记错误且运行失败
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -388,7 +388,6 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0015 (id BIGINT, name STRING);
          INSERT INTO ${SchemaA}.test_table_14835_c0015 VALUES (1, 'A'), (2, 'B'), (3, 'C');
       5) 项目「${ProjectD}」已关联 ${DataSourceA}
-      6) SQL编辑器可创建任务「TaskC」
     steps:
       - action: 进入【数据开发 → 任务开发】页面
         expected: 进入成功
@@ -402,7 +401,7 @@ cases:
       - SQL语法
 
   - case_id: C0016
-    title: 验证【数据开发】-【任务开发】停止运行中任务，状态变为已停止且无新结果(任务停止)
+    title: 验证【数据开发】-【任务开发】停止运行中任务，状态变为已停止且无新结果
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -426,7 +425,7 @@ cases:
       - 任务停止
 
   - case_id: C0017
-    title: 验证【数据开发】-【任务开发】运行含系统函数的SQL，结果集返回函数值(系统函数)
+    title: 验证【数据开发】-【任务开发】运行含系统函数的SQL，结果集返回函数值
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -450,7 +449,7 @@ cases:
       - 系统函数
 
   - case_id: C0018
-    title: 验证【数据开发】-【任务开发】运行含自定义函数的SQL，结果集返回函数值(自定义函数)
+    title: 验证【数据开发】-【任务开发】运行含自定义函数的SQL，结果集返回函数值
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -475,7 +474,7 @@ cases:
       - 自定义函数
 
   - case_id: C0019
-    title: 验证【数据源】-【表查询】查询Doris3.x数据表，预览数据并按条件筛选记录(表查询)
+    title: 验证【数据源】-【表查询】查询Doris3.x数据表，预览数据并按条件筛选记录
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -497,7 +496,7 @@ cases:
       - 表查询
 
   - case_id: C0020
-    title: 验证【数据源】-【元数据同步】同步元数据后查看字段，列表包含新增字段(元数据同步)
+    title: 验证【数据源】-【元数据同步】同步元数据后查看字段，列表包含新增字段
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -519,7 +518,7 @@ cases:
       - 元数据同步
 
   - case_id: C0021
-    title: 验证【数据开发】-【周期任务】创建Doris SQL调度任务，执行DDL成功且建表生效(DDL语法)
+    title: 验证【数据开发】-【周期任务】创建Doris SQL调度任务，执行DDL成功且建表生效
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -545,7 +544,7 @@ cases:
       - DDL
 
   - case_id: C0022
-    title: 验证【数据开发】-【周期任务】创建Doris SQL调度任务，执行DML成功且写入数据(DML语法)
+    title: 验证【数据开发】-【周期任务】创建Doris SQL调度任务，执行DML成功且写入数据
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -570,7 +569,7 @@ cases:
       - DML
 
   - case_id: C0023
-    title: 验证【数据开发】-【周期任务】创建Doris SQL调度任务，执行DQL返回结果集(DQL语法)
+    title: 验证【数据开发】-【周期任务】创建Doris SQL调度任务，执行DQL返回结果集
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -594,7 +593,7 @@ cases:
       - DQL
 
   - case_id: C0024
-    title: 验证【项目管理】-【数据库权限】为账号绑定数据库权限，账号下拉仅展示绑定数据库(数据库权限)
+    title: 验证【项目管理】-【数据库权限】为账号绑定数据库权限，账号下拉仅展示绑定数据库
     priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -604,7 +603,7 @@ cases:
          DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0024;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0024 (id BIGINT, name STRING);
          INSERT INTO ${SchemaA}.test_table_14835_c0024 VALUES (1, 'A');
-      5) 使用租户管理员账号进入项目管理，具备项目数据库权限配置权限
+      5) 使用租户管理员账号，具备项目管理与数据库权限
       6) 项目「${ProjectD}」已关联 ${DataSourceA}
       7) 可绑定数据库为 ${SchemaA}、doris_archive
       8) 账号「UserA」已创建

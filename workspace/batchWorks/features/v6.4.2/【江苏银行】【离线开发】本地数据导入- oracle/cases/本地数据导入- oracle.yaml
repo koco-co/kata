@@ -167,7 +167,7 @@ cases:
       - 文件格式
 
   - case_id: C0009
-    title: 验证【数据开发】-【周期任务】上传 .xls 文件并切换 Sheet2 提交导入，Sheet 下拉框展示两个 Sheet 且导入成功(2 个sheet)
+    title: 验证【数据开发】-【周期任务】上传 .xls 文件并切换 Sheet2 提交导入，Sheet 下拉框展示两个 Sheet 且导入成功
     priority: P2
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
@@ -189,7 +189,7 @@ cases:
       - 多Sheet
 
   - case_id: C0010
-    title: 验证【数据开发】-【周期任务】上传 .xls 文件并提交导入，Sheet 下拉框仅展示 Sheet1 且导入成功(单个sheet)
+    title: 验证【数据开发】-【周期任务】上传 .xls 文件并提交导入，Sheet 下拉框仅展示 Sheet1 且导入成功
     priority: P2
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
@@ -210,7 +210,7 @@ cases:
       - 多Sheet
 
   - case_id: C0011
-    title: 验证【数据开发】-【周期任务】上传 .xlsx 文件并选择 Sheet1 提交导入，Sheet 下拉框展示两个 Sheet 且导入成功(2 个sheet)
+    title: 验证【数据开发】-【周期任务】上传 .xlsx 文件并选择 Sheet1 提交导入，Sheet 下拉框展示两个 Sheet 且导入成功
     priority: P0
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
@@ -232,7 +232,7 @@ cases:
       - 多Sheet
 
   - case_id: C0012
-    title: 验证【数据开发】-【周期任务】上传 .xlsx 文件并提交导入，Sheet 下拉框仅展示 Sheet1 且导入成功(单个sheet)
+    title: 验证【数据开发】-【周期任务】上传 .xlsx 文件并提交导入，Sheet 下拉框仅展示 Sheet1 且导入成功
     priority: P2
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」

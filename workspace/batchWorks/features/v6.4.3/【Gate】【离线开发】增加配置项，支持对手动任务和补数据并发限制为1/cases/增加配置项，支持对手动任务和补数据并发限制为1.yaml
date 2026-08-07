@@ -155,7 +155,7 @@ cases:
     precondition: |-
       1) 使用管理员账号进入离线开发平台
       2) 存在数据开发角色 test_user
-      3) test_user 未获得「项目管理-项目配置-编辑」权限
+      3) test_user 不具备项目管理编辑权限
     steps:
       - action: 进入【平台管理 → 角色管理】页面
         expected: 进入成功

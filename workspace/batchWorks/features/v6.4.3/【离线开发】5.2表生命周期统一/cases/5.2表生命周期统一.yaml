@@ -8,7 +8,7 @@ meta:
     - 5.2表生命周期统一.xmind
 cases:
   - case_id: C0001
-    title: 验证【数据地图】-【数据表管理】修改表生命周期，生命周期同步更新并生成审计记录(Hive表已存在于平台)
+    title: 验证【数据地图】-【数据表管理】修改表生命周期，生命周期同步更新并生成审计记录
     priority: P0
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -37,7 +37,7 @@ cases:
     tags: ["数据地图", "数据表管理"]
 
   - case_id: C0002
-    title: 验证【数据源管理】同步元数据并修改表生命周期，生命周期同步更新并生成审计记录(Hive表不存在于平台)
+    title: 验证【数据源管理】同步元数据并修改表生命周期，生命周期同步更新并生成审计记录
     priority: P2
     precondition: |-
       1) 授权数据源：${DataSourceA}
@@ -67,7 +67,7 @@ cases:
     tags: ["数据源管理"]
 
   - case_id: C0003
-    title: 验证【数据开发】-【周期任务】新建任务建表并修改生命周期，生命周期同步更新并生成审计记录(Hive表不存在)
+    title: 验证【数据开发】-【周期任务】新建任务建表并修改生命周期，生命周期同步更新并生成审计记录
     priority: P2
     precondition: |-
       1) 授权数据源：${DataSourceA}
