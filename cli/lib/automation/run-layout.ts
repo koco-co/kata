@@ -2,8 +2,8 @@ import { existsSync, lstatSync, mkdirSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { generateRunId, RUN_ID_RE, type RunType } from "../run-id.ts";
 
-const STABLE_ID_RE = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
-const EXECUTION_ID_RE = /^execution-\d{2,}$/;
+export const AUTOMATION_ID_RE = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+export const EXECUTION_ID_RE = /^execution-\d{2,}$/;
 
 interface LogicalRunIdentity {
   repoRoot: string;
@@ -17,7 +17,7 @@ interface ExecutionIdentity extends LogicalRunIdentity {
 }
 
 function assertStableId(value: string, field: "project_id" | "executor_id"): void {
-  if (!STABLE_ID_RE.test(value)) {
+  if (!AUTOMATION_ID_RE.test(value)) {
     throw new Error(`${field} 必须是小写英文 kebab 标识: ${value}`);
   }
 }
