@@ -173,6 +173,32 @@ cases:
     expect(rules).toContain("real_env_name");
   });
 
+  it("allows real environment names only in meta.automation_env", () => {
+    const parent = mkdtempSync(join(tmpdir(), "kata-fl-env-meta-"));
+    const root = join(parent, "workspace");
+    mkdirSync(join(root, "dataAssets", "features"), { recursive: true });
+    mkdirSync(join(parent, "config", "private", "environments"), { recursive: true });
+    writeFileSync(
+      join(parent, "config", "private", "environments", "ltqc-local.yaml"),
+      "base_url: https://x\n",
+    );
+    mkValidActive(
+      root,
+      `meta: { title: 需求, case_module_id: "", automation_env: ltqc-local }
+cases:
+  - case_id: C0001
+    title: 验证【数据质量】页面进入
+    priority: P1
+    precondition: 无
+    steps:
+      - action: 进入页面
+        expected: 展示正常
+`,
+    );
+    const violations = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations;
+    expect(violations.some((violation) => violation.rule === "real_env_name")).toBe(false);
+  });
+
   it("flags a declared historical import that is absent from cases/imports", () => {
     const root = ws();
     mkValidActive(

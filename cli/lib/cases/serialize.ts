@@ -24,6 +24,7 @@ export function serializeCasesYaml(input: CasesFile): string {
     ...(file.meta.l1_title ? { l1_title: file.meta.l1_title } : {}),
     ...(file.meta.requirement_id ? { requirement_id: file.meta.requirement_id } : {}),
     case_module_id: file.meta.case_module_id,
+    ...(file.meta.automation_env ? { automation_env: file.meta.automation_env } : {}),
     ...(file.meta.layout ? { layout: file.meta.layout } : {}),
     ...(file.meta.test_points_digest ? { test_points_digest: file.meta.test_points_digest } : {}),
     ...(file.meta.source ? { source: file.meta.source } : {}),
@@ -93,5 +94,19 @@ export function setCaseModuleId(yamlText: string, caseModuleId: string): string 
     throw new Error(`yaml 解析失败: ${document.errors.map((error) => error.message).join("; ")}`);
   }
   document.setIn(["meta", "case_module_id"], caseModuleId);
+  return document.toString({ lineWidth: 0 });
+}
+
+/** Rewrite only meta.automation_env while preserving the rest of the document. */
+export function setAutomationEnv(yamlText: string, automationEnv: string): string {
+  const document = parseDocument(yamlText);
+  if (document.errors.length > 0) {
+    throw new Error(`yaml 解析失败: ${document.errors.map((error) => error.message).join("; ")}`);
+  }
+  if (automationEnv) {
+    document.setIn(["meta", "automation_env"], automationEnv);
+  } else {
+    document.deleteIn(["meta", "automation_env"]);
+  }
   return document.toString({ lineWidth: 0 });
 }

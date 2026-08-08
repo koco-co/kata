@@ -2,7 +2,10 @@ import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { resolveAutomationFeature } from "../../cli/lib/automation/automation-feature-resolver.ts";
+import {
+  resolveAutomationFeature,
+  resolveAutomationRunTarget,
+} from "../../cli/lib/automation/automation-feature-resolver.ts";
 
 function scaffold(): { root: string; featureDir: string; featurePath: string } {
   const root = mkdtempSync(join(tmpdir(), "kata-automation-feature-"));
@@ -34,5 +37,12 @@ describe("automation feature resolver", () => {
     expect(() => resolveAutomationFeature("【模块】测试需求", "dataAssets", root)).toThrow(
       /完整路径/,
     );
+  });
+
+  it("resolves a real numeric requirement id to a workspace feature", () => {
+    const target = resolveAutomationRunTarget("16212");
+    expect(target.project).toBe("dataAssets");
+    expect(target.relativePath).toContain("16212");
+    expect(target.dir).toContain("features");
   });
 });

@@ -37,6 +37,26 @@ describe("parseCasesYaml", () => {
       /meta\.case_module_id/,
     );
   });
+  it("parses and normalizes an optional automation env", () => {
+    const withEnv = parseCasesYaml(
+      GOOD.replace('case_module_id: ""', 'case_module_id: ""\n  automation_env: ltqc-lindorm-dev'),
+    );
+    expect(withEnv.meta.automation_env).toBe("ltqc-lindorm-dev");
+    expect(validateCases(withEnv)).toEqual([]);
+    expect(parseCasesYaml(GOOD).meta.automation_env).toBeUndefined();
+  });
+  it("rejects invalid or non-string automation env", () => {
+    expect(() =>
+      parseCasesYaml(
+        GOOD.replace('case_module_id: ""', 'case_module_id: ""\n  automation_env: 123'),
+      ),
+    ).toThrow(/meta\.automation_env/);
+    expect(() =>
+      parseCasesYaml(
+        GOOD.replace('case_module_id: ""', 'case_module_id: ""\n  automation_env: "Bad Env"'),
+      ),
+    ).toThrow(/invalid environment name/);
+  });
   it("flags a case with no steps", () => {
     const f = parseCasesYaml(GOOD);
     f.cases.push({ id: "C0002", title: "空", priority: "P1", steps: [] });

@@ -25,6 +25,7 @@ import {
   loadCasesLintConfig,
   resolveCaseCustomer,
 } from "../lib/cases/content-lint.ts";
+import { findCasesYaml } from "../lib/cases/find.ts";
 import {
   CASE_EXPORT_FORMATS,
   type CaseExportFormat,
@@ -52,6 +53,8 @@ import { assertWritable } from "../lib/path-policy.ts";
 import { assertCaseDigestChain } from "../lib/prd.ts";
 import type { ProjectPaths } from "../lib/types.ts";
 import { locateProject, locateProjectRoot } from "../lib/workspace-locator.ts";
+
+export { findCasesYaml } from "../lib/cases/find.ts";
 
 // 写入边界:只允许写在 feature 目录内
 function featurePaths(featureDir: string): ProjectPaths {
@@ -130,20 +133,6 @@ function renderContextForFeature(featureDir: string): {
   const entry = resolveFeatureEntry(featuresDir, relativePath);
   const identity = featureIdentity(projectName, featuresDir, entry);
   return { projectName, context: { version: identity.version, featureKey: identity.featureKey } };
-}
-
-/** Locate the single canonical yaml under <featureDir>/cases. */
-export function findCasesYaml(featureDir: string): { yamlPath: string; name: string } {
-  const casesDir = join(featureDir, "cases");
-  assertFeatureNoSymlink(featureDir);
-  assertNoSymlinkPath(featureDir, casesDir, "cases");
-  if (!existsSync(casesDir)) throw new Error(`cases 目录不存在: ${casesDir}`);
-  const yamls = readdirSync(casesDir).filter((f) => f.endsWith(".yaml"));
-  if (yamls.length === 0) throw new Error(`cases/ 下没有 yaml 用例源: ${casesDir}`);
-  if (yamls.length > 1) throw new Error(`cases/ 下 yaml 不唯一: ${yamls.join(", ")}`);
-  const yamlPath = join(casesDir, yamls[0]);
-  assertNoSymlinkPath(featureDir, yamlPath, "cases YAML");
-  return { yamlPath, name: yamls[0].replace(/\.yaml$/, "") };
 }
 
 interface DerivedArtifact {
@@ -506,6 +495,7 @@ export function registerCasesBuild(cases: Command): void {
             for (const path of report.unchanged) console.log(`unchanged ${path}`);
             for (const path of report.deleted) console.log(`deleted ${path}`);
             if ((report.contentChanged?.length ?? 0) > 0) {
+              const changed = report.contentChanged ?? [];
               const projectDir = projectRootFromFeatureDir(featureDir);
               const { context } = renderContextForFeature(featureDir);
               const root = dirname(dirname(projectDir));
@@ -518,10 +508,8 @@ export function registerCasesBuild(cases: Command): void {
                   completed_at: formatTaipeiTime(),
                   case_count: file.cases.length,
                   created_count: report.created.length,
-                  updated_count: Math.max(0, report.contentChanged.length - report.created.length),
-                  artifact_paths: report.contentChanged.map((path) =>
-                    workspaceRelativePath(root, path),
-                  ),
+                  updated_count: Math.max(0, changed.length - report.created.length),
+                  artifact_paths: changed.map((path) => workspaceRelativePath(root, path)),
                   duration_ms: Date.now() - startedAt.getTime(),
                 },
                 { root },

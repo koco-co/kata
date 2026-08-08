@@ -253,7 +253,7 @@ Options:
 
 Commands:
   sql                                           校验和渲染自动化 SQL 模板；不连接数据库
-  run [options] <feature-path>                  按完整 feature 路径执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖
+  run [options] <feature-or-requirement-id>     按 feature 路径或需求 ID 执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖
   coverage <feature-dir>                        检查 cases YAML 自动化覆盖；API executor 单独报告，Playwright 校验映射、标题和实现状态
   generate-cases [options] <feature-dir>        检查缺失的 Playwright automation.spec_file；API executor 单独报告，不生成通用占位脚本
   generate [options] <feature-dir>              按 Playwright automation.spec_file 生成 runner import；忽略 API executor(默认 dry-run)
@@ -1017,13 +1017,14 @@ Commands:
 ## kata automation run
 
 ```text
-Usage: kata automation run [options] <feature-path>
+Usage: kata automation run [options] <feature-or-requirement-id>
 
-按完整 feature 路径执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖
+按 feature 路径或需求 ID 执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖
 
 Options:
-  --env <name>                  平台环境名
+  --env <name>                  平台环境名；缺省使用 meta.automation_env
   --project <name>              工作区项目名（或使用 KATA_ACTIVE_PROJECT）
+  --no-interactive              跳过 TUI 深链，强制 CLI 输出
   --type <type>                 运行类型: preflight|run|selfrun|repair|baseline
                                 (default: "run")
   --set <path=value>            临时覆盖 YAML 配置，例如 automation.cases=1-72 (default:

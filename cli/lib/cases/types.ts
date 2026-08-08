@@ -11,6 +11,8 @@ export interface CaseMeta {
   requirement_id?: string;
   /** 禅道中存放该需求用例的模块 ID；未知时显式写空字符串。 */
   case_module_id: string;
+  /** 自动化运行默认平台环境名；未知时省略。 */
+  automation_env?: string;
   /** 用例来源说明(需求文档/链接) */
   source?: string;
   /** 原始导入材料文件名,相对于 cases/imports/. */

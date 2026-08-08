@@ -87,6 +87,7 @@ interface CaseDoc {
     feature_id?: unknown;
     version?: unknown;
     test_points_digest?: unknown;
+    automation_env?: unknown;
   };
   cases?: { title?: unknown; priority?: unknown }[];
 }
@@ -120,16 +121,6 @@ function lintCaseSources(
         message: `cases/${filename} 文件名不得含【】前缀; 文件名即用例集名称`,
       });
     }
-    for (const envName of envNames) {
-      const escaped = envName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      if (new RegExp(`(^|[^\\p{L}\\p{N}_-])${escaped}([^\\p{L}\\p{N}_-]|$)`, "u").test(text)) {
-        violations.push({
-          feature,
-          rule: "real_env_name",
-          message: `cases/${filename} 出现真实环境名 "${envName}"; 环境名一律占位（\${DataSourceA} 等）`,
-        });
-      }
-    }
 
     let doc: CaseDoc;
     try {
@@ -141,6 +132,23 @@ function lintCaseSources(
         message: `cases/${filename} 不是合法 YAML: ${(error as Error).message.split("\n")[0]}; 修复源文件后重新 lint`,
       });
       continue;
+    }
+    for (const envName of envNames) {
+      const escaped = envName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      let scanText = text;
+      if (doc.meta?.automation_env === envName) {
+        scanText = scanText.replace(
+          new RegExp(`(^|\\s)automation_env:\\s*["']?${escaped}["']?`, "u"),
+          " ",
+        );
+      }
+      if (new RegExp(`(^|[^\\p{L}\\p{N}_-])${escaped}([^\\p{L}\\p{N}_-]|$)`, "u").test(scanText)) {
+        violations.push({
+          feature,
+          rule: "real_env_name",
+          message: `cases/${filename} 出现真实环境名 "${envName}"; 环境名一律占位（\${DataSourceA} 等）`,
+        });
+      }
     }
     if (doc.meta?.feature_id !== undefined) {
       violations.push({

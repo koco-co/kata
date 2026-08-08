@@ -4,6 +4,7 @@
  */
 
 import { parse } from "yaml";
+import { assertPlatformEnvName } from "../platform-env.ts";
 import { CASE_EXPORT_FORMATS, parseCaseExportName } from "./formats.ts";
 import { SPEC_FILE_RE } from "./naming.ts";
 import { normalizeStructuredText } from "./normalize.ts";
@@ -195,6 +196,12 @@ export function parseCasesYaml(yamlText: string): CasesFile {
     fail("字段 meta.case_module_id 必须是空字符串或数字字符串");
   }
   meta.case_module_id = caseModuleId;
+  if (m.automation_env !== undefined) {
+    if (typeof m.automation_env !== "string") {
+      failType("meta.automation_env", "环境文件名", m.automation_env);
+    }
+    meta.automation_env = assertPlatformEnvName(m.automation_env);
+  }
   if (m.source !== undefined) {
     if (typeof m.source !== "string") failType("meta.source", "字符串", m.source);
     if (m.source.trim()) meta.source = m.source;

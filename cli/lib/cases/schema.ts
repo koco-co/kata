@@ -20,6 +20,12 @@ export function validateCases(file: CasesFile): string[] {
     problems.push("meta.case_module_id 必须是空字符串或数字字符串");
   }
   if (
+    file.meta.automation_env !== undefined &&
+    !/^[a-z0-9][a-z0-9-]*$/.test(file.meta.automation_env)
+  ) {
+    problems.push("meta.automation_env 必须是环境文件名(小写字母/数字/连字符)");
+  }
+  if (
     file.meta.test_points_digest !== undefined &&
     !/^sha256:[a-f0-9]{64}$/.test(file.meta.test_points_digest)
   ) {
