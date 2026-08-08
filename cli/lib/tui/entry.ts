@@ -26,6 +26,21 @@ export async function tryLaunchTui(args: readonly string[]): Promise<boolean> {
       return true;
     }
   }
+  const automation = parseAutomationRunArgs(cleaned);
+  if (automation?.requirementId) {
+    const matches = locateFeaturesByRequirementId(automation.requirementId, {
+      ...(automation.project ? { project: automation.project } : {}),
+    });
+    if (matches.length > 0) {
+      const match = matches[0];
+      await startTui({
+        project: match.project,
+        relativePath: match.relativePath,
+        target: "automation",
+      });
+      return true;
+    }
+  }
   return false;
 }
 
@@ -49,6 +64,34 @@ export function parseCasesBuildArgs(
     }
     if (arg.startsWith("-")) continue;
     if (!requirementId && /^\d+$/.test(arg)) requirementId = arg;
+  }
+  return requirementId ? { requirementId, project } : undefined;
+}
+
+export function parseAutomationRunArgs(
+  args: readonly string[],
+): { requirementId?: string; project?: string } | undefined {
+  const automationIndex = args.indexOf("automation");
+  if (automationIndex < 0 || args[automationIndex + 1] !== "run") return undefined;
+  let requirementId: string | undefined;
+  let project: string | undefined;
+  for (let index = automationIndex + 2; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg === "--project") {
+      project = args[index + 1];
+      index += 1;
+      continue;
+    }
+    if (arg.startsWith("--project=")) {
+      project = arg.slice("--project=".length);
+      continue;
+    }
+    if (arg.startsWith("-")) return undefined;
+    if (!requirementId && /^\d+$/.test(arg)) {
+      requirementId = arg;
+      continue;
+    }
+    return undefined;
   }
   return requirementId ? { requirementId, project } : undefined;
 }

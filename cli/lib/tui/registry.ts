@@ -34,6 +34,16 @@ export function existingCaseModuleId(ref: FeatureRef): string {
   }
 }
 
+export function existingAutomationEnv(ref: FeatureRef): string {
+  try {
+    const { yamlPath } = findCasesYaml(ref.featureDir);
+    const file = parseCasesYaml(readFileSync(yamlPath, "utf8"));
+    return file.meta.automation_env ?? "";
+  } catch {
+    return "";
+  }
+}
+
 export function formatBuildReport(report: {
   created: string[];
   updated: string[];
