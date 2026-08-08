@@ -14,8 +14,8 @@ export function splitSqlStatements(sql: string): string[] {
   let i = 0;
 
   const pushCurrent = (): void => {
-    const trimmed = current.trim();
-    if (trimmed.length > 0) statements.push(trimmed);
+    const statement = stripLeadingComments(current);
+    if (statement.length > 0) statements.push(statement);
     current = "";
   };
 
@@ -80,6 +80,17 @@ export function splitSqlStatements(sql: string): string[] {
 
   pushCurrent();
   return statements;
+}
+
+/** Drop empty lines and leading `--`/`/* ... *&#47;` comments from a statement. */
+function stripLeadingComments(statement: string): string {
+  let rest = statement;
+  for (;;) {
+    const leading = rest.match(/^\s*(?:(--[^\n]*)|(\/\*[\s\S]*?\*\/))/);
+    if (!leading) break;
+    rest = rest.slice(leading[0].length);
+  }
+  return rest.trim();
 }
 
 export function isAlreadyExistsError(message: string): boolean {
