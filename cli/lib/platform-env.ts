@@ -25,6 +25,12 @@ import { repoRoot as defaultRepoRoot, validateProjectName } from "./workspace-lo
 export const ACTIVE_ENV_RESOLVED_ENV = "KATA_ACTIVE_ENV_RESOLVED";
 export const ACTIVE_ENV_CONFIG_ENV = "KATA_ACTIVE_ENV_CONFIG";
 
+/** Environment variable carrying versioned, non-secret platform context JSON. */
+export const AUTOMATION_PLATFORM_CONTEXT_ENV = "AUTOMATION_PLATFORM_CONTEXT";
+
+/** Environment variable carrying the platform Cookie header for one controlled child. */
+export const AUTOMATION_AUTH_COOKIE_ENV = "AUTOMATION_AUTH_COOKIE";
+
 const ENV_NAME_RE = /^[a-z0-9][a-z0-9-]*$/;
 const PLACEHOLDER = "CHANGE_ME";
 const ENV_DIR_MODE = 0o700;
@@ -188,6 +194,19 @@ export interface PlatformEnvContext {
   /** Explicit workspace project for commands that need project-scoped discovery. */
   readonly project?: string;
 }
+
+/** Dependencies used to resolve platform context for an automation executor child. */
+export interface AutomationExecutorEnvContext {
+  readonly repoRoot?: string;
+  readonly fetchImpl?: typeof fetch;
+  readonly config?: PlatformEnvConfig;
+}
+
+/** The complete environment overlay permitted for an automation executor child. */
+export type AutomationExecutorEnvOverlay = Readonly<{
+  [AUTOMATION_PLATFORM_CONTEXT_ENV]: string;
+  [AUTOMATION_AUTH_COOKIE_ENV]: string;
+}>;
 
 function rootFrom(ctx?: PlatformEnvContext): string {
   if (ctx?.repoRoot) return resolve(ctx.repoRoot);
@@ -1200,6 +1219,32 @@ function resolvedForChild(resolved: ResolvedPlatformEnv): ResolvedPlatformEnv {
     ),
   ) as PlatformAutomationConfig;
   return { ...resolved, automation };
+}
+
+function executorError(error: unknown, cookie: string): Error {
+  const message = error instanceof Error ? error.message : String(error);
+  return new Error(cookie === "" ? message : message.replaceAll(cookie, "<redacted>"));
+}
+
+/**
+ * Resolves one private platform environment into an ephemeral executor-only overlay.
+ * The returned platform context is versioned and non-secret; the Cookie header remains isolated.
+ */
+export async function resolveAutomationExecutorEnv(
+  name: string,
+  ctx?: AutomationExecutorEnvContext,
+): Promise<AutomationExecutorEnvOverlay> {
+  const normalized = assertPlatformEnvName(name);
+  const config = ctx?.config ?? readPlatformEnvConfig(normalized, ctx);
+  try {
+    const resolved = await resolvePlatformEnv(normalized, { ...ctx, config });
+    return {
+      [AUTOMATION_PLATFORM_CONTEXT_ENV]: JSON.stringify(resolvedForChild(resolved)),
+      [AUTOMATION_AUTH_COOKIE_ENV]: config.auth.cookie,
+    };
+  } catch (error) {
+    throw executorError(error, config.auth.cookie);
+  }
 }
 
 export function buildPlatformEnvChildEnv(
