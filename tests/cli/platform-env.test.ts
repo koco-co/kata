@@ -1,6 +1,16 @@
 import { describe, expect, test } from "bun:test";
 import { execFileSync } from "node:child_process";
-import { chmodSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -8,6 +18,7 @@ import {
   type PlatformEnvConfig,
   readPlatformEnvConfig,
   resolvePlatformEnv,
+  setPlatformEnvCookie,
 } from "../../cli/lib/platform-env.ts";
 
 function fetchMock(
@@ -115,6 +126,75 @@ describe("platform environment datasource inventory compatibility", () => {
       expect(listPlatformEnvs({ repoRoot: fixture.linked }).map((item) => item.name)).toEqual([
         "shared",
       ]);
+    } finally {
+      fixture.cleanup();
+    }
+  });
+
+  test("setPlatformEnvCookie writes a local override in linked worktrees", async () => {
+    const fixture = linkedEnvironmentRoot();
+    try {
+      const sharedPath = join(fixture.main, "config", "private", "environments", "shared.yaml");
+      writeFileSync(
+        sharedPath,
+        [
+          "schema_version: 2",
+          "url: https://platform.example.invalid",
+          "auth:",
+          '  cookie: "dt_tenant_name=tenant-a; sid=shared-only"',
+          "guard:",
+          "  expected_tenant: tenant-a",
+          "projects:",
+          "  quality: quality-a",
+          "datasources:",
+          "  sparkthrift:",
+          "    name: spark-a",
+          "    database: database-a",
+          "    requires_offline: false",
+          "defaults:",
+          "  datasource: sparkthrift",
+          "safety:",
+          "  allow_write: false",
+          "",
+        ].join("\n"),
+        { mode: 0o600 },
+      );
+      chmodSync(sharedPath, 0o600);
+
+      const fetchImpl = fetchMock(async (input) => {
+        const path = new URL(String(input)).pathname;
+        switch (path) {
+          case "/dassets/v1/valid/project/getProjects":
+            return response({ code: 1, data: [{ id: 92, name: "quality-a" }] });
+          case "/api/rdos/common/project/getProjects":
+            return response({ code: 1, data: [] });
+          case "/dmetadata/v1/dataSource/listMetadataDataSource":
+            return response({
+              code: 1,
+              data: [{ dataSourceId: 547, dataSourceName: "spark-a", dataSourceType: 45 }],
+            });
+          case "/dassets/v1/dataSource/pageQuery":
+            return response({
+              code: 1011,
+              data: null,
+              message:
+                "Handler dispatch failed; nested exception is java.lang.NoClassDefFoundError: com/dtstack/metadata/controller/data/DataSourceController$1",
+            });
+          default:
+            throw new Error(`unexpected test endpoint: ${path}`);
+        }
+      });
+
+      await setPlatformEnvCookie("shared", "dt_tenant_name=tenant-a; sid=local-only", {
+        repoRoot: fixture.linked,
+        fetchImpl,
+      });
+
+      const localPath = join(fixture.linked, "config", "private", "environments", "shared.yaml");
+      expect(existsSync(localPath)).toBe(true);
+      expect(readFileSync(localPath, "utf8")).toContain("sid=local-only");
+      expect(readFileSync(sharedPath, "utf8")).toContain("sid=shared-only");
+      expect(statSync(localPath).mode & 0o777).toBe(0o600);
     } finally {
       fixture.cleanup();
     }

@@ -82,7 +82,7 @@ export function registerEnv(program: Command): void {
   const cookie = env.command("cookie").description("管理环境 Cookie");
   cookie
     .command("set")
-    .description("从 stdin 读取并在线验证 Cookie，成功后原子替换")
+    .description("从 stdin 读取并在线验证 Cookie，成功后原子写入当前 worktree 本地环境")
     .argument("<name>", "环境名称")
     .requiredOption("--stdin", "必须从 stdin 读取，避免进入 shell 历史")
     .action(async (name: string) =>
