@@ -246,7 +246,7 @@ function policyGlobMatches(path: string, glob: string): boolean {
 }
 
 const CODE_PATH_RE = /\.(?:cts|mts|ts|tsx)$/;
-const FIRST_PARTY_CODE_RE = /\.(?:cts|mts|ts|tsx|js|mjs|cjs)$/;
+const FIRST_PARTY_CODE_RE = /\.(?:cts|mts|ts|tsx|js|mjs|cjs|py)$/;
 const STATIC_IMPORT_RE =
   /\b(?:import|export)\s+(?:type\s+)?(?:[^"'`;]*?\s+from\s*)?["']([^"']+)["']/g;
 const DYNAMIC_IMPORT_RE = /\b(?:import|require)\(\s*["']([^"']+)["']\s*\)/g;

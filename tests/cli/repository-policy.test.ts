@@ -105,6 +105,10 @@ source_code:
         join(root, "cli", "big.ts"),
         `${Array.from({ length: 10 }, () => "// line").join("\n")}\n`,
       );
+      writeFileSync(
+        join(root, "cli", "big.py"),
+        `${Array.from({ length: 10 }, () => "# line").join("\n")}\n`,
+      );
       writeFileSync(join(root, "cli", "small.ts"), "// ok\n");
       writeFileSync(
         join(root, "cli", "generated.ts"),
@@ -116,6 +120,7 @@ source_code:
       );
       const paths = [
         "package.json",
+        "cli/big.py",
         "cli/big.ts",
         "cli/small.ts",
         "cli/generated.ts",
@@ -123,11 +128,37 @@ source_code:
       ];
       const violations = checkRepositoryPolicy(root, paths);
       const lineViolations = violations.filter((item) => item.reason.includes("超过上限"));
-      expect(lineViolations.map((item) => item.path)).toEqual(["cli/big.ts"]);
+      expect(lineViolations.map((item) => item.path)).toEqual(["cli/big.py", "cli/big.ts"]);
       expect(lineViolations[0]?.reason).toContain("11 行超过上限 5");
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
+  });
+
+  it("registers the root Python workspace and centralized automation artifacts", () => {
+    const repoRoot = resolve(import.meta.dir, "../..");
+    const policy = parse(
+      readFileSync(join(repoRoot, "config", "policies", "repo-policy.yaml"), "utf8"),
+    ) as { root: { allowed_files: string[]; allowed_directories: string[] } };
+
+    expect(policy.root.allowed_files).toEqual(
+      expect.arrayContaining([
+        ".python-version",
+        ".pre-commit-config.yaml",
+        "pyproject.toml",
+        "uv.lock",
+      ]),
+    );
+    expect(policy.root.allowed_directories).toEqual(
+      expect.arrayContaining(["automation", "artifacts"]),
+    );
+
+    const ignored = spawnSync(
+      "git",
+      ["check-ignore", "--no-index", "--quiet", "artifacts/runs/data-assets/run-01/status.json"],
+      { cwd: repoRoot },
+    );
+    expect(ignored.status).toBe(0);
   });
 
   it("keeps business-case semantic repair rules in the shared agent authority", () => {

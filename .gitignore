@@ -5,6 +5,7 @@ package-lock.json
 .env.envs
 .env.local
 config.json
+.venv/
 # Private runtime config root: everything under config/private/ is local-only.
 # Tracked config lives in config/policies/, config/examples/ and config/automation/.
 /config/private/
@@ -20,6 +21,7 @@ config.json
 
 # Feature runtime products
 /runs/
+/artifacts/
 workspace/*/features/**/.process/
 workspace/*/features/**/runs/
 workspace/*/.state/
