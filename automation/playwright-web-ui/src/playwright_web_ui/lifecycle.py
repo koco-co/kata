@@ -6,6 +6,7 @@ import os
 import re
 import subprocess
 import sys
+from collections.abc import MutableMapping
 from dataclasses import dataclass
 from importlib import metadata
 from pathlib import Path
@@ -16,7 +17,19 @@ from rich.console import Console
 from rich.table import Table
 
 from playwright_web_ui.manifest import ExecutionManifest, ManifestError, load_execution_manifest
-from playwright_web_ui.source_policy import SourcePolicyError, validate_sync_only_sources
+from playwright_web_ui.platform_context import (
+    AUTH_COOKIE_ENV,
+    PLATFORM_CONTEXT_ENV,
+    PlatformContextError,
+    PlatformEnvironment,
+    load_platform_environment,
+)
+from playwright_web_ui.pytest_plugin import RuntimeEnvironmentBootstrap
+from playwright_web_ui.source_policy import (
+    SourcePolicyError,
+    validate_controlled_browser_sources,
+    validate_sync_only_sources,
+)
 from playwright_web_ui.suite import (
     SuiteDefinition,
     SuiteEntryPoint,
@@ -89,10 +102,12 @@ class AttemptContext:
     allure_results: Path
     evidence: Path
     business_records: Path
+    playwright_artifacts: Path
 
 
 def setup_executor(*, command_runner: CommandRunner | None = None) -> int:
     """Install the pinned Chromium runtime; repeated Playwright installs are idempotent."""
+    _remove_platform_secret_environment()
     runner = command_runner or _run_command
     arguments = (sys.executable, "-m", "playwright", "install", "chromium")
     result = runner(arguments)
@@ -110,6 +125,7 @@ def doctor_executor(
     console: Console | None = None,
 ) -> int:
     """Inspect local packages and suite registrations without browser or network access."""
+    _remove_platform_secret_environment()
     suites = _discover_suites(entries)
     _validate_sync_policy(suites)
     versions: list[tuple[str, str]] = []
@@ -145,6 +161,7 @@ def collect_execution(
     pytest_runner: PytestRunner | None = None,
 ) -> int:
     """Collect exactly the suite selected by a manifest without running fixtures."""
+    _remove_platform_secret_environment()
     context = _manifest_context(execution_manifest)
     suite = _load_suite(context.manifest.project_id, entries)
     _validate_sync_policy((suite,))
@@ -167,11 +184,16 @@ def run_execution(
 ) -> int:
     """Run one immutable attempt with explicit failure-retention settings."""
     runtime_environment = os.environ if environ is None else environ
+    platform_inputs = _capture_platform_inputs(runtime_environment)
     effective_workers = _resolve_workers(workers, runtime_environment)
     context = _manifest_context(execution_manifest)
+    attempt = _attempt_context(context, runtime_environment)
+    try:
+        platform_environment = load_platform_environment(platform_inputs)
+    except PlatformContextError as error:
+        raise LifecycleError(error.code, error.detail) from error
     suite = _load_suite(context.manifest.project_id, entries)
     _validate_sync_policy((suite,))
-    attempt = _attempt_context(context, runtime_environment)
     _prepare_attempt_outputs(attempt)
 
     arguments = [
@@ -183,7 +205,7 @@ def run_execution(
         "--allure-no-capture",
         "--show-capture=no",
         "--output",
-        str(attempt.evidence),
+        str(attempt.playwright_artifacts),
         "--tracing",
         "off",
         "--screenshot",
@@ -195,7 +217,9 @@ def run_execution(
     ]
     if effective_workers is not None:
         arguments.extend(("-n", str(effective_workers)))
-    return (pytest_runner or _run_pytest)(arguments)
+    if pytest_runner is not None:
+        return pytest_runner(arguments)
+    return _run_pytest(arguments, platform_environment=platform_environment)
 
 
 def _manifest_context(execution_manifest: str | Path) -> ManifestContext:
@@ -283,11 +307,17 @@ def _attempt_context(
         allure_results=path / "allure-results",
         evidence=path / "evidence",
         business_records=path / "business-records",
+        playwright_artifacts=path / "playwright-artifacts",
     )
 
 
 def _prepare_attempt_outputs(attempt: AttemptContext) -> None:
-    outputs = (attempt.allure_results, attempt.evidence, attempt.business_records)
+    outputs = (
+        attempt.allure_results,
+        attempt.evidence,
+        attempt.business_records,
+        attempt.playwright_artifacts,
+    )
     existing = [path for path in outputs if os.path.lexists(path)]
     if existing:
         raise LifecycleError(
@@ -348,12 +378,50 @@ def _validate_sync_policy(suites: Sequence[SuiteDefinition]) -> None:
     roots = (Path(__file__).resolve().parent, *(suite.root_path for suite in suites))
     try:
         validate_sync_only_sources(roots)
+        validate_controlled_browser_sources(tuple(suite.root_path for suite in suites))
     except SourcePolicyError as error:
         raise LifecycleError(error.code, error.detail) from error
 
 
-def _run_pytest(arguments: Sequence[str]) -> int:
-    return int(pytest.main(list(arguments)))
+def _run_pytest(
+    arguments: Sequence[str],
+    *,
+    platform_environment: PlatformEnvironment | None = None,
+) -> int:
+    addopts_was_set = "PYTEST_ADDOPTS" in os.environ
+    ambient_addopts = os.environ.pop("PYTEST_ADDOPTS", None)
+    bootstrap = None
+    plugins: list[object] | None = None
+    if platform_environment is not None:
+        bootstrap = RuntimeEnvironmentBootstrap(platform_environment)
+        plugins = [bootstrap]
+    try:
+        return int(pytest.main(list(arguments), plugins=plugins))
+    finally:
+        if bootstrap is not None:
+            bootstrap.clear()
+        if addopts_was_set and ambient_addopts is not None:
+            os.environ["PYTEST_ADDOPTS"] = ambient_addopts
+        else:
+            os.environ.pop("PYTEST_ADDOPTS", None)
+
+
+def _remove_platform_secret_environment() -> None:
+    os.environ.pop(PLATFORM_CONTEXT_ENV, None)
+    os.environ.pop(AUTH_COOKIE_ENV, None)
+
+
+def _capture_platform_inputs(environment: Mapping[str, str]) -> dict[str, str]:
+    captured = {
+        name: value
+        for name in (PLATFORM_CONTEXT_ENV, AUTH_COOKIE_ENV)
+        if (value := environment.get(name)) is not None
+    }
+    if isinstance(environment, MutableMapping):
+        environment.pop(PLATFORM_CONTEXT_ENV, None)
+        environment.pop(AUTH_COOKIE_ENV, None)
+    _remove_platform_secret_environment()
+    return captured
 
 
 def _run_command(arguments: Sequence[str]) -> int:

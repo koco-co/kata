@@ -26,6 +26,16 @@ class FakeEntryPoint:
         return self.target
 
 
+@dataclass(frozen=True, slots=True)
+class FailingEntryPoint:
+    name: str
+    value: str
+    protected_detail: str
+
+    def load(self) -> object:
+        raise RuntimeError(self.protected_detail)
+
+
 def suite_definition(root: Path, *, project_id: str = "data-assets") -> SuiteDefinition:
     tests_path = root / "tests" / "e2e"
     tests_path.mkdir(parents=True)
@@ -82,6 +92,23 @@ def test_load_suite_rejects_untyped_entry_point_target() -> None:
 
     with pytest.raises(SuiteRegistryError, match="SUITE_DEFINITION_INVALID"):
         load_suite("data-assets", entries=entries)
+
+
+def test_load_suite_does_not_echo_entry_point_exception_details() -> None:
+    protected_detail = "sid=synthetic-do-not-log"
+    entries = [
+        FailingEntryPoint(
+            name="data-assets",
+            value="suite:SUITE",
+            protected_detail=protected_detail,
+        )
+    ]
+
+    with pytest.raises(SuiteRegistryError) as captured:
+        load_suite("data-assets", entries=entries)
+
+    assert captured.value.code == "SUITE_LOAD_FAILED"
+    assert protected_detail not in str(captured.value)
 
 
 def test_load_suite_requires_existing_tests_below_suite_root(tmp_path: Path) -> None:

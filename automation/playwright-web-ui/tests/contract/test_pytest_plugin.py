@@ -10,11 +10,35 @@ from .pytest_support import (
     manifest_payload,
     prepare_attempt,
     run_runtime,
+    runtime_output_args,
     write_case,
     write_manifest,
 )
 
 _XDIST_CASE_COUNT = 2
+
+
+def _write_successful_runtime_case(pytester: pytest.Pytester) -> None:
+    pytester.makepyfile(
+        fake_page_source()
+        + """
+from playwright_web_ui import automation_case
+
+@automation_case(
+    project_id="data-assets",
+    feature_id="asset-catalog",
+    case_id="C0001",
+)
+def test_case(step, business_records):
+    with step(action="Read", expected="Visible", target="Rule list"):
+        assert True
+    business_records.record(
+        record_type="data-quality-rule",
+        record_id="rule-001",
+        readback={"name": "rule-001"},
+    )
+"""
+    )
 
 
 def test_plugin_accepts_exact_manifest_to_collection_mapping(pytester: pytest.Pytester) -> None:
@@ -65,7 +89,7 @@ def test_collect_only_validates_page_case_without_starting_browser(
     result.stdout.fnmatch_lines(["*1 test collected*"])
 
 
-def test_plugin_accepts_exact_manifest_to_collection_mapping_during_run(
+def test_plugin_rejects_execution_without_preallocated_attempt(
     pytester: pytest.Pytester,
 ) -> None:
     manifest = write_manifest(pytester, manifest_payload())
@@ -73,7 +97,8 @@ def test_plugin_accepts_exact_manifest_to_collection_mapping_during_run(
 
     result = pytester.runpytest_subprocess("--execution-manifest", str(manifest))
 
-    result.assert_outcomes(passed=1)
+    assert result.ret == pytest.ExitCode.USAGE_ERROR
+    result.stderr.fnmatch_lines(["*ATTEMPT_RUNTIME_MISSING*AUTOMATION_ATTEMPT_PATH*"])
 
 
 def test_plugin_deselects_valid_canonical_case_outside_manifest_during_collection(
@@ -107,9 +132,11 @@ def test_plugin_deselects_valid_canonical_case_outside_manifest_during_collectio
 
 def test_plugin_deselects_valid_canonical_case_outside_manifest_during_run(
     pytester: pytest.Pytester,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     manifest = write_manifest(pytester, manifest_payload())
-    write_case(pytester)
+    attempt = prepare_attempt(pytester, monkeypatch)
+    _write_successful_runtime_case(pytester)
     pytester.makepyfile(
         test_other="""
         from playwright_web_ui import automation_case
@@ -124,16 +151,18 @@ def test_plugin_deselects_valid_canonical_case_outside_manifest_during_run(
         """
     )
 
-    result = pytester.runpytest_subprocess("--execution-manifest", str(manifest))
+    result = run_runtime(pytester, manifest, attempt)
 
     result.assert_outcomes(passed=1, deselected=1)
 
 
 def test_plugin_applies_the_same_manifest_selection_on_xdist_workers(
     pytester: pytest.Pytester,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     manifest = write_manifest(pytester, manifest_payload())
-    write_case(pytester)
+    attempt = prepare_attempt(pytester, monkeypatch)
+    _write_successful_runtime_case(pytester)
     pytester.makepyfile(
         test_other="""
         from playwright_web_ui import automation_case
@@ -148,12 +177,7 @@ def test_plugin_applies_the_same_manifest_selection_on_xdist_workers(
         """
     )
 
-    result = pytester.runpytest_subprocess(
-        "--execution-manifest",
-        str(manifest),
-        "-n",
-        "2",
-    )
+    result = run_runtime(pytester, manifest, attempt, "-n", "2")
 
     result.assert_outcomes(passed=1)
     assert "2 workers [1 item]" in result.stdout.lines
@@ -306,6 +330,7 @@ def test_case(step, business_records):
         str(manifest),
         "--alluredir",
         str(attempt / "allure-results"),
+        *runtime_output_args(attempt),
     )
 
     result.assert_outcomes(passed=1)

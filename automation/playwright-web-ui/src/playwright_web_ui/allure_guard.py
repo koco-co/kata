@@ -4,8 +4,12 @@ from __future__ import annotations
 
 import uuid
 from pathlib import Path
+from typing import Protocol, cast
 
+import allure_commons
+import pytest
 from allure_commons import hookimpl
+from allure_commons.logger import AllureFileLogger
 from attrs import asdict
 
 from playwright_web_ui.artifacts import (
@@ -21,6 +25,32 @@ from playwright_web_ui.artifacts import (
 _REDACTED = "[REDACTED]"
 _REDACTED_KEY = "protected_field"
 _ATTACHMENT_LIMIT = 50 * 1024 * 1024
+
+
+class _AllurePluginManager(Protocol):
+    def register(self, plugin: object, name: str | None = None) -> str | None:
+        """Register one Allure plugin implementation."""
+        ...
+
+    def unregister(
+        self,
+        plugin: object | None = None,
+        name: str | None = None,
+    ) -> object | None:
+        """Unregister one Allure plugin implementation."""
+        ...
+
+    def get_name(self, plugin: object) -> str | None:
+        """Return the registered name for one Allure plugin."""
+        ...
+
+    def get_plugins(self) -> set[object]:
+        """Return all registered Allure plugins."""
+        ...
+
+    def is_registered(self, plugin: object) -> bool:
+        """Return whether one Allure plugin is currently registered."""
+        ...
 
 
 class AllureSecretError(RuntimeError):
@@ -172,6 +202,48 @@ class GuardedAllureFileLogger:
             write_new_atomic(self._root / file_name, content, root=self._root)
         except ArtifactPathError, OSError:
             self._guard.reject_output()
+
+
+def install_guarded_allure_logger(
+    config: pytest.Config,
+    guard: AllureSecretGuard,
+    *,
+    report_dir: str,
+) -> None:
+    """Replace the stock Allure file logger transactionally for one pytest run."""
+    manager = cast("_AllurePluginManager", allure_commons.plugin_manager)
+    stock_loggers = tuple(
+        plugin for plugin in manager.get_plugins() if isinstance(plugin, AllureFileLogger)
+    )
+    if len(stock_loggers) != 1:
+        msg = "ALLURE_GUARD_REGISTRATION_FAILED: expected one Allure file logger"
+        raise pytest.UsageError(msg)
+    stock_logger = stock_loggers[0]
+    stock_name = manager.get_name(stock_logger)
+    if stock_name is None:
+        msg = "ALLURE_GUARD_REGISTRATION_FAILED: Allure file logger is unnamed"
+        raise pytest.UsageError(msg)
+    manager.unregister(plugin=stock_logger)
+    secure_logger = GuardedAllureFileLogger(report_dir, guard=guard)
+    secure_name = f"playwright-web-ui-allure-file-logger-{id(config)}"
+    try:
+        secure_registered = manager.register(secure_logger, name=secure_name)
+    except Exception as error:
+        manager.register(stock_logger, name=stock_name)
+        msg = "ALLURE_GUARD_REGISTRATION_FAILED: reporting security guard is unavailable"
+        raise pytest.UsageError(msg) from error
+    if secure_registered is None:
+        manager.register(stock_logger, name=stock_name)
+        msg = "ALLURE_GUARD_REGISTRATION_FAILED: reporting security guard is unavailable"
+        raise pytest.UsageError(msg)
+
+    def restore_stock_logger() -> None:
+        if manager.is_registered(secure_logger):
+            manager.unregister(plugin=secure_logger)
+        if not manager.is_registered(stock_logger):
+            manager.register(stock_logger, name=stock_name)
+
+    config.add_cleanup(restore_stock_logger)
 
 
 def _include_allure_value(_attribute: object, value: object) -> bool:

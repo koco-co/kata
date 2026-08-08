@@ -190,4 +190,29 @@ describe("automation executor platform environment", () => {
     expect(message).not.toContain("never-report-this-secret");
     expect(readdirSync(root)).toEqual([]);
   });
+
+  it("rejects an invalid Cookie header before online resolution", async () => {
+    const root = fixtureRoot();
+    const secret = "dt_tenant_name=tenant-a; sid=first; sid=never-report-this-cookie-fragment";
+    let requests = 0;
+    let message = "";
+    try {
+      await resolveAutomationExecutorEnv("ci63", {
+        repoRoot: root,
+        config: config(secret),
+        fetchImpl: fetchMock(async () => {
+          requests += 1;
+          return response({ code: 1, data: [] });
+        }),
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message).toContain("AUTH_COOKIE_INVALID");
+    expect(message).not.toContain(secret);
+    expect(message).not.toContain("never-report-this-cookie-fragment");
+    expect(requests).toBe(0);
+    expect(readdirSync(root)).toEqual([]);
+  });
 });

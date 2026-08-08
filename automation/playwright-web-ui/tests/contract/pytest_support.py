@@ -7,13 +7,16 @@ import textwrap
 from base64 import b64decode
 from typing import TYPE_CHECKING
 
+from playwright_web_ui.platform_context import AUTH_COOKIE_ENV, PLATFORM_CONTEXT_ENV
+from playwright_web_ui.pytest_runtime_paths import ATTEMPT_PATH_ENV
+
 if TYPE_CHECKING:
     from pathlib import Path
 
     import pytest
     from _pytest.pytester import RunResult
 
-ATTEMPT_PATH_ENV = "AUTOMATION_ATTEMPT_PATH"
+SYNTHETIC_AUTH_COOKIE = "sid=synthetic-session-001; dt_tenant_name=synthetic-tenant"
 VALID_PNG = b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
 )
@@ -35,6 +38,34 @@ def manifest_payload() -> dict[str, object]:
                 "business_record": {"policy": "required"},
             }
         ],
+    }
+
+
+def platform_context_payload() -> dict[str, object]:
+    """Return one valid non-secret platform context for runtime tests."""
+    return {
+        "schemaVersion": 2,
+        "env": "synthetic-dev",
+        "urls": {
+            "baseUrl": "https://synthetic.example.test",
+            "assetsBaseUrl": "https://synthetic.example.test/dataAssets",
+            "offlineBaseUrl": "https://synthetic.example.test/batch",
+            "portalBaseUrl": "https://synthetic.example.test/portal",
+        },
+        "tenant": {"name": "synthetic-tenant"},
+        "projects": {"quality": {"id": 101, "name": "synthetic-quality"}},
+        "datasources": {
+            "primary": {
+                "name": "synthetic-source",
+                "metadata": {"id": 201, "name": "synthetic-metadata", "typeId": 2},
+                "assets": {"id": 202, "name": "synthetic-assets", "typeId": 3},
+                "database": "synthetic_database",
+                "schema": "synthetic_schema",
+                "requiresOffline": False,
+            }
+        },
+        "defaults": {"datasource": "primary"},
+        "safety": {"allowWrite": False},
     }
 
 
@@ -65,9 +96,11 @@ def write_case(pytester: pytest.Pytester, *, case: str = "C0001") -> None:
 def prepare_attempt(pytester: pytest.Pytester, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Preallocate the immutable attempt outputs and export their path."""
     attempt = pytester.path / "attempts" / "001"
-    for name in ("allure-results", "evidence", "business-records"):
+    for name in ("allure-results", "evidence", "business-records", "playwright-artifacts"):
         (attempt / name).mkdir(parents=True)
     monkeypatch.setenv(ATTEMPT_PATH_ENV, str(attempt))
+    monkeypatch.setenv(PLATFORM_CONTEXT_ENV, json.dumps(platform_context_payload()))
+    monkeypatch.setenv(AUTH_COOKIE_ENV, SYNTHETIC_AUTH_COOKIE)
     return attempt
 
 
@@ -85,8 +118,14 @@ def run_runtime(
         str(attempt / "allure-results"),
         "--allure-no-capture",
         "--show-capture=no",
+        *runtime_output_args(attempt),
         *extra_args,
     )
+
+
+def runtime_output_args(attempt: Path) -> tuple[str, str]:
+    """Return the only pytest-playwright output path allowed for one attempt."""
+    return "--output", str(attempt / "playwright-artifacts")
 
 
 def fake_page_source() -> str:

@@ -1,23 +1,28 @@
 from __future__ import annotations
 
+import json
 from typing import Protocol, cast
 
 import pytest
 
-from playwright_web_ui.pytest_plugin import (
-    ATTEMPT_PATH_ENV,
+from playwright_web_ui.platform_context import (
     AUTH_COOKIE_ENV,
-    pytest_testnodedown,
+    PLATFORM_CONTEXT_ENV,
 )
+from playwright_web_ui.pytest_plugin import pytest_testnodedown
+from playwright_web_ui.pytest_runtime_paths import ATTEMPT_PATH_ENV
 
 from .pytest_support import (
+    SYNTHETIC_AUTH_COOKIE,
     fake_page_source,
     manifest_payload,
+    platform_context_payload,
     prepare_attempt,
+    runtime_output_args,
     write_manifest,
 )
 
-_SYNTHETIC_COOKIE = "synthetic-cookie-value"
+_SYNTHETIC_COOKIE = "sid=synthetic-cookie-value"
 
 
 class _NodeDownHook(Protocol):
@@ -27,6 +32,14 @@ class _NodeDownHook(Protocol):
 class _CrashedNode:
     def __init__(self, config: pytest.Config) -> None:
         self.config = config
+
+
+class _DummyPlaywrightOptions:
+    @staticmethod
+    def pytest_addoption(parser: pytest.Parser) -> None:
+        group = parser.getgroup("dummy-playwright-options")
+        group.addoption("--output", default="test-results")
+        group.addoption("--tracing", default="off")
 
 
 def test_runtime_removes_auth_cookie_from_environment_before_collection(
@@ -74,6 +87,7 @@ def test_case(step, business_records):
         str(attempt / "allure-results"),
         "--allure-no-capture",
         "--show-capture=no",
+        *runtime_output_args(attempt),
     )
 
     result.assert_outcomes(passed=1)
@@ -140,6 +154,7 @@ def test_case(step, business_records):
         str(attempt / "allure-results"),
         "--allure-no-capture",
         "--show-capture=no",
+        *runtime_output_args(attempt),
         "-n",
         "2",
     )
@@ -190,6 +205,7 @@ def test_case():
         str(attempt / "allure-results"),
         "--allure-no-capture",
         "--show-capture=no",
+        *runtime_output_args(attempt),
         *runner_args,
     )
 
@@ -239,6 +255,7 @@ def test_case(step, business_records):
         str(attempt / "allure-results"),
         "--allure-no-capture",
         "--show-capture=no",
+        *runtime_output_args(attempt),
     )
 
     assert result.ret == pytest.ExitCode.TESTS_FAILED
@@ -296,11 +313,72 @@ def test_case(step, business_records):
         str(attempt / "allure-results"),
         "--allure-no-capture",
         "--show-capture=no",
+        *runtime_output_args(attempt),
     )
 
     assert result.ret == pytest.ExitCode.TESTS_FAILED
     combined_output = f"{result.stdout.str()}\n{result.stderr.str()}"
     assert "INTERNALERROR" not in combined_output
+    assert "ALLURE_SECRET_FORBIDDEN" in combined_output
+    assert _SYNTHETIC_COOKIE not in combined_output
+    for path in attempt.rglob("*"):
+        if path.is_file():
+            assert _SYNTHETIC_COOKIE.encode() not in path.read_bytes()
+
+
+def test_allure_guard_fails_breach_created_by_late_sessionfinish_hook(
+    pytester: pytest.Pytester,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest = write_manifest(pytester, manifest_payload())
+    attempt = prepare_attempt(pytester, monkeypatch)
+    monkeypatch.setenv(AUTH_COOKIE_ENV, _SYNTHETIC_COOKIE)
+    pytester.makeconftest(
+        f"""
+import allure_commons
+import pytest
+
+@pytest.hookimpl(trylast=True)
+def pytest_sessionfinish(session, exitstatus):
+    allure_commons.plugin_manager.hook.report_attached_data(
+        body="{_SYNTHETIC_COOKIE}",
+        file_name="unsafe-sessionfinish.txt",
+    )
+"""
+    )
+    pytester.makepyfile(
+        fake_page_source()
+        + """
+from playwright_web_ui import automation_case
+
+@automation_case(
+    project_id="data-assets",
+    feature_id="asset-catalog",
+    case_id="C0001",
+)
+def test_case(step, business_records):
+    with step(action="Read", expected="Visible", target="Rule list"):
+        assert True
+    business_records.record(
+        record_type="data-quality-rule",
+        record_id="rule-001",
+        readback={"name": "rule-001"},
+    )
+"""
+    )
+
+    result = pytester.runpytest_subprocess(
+        "--execution-manifest",
+        str(manifest),
+        "--alluredir",
+        str(attempt / "allure-results"),
+        "--allure-no-capture",
+        "--show-capture=no",
+        *runtime_output_args(attempt),
+    )
+
+    assert result.ret == pytest.ExitCode.TESTS_FAILED
+    combined_output = f"{result.stdout.str()}\n{result.stderr.str()}"
     assert "ALLURE_SECRET_FORBIDDEN" in combined_output
     assert _SYNTHETIC_COOKIE not in combined_output
     for path in attempt.rglob("*"):
@@ -352,6 +430,7 @@ def test_case(step, business_records):
         str(attempt / "allure-results"),
         "--allure-no-capture",
         "--show-capture=no",
+        *runtime_output_args(attempt),
     )
 
     assert result.ret == pytest.ExitCode.INTERNAL_ERROR
@@ -385,9 +464,16 @@ def test_case(step, business_records):
 
     for number in (1, 2):
         attempt = pytester.path / "attempts" / f"{number:03d}"
-        for name in ("allure-results", "evidence", "business-records"):
+        for name in (
+            "allure-results",
+            "evidence",
+            "business-records",
+            "playwright-artifacts",
+        ):
             (attempt / name).mkdir(parents=True)
         monkeypatch.setenv(ATTEMPT_PATH_ENV, str(attempt))
+        monkeypatch.setenv(PLATFORM_CONTEXT_ENV, json.dumps(platform_context_payload()))
+        monkeypatch.setenv(AUTH_COOKIE_ENV, SYNTHETIC_AUTH_COOKIE)
         result = pytester.runpytest(
             "--execution-manifest",
             str(manifest),
@@ -395,8 +481,10 @@ def test_case(step, business_records):
             str(attempt / "allure-results"),
             "--allure-no-capture",
             "--show-capture=no",
+            *runtime_output_args(attempt),
             "-p",
             "no:playwright",
+            plugins=[_DummyPlaywrightOptions()],
         )
 
         result.assert_outcomes(passed=1)
@@ -447,6 +535,7 @@ def test_case(apiKey, step, business_records):
         str(attempt / "allure-results"),
         "--allure-no-capture",
         "--show-capture=no",
+        *runtime_output_args(attempt),
         *runner_args,
     )
 
@@ -511,6 +600,7 @@ def test_case(protected_runtime_fixture, step, business_records):
         str(attempt / "allure-results"),
         "--allure-no-capture",
         "--show-capture=no",
+        *runtime_output_args(attempt),
     )
 
     assert result.ret == pytest.ExitCode.TESTS_FAILED

@@ -14,6 +14,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  assertPlatformEnvTenantCookie,
   listPlatformEnvs,
   type PlatformEnvConfig,
   readPlatformEnvConfig,
@@ -91,6 +92,48 @@ function linkedEnvironmentRoot(): { main: string; linked: string; cleanup: () =>
 }
 
 describe("platform environment datasource inventory compatibility", () => {
+  test("rejects duplicate Cookie names before tenant validation without exposing the header", () => {
+    const secret = "dt_tenant_name=tenant-a; sid=first; sid=never-report-this-cookie-fragment";
+    let message = "";
+    try {
+      assertPlatformEnvTenantCookie({ ...config(), auth: { cookie: secret } });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message).toContain("AUTH_COOKIE_INVALID");
+    expect(message).not.toContain(secret);
+    expect(message).not.toContain("never-report-this-cookie-fragment");
+  });
+
+  test("set rejects an invalid Cookie header before filesystem or network access", async () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-platform-env-invalid-cookie-"));
+    try {
+      const secret = "dt_tenant_name=tenant-a; sid=first; sid=never-report-this-cookie-fragment";
+      let requests = 0;
+      let message = "";
+      try {
+        await setPlatformEnvCookie("shared", secret, {
+          repoRoot: root,
+          fetchImpl: fetchMock(async () => {
+            requests += 1;
+            return response({ code: 1, data: [] });
+          }),
+        });
+      } catch (error) {
+        message = error instanceof Error ? error.message : String(error);
+      }
+
+      expect(message).toContain("AUTH_COOKIE_INVALID");
+      expect(message).not.toContain(secret);
+      expect(message).not.toContain("never-report-this-cookie-fragment");
+      expect(requests).toBe(0);
+      expect(existsSync(join(root, "config"))).toBe(false);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   test("reads and lists shared environments from a linked worktree", () => {
     const fixture = linkedEnvironmentRoot();
     try {
@@ -126,6 +169,50 @@ describe("platform environment datasource inventory compatibility", () => {
       expect(listPlatformEnvs({ repoRoot: fixture.linked }).map((item) => item.name)).toEqual([
         "shared",
       ]);
+    } finally {
+      fixture.cleanup();
+    }
+  });
+
+  test("rejects an invalid stored Cookie header without exposing it", () => {
+    const fixture = linkedEnvironmentRoot();
+    const secret = "dt_tenant_name=tenant-a; sid=first; sid=never-report-this-cookie-fragment";
+    try {
+      const path = join(fixture.main, "config", "private", "environments", "shared.yaml");
+      writeFileSync(
+        path,
+        [
+          "schema_version: 2",
+          "url: https://platform.example.invalid",
+          "auth:",
+          `  cookie: ${JSON.stringify(secret)}`,
+          "guard:",
+          "  expected_tenant: tenant-a",
+          "projects:",
+          "  quality: quality-a",
+          "datasources:",
+          "  sparkthrift:",
+          "    name: spark-a",
+          "    database: database-a",
+          "defaults:",
+          "  datasource: sparkthrift",
+          "safety:",
+          "  allow_write: false",
+          "",
+        ].join("\n"),
+        { mode: 0o600 },
+      );
+      chmodSync(path, 0o600);
+
+      let message = "";
+      try {
+        readPlatformEnvConfig("shared", { repoRoot: fixture.linked });
+      } catch (error) {
+        message = error instanceof Error ? error.message : String(error);
+      }
+      expect(message).toContain("AUTH_COOKIE_INVALID");
+      expect(message).not.toContain(secret);
+      expect(message).not.toContain("never-report-this-cookie-fragment");
     } finally {
       fixture.cleanup();
     }

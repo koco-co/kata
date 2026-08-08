@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass
 from io import StringIO
 from typing import TYPE_CHECKING
@@ -18,7 +19,10 @@ from playwright_web_ui.lifecycle import (
     run_execution,
     setup_executor,
 )
+from playwright_web_ui.platform_context import AUTH_COOKIE_ENV, PLATFORM_CONTEXT_ENV
 from playwright_web_ui.suite import SuiteDefinition
+
+from .test_platform_context import platform_context_payload
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -34,6 +38,23 @@ class FakeEntryPoint:
     target: object
 
     def load(self) -> object:
+        return self.target
+
+
+@dataclass(frozen=True, slots=True)
+class InspectingEntryPoint:
+    name: str
+    value: str
+    target: object
+    observed_inputs: list[tuple[str | None, str | None]]
+
+    def load(self) -> object:
+        self.observed_inputs.append(
+            (
+                os.environ.get(PLATFORM_CONTEXT_ENV),
+                os.environ.get(AUTH_COOKIE_ENV),
+            )
+        )
         return self.target
 
 
@@ -84,6 +105,16 @@ def suite_entry(tmp_path: Path) -> tuple[FakeEntryPoint, Path]:
     return FakeEntryPoint("data-assets", "suite:SUITE", definition), tests_path
 
 
+def runtime_environ(attempt: Path, **extra: str) -> dict[str, str]:
+    return {
+        ATTEMPT_PATH_ENV: str(attempt),
+        ATTEMPT_NUMBER_ENV: "1",
+        PLATFORM_CONTEXT_ENV: json.dumps(platform_context_payload()),
+        AUTH_COOKIE_ENV: "sid=synthetic-session-001; dt_tenant_name=synthetic-tenant",
+        **extra,
+    }
+
+
 def test_collect_uses_exact_suite_and_manifest_without_attempt_mutation(tmp_path: Path) -> None:
     manifest = execution_manifest(tmp_path)
     entry, tests_path = suite_entry(tmp_path)
@@ -121,6 +152,32 @@ def test_collect_reports_unknown_suite_before_pytest(tmp_path: Path) -> None:
 
     with pytest.raises(LifecycleError, match=r"SUITE_NOT_FOUND.*data-assets"):
         collect_execution(manifest, entries=[], pytest_runner=lambda _arguments: 0)
+
+
+def test_collect_removes_platform_secrets_before_loading_suite(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest = execution_manifest(tmp_path)
+    base_entry, _tests_path = suite_entry(tmp_path)
+    observed_inputs: list[tuple[str | None, str | None]] = []
+    entry = InspectingEntryPoint(
+        name=base_entry.name,
+        value=base_entry.value,
+        target=base_entry.target,
+        observed_inputs=observed_inputs,
+    )
+    monkeypatch.setenv(PLATFORM_CONTEXT_ENV, "synthetic-context-secret")
+    monkeypatch.setenv(AUTH_COOKIE_ENV, "sid=synthetic-cookie-secret")
+
+    result = collect_execution(
+        manifest,
+        entries=[entry],
+        pytest_runner=lambda _arguments: 0,
+    )
+
+    assert result == 0
+    assert observed_inputs == [(None, None)]
 
 
 def test_collect_rejects_async_suite_source_before_pytest(tmp_path: Path) -> None:
@@ -187,7 +244,7 @@ def test_run_disables_unsafe_trace_and_configures_failure_evidence(
         manifest,
         workers=2,
         entries=[entry],
-        environ={ATTEMPT_PATH_ENV: str(attempt), ATTEMPT_NUMBER_ENV: "1"},
+        environ=runtime_environ(attempt),
         pytest_runner=run_pytest,
     )
 
@@ -202,7 +259,7 @@ def test_run_disables_unsafe_trace_and_configures_failure_evidence(
             "--allure-no-capture",
             "--show-capture=no",
             "--output",
-            str(attempt / "evidence"),
+            str(attempt / "playwright-artifacts"),
             "--tracing",
             "off",
             "--screenshot",
@@ -218,6 +275,103 @@ def test_run_disables_unsafe_trace_and_configures_failure_evidence(
     assert (attempt / "allure-results").is_dir()
     assert (attempt / "evidence").is_dir()
     assert (attempt / "business-records").is_dir()
+    assert (attempt / "playwright-artifacts").is_dir()
+
+
+def test_run_consumes_platform_secrets_before_loading_suite_entry_point(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest = execution_manifest(tmp_path)
+    base_entry, _tests_path = suite_entry(tmp_path)
+    attempt = manifest.parent / "attempts" / "001"
+    attempt.mkdir(parents=True)
+    for name, value in runtime_environ(attempt).items():
+        monkeypatch.setenv(name, value)
+    observed_inputs: list[tuple[str | None, str | None]] = []
+    entry = InspectingEntryPoint(
+        name=base_entry.name,
+        value=base_entry.value,
+        target=base_entry.target,
+        observed_inputs=observed_inputs,
+    )
+
+    result = run_execution(
+        manifest,
+        entries=[entry],
+        environ=os.environ,
+        pytest_runner=lambda _arguments: 0,
+    )
+
+    assert result == 0
+    assert observed_inputs == [(None, None)]
+    assert PLATFORM_CONTEXT_ENV not in os.environ
+    assert AUTH_COOKIE_ENV not in os.environ
+
+
+def test_run_removes_platform_secrets_before_manifest_validation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv(PLATFORM_CONTEXT_ENV, "synthetic-context-secret")
+    monkeypatch.setenv(AUTH_COOKIE_ENV, "sid=synthetic-cookie-secret")
+
+    with pytest.raises(LifecycleError, match="MANIFEST_PATH_INVALID"):
+        run_execution(tmp_path / "not-canonical.json", environ=os.environ)
+
+    assert PLATFORM_CONTEXT_ENV not in os.environ
+    assert AUTH_COOKIE_ENV not in os.environ
+
+
+def test_run_removes_invalid_cookie_before_reporting_validation_error(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest = execution_manifest(tmp_path)
+    attempt = manifest.parent / "attempts" / "001"
+    attempt.mkdir(parents=True)
+    runtime = runtime_environ(attempt)
+    runtime[AUTH_COOKIE_ENV] = "sid=first; sid=synthetic-duplicate-secret"
+    for name, value in runtime.items():
+        monkeypatch.setenv(name, value)
+
+    with pytest.raises(LifecycleError, match="AUTH_COOKIE_INVALID"):
+        run_execution(manifest, environ=os.environ)
+
+    assert PLATFORM_CONTEXT_ENV not in os.environ
+    assert AUTH_COOKIE_ENV not in os.environ
+
+
+def test_run_isolates_pytest_from_ambient_addopts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest = execution_manifest(tmp_path)
+    entry, _tests_path = suite_entry(tmp_path)
+    attempt = manifest.parent / "attempts" / "001"
+    attempt.mkdir(parents=True)
+    monkeypatch.setenv("PYTEST_ADDOPTS", "--collect-only")
+
+    def fake_pytest_main(
+        _arguments: Sequence[str],
+        *,
+        plugins: list[object] | None = None,
+    ) -> int:
+        assert "PYTEST_ADDOPTS" not in os.environ
+        assert plugins is not None
+        assert len(plugins) == 1
+        return 0
+
+    monkeypatch.setattr("playwright_web_ui.lifecycle.pytest.main", fake_pytest_main)
+
+    result = run_execution(
+        manifest,
+        entries=[entry],
+        environ=runtime_environ(attempt),
+    )
+
+    assert result == 0
+    assert os.environ["PYTEST_ADDOPTS"] == "--collect-only"
 
 
 def test_run_reads_workers_from_ephemeral_environment_when_argument_is_absent(
@@ -236,11 +390,7 @@ def test_run_reads_workers_from_ephemeral_environment_when_argument_is_absent(
     result = run_execution(
         manifest,
         entries=[entry],
-        environ={
-            ATTEMPT_PATH_ENV: str(attempt),
-            ATTEMPT_NUMBER_ENV: "1",
-            WORKERS_ENV: "3",
-        },
+        environ=runtime_environ(attempt, **{WORKERS_ENV: "3"}),
         pytest_runner=run_pytest,
     )
 
@@ -263,11 +413,7 @@ def test_run_explicit_workers_override_environment_value(tmp_path: Path) -> None
         manifest,
         workers=2,
         entries=[entry],
-        environ={
-            ATTEMPT_PATH_ENV: str(attempt),
-            ATTEMPT_NUMBER_ENV: "1",
-            WORKERS_ENV: "not-valid",
-        },
+        environ=runtime_environ(attempt, **{WORKERS_ENV: "not-valid"}),
         pytest_runner=run_pytest,
     )
 
@@ -306,7 +452,7 @@ def test_run_rejects_invalid_worker_count(tmp_path: Path, workers: int) -> None:
             manifest,
             workers=workers,
             entries=[entry],
-            environ={ATTEMPT_PATH_ENV: str(attempt), ATTEMPT_NUMBER_ENV: "1"},
+            environ=runtime_environ(attempt),
             pytest_runner=lambda _arguments: 0,
         )
 
@@ -321,9 +467,39 @@ def test_run_refuses_to_reuse_an_attempt_artifact_directory(tmp_path: Path) -> N
         run_execution(
             manifest,
             entries=[entry],
-            environ={ATTEMPT_PATH_ENV: str(attempt), ATTEMPT_NUMBER_ENV: "1"},
+            environ=runtime_environ(attempt),
             pytest_runner=lambda _arguments: 0,
         )
+
+
+@pytest.mark.parametrize(
+    ("missing", "code"),
+    [
+        (PLATFORM_CONTEXT_ENV, "PLATFORM_CONTEXT_ENV_MISSING"),
+        (AUTH_COOKIE_ENV, "AUTH_COOKIE_ENV_MISSING"),
+    ],
+)
+def test_run_rejects_missing_platform_input_before_creating_outputs(
+    tmp_path: Path,
+    missing: str,
+    code: str,
+) -> None:
+    manifest = execution_manifest(tmp_path)
+    entry, _tests_path = suite_entry(tmp_path)
+    attempt = manifest.parent / "attempts" / "001"
+    attempt.mkdir(parents=True)
+    environ = runtime_environ(attempt)
+    del environ[missing]
+
+    with pytest.raises(LifecycleError, match=code):
+        run_execution(
+            manifest,
+            entries=[entry],
+            environ=environ,
+            pytest_runner=lambda _arguments: 0,
+        )
+
+    assert list(attempt.iterdir()) == []
 
 
 def test_setup_invokes_idempotent_chromium_install_with_current_python() -> None:

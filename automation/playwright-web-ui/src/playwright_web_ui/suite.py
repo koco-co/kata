@@ -120,7 +120,7 @@ def _load_definition(entry: SuiteEntryPoint) -> SuiteDefinition:
     try:
         target = entry.load()
     except Exception as error:
-        msg = f"cannot load {entry.name} from {entry.value}: {error}"
+        msg = f"cannot load registered suite {entry.name} from {entry.value}"
         raise SuiteRegistryError(_SUITE_LOAD_FAILED, msg) from error
     if not isinstance(target, SuiteDefinition):
         target_type = f"{type(target).__module__}.{type(target).__qualname__}"

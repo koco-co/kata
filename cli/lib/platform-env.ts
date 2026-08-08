@@ -19,6 +19,7 @@ import {
   privateFileRepoRoot,
   privateInstanceFiles,
 } from "./config-paths.ts";
+import { parseCookieHeader } from "./cookie-header.ts";
 import { assertNoSymlinkPath } from "./features-layout.ts";
 import { repoRoot as defaultRepoRoot, validateProjectName } from "./workspace-locator.ts";
 
@@ -535,9 +536,7 @@ function parseConfigText(text: string, path: string): PlatformEnvConfig {
   exactKeys(defaults, ["datasource"], "defaults");
   exactKeys(safety, ["allow_write"], "safety");
   if (typeof auth.cookie !== "string") throw new Error("auth.cookie must be a string");
-  if (auth.cookie.includes("\n") || auth.cookie.includes("\r")) {
-    throw new Error("auth.cookie must be a single-line Cookie header");
-  }
+  if (auth.cookie !== "") parseCookieHeader(auth.cookie);
   if (typeof safety.allow_write !== "boolean")
     throw new Error("safety.allow_write must be boolean");
 
@@ -573,7 +572,7 @@ function parseConfigText(text: string, path: string): PlatformEnvConfig {
   return {
     schema_version: 2,
     url: normalizeRootUrl(top.url),
-    auth: { cookie: auth.cookie.trim() },
+    auth: { cookie: auth.cookie },
     guard: { expected_tenant: requiredString(guard.expected_tenant, "guard.expected_tenant") },
     projects: {
       quality: requiredString(projects.quality, "projects.quality"),
@@ -682,19 +681,7 @@ export function showPlatformEnv(name: string, ctx?: PlatformEnvContext): Record<
 }
 
 function cookieMap(cookie: string): Map<string, string> {
-  const out = new Map<string, string>();
-  for (const item of cookie.split(";")) {
-    const separator = item.indexOf("=");
-    if (separator <= 0) continue;
-    const key = item.slice(0, separator).trim();
-    const raw = item.slice(separator + 1).trim();
-    try {
-      out.set(key, decodeURIComponent(raw));
-    } catch {
-      out.set(key, raw);
-    }
-  }
-  return out;
+  return new Map(parseCookieHeader(cookie).map(({ name, value }) => [name, value]));
 }
 
 function numberFromCookie(cookies: Map<string, string>, key: string): number | undefined {
@@ -1181,11 +1168,8 @@ export async function setPlatformEnvCookie(
 }
 
 function normalizeCookieInput(cookie: string): string {
-  const cleanCookie = cookie.trim();
-  if (!cleanCookie || cleanCookie.includes("\n") || cleanCookie.includes("\r")) {
-    throw new Error("stdin must contain one non-empty Cookie header line");
-  }
-  return cleanCookie;
+  parseCookieHeader(cookie);
+  return cookie;
 }
 
 function selectPlatformEnvChildBaseEnv(
