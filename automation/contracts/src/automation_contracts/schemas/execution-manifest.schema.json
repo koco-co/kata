@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://koco.co/schemas/automation/execution-manifest.schema.json",
+  "title": "Immutable automation execution manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "logical_run_id",
+    "execution_id",
+    "project_id",
+    "executor_id",
+    "cases"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "logical_run_id": {
+      "type": "string",
+      "pattern": "^[0-9]{8}-[0-9]{4}-(?:preflight|run|selfrun|repair|baseline)-[0-9]{2,}$"
+    },
+    "execution_id": {
+      "type": "string",
+      "pattern": "^execution-[0-9]{2,}$"
+    },
+    "project_id": {
+      "$ref": "#/$defs/kebab_id"
+    },
+    "executor_id": {
+      "$ref": "#/$defs/kebab_id"
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/case"
+      }
+    }
+  },
+  "$defs": {
+    "kebab_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["feature_id", "case_id", "title", "business_record"],
+      "properties": {
+        "feature_id": {
+          "$ref": "#/$defs/kebab_id"
+        },
+        "case_id": {
+          "type": "string",
+          "pattern": "^C[0-9]{4}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "business_record": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["policy"],
+              "properties": {
+                "policy": {
+                  "const": "required"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["policy", "reason"],
+              "properties": {
+                "policy": {
+                  "const": "not_applicable"
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

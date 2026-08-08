@@ -1,0 +1,22 @@
+[project]
+name = "playwright-web-ui"
+version = "0.1.0"
+description = "Pytest-native synchronous Playwright Web UI executor."
+requires-python = ">=3.14,<3.15"
+dependencies = [
+  "allure-pytest>=2.16.0",
+  "automation-contracts",
+  "jsonschema>=4.25.1",
+  "playwright>=1.62.0",
+  "pytest>=9.1.1",
+  "pytest-playwright>=0.8.0",
+  "pytest-xdist>=3.8.0",
+  "rich>=14.1.0",
+]
+
+[project.entry-points.pytest11]
+playwright_web_ui = "playwright_web_ui.pytest_plugin"
+
+[build-system]
+requires = ["uv_build>=0.11.28,<0.12.0"]
+build-backend = "uv_build"
