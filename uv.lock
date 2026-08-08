@@ -325,6 +325,7 @@ version = "0.1.0"
 source = { editable = "automation/playwright-web-ui" }
 dependencies = [
     { name = "allure-pytest" },
+    { name = "attrs" },
     { name = "automation-contracts" },
     { name = "jsonschema" },
     { name = "playwright" },
@@ -337,6 +338,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "allure-pytest", specifier = ">=2.16.0" },
+    { name = "attrs", specifier = ">=26.1.0" },
     { name = "automation-contracts", editable = "automation/contracts" },
     { name = "jsonschema", specifier = ">=4.25.1" },
     { name = "playwright", specifier = ">=1.62.0" },

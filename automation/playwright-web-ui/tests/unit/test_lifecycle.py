@@ -123,6 +123,25 @@ def test_collect_reports_unknown_suite_before_pytest(tmp_path: Path) -> None:
         collect_execution(manifest, entries=[], pytest_runner=lambda _arguments: 0)
 
 
+def test_collect_rejects_async_suite_source_before_pytest(tmp_path: Path) -> None:
+    manifest = execution_manifest(tmp_path)
+    entry, tests_path = suite_entry(tmp_path)
+    async_source = tests_path.parent.parent / "src" / "invalid.py"
+    async_source.parent.mkdir()
+    async_source.write_text("from playwright.async_api import Page\n", encoding="utf-8")
+    called = False
+
+    def run_pytest(_arguments: Sequence[str]) -> int:
+        nonlocal called
+        called = True
+        return 0
+
+    with pytest.raises(LifecycleError, match="SYNC_API_ONLY"):
+        collect_execution(manifest, entries=[entry], pytest_runner=run_pytest)
+
+    assert not called
+
+
 def test_run_requires_attempt_environment(tmp_path: Path) -> None:
     manifest = execution_manifest(tmp_path)
     entry, _tests_path = suite_entry(tmp_path)
@@ -151,7 +170,7 @@ def test_run_rejects_attempt_path_outside_execution(tmp_path: Path) -> None:
         )
 
 
-def test_run_configures_failure_retention_allure_evidence_and_explicit_workers(
+def test_run_disables_unsafe_trace_and_configures_failure_evidence(
     tmp_path: Path,
 ) -> None:
     manifest = execution_manifest(tmp_path)
@@ -180,10 +199,12 @@ def test_run_configures_failure_retention_allure_evidence_and_explicit_workers(
             str(manifest),
             "--alluredir",
             str(attempt / "allure-results"),
+            "--allure-no-capture",
+            "--show-capture=no",
             "--output",
             str(attempt / "evidence"),
             "--tracing",
-            "retain-on-failure",
+            "off",
             "--screenshot",
             "only-on-failure",
             "--video",

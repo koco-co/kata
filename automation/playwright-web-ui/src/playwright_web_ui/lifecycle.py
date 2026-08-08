@@ -16,6 +16,7 @@ from rich.console import Console
 from rich.table import Table
 
 from playwright_web_ui.manifest import ExecutionManifest, ManifestError, load_execution_manifest
+from playwright_web_ui.source_policy import SourcePolicyError, validate_sync_only_sources
 from playwright_web_ui.suite import (
     SuiteDefinition,
     SuiteEntryPoint,
@@ -110,6 +111,7 @@ def doctor_executor(
 ) -> int:
     """Inspect local packages and suite registrations without browser or network access."""
     suites = _discover_suites(entries)
+    _validate_sync_policy(suites)
     versions: list[tuple[str, str]] = []
     for distribution in _RUNTIME_DISTRIBUTIONS:
         try:
@@ -145,6 +147,7 @@ def collect_execution(
     """Collect exactly the suite selected by a manifest without running fixtures."""
     context = _manifest_context(execution_manifest)
     suite = _load_suite(context.manifest.project_id, entries)
+    _validate_sync_policy((suite,))
     arguments = (
         str(suite.tests_path),
         "--collect-only",
@@ -167,6 +170,7 @@ def run_execution(
     effective_workers = _resolve_workers(workers, runtime_environment)
     context = _manifest_context(execution_manifest)
     suite = _load_suite(context.manifest.project_id, entries)
+    _validate_sync_policy((suite,))
     attempt = _attempt_context(context, runtime_environment)
     _prepare_attempt_outputs(attempt)
 
@@ -176,10 +180,12 @@ def run_execution(
         str(context.path),
         "--alluredir",
         str(attempt.allure_results),
+        "--allure-no-capture",
+        "--show-capture=no",
         "--output",
         str(attempt.evidence),
         "--tracing",
-        "retain-on-failure",
+        "off",
         "--screenshot",
         "only-on-failure",
         "--video",
@@ -335,6 +341,14 @@ def _discover_suites(
     try:
         return discover_suites(entries=entries)
     except SuiteRegistryError as error:
+        raise LifecycleError(error.code, error.detail) from error
+
+
+def _validate_sync_policy(suites: Sequence[SuiteDefinition]) -> None:
+    roots = (Path(__file__).resolve().parent, *(suite.root_path for suite in suites))
+    try:
+        validate_sync_only_sources(roots)
+    except SourcePolicyError as error:
         raise LifecycleError(error.code, error.detail) from error
 
 
