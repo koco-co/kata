@@ -326,7 +326,7 @@ cases:
     expect(canonicalRules).not.toContain("case_precondition_semicolon");
   });
 
-  it("flags case ids that do not follow YAML order before build", () => {
+  it("accepts stable case ids after canonical YAML order changes", () => {
     const root = ws();
     mkValidActive(
       root,
@@ -347,12 +347,11 @@ cases:
 `,
     );
     const violations = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations;
-    const orderViolations = violations.filter(
-      (violation) =>
-        violation.rule === "case_validate" && violation.message.includes("必须按 YAML 顺序使用"),
-    );
-    expect(orderViolations.length).toBeGreaterThan(0);
-    expect(orderViolations.some((violation) => violation.case_id === "C0002")).toBe(true);
+    expect(
+      violations.filter(
+        (violation) => violation.rule === "case_validate" && violation.case_id !== undefined,
+      ),
+    ).toEqual([]);
   });
 
   it("flags concrete schema names instead of SchemaX placeholders", () => {

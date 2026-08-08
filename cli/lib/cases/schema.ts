@@ -4,7 +4,7 @@
  */
 
 import { parseCaseExportName } from "./formats.ts";
-import { CASE_ID_RE, caseIdForIndex, SPEC_FILE_RE } from "./naming.ts";
+import { CASE_ID_RE, SPEC_FILE_RE } from "./naming.ts";
 import { type CasesFile, PRIORITIES } from "./types.ts";
 
 /** Validate a parsed cases file; returns human-readable problem list. */
@@ -88,11 +88,9 @@ export function validateCases(file: CasesFile): string[] {
     return problems;
   }
   const seen = new Set<string>();
-  for (const [index, c] of file.cases.entries()) {
+  for (const c of file.cases) {
     if (!CASE_ID_RE.test(c.id)) problems.push(`用例 ${c.id || "(空)"} case_id 必须匹配 C0001 格式`);
-    else if (c.id !== caseIdForIndex(index)) {
-      problems.push(`用例 ${c.id} 必须按 YAML 顺序使用 ${caseIdForIndex(index)}`);
-    } else if (seen.has(c.id)) problems.push(`用例 id 重复: ${c.id}`);
+    else if (seen.has(c.id)) problems.push(`用例 id 重复: ${c.id}`);
     else seen.add(c.id);
     if (!c.title?.trim()) problems.push(`用例 ${c.id} 标题为空`);
     if (!PRIORITIES.includes(c.priority)) problems.push(`用例 ${c.id} 优先级非法: ${c.priority}`);

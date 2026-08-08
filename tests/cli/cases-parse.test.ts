@@ -62,6 +62,24 @@ describe("parseCasesYaml", () => {
     f.cases.push({ id: "C0002", title: "空", priority: "P1", steps: [] });
     expect(validateCases(f).length).toBeGreaterThan(0);
   });
+  it("keeps case IDs stable when canonical cases are reordered", () => {
+    const file = parseCasesYaml(GOOD);
+    const original = file.cases[0];
+    file.cases = [
+      {
+        id: "C0042",
+        title: "验证后新增的稳定用例身份",
+        priority: "P1",
+        steps: [{ action: "执行操作", expected: "结果正确" }],
+      },
+      original,
+    ];
+
+    expect(validateCases(file)).toEqual([]);
+
+    file.cases.push({ ...original });
+    expect(validateCases(file)).toContain("用例 id 重复: C0001");
+  });
   it("rejects bad priority", () => {
     const bad = GOOD.replace("P0", "P9");
     expect(() => parseCasesYaml(bad)).toThrow();
