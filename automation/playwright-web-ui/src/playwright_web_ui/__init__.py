@@ -9,6 +9,7 @@ from playwright_web_ui.manifest import (
     ManifestError,
     load_execution_manifest,
 )
+from playwright_web_ui.suite import SuiteDefinition, SuiteRegistryError
 
 __all__ = [
     "AutomationCase",
@@ -16,6 +17,8 @@ __all__ = [
     "CaseKey",
     "ExecutionManifest",
     "ManifestError",
+    "SuiteDefinition",
+    "SuiteRegistryError",
     "automation_case",
     "load_execution_manifest",
 ]

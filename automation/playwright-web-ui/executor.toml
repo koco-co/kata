@@ -1,0 +1,30 @@
+schema_version = 1
+id = "playwright-web-ui"
+engine = "playwright"
+surface = "web-ui"
+
+[runtime]
+kind = "python"
+cwd = "../.."
+
+[runtime.env]
+PYTHONUNBUFFERED = "1"
+
+[commands.setup]
+argv = ["uv", "run", "--locked", "--all-packages", "--all-groups", "python", "-m", "playwright_web_ui", "setup"]
+
+[commands.doctor]
+argv = ["uv", "run", "--locked", "--no-sync", "python", "-m", "playwright_web_ui", "doctor"]
+
+[commands.collect]
+argv = ["uv", "run", "--locked", "--no-sync", "python", "-m", "playwright_web_ui", "collect", "--execution-manifest", "{execution_manifest}"]
+
+[commands.run]
+argv = ["uv", "run", "--locked", "--no-sync", "python", "-m", "playwright_web_ui", "run", "--execution-manifest", "{execution_manifest}"]
+
+[capabilities]
+requires = ["python-3.14", "chromium"]
+provides = ["exact-collection", "pytest-xdist", "allure-results", "failure-evidence"]
+
+[agent]
+guide = "agent/guide.md"

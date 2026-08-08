@@ -108,6 +108,111 @@ def test_plugin_accepts_exact_manifest_to_collection_mapping_during_run(
     result.assert_outcomes(passed=1)
 
 
+def test_plugin_deselects_valid_canonical_case_outside_manifest_during_collection(
+    pytester: pytest.Pytester,
+) -> None:
+    manifest = write_manifest(pytester, manifest_payload())
+    write_case(pytester)
+    pytester.makepyfile(
+        test_other="""
+        from playwright_web_ui import automation_case
+
+        @automation_case(
+            project_id="data-assets",
+            feature_id="other-feature",
+            case_id="C0002",
+        )
+        def test_other():
+            pass
+        """
+    )
+
+    result = pytester.runpytest(
+        "--execution-manifest",
+        str(manifest),
+        "--collect-only",
+    )
+
+    assert result.ret == pytest.ExitCode.OK
+    result.stdout.fnmatch_lines(["*1/2 tests collected (1 deselected)*"])
+
+
+def test_plugin_deselects_valid_canonical_case_outside_manifest_during_run(
+    pytester: pytest.Pytester,
+) -> None:
+    manifest = write_manifest(pytester, manifest_payload())
+    write_case(pytester)
+    pytester.makepyfile(
+        test_other="""
+        from playwright_web_ui import automation_case
+
+        @automation_case(
+            project_id="data-assets",
+            feature_id="other-feature",
+            case_id="C0002",
+        )
+        def test_other():
+            raise AssertionError("manifest-external case must be deselected")
+        """
+    )
+
+    result = pytester.runpytest_subprocess("--execution-manifest", str(manifest))
+
+    result.assert_outcomes(passed=1, deselected=1)
+
+
+def test_plugin_applies_the_same_manifest_selection_on_xdist_workers(
+    pytester: pytest.Pytester,
+) -> None:
+    manifest = write_manifest(pytester, manifest_payload())
+    write_case(pytester)
+    pytester.makepyfile(
+        test_other="""
+        from playwright_web_ui import automation_case
+
+        @automation_case(
+            project_id="data-assets",
+            feature_id="other-feature",
+            case_id="C0002",
+        )
+        def test_other():
+            raise AssertionError("manifest-external case must be deselected")
+        """
+    )
+
+    result = pytester.runpytest_subprocess(
+        "--execution-manifest",
+        str(manifest),
+        "-n",
+        "2",
+    )
+
+    result.assert_outcomes(passed=1)
+    assert "2 workers [1 item]" in result.stdout.lines
+
+
+def test_plugin_rejects_unmarked_item_even_when_it_is_outside_manifest(
+    pytester: pytest.Pytester,
+) -> None:
+    manifest = write_manifest(pytester, manifest_payload())
+    write_case(pytester)
+    pytester.makepyfile(
+        test_unmarked="""
+        def test_unmarked():
+            pass
+        """
+    )
+
+    result = pytester.runpytest(
+        "--execution-manifest",
+        str(manifest),
+        "--collect-only",
+    )
+
+    assert result.ret == pytest.ExitCode.USAGE_ERROR
+    result.stderr.fnmatch_lines(["*expected exactly one automation_case marker*"])
+
+
 def test_plugin_rejects_missing_manifest_case(pytester: pytest.Pytester) -> None:
     manifest = write_manifest(pytester, manifest_payload())
     write_case(pytester, case="C0002")

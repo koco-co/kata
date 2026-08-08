@@ -6,7 +6,7 @@ requires-python = ">=3.14,<3.15"
 dependencies = ["playwright-web-ui"]
 
 [project.entry-points."playwright_web_ui.suites"]
-data-assets = "data_assets_playwright_web_ui:PROJECT_ID"
+data-assets = "data_assets_playwright_web_ui:SUITE"
 
 [build-system]
 requires = ["uv_build>=0.11.28,<0.12.0"]

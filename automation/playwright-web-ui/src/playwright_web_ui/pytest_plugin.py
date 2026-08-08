@@ -55,12 +55,15 @@ def pytest_configure(config: pytest.Config) -> None:
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
-    """Require an exact manifest-to-collected-item identity mapping."""
+    """Select manifest cases and reject invalid or incomplete canonical collection."""
     manifest = config.stash.get(_MANIFEST_KEY, None)
     if manifest is None:
         return
 
-    collected: dict[CaseKey, list[str]] = defaultdict(list)
+    expected = {selected_case.key for selected_case in manifest.cases}
+    selected: dict[CaseKey, list[str]] = defaultdict(list)
+    selected_items: list[pytest.Item] = []
+    deselected_items: list[pytest.Item] = []
     marker_errors: list[str] = []
     for item in items:
         markers = list(item.iter_markers(name="automation_case"))
@@ -72,14 +75,18 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
         except ValueError as error:
             marker_errors.append(f"{item.nodeid}: {error}")
             continue
-        collected[key].append(item.nodeid)
+        if key in expected:
+            selected[key].append(item.nodeid)
+            selected_items.append(item)
+        else:
+            deselected_items.append(item)
 
     if marker_errors:
         details = "\n  - ".join(marker_errors)
         msg = f"invalid automation_case markers:\n  - {details}"
         raise pytest.UsageError(msg)
 
-    duplicates = {key: nodeids for key, nodeids in collected.items() if len(nodeids) > 1}
+    duplicates = {key: nodeids for key, nodeids in selected.items() if len(nodeids) > 1}
     if duplicates:
         details = "; ".join(
             f"{key}: {', '.join(nodeids)}" for key, nodeids in sorted(duplicates.items(), key=str)
@@ -87,17 +94,16 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
         msg = f"duplicate collected automation case: {details}"
         raise pytest.UsageError(msg)
 
-    expected = {selected_case.key for selected_case in manifest.cases}
-    actual = set(collected)
+    actual = set(selected)
     missing = sorted(expected - actual, key=str)
-    unexpected = sorted(actual - expected, key=str)
-    if missing or unexpected:
+    if missing:
         parts = ["collection does not match execution manifest"]
-        if missing:
-            parts.append(f"missing: {', '.join(map(str, missing))}")
-        if unexpected:
-            parts.append(f"unexpected: {', '.join(map(str, unexpected))}")
+        parts.append(f"missing: {', '.join(map(str, missing))}")
         raise pytest.UsageError("; ".join(parts))
+
+    if deselected_items:
+        items[:] = selected_items
+        config.hook.pytest_deselected(items=deselected_items)
 
 
 def _case_key_from_marker(marker: pytest.Mark) -> CaseKey:
