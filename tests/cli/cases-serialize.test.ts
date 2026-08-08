@@ -4,6 +4,7 @@ import { serializeCasesYaml, setAutomationEnv } from "../../cli/lib/cases/serial
 
 const YAML = `meta:
   title: 需求名
+  feature_id: stable-feature
   case_module_id: "12345"
 cases:
   - case_id: C0001
@@ -22,6 +23,7 @@ describe("cases serialize automation env", () => {
         'case_module_id: "12345"\n  automation_env: ltqc-dev',
       ),
     );
+    expect(serializeCasesYaml(parsed)).toContain("feature_id: stable-feature");
     expect(serializeCasesYaml(parsed)).toContain("automation_env: ltqc-dev");
   });
 

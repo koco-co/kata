@@ -150,13 +150,6 @@ function lintCaseSources(
         });
       }
     }
-    if (doc.meta?.feature_id !== undefined) {
-      violations.push({
-        feature,
-        rule: "case_feature_id_retired",
-        message: `cases/${filename} 不得保存 meta.feature_id；由所在 feature 路径推导`,
-      });
-    }
     if (doc.meta?.version !== undefined) {
       violations.push({
         feature,

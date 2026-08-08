@@ -4,13 +4,16 @@
  */
 
 import { parseCaseExportName } from "./formats.ts";
-import { CASE_ID_RE, SPEC_FILE_RE } from "./naming.ts";
+import { CASE_ID_RE, FEATURE_ID_RE, SPEC_FILE_RE } from "./naming.ts";
 import { type CasesFile, PRIORITIES } from "./types.ts";
 
 /** Validate a parsed cases file; returns human-readable problem list. */
 export function validateCases(file: CasesFile): string[] {
   const problems: string[] = [];
   if (!file.meta.title?.trim()) problems.push("meta.title 为空");
+  if (file.meta.feature_id !== undefined && !FEATURE_ID_RE.test(file.meta.feature_id)) {
+    problems.push("meta.feature_id 必须是小写英文 kebab 标识");
+  }
   if (file.meta.requirement_id !== undefined && !/^(?:\d+|none)$/.test(file.meta.requirement_id)) {
     problems.push('meta.requirement_id 必须是数字字符串或 "none"');
   }

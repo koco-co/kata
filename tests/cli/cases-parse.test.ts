@@ -4,6 +4,7 @@ import { parseCasesYaml, validateCases } from "../../cli/lib/cases/parse.ts";
 const GOOD = `
 meta:
   title: 数据质量规则合并
+  feature_id: quality-rule-merge
   case_module_id: ""
 cases:
   - case_id: C0001
@@ -237,12 +238,13 @@ describe("parseCasesYaml strict optional fields", () => {
     expect(f.cases[0].source_ref).toBe("PRD#1");
   });
 
-  it("rejects retired meta.version and meta.feature_id fields", () => {
+  it("keeps immutable feature identity and rejects retired version metadata", () => {
+    expect(parseCasesYaml(GOOD).meta.feature_id).toBe("quality-rule-merge");
     expect(() =>
       parseCasesYaml(GOOD.replace("case_module_id", "version: v1\n  case_module_id")),
     ).toThrow(/meta\.version 已退役/);
-    expect(() =>
-      parseCasesYaml(GOOD.replace("case_module_id", "feature_id: legacy\n  case_module_id")),
-    ).toThrow(/meta\.feature_id 已退役/);
+    expect(() => parseCasesYaml(GOOD.replace("quality-rule-merge", "Quality Rule Merge"))).toThrow(
+      /meta\.feature_id/,
+    );
   });
 });

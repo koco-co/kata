@@ -67,16 +67,16 @@ cases:
     expect(rules).toContain("manifest_residual");
   });
 
-  it("flags retired meta.feature_id and meta.version", () => {
+  it("keeps immutable meta.feature_id and still rejects meta.version", () => {
     const root = ws();
     mkValidActive(
       root,
-      "meta:\n  feature_id: legacy\n  version: v7.0.0\ncases:\n  - id: C0001\n    title: 验证字段\n    priority: P1\n",
+      "meta:\n  feature_id: stable-feature\n  version: v7.0.0\ncases:\n  - id: C0001\n    title: 验证字段\n    priority: P1\n",
     );
     const rules = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.map(
       (v) => v.rule,
     );
-    expect(rules).toContain("case_feature_id_retired");
+    expect(rules).not.toContain("case_feature_id_retired");
     expect(rules).toContain("case_version_retired");
   });
 

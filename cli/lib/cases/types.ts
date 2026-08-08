@@ -7,6 +7,8 @@
 export interface CaseMeta {
   /** 用例集标题(通常即需求名) */
   title: string;
+  /** Immutable feature identity, independent of directory labels and requirement numbers. */
+  feature_id?: string;
   /** Lanhu/PRD requirement_id；历史未关联 PRD 的用例集可暂缺。 */
   requirement_id?: string;
   /** 禅道中存放该需求用例的模块 ID；未知时显式写空字符串。 */

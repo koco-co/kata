@@ -6,7 +6,7 @@
 import { parse } from "yaml";
 import { assertPlatformEnvName } from "../platform-env.ts";
 import { CASE_EXPORT_FORMATS, parseCaseExportName } from "./formats.ts";
-import { SPEC_FILE_RE } from "./naming.ts";
+import { FEATURE_ID_RE, SPEC_FILE_RE } from "./naming.ts";
 import { normalizeStructuredText } from "./normalize.ts";
 import {
   type CaseAutomation,
@@ -156,13 +156,20 @@ export function parseCasesYaml(yamlText: string): CasesFile {
   if (m.version !== undefined) {
     fail("字段 meta.version 已退役；版本由父级 feature 目录推导");
   }
-  if (m.feature_id !== undefined) {
-    fail("字段 meta.feature_id 已退役；feature 由所在目录路径推导");
-  }
   const meta: CasesFile["meta"] = {
     title: asString(m.title, "meta.title"),
     case_module_id: "",
   };
+  if (m.feature_id !== undefined) {
+    if (
+      typeof m.feature_id !== "string" ||
+      m.feature_id !== m.feature_id.trim() ||
+      !FEATURE_ID_RE.test(m.feature_id)
+    ) {
+      fail("字段 meta.feature_id 必须是小写英文 kebab 标识");
+    }
+    meta.feature_id = m.feature_id;
+  }
   if (m.layout !== undefined) {
     if (m.layout !== "flat" && m.layout !== "requirements") {
       fail(`字段 meta.layout 非法: ${String(m.layout)}(允许 flat/requirements)`);
