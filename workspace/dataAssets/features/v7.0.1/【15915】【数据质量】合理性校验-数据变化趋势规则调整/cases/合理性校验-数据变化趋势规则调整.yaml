@@ -1,5 +1,6 @@
 meta:
   title: 【数据质量】合理性校验-数据变化趋势规则调整
+  feature_id: quality-data-trend-rule-dimensions
   requirement_id: "15915"
   case_module_id: ""
   source: "蓝湖需求 #15915"

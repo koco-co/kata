@@ -1,5 +1,6 @@
 meta:
   title: v63主流程用例
+  feature_id: data-platform-v63-main-flow-regression-suite
   requirement_id: "none"
   case_module_id: ""
   exports:

@@ -1,5 +1,6 @@
 meta:
   title: 【数据标准】支持维护标准负责人，列表展示负责人、创建人信息
+  feature_id: standards-owner-and-creator-metadata
   requirement_id: '15647'
   case_module_id: '10287'
   exports:

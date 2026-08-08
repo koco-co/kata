@@ -1,5 +1,6 @@
 meta:
   title: 数据质量任务性能优化_规则sql合并
+  feature_id: quality-rule-sql-merge-optimization
   requirement_id: "15862"
   imports:
     - 数据质量规则SQL优化.csv

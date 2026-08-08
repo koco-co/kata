@@ -9,6 +9,7 @@ import {
   resolveCaseCustomer,
 } from "./cases/content-lint.ts";
 import { parseCaseExportName } from "./cases/formats.ts";
+import { FEATURE_ID_RE } from "./cases/naming.ts";
 import { parseCasesYaml, validateCases } from "./cases/parse.ts";
 import { environmentsDir } from "./config-paths.ts";
 import {
@@ -99,6 +100,7 @@ function lintCaseSources(
   zone: string,
   envNames: string[],
   contentConfig: CasesLintConfig,
+  featureIds: Map<string, string>,
   violations: FeatureLintViolation[],
 ): void {
   const casesDir = join(dir, "cases");
@@ -156,6 +158,31 @@ function lintCaseSources(
         rule: "case_version_retired",
         message: `cases/${filename} 不得保存 meta.version；由父级版本目录推导`,
       });
+    }
+    const featureId = doc.meta?.feature_id;
+    if (featureId === undefined) {
+      violations.push({
+        feature,
+        rule: "case_feature_id_required",
+        message: `cases/${filename} 缺少 meta.feature_id；填写稳定、不可随目录或标题变化重算的小写英文 kebab 标识`,
+      });
+    } else if (typeof featureId !== "string" || !FEATURE_ID_RE.test(featureId)) {
+      violations.push({
+        feature,
+        rule: "case_feature_id_invalid",
+        message: `cases/${filename} 的 meta.feature_id 必须是小写英文 kebab 标识`,
+      });
+    } else {
+      const existingFeature = featureIds.get(featureId);
+      if (existingFeature !== undefined && existingFeature !== feature) {
+        violations.push({
+          feature,
+          rule: "case_feature_id_duplicate",
+          message: `cases/${filename} 的 meta.feature_id 与 ${existingFeature} 重复；已发布身份不可复用`,
+        });
+      } else {
+        featureIds.set(featureId, feature);
+      }
     }
     if (Array.isArray(doc.meta?.imports)) {
       for (const value of doc.meta.imports) {
@@ -235,10 +262,19 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
   const entries = ctx.featurePath
     ? [resolveFeatureEntry(featuresDir, ctx.featurePath)]
     : allEntries;
+  const featureIds = new Map<string, string>();
 
   for (const entry of entries) {
     const feature = featureRelativePath(featuresDir, entry);
-    lintCaseSources(entry.dir, feature, entry.zone, envNames, contentConfig, violations);
+    lintCaseSources(
+      entry.dir,
+      feature,
+      entry.zone,
+      envNames,
+      contentConfig,
+      featureIds,
+      violations,
+    );
     for (const legacy of ["prd.md", "requirement-notes.md", "test-points.md"]) {
       if (existsSync(join(entry.dir, legacy))) {
         violations.push({

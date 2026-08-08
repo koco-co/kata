@@ -1,5 +1,6 @@
 meta:
   title: 内置规则增加规则项
+  feature_id: quality-built-in-rule-additions
   case_module_id: ""
   requirement_id: "15531"
   exports:

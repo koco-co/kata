@@ -1,5 +1,6 @@
 meta:
   title: 菜单名称修改
+  feature_id: quality-navigation-menu-renaming
   case_module_id: ""
   exports:
     - 菜单名称修改.xmind

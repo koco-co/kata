@@ -42,7 +42,7 @@ export function registerCases(program: Command): void {
   registerCasesSync(cases);
   cases
     .command("lint")
-    .description("检查 feature 目录、命名、YAML 来源、用例内容、P0 占比与历史导入文件")
+    .description("检查 feature 目录、不可变 feature_id、YAML 来源、用例内容、P0 占比与历史导入文件")
     .option("--project <name>", "项目名；与 --all-projects 二选一")
     .option("--all-projects", "检查 workspace 下全部项目；与 --project 二选一")
     .option("--feature <path>", "只检查单个 feature（相对 features/ 的完整路径）")

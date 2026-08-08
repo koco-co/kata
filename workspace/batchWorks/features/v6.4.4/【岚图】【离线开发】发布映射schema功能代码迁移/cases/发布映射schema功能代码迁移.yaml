@@ -1,5 +1,6 @@
 meta:
   title: 【岚图】发布映射schema功能代码迁移
+  feature_id: offline-schema-mapping-publish
   requirement_id: '15099'
   case_module_id: '9735'
   imports:

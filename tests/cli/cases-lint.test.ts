@@ -18,12 +18,18 @@ function mkfeature(root: string, ...segments: string[]) {
 function mkValidActive(root: string, casesYaml: string): string {
   const dir = join("v7.0.0", "【客户】【模块】需求");
   mkfeature(root, dir, "cases");
-  writeFileSync(join(root, "dataAssets", "features", dir, "cases", "需求.yaml"), casesYaml);
+  const canonical =
+    casesYaml.startsWith("meta: {") && !casesYaml.includes("feature_id:")
+      ? casesYaml.replace("meta: {", "meta: { feature_id: fixture-feature,")
+      : casesYaml.startsWith("meta:\n") && !casesYaml.includes("feature_id:")
+        ? casesYaml.replace("meta:\n", "meta:\n  feature_id: fixture-feature\n")
+        : casesYaml;
+  writeFileSync(join(root, "dataAssets", "features", dir, "cases", "需求.yaml"), canonical);
   return dir;
 }
 
 describe("features lint", () => {
-  it("accepts a canonical active directory without feature metadata", () => {
+  it("accepts a canonical active directory with immutable feature identity", () => {
     const root = ws();
     mkValidActive(
       root,
@@ -45,6 +51,47 @@ cases:
     expect(runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations).toHaveLength(
       0,
     );
+  });
+
+  it("requires a valid immutable feature identity", () => {
+    const missing = ws();
+    const missingDir = join("v7.0.0", "【客户】【模块】缺身份");
+    mkfeature(missing, missingDir, "cases");
+    writeFileSync(
+      join(missing, "dataAssets", "features", missingDir, "cases", "需求.yaml"),
+      'meta: { title: 需求, case_module_id: "" }\ncases: []\n',
+    );
+    expect(
+      runFeaturesLint({ project: "dataAssets", workspaceRoot: missing }).violations.map(
+        (violation) => violation.rule,
+      ),
+    ).toContain("case_feature_id_required");
+
+    const invalid = ws();
+    mkValidActive(invalid, "meta: { feature_id: Invalid ID }\ncases: []\n");
+    expect(
+      runFeaturesLint({ project: "dataAssets", workspaceRoot: invalid }).violations.map(
+        (violation) => violation.rule,
+      ),
+    ).toContain("case_feature_id_invalid");
+  });
+
+  it("rejects one feature identity reused by different feature paths", () => {
+    const root = ws();
+    for (const name of ["需求甲", "需求乙"]) {
+      const dir = join("v7.0.0", `【客户】【模块】${name}`);
+      mkfeature(root, dir, "cases");
+      writeFileSync(
+        join(root, "dataAssets", "features", dir, "cases", `${name}.yaml`),
+        `meta: { title: ${name}, feature_id: shared-feature, case_module_id: "" }\ncases: []\n`,
+      );
+    }
+
+    expect(
+      runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.map(
+        (violation) => violation.rule,
+      ),
+    ).toContain("case_feature_id_duplicate");
   });
 
   it("flags legacy child version labels", () => {

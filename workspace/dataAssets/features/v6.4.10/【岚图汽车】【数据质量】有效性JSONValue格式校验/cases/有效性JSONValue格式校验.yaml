@@ -1,5 +1,6 @@
 meta:
   title: 有效性JSONValue格式校验
+  feature_id: quality-json-value-format-validation
   requirement_id: '15694'
   case_module_id: ''
   exports:

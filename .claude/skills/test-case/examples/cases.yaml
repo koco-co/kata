@@ -2,6 +2,7 @@
 # 2-12. 前置条件、步骤、预期各类写法 → 见 best-practices.md
 meta:
   title: 单表校验规则支持枚举值个数统计
+  feature_id: quality-single-table-enum-count
   requirement_id: "15862"
   case_module_id: ""
   source: "禅道需求 #15862"

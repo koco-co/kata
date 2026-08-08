@@ -1,5 +1,6 @@
 meta:
   title: 批量创建脱敏规则_批量进行脱敏应用
+  feature_id: security-bulk-masking-rules-and-applications
   requirement_id: "14700"
   case_module_id: ""
   exports:

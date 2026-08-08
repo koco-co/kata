@@ -1,5 +1,6 @@
 meta:
   title: 【建投】补数据状态支持筛选&任务运行进度展示测试
+  feature_id: offline-backfill-status-and-task-progress
   case_module_id: "9246"
   imports:
     - 202508-离线开发v6.4.0.xmind

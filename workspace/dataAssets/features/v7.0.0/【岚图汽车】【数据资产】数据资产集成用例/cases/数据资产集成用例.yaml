@@ -1,5 +1,6 @@
 meta:
   title: 数据资产集成用例
+  feature_id: data-assets-core-module-integration-suite
   case_module_id: ""
   layout: requirements
   imports:

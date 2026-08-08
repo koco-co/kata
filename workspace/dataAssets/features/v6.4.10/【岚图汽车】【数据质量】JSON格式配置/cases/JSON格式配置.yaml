@@ -1,5 +1,6 @@
 meta:
   title: JSON格式配置
+  feature_id: quality-json-format-configuration
   requirement_id: '15696'
   case_module_id: ''
   exports:

@@ -1,5 +1,6 @@
 meta:
   title: v63回归
+  feature_id: quality-v63-regression-suite
   requirement_id: "none"
   case_module_id: ""
   exports:

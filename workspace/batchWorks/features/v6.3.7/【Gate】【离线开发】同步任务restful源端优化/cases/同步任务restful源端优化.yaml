@@ -1,5 +1,6 @@
 meta:
   title: 【gate】同步任务restful源端优化
+  feature_id: offline-restful-sync-path-configuration
   case_module_id: "8885"
   imports:
     - 202506-离线开发v6.3.7.xmind

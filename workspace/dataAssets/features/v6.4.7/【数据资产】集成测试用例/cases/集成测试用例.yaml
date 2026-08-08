@@ -1,5 +1,6 @@
 meta:
   title: 数据资产集成测试用例
+  feature_id: data-assets-integration-regression-suite
   requirement_id: "none"
   case_module_id: ""
   exports:

@@ -1,5 +1,6 @@
 meta:
   title: 【江苏银行】数据同步读写支持gaussDB9.1
+  feature_id: offline-gaussdb91-data-sync
   requirement_id: '14912'
   case_module_id: '9648'
   imports:

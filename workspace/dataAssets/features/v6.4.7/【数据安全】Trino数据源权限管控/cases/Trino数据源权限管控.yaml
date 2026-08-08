@@ -1,5 +1,6 @@
 meta:
   title: Trino数据源权限管控
+  feature_id: security-trino-data-source-permissions
   requirement_id: "none"
   case_module_id: ""
   exports:

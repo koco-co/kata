@@ -1,5 +1,6 @@
 meta:
   title: 有效性多规则且或关系
+  feature_id: quality-validity-rule-boolean-logic
   requirement_id: "15695"
   case_module_id: ""
   exports:

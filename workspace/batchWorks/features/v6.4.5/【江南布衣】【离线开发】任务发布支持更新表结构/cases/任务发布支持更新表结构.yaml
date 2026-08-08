@@ -1,5 +1,6 @@
 meta:
   title: 【江南布衣】任务发布支持更新表结构
+  feature_id: offline-task-publish-schema-update
   requirement_id: '15375'
   case_module_id: '10147'
   imports:

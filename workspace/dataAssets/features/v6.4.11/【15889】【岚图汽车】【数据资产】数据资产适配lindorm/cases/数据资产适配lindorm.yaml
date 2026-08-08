@@ -1,5 +1,6 @@
 meta:
   title: 数据资产适配 Lindorm
+  feature_id: data-assets-lindorm-support
   requirement_id: "15889"
   case_module_id: ""
   exports:

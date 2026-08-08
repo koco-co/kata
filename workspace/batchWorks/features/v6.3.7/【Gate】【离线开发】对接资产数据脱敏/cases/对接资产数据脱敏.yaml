@@ -1,6 +1,7 @@
 meta:
   requirement_id: none
   title: 【gate】对接资产数据脱敏
+  feature_id: offline-asset-masking-integration
   case_module_id: "8884"
   imports:
     - 202506-离线开发v6.3.7.xmind

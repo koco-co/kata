@@ -1,5 +1,6 @@
 meta:
   title: 【Gate】同小时间任务依赖逻辑优化
+  feature_id: offline-same-hour-task-dependency
   requirement_id: "15102"
   case_module_id: "9646"
   imports:

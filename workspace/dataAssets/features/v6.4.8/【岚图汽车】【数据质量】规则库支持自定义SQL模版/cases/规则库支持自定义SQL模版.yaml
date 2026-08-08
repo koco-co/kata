@@ -1,5 +1,6 @@
 meta:
   title: 规则库支持自定义SQL模版
+  feature_id: quality-custom-sql-templates
   requirement_id: "15521"
   case_module_id: "10205"
   exports:

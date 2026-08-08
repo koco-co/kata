@@ -1,5 +1,6 @@
 meta:
   title: 元数据与数据质量适配 Doris3.x
+  feature_id: data-assets-doris3-metadata-quality-support
   requirement_id: "15603"
   case_module_id: ""
   exports:

@@ -1,5 +1,6 @@
 meta:
   title: 【数据模型】建表中文名增加支持字符
+  feature_id: modeling-table-display-name-characters
   requirement_id: "16210"
   case_module_id: ""
   exports:

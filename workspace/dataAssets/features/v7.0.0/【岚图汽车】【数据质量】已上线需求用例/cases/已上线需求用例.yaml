@@ -1,5 +1,6 @@
 meta:
   title: 数据质量已上线需求用例
+  feature_id: quality-released-features-regression-suite
   requirement_id: "none"
   case_module_id: ""
   imports:

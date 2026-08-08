@@ -1,5 +1,6 @@
 meta:
   title: 【东风商用车】整库同步功能优化
+  feature_id: offline-full-database-sync-enhancements
   requirement_id: '15353'
   case_module_id: '10177'
   imports:

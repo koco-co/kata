@@ -1,5 +1,6 @@
 meta:
   title: 【规则调度设置】spark任务调参
+  feature_id: quality-spark-task-parameters
   requirement_id: "15532"
   case_module_id: "10190"
   exports:

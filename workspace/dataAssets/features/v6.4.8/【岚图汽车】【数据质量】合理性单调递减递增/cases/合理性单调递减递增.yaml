@@ -1,5 +1,6 @@
 meta:
   title: 合理性单调递减递增
+  feature_id: quality-monotonic-trend-rules
   requirement_id: "none"
   case_module_id: ""
   exports:

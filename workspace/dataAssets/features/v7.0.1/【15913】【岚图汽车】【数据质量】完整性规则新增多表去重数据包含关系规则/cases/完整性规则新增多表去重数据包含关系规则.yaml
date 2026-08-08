@@ -1,5 +1,6 @@
 meta:
   title: 【岚图汽车】【数据质量】完整性规则新增多表去重数据包含关系规则
+  feature_id: quality-multi-table-deduplicated-containment
   requirement_id: "15913"
   case_module_id: ""
   source: "蓝湖需求 #15913"

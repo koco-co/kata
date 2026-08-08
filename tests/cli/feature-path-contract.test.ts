@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { parseCasesYaml } from "../../cli/lib/cases/parse.ts";
 import {
   featureIdentity,
   listFeatureDirs,
@@ -10,12 +11,13 @@ import {
 const workspace = join(import.meta.dir, "../../workspace");
 
 describe("feature path repository contract", () => {
-  it("uses canonical paths as the only feature identity", () => {
+  it("keeps immutable feature identities separate from canonical paths", () => {
     const entries = ["dataAssets", "batchWorks"].flatMap((project) => {
       const features = join(workspace, project, "features");
       return listFeatureDirs(features).map((entry) => ({ project, features, entry }));
     });
     expect(entries.length).toBeGreaterThan(0);
+    const identityOwners = new Map<string, string>();
 
     for (const { project, features, entry } of entries) {
       const identity = featureIdentity(project, features, entry);
@@ -28,10 +30,16 @@ describe("feature path repository contract", () => {
       if (!existsSync(casesDir)) continue;
       for (const name of readdirSync(casesDir).filter((file) => file.endsWith(".yaml"))) {
         const text = readFileSync(join(casesDir, name), "utf8");
-        expect(text, `${identity.relativePath}/cases/${name}`).not.toMatch(
-          /^ {2}(?:version|feature_id):/m,
-        );
+        const location = `${project}:${identity.relativePath}/cases/${name}`;
+        expect(text, location).not.toMatch(/^ {2}version:/m);
+        const featureId = parseCasesYaml(text).meta.feature_id;
+        expect(featureId, location).toMatch(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/);
+        if (!featureId) continue;
+        const owner = identityOwners.get(featureId);
+        expect(owner === undefined || owner === identity.featureKey, location).toBe(true);
+        identityOwners.set(featureId, identity.featureKey);
       }
     }
+    expect(identityOwners.size).toBeGreaterThan(0);
   });
 });

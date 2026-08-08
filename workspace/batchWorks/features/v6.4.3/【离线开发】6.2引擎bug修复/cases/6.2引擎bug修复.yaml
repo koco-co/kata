@@ -1,5 +1,6 @@
 meta:
   title: 【6.2】引擎bug修复
+  feature_id: offline-hive-mysql-starrocks-engine-regression-suite
   requirement_id: "15008"
   case_module_id: "9645"
   imports:

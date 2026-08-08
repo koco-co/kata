@@ -1,5 +1,6 @@
 meta:
   title: json格式校验导出支持勾选导出
+  feature_id: quality-json-format-selected-export
   requirement_id: "16019"
   case_module_id: ""
   exports:

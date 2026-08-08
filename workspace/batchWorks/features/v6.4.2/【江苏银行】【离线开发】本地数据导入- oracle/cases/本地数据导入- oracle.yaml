@@ -1,5 +1,6 @@
 meta:
   title: 【江苏银行】本地数据导入- oracle
+  feature_id: offline-oracle-local-data-import
   requirement_id: '15080'
   case_module_id: '9405'
   imports:

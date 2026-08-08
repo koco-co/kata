@@ -1,5 +1,6 @@
 meta:
   title: 一个数据表支持创建多个质量规则任务
+  feature_id: quality-multiple-tasks-per-table
   requirement_id: "none"
   case_module_id: ""
   exports:

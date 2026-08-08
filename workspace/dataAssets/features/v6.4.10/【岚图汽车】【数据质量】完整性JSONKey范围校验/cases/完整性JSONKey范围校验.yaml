@@ -1,5 +1,6 @@
 meta:
   title: 完整性JSONKey范围校验
+  feature_id: quality-json-key-range-validation
   requirement_id: "15693"
   case_module_id: ""
   exports:

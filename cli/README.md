@@ -72,7 +72,8 @@ Commands:
   sync [options]                   按 YAML 中已声明的 Playwright spec_file 同步文件名和
                                    generated runner；API executor 单独报告(默认
                                    dry-run)
-  lint [options]                   检查 feature 目录、命名、YAML 来源、用例内容、P0 占比与历史导入文件
+  lint [options]                   检查 feature 目录、不可变 feature_id、YAML 来源、用例内容、P0
+                                   占比与历史导入文件
   help [command]                   display help for command
 ```
 
@@ -457,7 +458,7 @@ Options:
 ```text
 Usage: kata cases lint [options]
 
-检查 feature 目录、命名、YAML 来源、用例内容、P0 占比与历史导入文件
+检查 feature 目录、不可变 feature_id、YAML 来源、用例内容、P0 占比与历史导入文件
 
 Options:
   --project <name>  项目名；与 --all-projects 二选一
