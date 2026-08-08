@@ -107,4 +107,14 @@ describe("automation normalize", () => {
     expect(report.violations).toBe(0);
     expect(report.unfixable).toHaveLength(0);
   });
+
+  it("reports macOS metadata files at the feature root instead of allowing them", () => {
+    const root = feature();
+    writeFileSync(join(root, ".DS_Store"), "metadata\n");
+
+    const report = normalizeAutomation(root, { dryRun: true });
+    expect(report.violations).toBe(1);
+    expect(report.unfixable[0]?.path).toBe(join(root, ".DS_Store"));
+    expect(report.unfixable[0]?.reason).toContain("macOS 元数据文件");
+  });
 });
