@@ -6,7 +6,7 @@ import {
   buildL1Labels,
   buildL1Title,
   buildRootTitle,
-  useStepsAsNotes,
+  shouldUseStepsAsNotes,
 } from "../../cli/lib/cases/xmind/xmind-render.ts";
 import { buildRootName, loadXmindProjectConfig } from "../../cli/lib/xmind-rules.ts";
 
@@ -99,13 +99,15 @@ describe("L1 metadata", () => {
   });
 });
 
-describe("useStepsAsNotes", () => {
+describe("shouldUseStepsAsNotes", () => {
   it("folds steps into notes only at 3+ steps by default", () => {
-    expect(useStepsAsNotes(tc(2), { stepsAsNotes: true })).toBe(false);
-    expect(useStepsAsNotes(tc(3), { stepsAsNotes: true })).toBe(true);
-    expect(useStepsAsNotes(tc(3), {})).toBe(false);
+    expect(shouldUseStepsAsNotes(tc(2), { stepsAsNotes: true })).toBe(false);
+    expect(shouldUseStepsAsNotes(tc(3), { stepsAsNotes: true })).toBe(true);
+    expect(shouldUseStepsAsNotes(tc(3), {})).toBe(false);
   });
   it("honors an explicit threshold", () => {
-    expect(useStepsAsNotes(tc(2), { stepsAsNotes: true, stepsAsNotesMinSteps: 2 })).toBe(true);
+    expect(shouldUseStepsAsNotes(tc(2), { stepsAsNotes: true, stepsAsNotesMinSteps: 2 })).toBe(
+      true,
+    );
   });
 });

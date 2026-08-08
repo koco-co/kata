@@ -188,12 +188,12 @@ export function buildCaseNote(tc: CaseItem): string {
  * stepsAsNotes 按步骤数设阈:只有步骤数 ≥ 阈值(默认 3)的用例才把步骤折叠进备注,
  * 1-2 步的短用例保留大纲步骤节点,避免信息被藏进 notes。
  */
-export function useStepsAsNotes(tc: CaseItem, options: RenderOptions): boolean {
+export function shouldUseStepsAsNotes(tc: CaseItem, options: RenderOptions): boolean {
   return Boolean(options.stepsAsNotes) && tc.steps.length >= (options.stepsAsNotesMinSteps ?? 3);
 }
 
 export function buildCaseTopic(tc: CaseItem, options: RenderOptions = {}): TopicBuilder {
-  const asNotes = useStepsAsNotes(tc, options);
+  const asNotes = shouldUseStepsAsNotes(tc, options);
   const caseChildren: TopicBuilder[] = asNotes
     ? []
     : tc.steps.map((s) => Topic(sanitizeBr(s.action)).children([Topic(sanitizeBr(s.expected))]));
