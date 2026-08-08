@@ -1,0 +1,46 @@
+minimum_pre_commit_version: 4.3.0
+
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-format
+        name: Ruff format check
+        entry: uv run --locked --no-sync ruff format --check
+        language: system
+        files: ^automation/.*\.py$
+        types: [python]
+
+      - id: ruff-check
+        name: Ruff lint
+        entry: uv run --locked --no-sync ruff check
+        language: system
+        files: ^automation/.*\.py$
+        types: [python]
+
+      - id: pyright
+        name: Pyright strict
+        entry: uv run --locked --no-sync pyright
+        language: system
+        files: ^(automation/.*\.py|pyproject\.toml)$
+        pass_filenames: false
+
+      - id: uv-lock
+        name: uv lock check
+        entry: uv lock --check
+        language: system
+        files: ^(pyproject\.toml|uv\.lock|automation/.*/pyproject\.toml)$
+        pass_filenames: false
+
+      - id: python-contracts
+        name: Python automation contracts
+        entry: uv run --locked --no-sync pytest automation/playwright-web-ui/tests/contract automation/playwright-web-ui/suites/data-assets/tests/contract -q
+        language: system
+        files: ^(automation/contracts/|automation/playwright-web-ui/(src|tests|suites)/|pyproject\.toml|uv\.lock)
+        pass_filenames: false
+
+      - id: control-plane-contracts
+        name: Automation control-plane contracts
+        entry: bun test tests/cli/executor-registry.test.ts tests/cli/execution-manifest.test.ts tests/cli/automation-run-layout.test.ts
+        language: system
+        files: ^(automation/.*/executor\.toml|automation/contracts/|cli/lib/automation/(executor-registry|execution-manifest|run-layout)\.ts|tests/cli/(executor-registry|execution-manifest|automation-run-layout)\.test\.ts)$
+        pass_filenames: false
