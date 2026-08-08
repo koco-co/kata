@@ -5,10 +5,21 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { parseBugPayload } from "../../cli/integrations/zentao/parse.ts";
 import {
+  hotfixReportPath,
   lintHotfixMarkdown,
   migrateLegacyHotfixMarkdown,
   renderHotfixMarkdown,
 } from "../../cli/lib/hotfix-report.ts";
+
+describe("hotfix report path validation", () => {
+  it("rejects invalid yyyymm and slug values", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-hotfix-path-"));
+    expect(() => hotfixReportPath(root, "dataAssets", "202699", "demo")).toThrow(/非法年月/);
+    expect(() => hotfixReportPath(root, "dataAssets", "202607", "../evil")).toThrow(
+      /非法报告 slug/,
+    );
+  });
+});
 
 function report(content: string, slug = "155381-rule-fix"): string {
   const root = mkdtempSync(join(tmpdir(), "kata-hotfix-report-"));

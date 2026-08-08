@@ -6,6 +6,10 @@ import { locateProject, locateProjectRoot } from "../workspace-locator.ts";
 import { findMissingRelativeImports } from "./relative-imports.ts";
 
 const CODE_EXTENSIONS = new Set([".cjs", ".js", ".jsx", ".mjs", ".ts", ".tsx"]);
+const RUNTIME_LINT_ROOTS = [
+  ["runtime", "automation", "playwright"],
+  ["cli", "packages", "dtstack-sdk", "src"],
+] as const;
 const URL_RE = /https?:\/\//i;
 const IP_RE = /\b(?:\d{1,3}\.){3}\d{1,3}\b/g;
 const STRING_RE = /(["'`])(?:\\.|(?!\1)[\s\S])*?\1/g;
@@ -462,6 +466,9 @@ function resolveTarget(options: AutomationLintOptions): ScanTarget {
     );
   }
 
+  const repoRoot = options.repoRoot ?? locateProjectRoot();
+  const runtimeRoots = RUNTIME_LINT_ROOTS.map((parts) => join(repoRoot, ...parts));
+
   if (options.shared || options.allFeatures) {
     const root = options.repoRoot ?? locateProjectRoot();
     const project = options.project ?? process.env.KATA_ACTIVE_PROJECT;
@@ -472,11 +479,14 @@ function resolveTarget(options: AutomationLintOptions): ScanTarget {
     }
     const paths = locateProject(project, root);
     return {
-      roots: options.shared
-        ? [join(paths.sharedDir, "automation")]
-        : listFeatureDirs(paths.featuresDir)
-            .map((feature) => join(feature.dir, "automation", "tests"))
-            .filter(existsSync),
+      roots: [
+        ...(options.shared
+          ? [join(paths.sharedDir, "automation")]
+          : listFeatureDirs(paths.featuresDir)
+              .map((feature) => join(feature.dir, "automation", "tests"))
+              .filter(existsSync)),
+        ...runtimeRoots,
+      ],
       projectDir: paths.projectDir,
     };
   }
@@ -485,7 +495,7 @@ function resolveTarget(options: AutomationLintOptions): ScanTarget {
   if (!existsSync(featureDir))
     throw new Error(`kata automation lint: feature 目录不存在: ${featureDir}`);
   return {
-    roots: [join(featureDir, "automation", "tests")],
+    roots: [join(featureDir, "automation", "tests"), ...runtimeRoots],
     projectDir: projectRootFromFeatureDir(featureDir),
   };
 }

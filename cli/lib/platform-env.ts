@@ -1154,7 +1154,10 @@ export async function setPlatformEnvCookie(
   const current = readPlatformEnvConfig(normalized, { repoRoot: root });
   const candidate: PlatformEnvConfig = { ...current, auth: { cookie: cleanCookie } };
   await resolvePlatformEnv(normalized, { ...ctx, repoRoot: root, config: candidate });
-  atomicWrite(effectivePlatformEnvPath(normalized, root), candidate);
+  const envDir = ensureEnvDir(root);
+  const path = platformEnvPath(normalized, root);
+  assertContained(envDir, path);
+  atomicWrite(path, candidate);
   return { name: normalized, configured: true, verified: true };
 }
 

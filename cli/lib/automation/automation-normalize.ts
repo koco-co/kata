@@ -195,17 +195,18 @@ export function normalizeAutomation(
     }
   }
 
-  const allowedRoot = new Set([
-    "prd",
-    "cases",
-    "README.md",
-    "automation",
-    "runs",
-    "inputs",
-    ".DS_Store",
-  ]);
+  const allowedRoot = new Set(["prd", "cases", "README.md", "automation", "runs", "inputs"]);
   for (const name of listTopEntries(featureDir)) {
     if (allowedRoot.has(name)) continue;
+    if (name === ".DS_Store") {
+      const full = join(featureDir, name);
+      report.unfixable.push({
+        path: full,
+        reason: `feature 根目录不允许 "${name}"，请删除 macOS 元数据文件`,
+      });
+      report.violations++;
+      continue;
+    }
     if (name.startsWith(".") && name !== ".debug") continue;
     const full = join(featureDir, name);
     report.unfixable.push({

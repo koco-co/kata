@@ -132,6 +132,31 @@ describe("runs execution contract", () => {
     expect(existsSync(join(feature, "runs", "notes", "keep.txt"))).toBe(true);
   });
 
+  it("rejects an explicit archived feature instead of pruning its runs", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-runs-archived-"));
+    const feature = join(
+      root,
+      "workspace",
+      "dataAssets",
+      "features",
+      "_archived",
+      "v1.0",
+      "【模块】需求",
+    );
+    createRun(feature, "20260726-1200-run-01");
+
+    expect(() =>
+      runRunsPrune({
+        root,
+        project: "dataAssets",
+        featurePath: "_archived/v1.0/【模块】需求",
+        keep: 0,
+        apply: true,
+      }),
+    ).toThrow(/归档 feature 不参与 runs prune/);
+    expect(existsSync(join(feature, "runs", "20260726-1200-run-01"))).toBe(true);
+  });
+
   it("requires an allocated canonical run path for Playwright output", () => {
     const { root, feature } = createProjectRoot();
     const runPath = join(feature, "runs", "20260726-1200-run-01");

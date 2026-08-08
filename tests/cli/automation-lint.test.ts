@@ -32,6 +32,27 @@ function withWorkspaceRoot<T>(workspaceRoot: string | undefined, callback: () =>
 }
 
 describe("automation lint", () => {
+  it("scans runtime and dtstack SDK roots for fixed waits", () => {
+    const { root, feature } = featureWorkspace();
+    const runtimeDir = join(root, "runtime", "automation", "playwright", "ant-design");
+    mkdirSync(runtimeDir, { recursive: true });
+    writeFileSync(join(runtimeDir, "bad.ts"), "await page.waitForTimeout(100);\n");
+    const sdkDir = join(root, "cli", "packages", "dtstack-sdk", "src", "adapters");
+    mkdirSync(sdkDir, { recursive: true });
+    writeFileSync(join(sdkDir, "bad.ts"), "await page.waitForTimeout(100);\n");
+
+    const result = runAutomationLint({ featureDir: feature, repoRoot: root });
+    expect(
+      result.violations
+        .filter((v) => v.rule === "no-wait-timeout")
+        .map((v) => v.path)
+        .sort(),
+    ).toEqual([
+      "../cli/packages/dtstack-sdk/src/adapters/bad.ts",
+      "../runtime/automation/playwright/ant-design/bad.ts",
+    ]);
+  });
+
   it("detects the configured rules while ignoring comments", () => {
     const { feature, cases } = featureWorkspace();
     writeCase(

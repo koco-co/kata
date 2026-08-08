@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import type { RichBug } from "../integrations/zentao/parse.ts";
 import { parseFrontMatter } from "./frontmatter.ts";
+import { assertReportSlug, assertYyyymm } from "./paths.ts";
 
 export interface HotfixReportViolation {
   line: number;
@@ -484,6 +485,8 @@ export function hotfixReportPath(
   yyyymm: string,
   slug: string,
 ): string {
+  assertYyyymm(yyyymm);
+  assertReportSlug(slug);
   return join(
     root,
     "workspace",

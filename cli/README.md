@@ -683,7 +683,7 @@ Options:
   -h, --help            display help for command
 
 Commands:
-  set [options] <name>  从 stdin 读取并在线验证 Cookie，成功后原子替换
+  set [options] <name>  从 stdin 读取并在线验证 Cookie，成功后原子写入当前 worktree 本地环境
   help [command]        display help for command
 ```
 
@@ -1318,7 +1318,7 @@ Options:
 ```text
 Usage: kata env cookie set [options] <name>
 
-从 stdin 读取并在线验证 Cookie，成功后原子替换
+从 stdin 读取并在线验证 Cookie，成功后原子写入当前 worktree 本地环境
 
 Arguments:
   name        环境名称

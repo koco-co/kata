@@ -108,10 +108,13 @@ function scalar(value: unknown): string | undefined {
   return undefined;
 }
 
-function booleanValue(value: unknown): boolean | undefined {
+function booleanValue(value: unknown, field: string): boolean | undefined {
   if (typeof value === "boolean") return value;
   if (typeof value === "string" && /^(?:true|false)$/i.test(value.trim())) {
     return value.trim().toLowerCase() === "true";
+  }
+  if (value !== undefined) {
+    throw new Error(`notify 配置 ${field} 必须为 true/false`);
   }
   return undefined;
 }
@@ -234,24 +237,24 @@ export function loadNotifyConfig(root: string = defaultRepoRoot()): NotifyPlugin
   const wecom = isRecord(raw.wecom) ? raw.wecom : {};
   const smtp = isRecord(raw.smtp) ? raw.smtp : {};
   return {
-    enabled: booleanValue(raw.enabled) ?? true,
+    enabled: booleanValue(raw.enabled, "enabled") ?? true,
     enabled_events: stringArray(raw.enabled_events),
     dingtalk: {
-      enabled: booleanValue(dingtalk.enabled) ?? true,
+      enabled: booleanValue(dingtalk.enabled, "dingtalk.enabled") ?? true,
       webhook_url: scalar(dingtalk.webhook_url),
       keyword: scalar(dingtalk.keyword),
       sign_secret: scalar(dingtalk.sign_secret),
     },
     feishu: {
-      enabled: booleanValue(feishu.enabled) ?? true,
+      enabled: booleanValue(feishu.enabled, "feishu.enabled") ?? true,
       webhook_url: scalar(feishu.webhook_url),
     },
     wecom: {
-      enabled: booleanValue(wecom.enabled) ?? true,
+      enabled: booleanValue(wecom.enabled, "wecom.enabled") ?? true,
       webhook_url: scalar(wecom.webhook_url),
     },
     smtp: {
-      enabled: booleanValue(smtp.enabled) ?? true,
+      enabled: booleanValue(smtp.enabled, "smtp.enabled") ?? true,
       host: scalar(smtp.host),
       port: scalar(smtp.port),
       user: scalar(smtp.user),

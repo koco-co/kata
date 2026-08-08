@@ -174,6 +174,31 @@ export async function executeTableSQL(page: Page, options: ExecuteTableOptions):
       },
       { tName: tableName, db: database, dsId: dataSourceId, dsType: dataSourceType, pId: pid },
     );
-    await page.waitForTimeout(15000);
+    await page.waitForFunction(
+      async ({ tName, pId }) => {
+        const r = await fetch("/dassets/v1/datamap/queryDetail", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "content-type": "application/json;charset=UTF-8",
+            "X-Valid-Project-ID": pId,
+          },
+          body: JSON.stringify({
+            current: 1,
+            size: 10,
+            metaType: 1,
+            search: tName,
+            field: "hot",
+            asc: false,
+          }),
+        });
+        const d = (await r.json()) as {
+          data?: { records?: Array<{ tableName?: string }> };
+        };
+        return (d?.data?.records ?? []).some((rec) => rec.tableName === tName);
+      },
+      { tName: tableName, pId: pid },
+      { timeout: 15_000 },
+    );
   }
 }

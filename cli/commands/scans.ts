@@ -101,6 +101,9 @@ export function registerScans(program: Command): void {
           head_commit: string;
         };
         if (opts.patch) {
+          if (opts.repo || opts.baseBranch || opts.headBranch) {
+            throw new Error("--patch 与 --repo/--base-branch/--head-branch 必须二选一");
+          }
           const diff = readFileSync(opts.patch, "utf8");
           diffOut = {
             diff,

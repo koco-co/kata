@@ -22,6 +22,7 @@ SSH 指纹或内部仓库拓扑。已有本机私密文件不会被文档生成�
 
 linked worktree 按文件读取私密配置：当前 worktree 中的文件优先，缺失时回退主工作树；
 `kata config doctor` 检查实际生效的私密根，不会因为主工作树已有配置而创建第二套本地目录。
+`kata env cookie set` 在 linked worktree 中会生成本地覆盖文件，不修改主工作树共享文件。
 `kata config show` 对私密文件只输出整体脱敏占位符，不展示值、数字、布尔开关或动态对象名。
 
 配置应通过 CLI 检查和写入；本目录不提供额外的 Agent 指令层。

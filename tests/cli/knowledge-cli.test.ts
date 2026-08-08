@@ -644,8 +644,11 @@ describe("kata knowledge index", () => {
   it("injects observed (not verified) frontmatter into bare files and keeps verified files intact", () => {
     const root = proj();
     const modulesDir = join(root, "workspace", "dataAssets", "knowledge", "modules");
+    const termsDir = join(root, "workspace", "dataAssets", "knowledge", "terms");
     mkdirSync(modulesDir, { recursive: true });
+    mkdirSync(termsDir, { recursive: true });
     writeFileSync(join(modulesDir, "bare.md"), "# 裸文件\n\n无 frontmatter。\n");
+    writeFileSync(join(termsDir, "bare-term.md"), "# 裸术语\n\n无 frontmatter。\n");
     const verified = [
       "---",
       "title: 已确认条目",
@@ -666,6 +669,9 @@ describe("kata knowledge index", () => {
     const fixed = readFileSync(join(modulesDir, "bare.md"), "utf8");
     expect(fixed).toContain("status: observed");
     expect(fixed).not.toContain("verified");
+    const fixedTerm = readFileSync(join(termsDir, "bare-term.md"), "utf8");
+    expect(fixedTerm).toContain("type: term");
+    expect(fixedTerm).toContain("status: observed");
     expect(readFileSync(join(modulesDir, "verified.md"), "utf8")).toBe(verified);
   });
 });

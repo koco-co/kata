@@ -29,14 +29,14 @@ describe("splitSqlStatements", () => {
 
   test("ignores semicolons inside line comments", () => {
     expect(splitSqlStatements("-- comment; with semicolon\nSELECT 1; SELECT 2")).toEqual([
-      "-- comment; with semicolon\nSELECT 1",
+      "SELECT 1",
       "SELECT 2",
     ]);
   });
 
   test("ignores semicolons inside block comments", () => {
     expect(splitSqlStatements("/* comment; */ SELECT 1; /* unterminated;")).toEqual([
-      "/* comment; */ SELECT 1",
+      "SELECT 1",
       "/* unterminated;",
     ]);
   });

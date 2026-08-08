@@ -56,6 +56,14 @@ export function safeRef(ref: string): boolean {
   return ref !== "" && !ref.startsWith("-") && !ref.includes(":") && !ref.includes("\0");
 }
 
+/** Validate a git `show` style `<ref>:<path>` argument before invoking git. */
+export function assertSafeRefPath(refPath: string): void {
+  const colon = refPath.indexOf(":");
+  if (colon <= 0 || !safeRef(refPath.slice(0, colon)) || !safeGitPath(refPath.slice(colon + 1))) {
+    throw new Error(`非法 ref:path: ${refPath}`);
+  }
+}
+
 /** writable:false 的仓库只允许只读操作(含更新本地克隆的 fetch/pull/checkout)。 */
 const READONLY_REPO_OPS = new Set([
   "fetch",

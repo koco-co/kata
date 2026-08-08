@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { splitSqlStatements as sdkSplitSqlStatements } from "../../../cli/packages/dtstack-sdk/src/core/sql.ts";
 import {
   DEFAULT_PORT,
   DIALECT_BY_TYPE,
@@ -110,5 +111,24 @@ describe("splitSqlStatements", () => {
     const out = splitSqlStatements("SELECT 1; -- a; b\nSELECT 2;");
     expect(out).toHaveLength(2);
     expect(out[1].startsWith("SELECT 2")).toBe(true);
+  });
+});
+
+describe("SQL split implementation parity", () => {
+  it("keeps runtime and dtstack SDK splitters behaviorally aligned", () => {
+    const samples = [
+      "SELECT 1; SELECT 2;;\n",
+      "INSERT INTO t VALUES ('a;b', \"c;d\"); SELECT 1",
+      "CREATE TABLE `a;b` (id int); SELECT 1",
+      "INSERT INTO t VALUES ('it\\'s;ok'); SELECT 1",
+      "-- comment; with semicolon\nSELECT 1; SELECT 2",
+      "/* comment; */ SELECT 1; /* unterminated;",
+      "SELECT 1; -- a; b\nSELECT 2;",
+      "  ; ; ",
+    ];
+
+    for (const sample of samples) {
+      expect(sdkSplitSqlStatements(sample)).toEqual(splitSqlStatements(sample));
+    }
   });
 });

@@ -21,10 +21,7 @@ export async function waitForUiSettled(page: Page): Promise<void> {
   const loading = page.locator(
     '[aria-busy="true"], .ant-spin-spinning:visible, .ant-loading:visible, [data-loading="true"]',
   );
-  await loading
-    .first()
-    .waitFor({ state: "hidden", timeout: 15_000 })
-    .catch(() => undefined);
+  await loading.first().waitFor({ state: "hidden", timeout: 15_000 });
   await page.evaluate(() => Promise.resolve());
 }
 

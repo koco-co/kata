@@ -6,6 +6,7 @@
  *             Table / Form / Tabs / Checkbox & Radio / Dropdown
  */
 import type { Locator, Page } from "@playwright/test";
+import { waitForUiSettled } from "../utils";
 
 /**
  * Ant Design Select 下拉选择
@@ -25,7 +26,6 @@ export async function selectAntOption(
   optionText: string | RegExp,
 ): Promise<void> {
   await triggerLocator.click();
-  await page.waitForTimeout(300);
   const dropdown = page.locator(".ant-select-dropdown:visible").last();
   await dropdown.waitFor({ state: "visible", timeout: 5000 });
 
@@ -34,7 +34,6 @@ export async function selectAntOption(
     const startedAt = Date.now();
     do {
       if ((await options.count()) > 0) {
-        await page.waitForTimeout(150);
         return;
       }
 
@@ -47,7 +46,7 @@ export async function selectAntOption(
         return;
       }
 
-      await page.waitForTimeout(250);
+      await waitForUiSettled(page);
     } while (Date.now() - startedAt < maxWaitMs);
   };
 
@@ -80,7 +79,6 @@ export async function selectAntOption(
     if (!(await option.count())) return false;
     if (!(await option.isVisible().catch(() => false))) return false;
     await option.click();
-    await page.waitForTimeout(300);
     return true;
   };
 
@@ -121,7 +119,7 @@ export async function selectAntOption(
           break;
         }
 
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
       } while (Date.now() - searchStartedAt < 8000);
     }
   }
@@ -140,7 +138,6 @@ export async function selectAntOption(
         await virtualHolder.evaluate((el, nextTop) => {
           (el as unknown as { scrollTop: number }).scrollTop = nextTop;
         }, top);
-        await page.waitForTimeout(200);
         if (await clickVisibleOption()) return;
       }
     }
@@ -296,7 +293,6 @@ export async function confirmPopconfirm(page: Page, timeout = 3000): Promise<voi
   const popconfirm = page.locator(".ant-popconfirm:visible, .ant-popover:visible").first();
   await popconfirm.waitFor({ state: "visible", timeout });
   await popconfirm.locator(".ant-btn-primary").first().click();
-  await page.waitForTimeout(300);
 }
 
 /**

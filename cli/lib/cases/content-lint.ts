@@ -900,9 +900,7 @@ function collectQualifiedEnvironmentValues(
     }
     if (!table) continue;
     const qualifier = parts.slice(0, -1).join(".");
-    const kind: EnvironmentKind = /^\$\{DataSource[A-Z]\}$/i.test(parts[0] ?? "")
-      ? "schema"
-      : "schema";
+    const kind: EnvironmentKind = "schema";
     addEnvironmentValue(values, kind, qualifier, config);
   }
 }
