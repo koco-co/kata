@@ -31,11 +31,9 @@ export async function navigateViaMenu(page: Page, menuPath: string[]): Promise<v
         .first();
       if ((await parentMenu.count()) > 0 && (await parentMenu.isVisible().catch(() => false))) {
         await parentMenu.click();
-        await page.waitForTimeout(300);
       }
     }
     await menuItem.click();
-    await page.waitForTimeout(500);
   }
   // networkidle 对 SPA 不是可靠的同步契约，改为等待可观测的加载指示器消失
   await waitForUiSettled(page);

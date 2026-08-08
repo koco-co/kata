@@ -1,5 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import { todayStr, uniqueName } from "../../../runtime/automation/playwright/utils.ts";
+import type { Page } from "@playwright/test";
+import {
+  todayStr,
+  uniqueName,
+  waitForUiSettled,
+} from "../../../runtime/automation/playwright/utils.ts";
 
 describe("uniqueName", () => {
   it("returns string starting with prefix", () => {
@@ -51,5 +56,35 @@ describe("todayStr", () => {
   it("uses the local date, not the UTC date (late-night boundary)", () => {
     // 本地 2026-04-16 00:30；UTC 仍是 2026-04-15（UTC+8 下），toISOString 会给错日期
     expect(todayStr(new Date(2026, 3, 16, 0, 30))).toBe("20260416");
+  });
+});
+
+describe("waitForUiSettled", () => {
+  it("rejects when a loading indicator never disappears", async () => {
+    const page = {
+      locator: () => ({
+        first: () => ({
+          waitFor: async () => {
+            throw new Error("loading timeout");
+          },
+        }),
+      }),
+      evaluate: async () => {},
+    } as unknown as Page;
+
+    await expect(waitForUiSettled(page)).rejects.toThrow("loading timeout");
+  });
+
+  it("resolves after loading indicators are hidden", async () => {
+    const page = {
+      locator: () => ({
+        first: () => ({
+          waitFor: async () => {},
+        }),
+      }),
+      evaluate: async () => {},
+    } as unknown as Page;
+
+    await expect(waitForUiSettled(page)).resolves.toBeUndefined();
   });
 });
