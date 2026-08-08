@@ -56,7 +56,15 @@ export async function selectAntOption(
   const optionLocator = async () => {
     if (typeof optionText === "string") {
       const exactMatchIndex = await options.evaluateAll(
-        (els, expected) => els.findIndex((el) => el.textContent?.trim() === expected),
+        (els, expected) =>
+          els.findIndex(
+            (el) =>
+              (
+                el as unknown as {
+                  textContent?: string | null;
+                }
+              ).textContent?.trim() === expected,
+          ),
         optionText,
       );
       if (exactMatchIndex >= 0) {
@@ -123,14 +131,14 @@ export async function selectAntOption(
   if (!searchAttempted) {
     const virtualHolder = dropdown.locator(".rc-virtual-list-holder").first();
     if (await virtualHolder.count()) {
-      const metrics = await virtualHolder.evaluate((el) => ({
-        scrollHeight: el.scrollHeight,
-        clientHeight: el.clientHeight,
-      }));
+      const metrics = await virtualHolder.evaluate((el) => {
+        const node = el as unknown as { scrollHeight: number; clientHeight: number };
+        return { scrollHeight: node.scrollHeight, clientHeight: node.clientHeight };
+      });
       const step = Math.max(Math.floor(metrics.clientHeight / 2), 120);
       for (let top = 0; top <= metrics.scrollHeight; top += step) {
         await virtualHolder.evaluate((el, nextTop) => {
-          el.scrollTop = nextTop;
+          (el as unknown as { scrollTop: number }).scrollTop = nextTop;
         }, top);
         await page.waitForTimeout(200);
         if (await clickVisibleOption()) return;
@@ -138,11 +146,17 @@ export async function selectAntOption(
     }
   }
 
-  const visibleOptions = await dropdown
-    .locator(".ant-select-item-option")
-    .evaluateAll((els) =>
-      els.map((el) => el.textContent?.trim()).filter((text): text is string => Boolean(text)),
-    );
+  const visibleOptions = await dropdown.locator(".ant-select-item-option").evaluateAll((els) =>
+    els
+      .map((el) =>
+        (
+          el as unknown as {
+            textContent?: string | null;
+          }
+        ).textContent?.trim(),
+      )
+      .filter((text): text is string => Boolean(text)),
+  );
   throw new Error(
     `Ant Select option not found: ${String(optionText)}. Visible options: ${visibleOptions.join(", ")}`,
   );
