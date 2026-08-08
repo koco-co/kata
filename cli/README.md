@@ -65,15 +65,16 @@ Options:
   -h, --help                       display help for command
 
 Commands:
-  build [options] [requirementId]  用例内容 lint 与 P0 占比硬校验通过后生成派生产物；TTY 下可交互选择
-                                   XMind/CSV，CSV 需禅道模块 ID；传需求 id 简写定位 feature
+  build [options] [requirementId]  canonical feature_id、用例内容 lint 与 P0
+                                   占比硬校验通过后生成派生产物；TTY 下可交互选择 XMind/CSV，CSV 需禅道模块
+                                   ID；传需求 id 简写定位 feature
   import [options]                 将 CSV/XLSX/MD/XMind 转为 YAML；XMind 可按 L1 拆分(默认
                                    dry-run)
   sync [options]                   按 YAML 中已声明的 Playwright spec_file 同步文件名和
                                    generated runner；API executor 单独报告(默认
                                    dry-run)
-  lint [options]                   检查 feature 目录、不可变 feature_id、YAML 来源、用例内容、P0
-                                   占比与历史导入文件
+  lint [options]                   检查 feature 目录、cases/ 单一 YAML 源、作用域唯一的不可变
+                                   feature_id、用例内容、P0 占比与历史导入文件
   help [command]                   display help for command
 ```
 
@@ -402,8 +403,8 @@ Options:
 ```text
 Usage: kata cases build [options] [requirementId]
 
-用例内容 lint 与 P0 占比硬校验通过后生成派生产物；TTY 下可交互选择 XMind/CSV，CSV 需禅道模块 ID；传需求 id 简写定位
-feature
+canonical feature_id、用例内容 lint 与 P0 占比硬校验通过后生成派生产物；TTY 下可交互选择 XMind/CSV，CSV
+需禅道模块 ID；传需求 id 简写定位 feature
 
 Arguments:
   requirementId          需求 id；按 cases YAML 中 requirement_id 字段定位 feature
@@ -458,12 +459,12 @@ Options:
 ```text
 Usage: kata cases lint [options]
 
-检查 feature 目录、不可变 feature_id、YAML 来源、用例内容、P0 占比与历史导入文件
+检查 feature 目录、cases/ 单一 YAML 源、作用域唯一的不可变 feature_id、用例内容、P0 占比与历史导入文件
 
 Options:
-  --project <name>  项目名；与 --all-projects 二选一
-  --all-projects    检查 workspace 下全部项目；与 --project 二选一
-  --feature <path>  只检查单个 feature（相对 features/ 的完整路径）
+  --project <name>  项目名；与 --all-projects 二选一；feature_id 在项目内唯一
+  --all-projects    检查 workspace 下全部项目；feature_id 分别在各项目内唯一；与 --project 二选一
+  --feature <path>  只报告单个 feature（相对 features/ 的完整路径）；feature_id 仍按项目全量校验
   --exit-code       存在 violation 时退出码为 1
   -h, --help        display help for command
 ```

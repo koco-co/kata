@@ -33,11 +33,12 @@ import {
   isCaseExportFormat,
   parseCaseExportName,
 } from "../lib/cases/formats.ts";
-import { parseCasesYaml, validateCases } from "../lib/cases/parse.ts";
+import { parseCasesYaml } from "../lib/cases/parse.ts";
 import { renderCsv } from "../lib/cases/render-csv.ts";
 import { renderMarkdown } from "../lib/cases/render-md.ts";
 import { renderXlsx } from "../lib/cases/render-xlsx.ts";
 import { locateFeaturesByRequirementId } from "../lib/cases/requirement-locate.ts";
+import { validateCanonicalCases } from "../lib/cases/schema.ts";
 import { setCaseModuleId } from "../lib/cases/serialize.ts";
 import type { CaseRenderContext, CasesFile } from "../lib/cases/types.ts";
 import { renderXmindBuffer } from "../lib/cases/xmind/render.ts";
@@ -48,7 +49,7 @@ import {
   projectRootFromFeatureDir,
   resolveFeatureEntry,
 } from "../lib/features-layout.ts";
-import { p0RatioViolation } from "../lib/features-lint.ts";
+import { collectFeatureIdOwners, p0RatioViolation } from "../lib/features-lint.ts";
 import { assertWritable } from "../lib/path-policy.ts";
 import { assertCaseDigestChain } from "../lib/prd.ts";
 import type { ProjectPaths } from "../lib/types.ts";
@@ -274,10 +275,11 @@ function preflightFeature(featureDir: string): {
     file.meta.test_points_digest,
     file.cases.map((item) => item.source_ref),
   );
-  const problems = validateCases(file);
+  const problems = validateCanonicalCases(file);
   if (problems.length > 0) {
     throw new Error(`用例校验未通过:\n${problems.map((p) => `  - ${p}`).join("\n")}`);
   }
+  assertFeatureIdUnique(featureDir, file.meta.feature_id);
   const contentProblems = lintCaseContent(
     file,
     loadCasesLintConfig(locateProjectRoot()),
@@ -295,6 +297,25 @@ function preflightFeature(featureDir: string): {
     throw new Error(`用例硬校验未通过:\n  - [${p0Problem.rule}] ${p0Problem.message}`);
   }
   return { yamlPath, name, file };
+}
+
+function assertFeatureIdUnique(featureDir: string, featureId: string | undefined): void {
+  if (featureId === undefined) return;
+  const projectDir = projectRootFromFeatureDir(featureDir);
+  const project = basename(projectDir);
+  const featuresDir = join(projectDir, "features");
+  const feature = relative(featuresDir, resolve(featureDir)).split("\\").join("/");
+  const conflict = collectFeatureIdOwners({
+    project,
+    workspaceRoot: dirname(projectDir),
+  })
+    .get(featureId)
+    ?.find((owner) => owner.feature !== feature);
+  if (conflict !== undefined) {
+    throw new Error(
+      `用例校验未通过:\n  - meta.feature_id 与 ${conflict.feature} 重复；项目内已发布身份不可复用`,
+    );
+  }
 }
 
 export interface RunCasesBuildOptions {
@@ -393,7 +414,7 @@ export function registerCasesBuild(cases: Command): void {
   cases
     .command("build")
     .description(
-      "用例内容 lint 与 P0 占比硬校验通过后生成派生产物；TTY 下可交互选择 XMind/CSV，CSV 需禅道模块 ID；传需求 id 简写定位 feature",
+      "canonical feature_id、用例内容 lint 与 P0 占比硬校验通过后生成派生产物；TTY 下可交互选择 XMind/CSV，CSV 需禅道模块 ID；传需求 id 简写定位 feature",
     )
     .argument("[requirementId]", "需求 id；按 cases YAML 中 requirement_id 字段定位 feature")
     .option("--feature <dir>", "feature 目录路径；与 <requirementId> 二选一")

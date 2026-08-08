@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { parseCasesYaml, validateCases } from "../../cli/lib/cases/parse.ts";
+import { validateCanonicalCases } from "../../cli/lib/cases/schema.ts";
 
 const GOOD = `
 meta:
@@ -245,6 +246,15 @@ describe("parseCasesYaml strict optional fields", () => {
     ).toThrow(/meta\.version 已退役/);
     expect(() => parseCasesYaml(GOOD.replace("quality-rule-merge", "Quality Rule Merge"))).toThrow(
       /meta\.feature_id/,
+    );
+  });
+
+  it("keeps draft validation reusable while canonical validation requires feature identity", () => {
+    const draft = parseCasesYaml(GOOD.replace("  feature_id: quality-rule-merge\n", ""));
+
+    expect(validateCases(draft)).toEqual([]);
+    expect(validateCanonicalCases(draft)).toContain(
+      "meta.feature_id 缺失；canonical cases 必须声明不可变身份",
     );
   });
 });

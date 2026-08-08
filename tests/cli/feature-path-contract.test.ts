@@ -35,9 +35,10 @@ describe("feature path repository contract", () => {
         const featureId = parseCasesYaml(text).meta.feature_id;
         expect(featureId, location).toMatch(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/);
         if (!featureId) continue;
-        const owner = identityOwners.get(featureId);
+        const scopedFeatureId = `${project}/${featureId}`;
+        const owner = identityOwners.get(scopedFeatureId);
         expect(owner === undefined || owner === identity.featureKey, location).toBe(true);
-        identityOwners.set(featureId, identity.featureKey);
+        identityOwners.set(scopedFeatureId, identity.featureKey);
       }
     }
     expect(identityOwners.size).toBeGreaterThan(0);

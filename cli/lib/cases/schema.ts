@@ -132,3 +132,12 @@ export function validateCases(file: CasesFile): string[] {
   }
   return problems;
 }
+
+/** Validate a publishable canonical cases file while preserving draft validation separately. */
+export function validateCanonicalCases(file: CasesFile): string[] {
+  const problems = validateCases(file);
+  if (file.meta.feature_id === undefined) {
+    problems.unshift("meta.feature_id 缺失；canonical cases 必须声明不可变身份");
+  }
+  return problems;
+}

@@ -94,6 +94,50 @@ cases:
     ).toContain("case_feature_id_duplicate");
   });
 
+  it("rejects multiple authored YAML sources under one cases directory", () => {
+    const root = ws();
+    const dir = mkValidActive(
+      root,
+      'meta: { title: 需求, feature_id: first-feature, case_module_id: "" }\ncases: []\n',
+    );
+    writeFileSync(
+      join(root, "dataAssets", "features", dir, "cases", "备份.yaml"),
+      'meta: { title: 备份, feature_id: backup-feature, case_module_id: "" }\ncases: []\n',
+    );
+
+    const violations = runFeaturesLint({
+      project: "dataAssets",
+      workspaceRoot: root,
+    }).violations;
+
+    expect(violations.map((violation) => violation.rule)).toContain("case_yaml_not_unique");
+    expect(violations.find((violation) => violation.rule === "case_yaml_not_unique")?.message).toBe(
+      "cases/ 下 yaml 不唯一: 备份.yaml, 需求.yaml",
+    );
+  });
+
+  it("checks project-wide feature identity reuse when linting one feature", () => {
+    const root = ws();
+    const selected = join("v7.0.0", "【客户】【模块】需求甲");
+    const other = join("v7.0.0", "【客户】【模块】需求乙");
+    for (const dir of [selected, other]) {
+      mkfeature(root, dir, "cases");
+      writeFileSync(
+        join(root, "dataAssets", "features", dir, "cases", "需求.yaml"),
+        `meta: { title: 需求, feature_id: shared-feature, case_module_id: "" }\ncases: []\n`,
+      );
+    }
+
+    const violations = runFeaturesLint({
+      project: "dataAssets",
+      workspaceRoot: root,
+      featurePath: selected,
+    }).violations;
+
+    expect(violations.map((violation) => violation.rule)).toContain("case_feature_id_duplicate");
+    expect(violations.every((violation) => violation.feature === selected)).toBe(true);
+  });
+
   it("flags legacy child version labels", () => {
     const root = ws();
     mkfeature(root, "v7.0.0", "【v700】【客户】【模块】需求");
@@ -568,5 +612,50 @@ cases:
     expect(result.status).toBe(1);
     expect(result.stdout).toContain("batchWorks");
     expect(result.stdout).toContain("case_first_step_navigation");
+  });
+
+  it("allows project-scoped feature identity reuse through --all-projects", () => {
+    const workspaceRoot = ws();
+    for (const project of ["dataAssets", "batchWorks"]) {
+      const casesDir = join(
+        workspaceRoot,
+        project,
+        "features",
+        "v1.0",
+        "【模块】跨项目需求",
+        "cases",
+      );
+      mkdirSync(casesDir, { recursive: true });
+      writeFileSync(
+        join(casesDir, "需求.yaml"),
+        `meta: { title: 需求, feature_id: repository-shared-feature, case_module_id: "" }
+cases:
+  - case_id: C0001
+    title: 验证【资产盘点】-【列表】展示数据，核对结果
+    priority: P1
+    precondition: 无
+    steps:
+      - action: 进入【资产盘点】页面
+        expected: 进入成功
+      - action: 查看盘点结果列表
+        expected: 列表展示 1 条记录
+      - action: 确认盘点状态
+        expected: 状态显示为「进行中」
+`,
+      );
+    }
+
+    const result = spawnSync(
+      "bun",
+      ["cli/bin/kata.ts", "cases", "lint", "--all-projects", "--exit-code"],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8",
+        env: { ...process.env, KATA_WORKSPACE_ROOT: workspaceRoot },
+      },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).not.toContain("case_feature_id_duplicate");
   });
 });

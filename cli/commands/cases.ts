@@ -42,10 +42,18 @@ export function registerCases(program: Command): void {
   registerCasesSync(cases);
   cases
     .command("lint")
-    .description("检查 feature 目录、不可变 feature_id、YAML 来源、用例内容、P0 占比与历史导入文件")
-    .option("--project <name>", "项目名；与 --all-projects 二选一")
-    .option("--all-projects", "检查 workspace 下全部项目；与 --project 二选一")
-    .option("--feature <path>", "只检查单个 feature（相对 features/ 的完整路径）")
+    .description(
+      "检查 feature 目录、cases/ 单一 YAML 源、作用域唯一的不可变 feature_id、用例内容、P0 占比与历史导入文件",
+    )
+    .option("--project <name>", "项目名；与 --all-projects 二选一；feature_id 在项目内唯一")
+    .option(
+      "--all-projects",
+      "检查 workspace 下全部项目；feature_id 分别在各项目内唯一；与 --project 二选一",
+    )
+    .option(
+      "--feature <path>",
+      "只报告单个 feature（相对 features/ 的完整路径）；feature_id 仍按项目全量校验",
+    )
     .option("--exit-code", "存在 violation 时退出码为 1")
     .action(
       (opts: { project?: string; allProjects?: boolean; feature?: string; exitCode?: boolean }) => {

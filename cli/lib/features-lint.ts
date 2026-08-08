@@ -30,6 +30,15 @@ export interface FeaturesLintContext {
   featurePath?: string;
 }
 
+/** One project-scoped feature path that declares an immutable feature identity. */
+export interface FeatureIdOwner {
+  project: string;
+  feature: string;
+}
+
+/** Project-scoped immutable feature identities indexed to every declaring owner. */
+export type FeatureIdOwners = ReadonlyMap<string, readonly FeatureIdOwner[]>;
+
 export interface FeatureLintViolation {
   feature: string;
   rule: string;
@@ -93,21 +102,65 @@ interface CaseDoc {
   cases?: { title?: unknown; priority?: unknown }[];
 }
 
+function casesYamlNames(casesDir: string): string[] {
+  if (!existsSync(casesDir)) return [];
+  return readdirSync(casesDir)
+    .filter((filename) => filename.endsWith(".yaml"))
+    .sort();
+}
+
+/** Collect valid immutable identities independently of the requested lint display scope. */
+export function collectFeatureIdOwners(ctx: FeaturesLintContext): Map<string, FeatureIdOwner[]> {
+  const featuresDir = join(ctx.workspaceRoot, ctx.project, "features");
+  const owners = new Map<string, FeatureIdOwner[]>();
+  if (!existsSync(featuresDir)) return owners;
+
+  for (const entry of listFeatureDirs(featuresDir)) {
+    const feature = featureRelativePath(featuresDir, entry);
+    for (const filename of casesYamlNames(join(entry.dir, "cases"))) {
+      try {
+        const doc =
+          (parse(readFileSync(join(entry.dir, "cases", filename), "utf8")) as CaseDoc) ?? {};
+        const featureId = doc.meta?.feature_id;
+        if (typeof featureId !== "string" || !FEATURE_ID_RE.test(featureId)) continue;
+        const current = owners.get(featureId) ?? [];
+        if (!current.some((owner) => owner.project === ctx.project && owner.feature === feature)) {
+          const updated = [...current, { project: ctx.project, feature }].sort((left, right) =>
+            `${left.project}/${left.feature}`.localeCompare(`${right.project}/${right.feature}`),
+          );
+          owners.set(featureId, updated);
+        }
+      } catch {
+        // YAML 解析错误由 lintCaseSources 报告；错误源不得进入身份索引。
+      }
+    }
+  }
+  return owners;
+}
+
 /** Cases source checks independent of the retired feature metadata. */
 function lintCaseSources(
   dir: string,
+  project: string,
   feature: string,
   zone: string,
   envNames: string[],
   contentConfig: CasesLintConfig,
-  featureIds: Map<string, string>,
+  featureIdOwners: FeatureIdOwners,
   violations: FeatureLintViolation[],
 ): void {
   const casesDir = join(dir, "cases");
   if (!existsSync(casesDir)) return;
   const subjective = zone === "active";
-  for (const filename of readdirSync(casesDir)) {
-    if (!filename.endsWith(".yaml")) continue;
+  const yamlNames = casesYamlNames(casesDir);
+  if (yamlNames.length > 1) {
+    violations.push({
+      feature,
+      rule: "case_yaml_not_unique",
+      message: `cases/ 下 yaml 不唯一: ${yamlNames.join(", ")}`,
+    });
+  }
+  for (const filename of yamlNames) {
     const text = readFileSync(join(casesDir, filename), "utf-8");
     if (PENDING_CONFIRM_RE.test(text)) {
       violations.push({
@@ -173,15 +226,15 @@ function lintCaseSources(
         message: `cases/${filename} 的 meta.feature_id 必须是小写英文 kebab 标识`,
       });
     } else {
-      const existingFeature = featureIds.get(featureId);
-      if (existingFeature !== undefined && existingFeature !== feature) {
+      const conflictingOwner = featureIdOwners
+        .get(featureId)
+        ?.find((owner) => owner.project === project && owner.feature !== feature);
+      if (conflictingOwner !== undefined) {
         violations.push({
           feature,
           rule: "case_feature_id_duplicate",
-          message: `cases/${filename} 的 meta.feature_id 与 ${existingFeature} 重复；已发布身份不可复用`,
+          message: `cases/${filename} 的 meta.feature_id 与 ${conflictingOwner.feature} 重复；已发布身份不可复用`,
         });
-      } else {
-        featureIds.set(featureId, feature);
       }
     }
     if (Array.isArray(doc.meta?.imports)) {
@@ -262,17 +315,18 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
   const entries = ctx.featurePath
     ? [resolveFeatureEntry(featuresDir, ctx.featurePath)]
     : allEntries;
-  const featureIds = new Map<string, string>();
+  const featureIdOwners = collectFeatureIdOwners(ctx);
 
   for (const entry of entries) {
     const feature = featureRelativePath(featuresDir, entry);
     lintCaseSources(
       entry.dir,
+      ctx.project,
       feature,
       entry.zone,
       envNames,
       contentConfig,
-      featureIds,
+      featureIdOwners,
       violations,
     );
     for (const legacy of ["prd.md", "requirement-notes.md", "test-points.md"]) {
