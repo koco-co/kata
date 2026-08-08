@@ -28,7 +28,7 @@ Commands:
   scans             代码 diff 扫描报告
   defects           缺陷报告生成与结构校验
   infra             基础设施配置和 SSH connectivity 检查
-  automation        自动化目录结构管理
+  automation        自动化 executor 生命周期与目录管理
   project           项目工作区的创建、检查与修复
   prd               PRD 证据提取、确认式定稿与检查
   zentao            禅道集成:bug 抓取与创建
@@ -246,12 +246,14 @@ Commands:
 ```text
 Usage: kata automation [options] [command]
 
-自动化目录结构管理
+自动化 executor 生命周期与目录管理
 
 Options:
   -h, --help                                    display help for command
 
 Commands:
+  setup [options]                               显式准备一个已发现 executor 的运行环境；可能安装依赖或浏览器
+  doctor [options]                              只读检查一个已发现 executor 的运行环境；不会隐式执行 setup
   sql                                           校验和渲染自动化 SQL 模板；不连接数据库
   run [options] <feature-or-requirement-id>     按 feature 路径或需求 ID 执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖
   coverage <feature-dir>                        检查 cases YAML 自动化覆盖；API executor 单独报告，Playwright 校验映射、标题和实现状态
@@ -996,6 +998,30 @@ Options:
   --slug <slug>        报告 slug
   --dry-run            只解析配置，不连接服务器
   -h, --help           display help for command
+```
+
+## kata automation setup
+
+```text
+Usage: kata automation setup [options]
+
+显式准备一个已发现 executor 的运行环境；可能安装依赖或浏览器
+
+Options:
+  --executor <id>  executor ID；仅发现一个时可省略
+  -h, --help       display help for command
+```
+
+## kata automation doctor
+
+```text
+Usage: kata automation doctor [options]
+
+只读检查一个已发现 executor 的运行环境；不会隐式执行 setup
+
+Options:
+  --executor <id>  executor ID；仅发现一个时可省略
+  -h, --help       display help for command
 ```
 
 ## kata automation sql

@@ -340,7 +340,7 @@ describe("executor command execution", () => {
     throw new Error(`timed out waiting for fixture file: ${path}`);
   }
 
-  it("passes argv literally without invoking a shell and merges the caller base env", async () => {
+  it("passes argv literally without invoking a shell and drops arbitrary caller env", async () => {
     const root = fixtureRoot();
     const scriptPath = join(root, "record-argv.js");
     const outputPath = join(root, "argv.json");
@@ -375,10 +375,85 @@ describe("executor command execution", () => {
     expect(exitCode).toBe(0);
     expect(JSON.parse(readFileSync(outputPath, "utf8"))).toEqual({
       argv: literalArguments,
-      base: "base",
       shared: "materialized",
     });
     expect(existsSync(shellSideEffect)).toBe(false);
+  });
+
+  it("inherits only the controlled cross-platform base env allowlist", async () => {
+    const root = fixtureRoot();
+    const scriptPath = join(root, "record-env.js");
+    const outputPath = join(root, "env.json");
+    writeFileSync(
+      scriptPath,
+      [
+        'import { writeFileSync } from "node:fs";',
+        "writeFileSync(process.env.OUTPUT_PATH, JSON.stringify(process.env));",
+      ].join("\n"),
+    );
+
+    const exitCode = await executeExecutorCommand(
+      command(root, [process.execPath, scriptPath], { OUTPUT_PATH: outputPath }),
+      {
+        baseEnv: {
+          PATH: "/controlled/bin",
+          HOME: "/controlled/home",
+          USER: "runner",
+          LOGNAME: "runner",
+          SHELL: "/bin/zsh",
+          TMPDIR: "/controlled/tmp/",
+          TMP_CUSTOM: "tmp-value",
+          LANG: "zh_CN.UTF-8",
+          LC_ALL: "zh_CN.UTF-8",
+          TERM: "xterm-256color",
+          CI: "true",
+          SystemRoot: "C:\\Windows",
+          WINDIR: "C:\\Windows",
+          COMSPEC: "C:\\Windows\\System32\\cmd.exe",
+          PATHEXT: ".COM;.EXE",
+          USERPROFILE: "C:\\Users\\runner",
+          HOMEDRIVE: "C:",
+          HOMEPATH: "\\Users\\runner",
+          TEMP: "C:\\Temp",
+          APPDATA: "C:\\Users\\runner\\AppData\\Roaming",
+          LOCALAPPDATA: "C:\\Users\\runner\\AppData\\Local",
+          KATA_PRIVATE_TOKEN: "must-not-leak",
+          DATABASE_PASSWORD: "must-not-leak",
+          AWS_SECRET_ACCESS_KEY: "must-not-leak",
+          ARBITRARY_VALUE: "must-not-leak",
+        },
+      },
+    );
+
+    expect(exitCode).toBe(0);
+    const childEnv = JSON.parse(readFileSync(outputPath, "utf8")) as Record<string, string>;
+    expect(childEnv).toMatchObject({
+      PATH: "/controlled/bin",
+      HOME: "/controlled/home",
+      USER: "runner",
+      LOGNAME: "runner",
+      SHELL: "/bin/zsh",
+      TMPDIR: "/controlled/tmp/",
+      TMP_CUSTOM: "tmp-value",
+      LANG: "zh_CN.UTF-8",
+      LC_ALL: "zh_CN.UTF-8",
+      TERM: "xterm-256color",
+      CI: "true",
+      SystemRoot: "C:\\Windows",
+      WINDIR: "C:\\Windows",
+      COMSPEC: "C:\\Windows\\System32\\cmd.exe",
+      PATHEXT: ".COM;.EXE",
+      USERPROFILE: "C:\\Users\\runner",
+      HOMEDRIVE: "C:",
+      HOMEPATH: "\\Users\\runner",
+      TEMP: "C:\\Temp",
+      APPDATA: "C:\\Users\\runner\\AppData\\Roaming",
+      LOCALAPPDATA: "C:\\Users\\runner\\AppData\\Local",
+    });
+    expect(childEnv).not.toHaveProperty("KATA_PRIVATE_TOKEN");
+    expect(childEnv).not.toHaveProperty("DATABASE_PASSWORD");
+    expect(childEnv).not.toHaveProperty("AWS_SECRET_ACCESS_KEY");
+    expect(childEnv).not.toHaveProperty("ARBITRARY_VALUE");
   });
 
   it("returns the child exit code without exiting the caller", async () => {

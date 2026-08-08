@@ -24,6 +24,11 @@ import { normalizeAutomation } from "../lib/automation/automation-normalize.ts";
 import { migrateGeneratedPlaceholders } from "../lib/automation/automation-placeholders.ts";
 import { scaffoldAutomation } from "../lib/automation/automation-scaffold.ts";
 import { parseAutomationSetEntries } from "../lib/automation/cli-overrides.ts";
+import {
+  type ExecutorEnvironmentLifecycle,
+  isLifecycleExecutorId,
+  runExecutorLifecycle,
+} from "../lib/automation/executor-lifecycle.ts";
 import { lintSqlFile, renderSql } from "../lib/automation/sql.ts";
 import { RUN_TYPES, type RunType } from "../lib/run-id.ts";
 import { executeWithRunPath } from "../lib/runs-exec.ts";
@@ -43,6 +48,10 @@ interface AutomationRunOptions {
   readonly set?: string[];
 }
 
+interface AutomationLifecycleOptions {
+  readonly executor?: string;
+}
+
 function booleanOption(
   command: Command,
   positive: string,
@@ -51,6 +60,34 @@ function booleanOption(
   negativeDescription = description,
 ): void {
   command.option(positive, description).option(negative, negativeDescription);
+}
+
+function lifecycleErrorExitCode(error: unknown): number {
+  if (error instanceof Error && "exitCode" in error) {
+    const exitCode = Number(error.exitCode);
+    if (Number.isInteger(exitCode) && exitCode > 0) return exitCode;
+  }
+  return 1;
+}
+
+async function runAutomationLifecycle(
+  lifecycle: ExecutorEnvironmentLifecycle,
+  options: AutomationLifecycleOptions,
+): Promise<void> {
+  let executorId = isLifecycleExecutorId(options.executor) ? options.executor : "unresolved";
+  let exitCode = 1;
+  try {
+    const result = await runExecutorLifecycle(lifecycle, { executorId: options.executor });
+    executorId = result.executorId;
+    exitCode = result.exitCode;
+  } catch (error) {
+    process.stderr.write(`${error instanceof Error ? error.message : "executor lifecycle 失败"}\n`);
+    exitCode = lifecycleErrorExitCode(error);
+  }
+  process.stdout.write(
+    `[automation lifecycle] executor=${executorId} lifecycle=${lifecycle} exitCode=${exitCode}\n`,
+  );
+  process.exitCode = exitCode;
 }
 
 function cliValue(command: Command, key: string, value: unknown): unknown {
@@ -235,7 +272,19 @@ async function runAutomation(
 
 /** Build the `automation` command: scaffold + normalize a feature's automation dir. */
 export function registerAutomation(program: Command): void {
-  const automation = program.command("automation").description("自动化目录结构管理");
+  const automation = program
+    .command("automation")
+    .description("自动化 executor 生命周期与目录管理");
+  automation
+    .command("setup")
+    .description("显式准备一个已发现 executor 的运行环境；可能安装依赖或浏览器")
+    .option("--executor <id>", "executor ID；仅发现一个时可省略")
+    .action((options: AutomationLifecycleOptions) => runAutomationLifecycle("setup", options));
+  automation
+    .command("doctor")
+    .description("只读检查一个已发现 executor 的运行环境；不会隐式执行 setup")
+    .option("--executor <id>", "executor ID；仅发现一个时可省略")
+    .action((options: AutomationLifecycleOptions) => runAutomationLifecycle("doctor", options));
   const sql = automation.command("sql").description("校验和渲染自动化 SQL 模板；不连接数据库");
   sql
     .command("lint <sql-file>")

@@ -7,6 +7,27 @@ import type { ExecutorCommandName, ExecutorDescriptor } from "./executor-registr
 const EXECUTION_MANIFEST_PLACEHOLDER = "{execution_manifest}";
 const ENV_NAME_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const FORWARDED_SIGNALS: readonly NodeJS.Signals[] = ["SIGINT", "SIGTERM", "SIGHUP"];
+const BASE_ENV_KEYS = new Set([
+  "PATH",
+  "HOME",
+  "USER",
+  "LOGNAME",
+  "SHELL",
+  "LANG",
+  "TERM",
+  "CI",
+  // Windows 启动进程及用户临时目录所需的基础键。
+  "SYSTEMROOT",
+  "WINDIR",
+  "COMSPEC",
+  "PATHEXT",
+  "USERPROFILE",
+  "HOMEDRIVE",
+  "HOMEPATH",
+  "TEMP",
+  "APPDATA",
+  "LOCALAPPDATA",
+]);
 
 /** Stable failure codes for executor command materialization and execution. */
 export type ExecutorCommandErrorCode =
@@ -226,7 +247,16 @@ function validatedEnv(
 
 function inheritedEnv(baseEnv: NodeJS.ProcessEnv): Record<string, string> {
   const result: Record<string, string> = {};
-  for (const [key, value] of Object.entries(baseEnv)) {
+  for (const key of Object.keys(baseEnv).sort()) {
+    const normalizedKey = key.toUpperCase();
+    if (
+      !BASE_ENV_KEYS.has(normalizedKey) &&
+      !normalizedKey.startsWith("TMP") &&
+      !normalizedKey.startsWith("LC")
+    ) {
+      continue;
+    }
+    const value = baseEnv[key];
     if (value === undefined) continue;
     if (typeof value !== "string") {
       fail("EXECUTOR_COMMAND_ENV_INVALID", `caller env.${key} 必须是字符串环境变量`);
