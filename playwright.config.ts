@@ -1,5 +1,10 @@
 import { resolve } from "node:path";
-import { defineConfig, devices, type PlaywrightTestOptions } from "@playwright/test";
+import {
+  defineConfig,
+  devices,
+  type PlaywrightTestOptions,
+  type ReporterDescription,
+} from "@playwright/test";
 import {
   resolvePlaywrightOutputDir,
   resolvePlaywrightRunPath,
@@ -95,6 +100,31 @@ const allureReportReporter = resolve(
   PLAYWRIGHT_AUTOMATION_REPO_ROOT,
   "cli/lib/allure-report-reporter.ts",
 );
+const progressReporter = resolve(
+  PLAYWRIGHT_AUTOMATION_REPO_ROOT,
+  "cli/lib/playwright-progress-reporter.ts",
+);
+const allureReporters: ReporterDescription[] =
+  !discoveryOnly && automationConfig.allure.enabled
+    ? [
+        [
+          "allure-playwright",
+          {
+            detail: true,
+            resultsDir: allureDirectories?.resultsDir,
+            suiteTitle: true,
+          },
+        ],
+        [
+          allureReportReporter,
+          {
+            resultsDir: allureDirectories?.resultsDir,
+            reportDir: allureDirectories?.reportDir,
+            repoRoot: process.cwd(),
+          },
+        ],
+      ]
+    : [];
 
 export default defineConfig({
   testMatch: [
@@ -114,28 +144,7 @@ export default defineConfig({
   workers: automationConfig.workers,
   timeout: automationConfig.timeoutMs,
   retries: automationConfig.retries,
-  reporter:
-    !discoveryOnly && automationConfig.allure.enabled
-      ? [
-          ["line"],
-          [
-            "allure-playwright",
-            {
-              detail: true,
-              resultsDir: allureDirectories?.resultsDir,
-              suiteTitle: true,
-            },
-          ],
-          [
-            allureReportReporter,
-            {
-              resultsDir: allureDirectories?.resultsDir,
-              reportDir: allureDirectories?.reportDir,
-              repoRoot: process.cwd(),
-            },
-          ],
-        ]
-      : [["line"]],
+  reporter: [["line"], [progressReporter], ...allureReporters],
   use: {
     headless: automationConfig.headless,
     viewport: { width: 1280, height: 720 },
