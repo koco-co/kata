@@ -3,12 +3,13 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  type ExecutionManifest,
   parseExecutionManifest,
   readExecutionManifest,
   writeExecutionManifest,
 } from "../../cli/lib/automation/execution-manifest.ts";
 
-function validManifest(): unknown {
+function validManifest(): ExecutionManifest {
   return {
     schema_version: 1,
     logical_run_id: "20260808-1230-run-01",
@@ -41,13 +42,13 @@ describe("execution manifest", () => {
   });
 
   it("rejects duplicate canonical identities and malformed business-record policy", () => {
-    const duplicate = validManifest() as { cases: unknown[] };
+    const duplicate = validManifest() as unknown as { cases: unknown[] };
     duplicate.cases.push({ ...(duplicate.cases[0] as object) });
     expect(() => parseExecutionManifest(duplicate)).toThrow(
       "重复用例 data-assets/rule-library/C0001",
     );
 
-    const missingReason = validManifest() as {
+    const missingReason = validManifest() as unknown as {
       cases: Array<{ business_record: Record<string, unknown> }>;
     };
     const missingReasonCase = missingReason.cases[1];
@@ -55,7 +56,7 @@ describe("execution manifest", () => {
     missingReasonCase.business_record = { policy: "not_applicable" };
     expect(() => parseExecutionManifest(missingReason)).toThrow("cases[1].business_record.reason");
 
-    const unexpectedReason = validManifest() as {
+    const unexpectedReason = validManifest() as unknown as {
       cases: Array<{ business_record: Record<string, unknown> }>;
     };
     const unexpectedReasonCase = unexpectedReason.cases[0];
