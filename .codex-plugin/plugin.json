@@ -1,6 +1,6 @@
 {
   "name": "kata",
-  "version": "4.0.0-alpha.1",
+  "version": "4.0.0-alpha.2",
   "description": "QA test-case authoring, hotfix regression, defect triage, infra diagnosis, knowledge curation, and executor-based automation skills for the kata workspace.",
   "license": "MIT",
   "keywords": [

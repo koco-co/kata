@@ -199,15 +199,18 @@ describe("skill contract", () => {
 
   it("自动化 Skill 按 descriptor 选择 executor 并隐藏底层 runner", () => {
     const automation = readSkillMd("automation");
+    const content = readSkillContent("automation");
+    const prepare = readFileSync(join(skillDir("automation"), "workflows/prepare.md"), "utf8");
+    const deliver = readFileSync(join(skillDir("automation"), "workflows/deliver.md"), "utf8");
     expect(automation).toContain("automation/*/executor.toml");
     expect(automation).toContain("agent.guide");
     expect(automation).toContain("完整读取");
-    expect(automation).toContain("kata automation collect");
-    expect(automation).toContain("kata automation run");
-    expect(automation.indexOf("kata automation collect")).toBeLessThan(
-      automation.indexOf("kata automation run"),
-    );
-    expect(automation).not.toMatch(/\b(?:uv|pytest|bunx|npx)\b/);
+    expect(prepare).toContain("kata automation setup");
+    expect(prepare).toContain("kata automation doctor");
+    expect(prepare).toContain("kata automation collect");
+    expect(deliver).toContain("kata automation run");
+    expect(deliver).toContain("kata runs verify");
+    expect(content).not.toMatch(/\b(?:uv|pytest|bunx|npx)\b/);
 
     const create = readFileSync(join(skillDir("test-case"), "workflows/create.md"), "utf8");
     expect(create).toContain("active/planned 状态由 `automation` Skill 按真实实现维护");
@@ -228,6 +231,29 @@ describe("skill contract", () => {
     expect(workspaceManagement).not.toContain("CLAUDE.md 本地配置节");
 
     expect(existsSync(join(skillDir("defect-analyze"), "templates/report.md"))).toBe(false);
+  });
+
+  it("自动化 Skill 保留可渐进读取的分阶段目录结构", () => {
+    const requiredFiles = [
+      "workflows/prepare.md",
+      "workflows/implement.md",
+      "workflows/deliver.md",
+      "references/executor-contract.md",
+      "references/conventions.md",
+      "references/evidence-contract.md",
+      "prompts/worker.md",
+      "checklists/review.md",
+      "templates/handoff.md",
+      "examples/handoff.md",
+    ];
+    const automation = readSkillMd("automation");
+    for (const file of requiredFiles) {
+      expect(existsSync(join(skillDir("automation"), file)), `automation 缺少 ${file}`).toBe(true);
+      expect(automation, `automation/SKILL.md 未导航到 ${file}`).toContain(`](${file})`);
+    }
+    expect(automation).toContain("prepare → implement → deliver");
+    expect(automation).toContain("references/executor-contract.md");
+    expect(automation).toContain("descriptor 及其 `agent.guide`");
   });
 
   it("defect-analyze 只在用户明确要求缺陷分析时触发，普通 code review 不劫持", () => {
@@ -269,6 +295,40 @@ describe("skill contract", () => {
     expect(content).not.toContain(".spec.ts");
     expect(content).not.toContain("feature 的 `runs/");
     expect(existsSync(skillDir("ui-automation"))).toBe(false);
+  });
+
+  it("自动化证据 reference、worker 与 handoff 资源各守其责", () => {
+    const evidence = readFileSync(
+      join(skillDir("automation"), "references/evidence-contract.md"),
+      "utf8",
+    );
+    for (const artifact of [
+      "execution-manifest.json",
+      "collection-status.json",
+      "preparation-status.json",
+      "status.json",
+      "allure-results/",
+      "evidence/",
+      "business-records/",
+      "handoff.md",
+    ]) {
+      expect(evidence, `evidence contract 缺少 ${artifact}`).toContain(artifact);
+    }
+    expect(evidence).toContain("NOT VERIFIED");
+    expect(evidence).toContain("unavailable");
+    expect(evidence).toContain("同一 execution 与 attempt");
+
+    const worker = readFileSync(join(skillDir("automation"), "prompts/worker.md"), "utf8");
+    expect(worker).toContain("不修改 descriptor、Skill、共享 contract、`config/private`");
+    expect(worker).toContain("不运行正式环境 run");
+    expect(worker).toContain("主会话负责");
+
+    const handoffResources = ["templates/handoff.md", "examples/handoff.md"]
+      .map((file) => readFileSync(join(skillDir("automation"), file), "utf8"))
+      .join("\n");
+    expect(handoffResources).toContain("NOT VERIFIED");
+    expect(handoffResources).toContain("不得手工");
+    expect(handoffResources).not.toMatch(/\.spec\.ts|full\.spec|generated\.ts|feature 的 `runs\//);
   });
 
   it("test-case few-shot 不伪造自动化映射且用例可独立准备", () => {
@@ -341,6 +401,9 @@ describe("skill contract", () => {
       ["test-case", "workflows/create.md"],
       ["test-case", "workflows/update.md"],
       ["automation", "SKILL.md"],
+      ["automation", "workflows/prepare.md"],
+      ["automation", "workflows/implement.md"],
+      ["automation", "workflows/deliver.md"],
       ["workspace-management", "SKILL.md"],
     ];
     for (const [skill, file] of processFiles) {

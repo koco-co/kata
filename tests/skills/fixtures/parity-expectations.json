@@ -28,26 +28,26 @@
         { "pattern": "agent.guide", "file": "SKILL.md" }
       ],
       "executorKinds": [
-        { "pattern": "playwright-web-ui", "file": "SKILL.md" },
-        { "pattern": "appium-app-ui", "file": "SKILL.md" },
-        { "pattern": "request-api", "file": "SKILL.md" },
-        { "pattern": "midscene-web-ui", "file": "SKILL.md" },
-        { "pattern": "midscene-app-ui", "file": "SKILL.md" }
+        { "pattern": "playwright-web-ui", "file": "references/executor-contract.md" },
+        { "pattern": "appium-app-ui", "file": "references/executor-contract.md" },
+        { "pattern": "request-api", "file": "references/executor-contract.md" },
+        { "pattern": "midscene-web-ui", "file": "references/executor-contract.md" },
+        { "pattern": "midscene-app-ui", "file": "references/executor-contract.md" }
       ],
       "lifecycle": [
-        { "pattern": "kata automation setup", "file": "SKILL.md" },
-        { "pattern": "kata automation doctor", "file": "SKILL.md" },
-        { "pattern": "kata automation collect", "file": "SKILL.md" },
-        { "pattern": "kata automation run", "file": "SKILL.md" }
+        { "pattern": "kata automation setup", "file": "workflows/prepare.md" },
+        { "pattern": "kata automation doctor", "file": "workflows/prepare.md" },
+        { "pattern": "kata automation collect", "file": "workflows/prepare.md" },
+        { "pattern": "kata automation run", "file": "workflows/deliver.md" }
       ],
       "evidenceGate": [
-        { "pattern": "execution-manifest.json", "file": "SKILL.md" },
-        { "pattern": "Allure", "file": "SKILL.md" },
-        { "pattern": "business-records/", "file": "SKILL.md" },
-        { "pattern": "handoff.md", "file": "SKILL.md" }
+        { "pattern": "execution-manifest.json", "file": "references/evidence-contract.md" },
+        { "pattern": "Allure", "file": "references/evidence-contract.md" },
+        { "pattern": "business-records/", "file": "references/evidence-contract.md" },
+        { "pattern": "handoff.md", "file": "references/evidence-contract.md" }
       ],
-      "runsVerify": [{ "pattern": "kata runs verify", "file": "SKILL.md" }],
-      "secretBoundary": [{ "pattern": "config/private", "file": "SKILL.md" }]
+      "runsVerify": [{ "pattern": "kata runs verify", "file": "workflows/deliver.md" }],
+      "secretBoundary": [{ "pattern": "config/private", "file": "workflows/prepare.md" }]
     },
     "defect-analyze": {
       "reportPath": [{ "pattern": "analyses/", "file": "SKILL.md" }],
