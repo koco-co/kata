@@ -35,6 +35,7 @@ output/
 
 # System and build
 **/.DS_Store
+/.idea/
 *.pyc
 __pycache__/
 .pytest_cache/
