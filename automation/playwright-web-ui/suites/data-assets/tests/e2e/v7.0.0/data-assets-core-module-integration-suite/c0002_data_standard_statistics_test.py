@@ -10,7 +10,6 @@ from data_assets_playwright_web_ui.components.navigation import DataAssetsNaviga
 from data_assets_playwright_web_ui.domains.data_standard.standard_statistics import (
     StandardReferenceData,
     StandardStatisticsScreen,
-    StandardStatisticsSnapshot,
 )
 from playwright_web_ui import automation_case
 
@@ -45,15 +44,11 @@ def test_data_standard_statistics_and_reference_records(
 ) -> None:
     """Verify the canonical C0002 read-only UI checkpoints."""
     screen = StandardStatisticsScreen(DataAssetsNavigation(page, platform_context))
-    statistics: StandardStatisticsSnapshot | None = None
 
     with step(
         action="进入【数据标准 → 标准统计】页面", expected="标准统计页面加载成功", target="标准统计"
     ):
         statistics = screen.open_statistics()
-    if statistics is None:
-        message = "标准统计页面未返回四图业务数据"
-        raise AssertionError(message)
     with step(
         action="查看标准统计卡片",
         expected="数据标准、代码表和词根管理数量均大于或等于 1",
