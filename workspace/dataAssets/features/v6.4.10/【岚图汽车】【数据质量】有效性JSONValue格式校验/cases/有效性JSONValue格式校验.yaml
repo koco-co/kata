@@ -16,7 +16,7 @@ cases:
       reason: 仅查看未保存规则表单中的统计规则选项顺序
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则集管理】查看统计规则下拉选项顺序，格式-json格式校验选项位于格式校验-自定义正则上方
   priority: P1
   steps:
@@ -53,7 +53,7 @@ cases:
       reason: 仅查看未保存规则表单的提示图标展示
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则集管理】查看json格式校验统计函数行，不展示独立悬浮提示图标
   priority: P1
   steps:
@@ -90,7 +90,7 @@ cases:
       reason: 仅切换未保存规则表单的字段并查看统计规则选项
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则集管理】切换不同字段类型查看统计规则下拉框，格式-json格式校验选项均可见
   priority: P1
   steps:
@@ -243,7 +243,7 @@ cases:
       reason: 仅在未保存规则表单搜索校验 key
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则集管理】搜索校验key，下拉列表仅展示命中key
   priority: P1
   steps:
@@ -289,7 +289,7 @@ cases:
       reason: 仅在未保存规则表单加载、搜索并选择 key
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则集管理】展开校验key下拉框，默认仅加载前200条且可搜索选中200条后的key
   priority: P1
   steps:
@@ -345,7 +345,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则集管理】勾选校验key并保存规则，回显以分号分隔key路径
   priority: P1
   steps:
@@ -396,7 +396,7 @@ cases:
       reason: 仅查看既有规则的校验 key 回显与悬浮提示
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则集管理】悬浮校验key字段，展示全部key名
   priority: P1
   steps:
@@ -442,7 +442,7 @@ cases:
       reason: 仅预览未保存规则表单中所选 key 的 value 格式
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则集管理】打开value格式预览弹窗，仅展示已勾选key的格式信息且支持分页
   priority: P1
   steps:
@@ -506,7 +506,7 @@ cases:
       reason: 仅查看未保存规则表单对 int 字段的选项限制
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则集管理】选择int类型字段查看统计规则下拉框，不出现格式-json格式校验选项
   priority: P1
   steps:
@@ -543,7 +543,7 @@ cases:
       reason: 必填校验阻断规则保存，平台规则未写入
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则集管理】未选择校验key保存规则，提示统计函数存在必填项未填写且规则未保存
   priority: P1
   steps:
@@ -585,7 +585,7 @@ cases:
       reason: 仅查看既有规则的配置参数
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则集管理】查看已保存规则配置参数区域，各字段值与配置一致
   priority: P1
   steps:
@@ -633,7 +633,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则集管理】配置json格式校验规则集与任务并执行，实例校验结果显示通过
   priority: P0
   steps:
@@ -727,7 +727,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则集管理】配置json格式校验规则集与任务并执行，实例校验结果显示不通过且明细展示标红字段
   priority: P0
   steps:
@@ -823,7 +823,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则任务管理】执行SparkThrift2.x数据源任务，实例校验结果与记录明细正确
   priority: P0
   steps:
@@ -867,7 +867,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则任务管理】执行Doris3.x数据源任务，实例校验结果与记录明细正确
   priority: P0
   steps:
@@ -916,7 +916,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则任务管理】执行Hive2.x数据源任务，实例校验结果与记录明细正确
   priority: P1
   steps:
@@ -960,7 +960,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则任务管理】执行维护上千key的任务，实例详情展示校验结果与明细
   priority: P1
   steps:
@@ -1088,7 +1088,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则任务管理】删除被规则引用的key，value格式预览与任务执行正常
   priority: P1
   steps:
@@ -1207,7 +1207,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【规则任务管理】配置分区过滤条件执行任务，仅校验前一日分区数据
   priority: P1
   steps:
@@ -1304,7 +1304,7 @@ cases:
       reason: 仅查看并下载既有校验失败实例的明细
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【校验结果查询】下载校验不通过明细，校验字段单元格标红
   priority: P0
   steps:
@@ -1350,7 +1350,7 @@ cases:
       reason: 仅查看既有校验通过实例的详情
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【校验结果查询】查看质检结果为通过的实例，未记录明细且不显示查看详情入口
   priority: P1
   steps:
@@ -1397,7 +1397,7 @@ cases:
       reason: 仅查看既有校验失败实例日志
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【校验结果查询】查看校验失败实例日志，日志弹窗展示错误描述
   priority: P2
   steps:

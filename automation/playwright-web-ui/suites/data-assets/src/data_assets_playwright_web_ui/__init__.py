@@ -11,4 +11,7 @@ SUITE: Final = SuiteDefinition(
     project_id="data-assets",
     root_path=_SUITE_ROOT,
     tests_path=_SUITE_ROOT / "tests" / "e2e",
+    fixture_plugins=(
+        "data_assets_playwright_web_ui.domains.data_quality.json_value_validation.fixtures",
+    ),
 )
