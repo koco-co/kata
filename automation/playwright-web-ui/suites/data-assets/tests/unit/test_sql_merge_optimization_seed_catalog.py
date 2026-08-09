@@ -136,8 +136,6 @@ def test_write_scenario_binds_every_runtime_table_field_to_seed_receipt() -> Non
     canonical = WriteScenario(
         case_id="C0031",
         table_name="test_table_15862_c0031",
-        task_name="RuleA",
-        rule_package_name="完整性可合并规则",
         rule_functions=("空值数", "空值率"),
         field_shape=FieldShape.SINGLE_FIELD,
         merge_batch_size=1,

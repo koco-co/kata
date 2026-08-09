@@ -274,8 +274,6 @@ def test_materialized_names_are_unique_and_keep_every_rule_identity() -> None:
     scenario = WriteScenario(
         case_id="C0001",
         table_name="test_table_15862_c0001",
-        task_name="RuleA",
-        rule_package_name="mixed SQL topology",
         rule_functions=tuple(rule.function_name for rule in rules),
         field_shape=FieldShape.MIXED,
         merge_batch_size=10,

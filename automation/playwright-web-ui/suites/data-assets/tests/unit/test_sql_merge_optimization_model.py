@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from dataclasses import fields
+
 import pytest
 
 from data_assets_playwright_web_ui.domains.data_quality.sql_merge_optimization.model import (
@@ -31,6 +33,13 @@ def test_case_matrix_has_72_independent_canonical_identities() -> None:
     assert len(READ_ONLY_CASE_IDS) == _READ_ONLY_CASE_COUNT
     assert set(WRITE_CASE_IDS).isdisjoint(READ_ONLY_CASE_IDS)
     assert set(WRITE_CASE_IDS) | set(READ_ONLY_CASE_IDS) == set(ALL_CASE_IDS)
+
+
+def test_write_scenario_has_no_unconsumed_persisted_name_fields() -> None:
+    field_names = {field.name for field in fields(WriteScenario)}
+
+    assert "task_name" not in field_names
+    assert "rule_package_name" not in field_names
 
 
 @pytest.mark.parametrize(
@@ -77,8 +86,6 @@ def test_write_scenario_preserves_explicit_spark_topology_and_result_matrix() ->
     scenario = WriteScenario(
         case_id="C0019",
         table_name="test_table_15862_c0019",
-        task_name="RuleA",
-        rule_package_name="有效性可合并规则",
         rule_functions=("数值-取值范围", "数值-枚举个数", "枚举值", "取值范围&枚举范围"),
         field_shape=FieldShape.SINGLE_FIELD,
         merge_batch_size=1,
@@ -122,8 +129,6 @@ def test_write_scenario_rejects_topology_that_does_not_cover_rules(
         WriteScenario(
             case_id="C0005",
             table_name="test_table_15862_c0005",
-            task_name="RuleA",
-            rule_package_name="可合并规则",
             rule_functions=("空值数", "空串数", "数值-取值范围"),
             field_shape=FieldShape.MIXED,
             merge_batch_size=1,
@@ -137,8 +142,6 @@ def test_write_scenario_rejects_incomplete_explicit_result_matrix() -> None:
         WriteScenario(
             case_id="C0020",
             table_name="test_table_15862_c0020",
-            task_name="RuleA",
-            rule_package_name="有效性可合并规则",
             rule_functions=("数值-取值范围", "数值-枚举个数", "枚举值", "取值范围&枚举范围"),
             field_shape=FieldShape.SINGLE_FIELD,
             merge_batch_size=1,

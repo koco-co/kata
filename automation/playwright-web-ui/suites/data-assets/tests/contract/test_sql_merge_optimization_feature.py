@@ -121,6 +121,8 @@ def test_feature_has_no_case_dispatch_skip_retry_or_legacy_language_fallback() -
         "pytest.xfail",
         "time.sleep",
         "TODO",
+        "FIXME",
+        "NotImplementedError",
         "mysql2",
         "Doris",
         "async def",
@@ -132,6 +134,8 @@ def test_feature_has_no_case_dispatch_skip_retry_or_legacy_language_fallback() -
         if path.parent == E2E_ROOT:
             assert "case_id in " not in source
             assert "read_only_scenario(" not in source
+            assert 'task_name="RuleA"' not in source
+            assert "rule_package_name=" not in source
 
 
 def test_broad_exception_handlers_are_limited_to_seed_transport_boundaries() -> None:

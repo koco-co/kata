@@ -43,8 +43,6 @@ class WriteScenario:
 
     case_id: str
     table_name: str
-    task_name: str
-    rule_package_name: str
     rule_functions: tuple[str, ...]
     field_shape: FieldShape
     merge_batch_size: int
@@ -66,9 +64,6 @@ class WriteScenario:
         self._validate_table_binding()
         if not self.platform_write:
             message = "write scenarios must declare platform writes"
-            raise ValueError(message)
-        if not self.task_name.strip() or not self.rule_package_name.strip():
-            message = "task and rule-package names must be explicit"
             raise ValueError(message)
         if not self.rule_functions or any(not value.strip() for value in self.rule_functions):
             message = "rule_functions must contain explicit canonical functions"
