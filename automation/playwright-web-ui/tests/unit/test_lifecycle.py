@@ -94,7 +94,11 @@ def execution_manifest(tmp_path: Path, *, platform_write: bool = False) -> Path:
     return path
 
 
-def suite_entry(tmp_path: Path) -> tuple[FakeEntryPoint, Path]:
+def suite_entry(
+    tmp_path: Path,
+    *,
+    fixture_plugins: tuple[str, ...] = (),
+) -> tuple[FakeEntryPoint, Path]:
     root = tmp_path / "suite"
     tests_path = root / "tests" / "e2e"
     tests_path.mkdir(parents=True)
@@ -102,6 +106,7 @@ def suite_entry(tmp_path: Path) -> tuple[FakeEntryPoint, Path]:
         project_id="data-assets",
         root_path=root,
         tests_path=tests_path,
+        fixture_plugins=fixture_plugins,
     )
     return FakeEntryPoint("data-assets", "suite:SUITE", definition), tests_path
 
@@ -137,6 +142,32 @@ def test_collect_uses_exact_suite_and_manifest_without_attempt_mutation(tmp_path
         )
     ]
     assert not (manifest.parent / "attempts").exists()
+
+
+def test_collect_loads_registered_suite_fixture_plugins(tmp_path: Path) -> None:
+    manifest = execution_manifest(tmp_path)
+    entry, tests_path = suite_entry(tmp_path, fixture_plugins=("json", "decimal"))
+    calls: list[tuple[str, ...]] = []
+
+    result = collect_execution(
+        manifest,
+        entries=[entry],
+        pytest_runner=lambda arguments: calls.append(tuple(arguments)) or 0,
+    )
+
+    assert result == 0
+    assert calls == [
+        (
+            str(tests_path),
+            "-p",
+            "json",
+            "-p",
+            "decimal",
+            "--collect-only",
+            "--execution-manifest",
+            str(manifest),
+        )
+    ]
 
 
 def test_collect_rejects_manifest_outside_canonical_artifact_layout(tmp_path: Path) -> None:
@@ -277,6 +308,24 @@ def test_run_disables_unsafe_trace_and_configures_failure_evidence(
     assert (attempt / "evidence").is_dir()
     assert (attempt / "business-records").is_dir()
     assert (attempt / "playwright-artifacts").is_dir()
+
+
+def test_run_loads_registered_suite_fixture_plugins(tmp_path: Path) -> None:
+    manifest = execution_manifest(tmp_path)
+    entry, tests_path = suite_entry(tmp_path, fixture_plugins=("json",))
+    attempt = manifest.parent / "attempts" / "001"
+    attempt.mkdir(parents=True)
+    calls: list[tuple[str, ...]] = []
+
+    result = run_execution(
+        manifest,
+        entries=[entry],
+        environ=runtime_environ(attempt),
+        pytest_runner=lambda arguments: calls.append(tuple(arguments)) or 0,
+    )
+
+    assert result == 0
+    assert calls[0][:3] == (str(tests_path), "-p", "json")
 
 
 def test_run_consumes_platform_secrets_before_loading_suite_entry_point(

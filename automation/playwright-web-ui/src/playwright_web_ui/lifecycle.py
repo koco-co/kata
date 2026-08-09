@@ -166,12 +166,8 @@ def collect_execution(
     context = _manifest_context(execution_manifest)
     suite = _load_suite(context.manifest.project_id, entries)
     _validate_sync_policy((suite,))
-    arguments = (
-        str(suite.tests_path),
-        "--collect-only",
-        "--execution-manifest",
-        str(context.path),
-    )
+    arguments = [str(suite.tests_path), *_fixture_plugin_arguments(suite)]
+    arguments.extend(("--collect-only", "--execution-manifest", str(context.path)))
     return (pytest_runner or _run_pytest)(arguments)
 
 
@@ -200,6 +196,7 @@ def run_execution(
 
     arguments = [
         str(suite.tests_path),
+        *_fixture_plugin_arguments(suite),
         "--execution-manifest",
         str(context.path),
         "--alluredir",
@@ -383,6 +380,10 @@ def _validate_sync_policy(suites: Sequence[SuiteDefinition]) -> None:
         validate_controlled_browser_sources(tuple(suite.root_path for suite in suites))
     except SourcePolicyError as error:
         raise LifecycleError(error.code, error.detail) from error
+
+
+def _fixture_plugin_arguments(suite: SuiteDefinition) -> list[str]:
+    return [argument for plugin in suite.fixture_plugins for argument in ("-p", plugin)]
 
 
 def _run_pytest(

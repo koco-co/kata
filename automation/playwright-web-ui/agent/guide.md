@@ -18,8 +18,10 @@ Use this guide only after the generic `automation` Skill selects `playwright-web
 - Put project code under `suites/<project-id>/src/<project_module>/`.
 - Organize reusable code by stable business domain:
   `domains/<domain>/<capability>/{model,screen,actions,assertions}.py`.
-- Put cross-domain UI primitives in `components/`, environment-independent setup in `fixtures/`,
-  and tenant differences in `capabilities/`.
+- Put cross-domain UI primitives in `components/` and tenant differences in `capabilities/`.
+- Keep project fixtures beside their owning domain in `fixtures.py` and register those modules via
+  `SuiteDefinition.fixture_plugins`. Do not add feature-local `conftest.py` files under `tests/e2e`;
+  that tree contains only canonical case modules and package markers.
 - Promote an abstraction only after two real consumers need it. Do not add `common.py`,
   `helpers.py`, `utils.py`, global page-object forests, or generated runners.
 - Name E2E files `c<four digits>_<lowercase_english_slug>_test.py` under

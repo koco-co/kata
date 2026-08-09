@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from importlib import metadata
+from importlib import metadata, util
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol, cast
 
@@ -13,8 +13,10 @@ if TYPE_CHECKING:
 
 SUITE_ENTRY_POINT_GROUP = "playwright_web_ui.suites"
 _PROJECT_ID_RE = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
+_FIXTURE_PLUGIN_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$")
 _SUITE_DEFINITION_INVALID = "SUITE_DEFINITION_INVALID"
 _SUITE_DUPLICATE = "SUITE_DUPLICATE"
+_SUITE_FIXTURE_PLUGIN_INVALID = "SUITE_FIXTURE_PLUGIN_INVALID"
 _SUITE_ID_INVALID = "SUITE_ID_INVALID"
 _SUITE_ID_MISMATCH = "SUITE_ID_MISMATCH"
 _SUITE_LOAD_FAILED = "SUITE_LOAD_FAILED"
@@ -50,6 +52,7 @@ class SuiteDefinition:
     project_id: str
     root_path: Path
     tests_path: Path
+    fixture_plugins: tuple[str, ...] = ()
 
 
 class SuiteRegistryError(RuntimeError):
@@ -141,7 +144,48 @@ def _load_definition(entry: SuiteEntryPoint) -> SuiteDefinition:
             _SUITE_PATH_OUTSIDE_ROOT,
             f"tests_path must be below root_path: {tests}",
         )
-    return SuiteDefinition(project_id=target.project_id, root_path=root, tests_path=tests)
+    fixture_plugins = _validate_fixture_plugins(target.fixture_plugins)
+    return SuiteDefinition(
+        project_id=target.project_id,
+        root_path=root,
+        tests_path=tests,
+        fixture_plugins=fixture_plugins,
+    )
+
+
+def _validate_fixture_plugins(value: object) -> tuple[str, ...]:
+    if type(value) is not tuple:
+        raise SuiteRegistryError(
+            _SUITE_FIXTURE_PLUGIN_INVALID,
+            "fixture_plugins must be a tuple of importable module names",
+        )
+    plugins = cast("tuple[object, ...]", value)
+    validated: list[str] = []
+    for plugin in plugins:
+        if not isinstance(plugin, str) or _FIXTURE_PLUGIN_RE.fullmatch(plugin) is None:
+            raise SuiteRegistryError(
+                _SUITE_FIXTURE_PLUGIN_INVALID,
+                "fixture_plugins must contain valid Python module names",
+            )
+        if plugin in validated:
+            raise SuiteRegistryError(
+                _SUITE_FIXTURE_PLUGIN_INVALID,
+                "fixture_plugins must contain unique module names",
+            )
+        try:
+            specification = util.find_spec(plugin)
+        except (ImportError, AttributeError, ModuleNotFoundError, ValueError) as error:
+            raise SuiteRegistryError(
+                _SUITE_FIXTURE_PLUGIN_INVALID,
+                "fixture plugin module cannot be resolved",
+            ) from error
+        if specification is None:
+            raise SuiteRegistryError(
+                _SUITE_FIXTURE_PLUGIN_INVALID,
+                "fixture plugin module cannot be resolved",
+            )
+        validated.append(plugin)
+    return tuple(validated)
 
 
 def _existing_directory(path: object, field: str) -> Path:

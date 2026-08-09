@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
@@ -56,6 +56,53 @@ def test_load_suite_selects_one_exact_typed_entry_point(tmp_path: Path) -> None:
     actual = load_suite("data-assets", entries=entries)
 
     assert actual == expected
+
+
+def test_load_suite_preserves_valid_fixture_plugin_registration(tmp_path: Path) -> None:
+    root = tmp_path / "suite"
+    tests_path = root / "tests" / "e2e"
+    tests_path.mkdir(parents=True)
+    expected = SuiteDefinition(
+        project_id="data-assets",
+        root_path=root,
+        tests_path=tests_path,
+        fixture_plugins=("json",),
+    )
+    entries = [FakeEntryPoint(name="data-assets", value="suite:SUITE", target=expected)]
+
+    actual = load_suite("data-assets", entries=entries)
+
+    assert actual.fixture_plugins == ("json",)
+
+
+@pytest.mark.parametrize(
+    "fixture_plugins",
+    [
+        ["json"],
+        (["json"],),
+        ("",),
+        ("invalid-module",),
+        ("json", "json"),
+        ("missing_suite_fixture_plugin",),
+    ],
+)
+def test_load_suite_rejects_invalid_fixture_plugin_registration(
+    tmp_path: Path,
+    fixture_plugins: object,
+) -> None:
+    root = tmp_path / "suite"
+    tests_path = root / "tests" / "e2e"
+    tests_path.mkdir(parents=True)
+    definition = SuiteDefinition(
+        project_id="data-assets",
+        root_path=root,
+        tests_path=tests_path,
+        fixture_plugins=cast("tuple[str, ...]", fixture_plugins),
+    )
+    entries = [FakeEntryPoint(name="data-assets", value="suite:SUITE", target=definition)]
+
+    with pytest.raises(SuiteRegistryError, match="SUITE_FIXTURE_PLUGIN_INVALID"):
+        load_suite("data-assets", entries=entries)
 
 
 def test_load_suite_rejects_unknown_project_without_loading_other_entry_points(
