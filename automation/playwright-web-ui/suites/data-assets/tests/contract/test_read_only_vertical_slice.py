@@ -45,8 +45,7 @@ def _automation_marker(test: Callable[..., None]) -> pytest.Mark:
 
 
 def test_vertical_slice_has_exactly_one_importable_item_per_canonical_case() -> None:
-    files = {path.name for path in E2E_ROOT.glob("*_test.py") if path.name in EXPECTED_CASES}
-    assert files == set(EXPECTED_CASES)
+    assert {path.name for path in E2E_ROOT.glob("*_test.py")} == set(EXPECTED_CASES)
 
     for filename, case_id in EXPECTED_CASES.items():
         test = _load_single_test(E2E_ROOT / filename)
