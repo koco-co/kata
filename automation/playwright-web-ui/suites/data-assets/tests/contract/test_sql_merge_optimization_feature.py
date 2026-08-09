@@ -109,6 +109,10 @@ def test_write_cases_declare_rules_topology_result_and_required_ui_record() -> N
         else:
             assert case_id in READ_ONLY_CASE_IDS
             assert "ReadOnlyScenario(" in source
+            assert (
+                "require_fixture_identity(" in source
+                or "require_report_fixture_identity(" in source
+            )
             assert "business_records" not in parameters
             assert "business_records.record(" not in source
 

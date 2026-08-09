@@ -20,6 +20,7 @@ from .result_models import (
     TableSnapshot,
     TaskExecutionReadback,
 )
+from .rules import RuleStrength, TaskRevisionSpec
 from .topology import (
     FieldShape,
     MergeMode,
@@ -56,10 +57,12 @@ __all__ = [
     "RuleFamily",
     "RuleResultExpectation",
     "RuleSetRuleReadback",
+    "RuleStrength",
     "SqlRuleIdentity",
     "SqlTopologyExpectation",
     "TableSnapshot",
     "TaskExecutionReadback",
+    "TaskRevisionSpec",
     "WriteScenario",
     "read_only_scenario",
 ]

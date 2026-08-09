@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 from data_assets_playwright_web_ui.domains.data_quality.sql_merge_optimization.assertions import (
     SqlTopologyReadback,
@@ -14,6 +14,9 @@ from data_assets_playwright_web_ui.domains.data_quality.sql_merge_optimization.a
 )
 from data_assets_playwright_web_ui.domains.data_quality.sql_merge_optimization.provisioning import (
     SqlMergeProvisioner,
+)
+from data_assets_playwright_web_ui.domains.data_quality.sql_merge_optimization.screen_base import (
+    SqlMergeUiError,
 )
 
 if TYPE_CHECKING:
@@ -30,6 +33,10 @@ if TYPE_CHECKING:
         SqlMergeOptimizationScreen,
     )
     from playwright_web_ui.runtime_identity import AutomationRuntimeIdentity
+
+
+MULTI_STAGE_REVISION_CODE: Final = "SQL_MERGE_MULTI_STAGE_REVISION_UNIMPLEMENTED"
+READ_ONLY_FIXTURE_IDENTITY_CODE: Final = "READ_ONLY_FIXTURE_IDENTITY_MISSING"
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,6 +59,15 @@ class SqlMergeReadOnlyActions:
             message = f"runtime identity {actual!r} does not match explicit scenario {expected!r}"
             raise AssertionError(message)
 
+    def require_fixture_identity(self, scenario: ReadOnlyScenario) -> None:
+        """Fail closed until a canonical existing result fixture is attested."""
+        del scenario
+        raise SqlMergeUiError(READ_ONLY_FIXTURE_IDENTITY_CODE)
+
+    def require_report_fixture_identity(self, scenario: ReadOnlyScenario) -> None:
+        """Fail closed until a canonical existing report fixture is attested."""
+        self.require_fixture_identity(scenario)
+
     def verify_shared_dirty_sql(self, scenario: ReadOnlyScenario) -> str:
         """Read the task SQL and require all inserts to share one dirty table."""
         sql = self.screen.rule_tasks.open_rule_sql(
@@ -62,6 +78,7 @@ class SqlMergeReadOnlyActions:
 
     def open_unpassed_result(self, scenario: ReadOnlyScenario) -> Locator:
         """Open the exact table's existing unpassed result."""
+        self.require_fixture_identity(scenario)
         return self.screen.results.open_unpassed_result(
             table_name=scenario.table_name,
             rule_names=scenario.rule_names,
@@ -102,6 +119,11 @@ class SqlMergeWriteActions:
         if actual != expected:
             message = f"runtime identity {actual!r} does not match explicit scenario {expected!r}"
             raise AssertionError(message)
+
+    def require_multi_stage_revision(self, scenario: WriteScenario) -> None:
+        """Fail closed until same-task multi-stage UI mutation is source-backed."""
+        if scenario.revisions:
+            raise SqlMergeUiError(MULTI_STAGE_REVISION_CODE)
 
     def provision(self, scenario: WriteScenario) -> ProvisionedWriteScenario:
         """Create one collision-safe rule set/task through the typed product UI."""

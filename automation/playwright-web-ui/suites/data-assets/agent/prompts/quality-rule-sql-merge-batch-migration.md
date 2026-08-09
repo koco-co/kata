@@ -46,7 +46,8 @@ Playwright 自动化。先完整读取以下文件，再开始修改：
 
 - YAML 有 72 条 case，全部保持 `playwright-web-ui: planned`。
 - 60 条 write，12 条 read-only。
-- 仓库只保留 C0031 作为已类型化骨架参考；其余文件由批量迁移任务按独占范围创建。
+- 72 个候选 E2E 文件已经按 canonical ID 落盘；C0031 是完整链路参考，其余文件必须逐条审查，不能因已 collect 就视为完成。
+- 当前离线门禁已证明 72/72 item 可精确 collect（`--include-planned`，exit 0）；这只证明装配和 identity，不证明真实 UI、平台数据或业务结果。
 - 共享骨架的 unit/contract、Ruff、Pyright 必须先保持绿色。
 - C0031 仅证明代码骨架，不代表 live pass。Canonical seed 语义尚待用户确认，因此不得
   将它或其他 case 改为 active。
@@ -155,7 +156,7 @@ automation/playwright-web-ui/suites/data-assets/
 │   ├── report_*.py              # fresh report identity and rule rows
 │   └── actions.py               # explicit business journey composition
 └── tests/e2e/v6.4.11/quality-rule-sql-merge-optimization/
-    └── c0031_completeness_multi_field_full_scan_all_unpassed_test.py
+    └── c0001_..._test.py ... c0072_..._test.py  # 一 case 一文件；C0031 为冻结参考
 ```
 
 共享层负责身份、隔离、API/UI 契约和证据；case 文件只负责显式声明本条 YAML 的规则、
@@ -227,9 +228,10 @@ readback = actions.verify_result(
 会通过 `materialize_names()` 把它们替换成 attempt-scoped `unique_name`，后续只能使用
 `ProvisionedWriteScenario.task_name` 和已回读 package identity。`WriteScenario` 不再接受
 重复的 `task_name`/`rule_package_name` 字段，不得在 case 里重新引入。
-共享 `open_rule_sql(... monitor_id=None)` 当前是 read-only 未具备 typed donor identity 时的
-fail-closed 哨兵，调用必定失败；它不是参考实现。先完成 `READ_ONLY_FIXTURE_IDENTITY_MISSING`
-对应的独立共享能力任务，再实现 read-only case。
+read-only 的结果、SQL、明细下载和报告入口在未具备 typed donor identity 时都必须以
+`READ_ONLY_FIXTURE_IDENTITY_MISSING` fail-closed；不得按表名、首行或 `monitor_id=None`
+猜测。它们不是参考实现。先完成受控 fixture manifest（monitorId/recordId/reportRecordId
+及 semantic fingerprint），再移除闸门并实现 read-only case。
 
 ## 规则与拓扑矩阵
 
@@ -312,6 +314,13 @@ Seed 采用 `seed_catalog.canonical_main_seed_plan` 的显式六行意图：2026
 - 在受控 fixture manifest 提供唯一 `monitorId/recordId/reportRecordId` 和 semantic
   fingerprint 前，不得实现成按固定表名、`RuleA` 或首行查找。
 
+C0011 第二阶段只改同一 task 的 batch4→8、再次 inspect 和查看原报告，不再次执行。
+C0047 第二阶段原地修改同一规则集强弱、重新引入同一 task，只验证 SQL 下拉 2→1，
+不再次执行。当前两个 case 已声明 `TaskRevisionSpec`，但同一 task 的 edit/re-import
+UI 能力尚未接入；运行时必须先抛 `SQL_MERGE_MULTI_STAGE_REVISION_UNIMPLEMENTED`，
+不得执行第一阶段后伪造完成。解决方案是补同一 monitorId 的规则集 edit、task re-import、
+SQL readback 以及 C0011 第二次报告查看，再移除该 fail-closed 闸。
+
 ## 批次顺序
 
 1. 第一批只做 deterministic/full-scan completeness：
@@ -339,6 +348,7 @@ Seed 采用 `seed_catalog.canonical_main_seed_plan` 的显式六行意图：2026
 | `SQL_MERGE_RULE_EDITOR_CONTRACT_UNSUPPORTED` | 共享 editor 没有 source-backed locator/payload/readback | 单独 capability 任务先补 UI 探测、红测、request fingerprint 和 persisted fingerprint，case 不绕过 |
 | `CUSTOM_RULE_TEMPLATE_MISSING` | C0001-C0007 未声明“自定义规则测试”模板 | 补 canonical precondition，或新增受控 template provisioner 并完整回读 scope/family/SQL/parameters |
 | `READ_ONLY_FIXTURE_IDENTITY_MISSING` | donor 没有稳定三类 ID/fingerprint | 扩展受控 fixture manifest；不按表名/首行猜 |
+| `SQL_MERGE_MULTI_STAGE_REVISION_UNIMPLEMENTED` | C0011/C0047 尚不能原地 edit/re-import 同一 task | 补同一 monitorId 的 task/rule-set mutation、persisted ID 重新绑定、第二阶段 SQL/report readback |
 | `CANONICAL_RULE_COUNT_CONFLICT` | C0018/C0054 只列4条却期望5 | 业务确认第五条；若不存在，将相关 canonical 期望统一改4 |
 | `SQL_MERGE_SOURCE_PACKAGE_LIMIT` | source packages 超过产品上限20 | 修正明确的 source package 设计；不得把 task batching 当 source package |
 | `SQL_MERGE_NORMATIVE_CHILD_LIMIT` | 单个有效性父卡 nested children 超过10 | 按真实 field/strength/description 语义拆父卡，并确认不是掩盖业务分组错误 |
