@@ -60,4 +60,4 @@ cases:
     tags:
       - 数据质量
       - 规则库配置
-    # automation.spec_file: 仅真实 Playwright 脚本存在时声明
+    # automation 合同只由 automation Skill 按真实 executor 实现维护；不得从文件存在推导 active

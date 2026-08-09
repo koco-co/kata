@@ -197,20 +197,20 @@ describe("skill contract", () => {
     expect(broken).toEqual([]);
   });
 
-  it("关键 workflow 契约绑定到具体文件并保持执行顺序", () => {
-    const implement = readFileSync(
-      join(skillDir("ui-automation"), "workflows/implement.md"),
-      "utf8",
+  it("自动化 Skill 按 descriptor 选择 executor 并隐藏底层 runner", () => {
+    const automation = readSkillMd("automation");
+    expect(automation).toContain("automation/*/executor.toml");
+    expect(automation).toContain("agent.guide");
+    expect(automation).toContain("完整读取");
+    expect(automation).toContain("kata automation collect");
+    expect(automation).toContain("kata automation run");
+    expect(automation.indexOf("kata automation collect")).toBeLessThan(
+      automation.indexOf("kata automation run"),
     );
-    expect(implement).toContain("kata runs exec");
-    expect(implement).toContain("bunx playwright test");
-    expect(implement).toContain("c<四位序号>-<slug>.spec.ts");
-    expect(implement).not.toContain("c<四位序号>-<slug>.ts");
-    expect(implement).not.toContain("npx playwright test");
-    expect(implement.indexOf("kata runs exec")).toBeLessThan(implement.indexOf("kata env run"));
+    expect(automation).not.toMatch(/\b(?:uv|pytest|bunx|npx)\b/);
 
     const create = readFileSync(join(skillDir("test-case"), "workflows/create.md"), "utf8");
-    expect(create).toContain("报告为 `unmapped`");
+    expect(create).toContain("active/planned 状态由 `automation` Skill 按真实实现维护");
     expect(create).not.toContain("每条正式用例填写 `automation.spec_file`");
 
     const infraPlaybook = readFileSync(
@@ -240,30 +240,35 @@ describe("skill contract", () => {
     expect(content).not.toMatch(/扫描 diff、分支、MR 或 PR 中的静态缺陷/);
   });
 
-  it("ui-automation 明确已落地平台", () => {
-    const skill = readSkillMd("ui-automation");
-    expect(skill).toContain("Web 已落地");
-    expect(skill).toContain("Electron 未落地");
-  });
-
-  it("ui-automation 资源与 CLI 和完成语义一致", () => {
-    const content = readSkillContent("ui-automation");
-    expect(content).not.toContain("c<四位序号>-<slug>.ts");
-    expect(content).not.toContain("kata automation run <requirement_id>");
-    expect(content).toContain("kata automation run <feature-path>");
-    expect(content).toContain("kata automation lint --shared --project <project> --exit-code");
-    expect(content).not.toContain("kata automation lint --shared --exit-code");
-
-    const example = readFileSync(join(skillDir("ui-automation"), "examples/handoff.md"), "utf8");
-    expect(example).toContain("full.spec.ts 全量通过：未达成");
-    expect(example).not.toContain("全量通过：达成（2 通过 / 1 排除）");
-
-    const api = readFileSync(
-      join(skillDir("ui-automation"), "references/playwright-api.md"),
-      "utf8",
-    );
-    expect(api).toContain("const consoleErrors = [];");
-    expect(api).not.toContain("addCookies(cookies)");
+  it("自动化 Skill 保持 engine/surface 无关且证据契约原子化", () => {
+    const content = readSkillContent("automation");
+    for (const executor of [
+      "playwright-web-ui",
+      "appium-app-ui",
+      "request-api",
+      "midscene-web-ui",
+      "midscene-app-ui",
+    ]) {
+      expect(content).toContain(executor);
+    }
+    for (const evidence of [
+      "execution-manifest.json",
+      "Allure",
+      "evidence/",
+      "business-records/",
+      "handoff.md",
+    ]) {
+      expect(content).toContain(evidence);
+    }
+    expect(content).toContain("同一 execution 与 attempt");
+    expect(content).toContain("自动重试");
+    expect(content).toContain("config/private");
+    expect(content).not.toContain("KATA_RUN_PATH");
+    expect(content).not.toContain("full.spec.ts");
+    expect(content).not.toContain("generated.ts");
+    expect(content).not.toContain(".spec.ts");
+    expect(content).not.toContain("feature 的 `runs/");
+    expect(existsSync(skillDir("ui-automation"))).toBe(false);
   });
 
   it("test-case few-shot 不伪造自动化映射且用例可独立准备", () => {
@@ -335,10 +340,7 @@ describe("skill contract", () => {
       ["test-case", "SKILL.md"],
       ["test-case", "workflows/create.md"],
       ["test-case", "workflows/update.md"],
-      ["ui-automation", "SKILL.md"],
-      ["ui-automation", "workflows/prepare.md"],
-      ["ui-automation", "workflows/implement.md"],
-      ["ui-automation", "workflows/deliver.md"],
+      ["automation", "SKILL.md"],
       ["workspace-management", "SKILL.md"],
     ];
     for (const [skill, file] of processFiles) {

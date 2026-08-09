@@ -83,7 +83,7 @@
    kata cases build --feature <feature-dir>
    kata cases lint --project <项目> --feature <版本目录/需求目录名> --exit-code
    ```
-   - 修复源 YAML 后重建。纯接口用例不纳入功能用例集；Playwright 用例只有存在真实脚本时才声明 `spec_file`，否则由 coverage 报告为 `unmapped`。
+   - 修复源 YAML 后重建。纯接口用例不纳入功能用例集；executor、effects、business record 与 active/planned 状态由 `automation` Skill 按真实实现维护，test-case 不从历史文件存在推导完成状态。
    - 完成条件：build 与 lint 均成功。
 
 9. 知识闭环

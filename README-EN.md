@@ -16,14 +16,14 @@
 
 # Kata
 
-Kata is a QA workspace for Claude Code and OpenAI Codex. It turns requirements analysis, test cases, defect triage, Playwright automation, infrastructure diagnosis, and project knowledge into reusable Skills and CLI workflows. Every artifact has a defined home and a reviewable execution trail.
+Kata is a QA workspace for Claude Code and OpenAI Codex. It turns requirements analysis, test cases, defect triage, executor-based automation, infrastructure diagnosis, and project knowledge into reusable Skills and CLI workflows. Every artifact has a defined home and a reviewable execution trail.
 
 ## The short version
 
 ```text
 Requirements / design ──> decompose ────────> cases and knowledge
 Existing cases / bugs ──> normalize and triage -> actionable findings
-Cases / failures ───────> Playwright ───────> runs, screenshots, reports
+Cases / failures ───────> executor ─────────> manifests, evidence, reports
 Servers / data sources ─> controlled checks ──> redacted conclusions
 ```
 
@@ -31,7 +31,8 @@ The goal is not more generated prose. It is traceability from input to command t
 
 - `.claude/skills/` is the single source of truth for Skill content; `.agents/skills/` is the Codex-side symlink.
 - The shared CLI lives under `cli/`; both runtimes reuse the same implementation.
-- Project inputs, cases, automation, and run artifacts live under `workspace/{project}/`.
+- Project inputs, canonical YAML cases, and knowledge live under `workspace/{project}/`; automation implementations live under `automation/`.
+- Ignored run artifacts live under `artifacts/runs/` and retain logical run, execution, and attempt identity.
 - Platform cookies, plugin credentials, infrastructure credentials, and data-source details stay in ignored local files and never enter Git.
 
 ## Capability map
@@ -39,7 +40,7 @@ The goal is not more generated prose. It is traceability from input to command t
 | Entry point | Use it for | Main artifacts |
 | --- | --- | --- |
 | `/test-case` | Draft, edit, sync, and normalize cases from requirements | YAML / XMind / traceable SourceRefs |
-| `/ui-automation` | Turn feature cases into real Playwright automation | specs, run folders, Allure, screenshots |
+| `/automation` | Select an executor, then implement, run, and verify feature automation | manifests, Allure, evidence, business records, handoff |
 | `/defect-analyze` | Analyze stacks, HTTP failures, conflicts, or diffs | root cause, impact, repair guidance |
 | `/infra-diagnose` | Check SSH2 connectivity for servers and data sources | redacted Markdown reports |
 | `/domain-knowledge` | Query or maintain product rules and terminology | reusable domain knowledge |
@@ -52,20 +53,24 @@ The goal is not more generated prose. It is traceability from input to command t
 - Node.js `>= 22.0.0`
 - Bun
 - Git
+- Python 3.14 and uv for Python-backed executors
 - Claude Code or OpenAI Codex
 
 ### Install
 
 ```bash
 bun install --frozen-lockfile
+uv sync --locked --all-packages --all-groups
+uv run --locked --no-sync pre-commit install
 bun link   # link the kata command into Bun's global bin directory
 bun run ci
 ```
 
-Install Playwright browsers only when you need real browser runs:
+Prepare and inspect only the selected executor through the stable lifecycle:
 
 ```bash
-bunx playwright install
+kata automation setup
+kata automation doctor
 ```
 
 ### Create local configuration
@@ -110,9 +115,7 @@ kata cases build 16212 --project dataAssets
 | `config/policies/` | artifact routing, lint, SQL dialect and XMind mapping contracts | tracked |
 | `config/private/` | private environments, integrations, infrastructure and repository config | whole directory gitignored |
 | `config/examples/` | redacted templates mirroring `config/private/` | tracked |
-| `config/automation/` | Playwright runtime behavior settings | tracked |
-
-`config/private/environments/<env>.yaml` is the shared source for Playwright and DTStack platform access: the URL lives in `url` and the cookie in `auth.cookie`. There is no separate DTStack session file or legacy persistent variable path. Explicit one-off or CI overrides may still be passed as environment variables.
+`config/private/environments/<env>.yaml` is the local source for executor environment access. The CLI reads private configuration and injects secrets only into the controlled child process; executors never scan this directory or persist its values.
 
 Restrict local permissions:
 
@@ -139,25 +142,19 @@ meta:
 Both `imports` and `exports` are relative to their respective directories. A build keeps only YAML-declared derivatives; omitting `exports` defaults to an XMind file named after the YAML source.
 `kata cases lint --project <project>` verifies that every declared historical input exists in `cases/imports/`.
 
-## Real automation runs
+## Automation lifecycle
 
-Playwright must be bound to an explicit run; do not leave `.runs/` directories in the repository:
-
-```bash
-kata runs exec <feature-path> --project dataAssets -- \
-  kata env run ci63 -- bunx playwright test <spec>
-```
-
-Before delivery:
+`/automation` discovers implemented executors from `automation/*/executor.toml`. Playwright Web UI, App UI, API, and future engines share the same lifecycle:
 
 ```bash
-kata automation lint <feature-dir> --exit-code
-kata automation lint --all-features --project dataAssets --exit-code
-kata automation lint --shared --project dataAssets --exit-code
-kata runs verify --project dataAssets --feature <feature-dir>
+kata automation setup --executor playwright-web-ui
+kata automation doctor --executor playwright-web-ui
+kata automation collect <feature-or-requirement-id> --project <workspace-name>
+kata automation run <feature-or-requirement-id> --project <workspace-name> --env <environment>
+kata runs verify --project <project-id> --run <logical-run-id>
 ```
 
-UI automation is only marked passed after the real script executes, assertions pass, Allure results are written, and the system under test creates the expected business record.
+Users and Skills do not assemble lower-level runner commands. Automation is marked passed only when the same execution and attempt has an exact manifest match, passed collection/preparation/run status, successful assertions, Allure results, required evidence and business records, and a successful verification. Failures before attempt allocation retain a `NOT VERIFIED` handoff without fabricating an attempt.
 
 ## Project layout
 
@@ -166,25 +163,36 @@ kata/
 ├── .claude/skills/       # single source of truth for Skills
 ├── .agents/skills/       # Codex-side symlink
 ├── .codex-plugin/        # Codex plugin manifest
+├── automation/           # executor descriptors, packages, and project suites
+├── artifacts/runs/       # ignored logical run / execution / attempt artifacts
 ├── cli/                  # kata CLI and integrations
 ├── config/               # examples and local configuration boundaries
-├── runtime/              # reusable database, Playwright, and runner support
 ├── tests/                # CLI, integration, and Skill tests
-└── workspace/            # inputs, cases, runs, and reports
+└── workspace/            # project inputs, canonical YAML cases, and knowledge
 ```
 
-Skill artifacts are written to the matching feature directory. The run directory `runs/<run-id>/` carries the CLI-written `status.json` and `allure-results/`, plus screenshots, logs, and `handoff.md` from the delivery flow; never report an unexecuted scope as passed.
+The CLI owns `artifacts/runs/<project-id>/<logical-run-id>/` and aggregates each executor execution without overwriting earlier attempts. Its `handoff.md` links the manifest, Allure results, evidence, and business records; never report an unexecuted or partially evidenced scope as passed.
 
 ## Development and validation
 
 ```bash
 bun install --frozen-lockfile
+uv sync --locked --all-packages --all-groups
 bun run check
 bun run type-check
 bun test --timeout 30000 ./tests ./cli/lib
-bun run test:automation-lint
+uv run --locked --no-sync ruff format --check automation
+uv run --locked --no-sync ruff check automation
+uv run --locked --no-sync pyright
+uv run --locked --no-sync pytest automation/playwright-web-ui/tests automation/playwright-web-ui/suites/data-assets/tests/contract automation/playwright-web-ui/suites/data-assets/tests/unit -q
+uv run --locked --no-sync pre-commit run --all-files
 bun run ci
 ```
+
+`uv run pre-commit install` enables the repository's commit-time Python automation gates. They run
+all offline unit and contract tests, but deliberately exclude real browser E2E; deliver those only
+through `kata automation collect|run` and `kata runs verify`. GitHub Actions runs the Bun and Python
+quality gates as separate jobs.
 
 When public commands, directories, or artifacts change, update [README.md](./README.md) and [INSTALL.md](./INSTALL.md) together.
 

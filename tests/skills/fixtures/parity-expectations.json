@@ -22,30 +22,32 @@
       "resolveCmd": [{ "pattern": "kata features resolve", "file": "workflows/create.md" }],
       "standingFlag": [{ "pattern": "--standing", "file": "workflows/create.md" }]
     },
-    "ui-automation": {
-      "completionFullSpec": [{ "pattern": "full.spec.ts", "file": "SKILL.md" }],
-      "completionAllure": [{ "pattern": "Allure", "file": "SKILL.md" }],
-      "completionBizRecord": [{ "pattern": "业务记录", "file": "SKILL.md" }],
-      "handoff": [{ "pattern": "handoff.md", "file": "workflows/deliver.md" }],
-      "envRun": [{ "pattern": "kata env run", "file": "workflows/implement.md" }],
-      "envList": [{ "pattern": "kata env list", "file": "SKILL.md" }],
-      "scaffold": [{ "pattern": "kata automation scaffold", "file": "workflows/prepare.md" }],
-      "runsNew": [{ "pattern": "kata runs new", "file": "SKILL.md" }],
-      "runsExec": [
-        { "pattern": "kata runs exec", "file": "workflows/implement.md" },
-        { "pattern": "KATA_RUN_PATH", "file": "SKILL.md" },
-        { "pattern": ".runs", "file": "SKILL.md" }
+    "automation": {
+      "descriptorDiscovery": [
+        { "pattern": "automation/*/executor.toml", "file": "SKILL.md" },
+        { "pattern": "agent.guide", "file": "SKILL.md" }
       ],
-      "runsVerify": [{ "pattern": "kata runs verify", "file": "workflows/deliver.md" }],
-      "coverageCmd": [{ "pattern": "kata automation coverage", "file": "workflows/deliver.md" }],
-      "lintGate": [
-        { "pattern": "kata automation lint", "file": "workflows/deliver.md" },
-        { "pattern": "--exit-code", "file": "workflows/deliver.md" },
-        { "pattern": "--shared", "file": "workflows/deliver.md" }
+      "executorKinds": [
+        { "pattern": "playwright-web-ui", "file": "SKILL.md" },
+        { "pattern": "appium-app-ui", "file": "SKILL.md" },
+        { "pattern": "request-api", "file": "SKILL.md" },
+        { "pattern": "midscene-web-ui", "file": "SKILL.md" },
+        { "pattern": "midscene-app-ui", "file": "SKILL.md" }
       ],
-      "caseNaming": [{ "pattern": "c<四位序号>-<英文slug>.spec.ts", "file": "SKILL.md" }],
-      "noMockBusinessApi": [{ "pattern": "mock", "file": "references/playwright-api.md" }],
-      "cookieBoundary": [{ "pattern": "config/private/environments/", "file": "SKILL.md" }]
+      "lifecycle": [
+        { "pattern": "kata automation setup", "file": "SKILL.md" },
+        { "pattern": "kata automation doctor", "file": "SKILL.md" },
+        { "pattern": "kata automation collect", "file": "SKILL.md" },
+        { "pattern": "kata automation run", "file": "SKILL.md" }
+      ],
+      "evidenceGate": [
+        { "pattern": "execution-manifest.json", "file": "SKILL.md" },
+        { "pattern": "Allure", "file": "SKILL.md" },
+        { "pattern": "business-records/", "file": "SKILL.md" },
+        { "pattern": "handoff.md", "file": "SKILL.md" }
+      ],
+      "runsVerify": [{ "pattern": "kata runs verify", "file": "SKILL.md" }],
+      "secretBoundary": [{ "pattern": "config/private", "file": "SKILL.md" }]
     },
     "defect-analyze": {
       "reportPath": [{ "pattern": "analyses/", "file": "SKILL.md" }],

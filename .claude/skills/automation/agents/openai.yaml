@@ -1,0 +1,4 @@
+interface:
+  display_name: "Automation"
+  short_description: "动态选择自动化执行器，完成实现、运行与可复核证据交付"
+  default_prompt: "Use $automation to select the appropriate executor, run the requested automation, and verify its complete evidence chain."

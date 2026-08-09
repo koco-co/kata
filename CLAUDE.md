@@ -52,9 +52,9 @@
 - `.repos/` 的 `writable: false` 是声明式约束，由 `kata repos` 写看守强制执行，不依赖模型自律。
 
 ## Playwright 硬闸
-- exit 0 不算证据：须 `status.json` 为 `command_passed`、Allure 结果落盘、被测平台产生核心流程业务记录。
-- 单个 feature 交付：`kata automation lint <featureDir> --exit-code` + `kata automation lint --shared --project <project> --exit-code`。
-- 项目级交付：`kata automation lint --all-features --project <project> --exit-code` 并继续检查共享代码。
+- 仅通过 `kata automation setup|doctor|collect|run` 调用已发现的 executor；不得直接运行 pytest、Playwright 或 generated runner 交付。
+- exit 0 不算证据：须同一 immutable manifest 的 collection/status、Allure、逐 case evidence 与 required business record 全部落盘，并由 `kata runs verify` 通过。
+- `playwright-web-ui` 只使用 Python sync API；tracing 永久关闭，避免凭据进入 trace。失败证据保留脱敏诊断、截图和失败视频。
 
 ## CLI 文档同步
 - 任何 CLI 命令、子命令、参数、默认值或行为调整，必须同步更新 `cli/README.md`、对应 help 和 CLI 文档同步测试。
@@ -64,12 +64,13 @@
 - 策略类变更同步更新手写区。禁止为旧布局提供别名、回退或 migrate；旧路径字面量被 `kata config validate` 残留守卫拒绝。
 
 ## 自动化用例文件名
-- `automation/tests/cases/` 下正式脚本统一用 `c0001-<lowercase-english-kebab-slug>.spec.ts`；slug 持久化到 cases YAML 的 `automation.spec_file`。
-- 标题后续调整不自动重算既有 slug；迁移和 runner 同步以 YAML 声明的 `spec_file` 为准，缺失脚本不得生成通用占位。
+- 正式 executor 用例放在 `automation/<executor>/suites/<project>/tests/e2e/<version>/<feature-id>/`，pytest 文件统一用 `c0001_<lowercase_english_slug>_test.py`。
+- 每个 pytest item 通过 `@automation_case(project_id=..., feature_id=..., case_id=...)` 绑定唯一 canonical case；标题变化不重算既有 slug，不生成占位实现。
 
 ## 产物位置与命名
 - `config/policies/repo-policy.yaml` 是受控产物路由规则。历史输入放 `cases/imports/`，YAML 是唯一中间态，派生文件只放 `cases/exports/` 且不进 Git。
-- 正式自动化源码只放 `automation/tests/`，一次性代码只可放未跟踪的 `runs/<run-id>/_tmp/`。
+- 正式自动化源码只放已登记 executor 的 `automation/<executor>/`；workspace feature 只保存 canonical YAML，不再存放执行代码。
+- 运行产物只放 `artifacts/runs/<project-id>/<logical-run-id>/executions/<executor-id>/<execution-id>/`；一次性代码仅可放当前 attempt 的未跟踪 `scratch/`。
 - policy 没有合适产物类型时，必须先说明拟生成内容、建议路径和命名并取得用户同意；获同意后同变更更新 policy、文档和校验测试。
 
 ## 本地上下文

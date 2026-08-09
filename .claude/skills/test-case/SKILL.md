@@ -1,6 +1,6 @@
 ---
 name: test-case
-description: 编写、更新、导入、同步或标准化 Kata 测试用例。Lanhu/Axure URL、PRD、截图和功能描述等需求源走 create；既有 .yaml、.csv、.xlsx、.md、.xmind 或明确更新诉求走 update。只发 feature 目录且要求 UI 自动化时转 ui-automation；ZenTao hotfix 回归转 defect-analyze。
+description: 编写、更新、导入、同步或标准化 Kata 测试用例。Lanhu/Axure URL、PRD、截图和功能描述等需求源走 create；既有 .yaml、.csv、.xlsx、.md、.xmind 或明确更新诉求走 update。只发 feature 目录且要求 Web UI、App UI 或 API 自动化时转 automation；ZenTao hotfix 回归转 defect-analyze。
 ---
 
 # Outcome
@@ -11,7 +11,7 @@ description: 编写、更新、导入、同步或标准化 Kata 测试用例。L
 
 - 新需求、PRD、设计稿、截图或功能描述：执行 [workflows/create.md](workflows/create.md)。
 - 既有 YAML 或 CSV、XLSX、Markdown、XMind、标题同步、格式标准化：执行 [workflows/update.md](workflows/update.md)。
-- 只给 feature 目录并要求生成、修复或验证 UI 自动化：转 `ui-automation`。
+- 只给 feature 目录并要求生成、修复、运行或验证任何 executor 自动化：转 `automation`。
 - ZenTao Bug ID/URL 的 hotfix 回归报告：转 `defect-analyze`；需要正式 YAML 回归用例时返回本 Skill。
 
 ## Steps
@@ -68,7 +68,7 @@ description: 编写、更新、导入、同步或标准化 Kata 测试用例。L
 - 模型不得直接读取 `config/`；机械硬规则通过 `kata cases lint`/`kata cases build` 执行。
 - 需求事实不足时不猜菜单、字段、枚举、步骤或预期。
 - create 流程在发布确认前不写 `prd/prd.md`。
-- YAML 是唯一用例源；不为缺失自动化伪造 `spec_file` 或占位脚本。纯接口用例不纳入功能用例集。
+- YAML 是唯一用例源；不为缺失自动化伪造 `automation.implementations`、executor 状态或占位实现，也不因 executor 类型复制业务用例。
 - 环境与业务实例使用语义占位符，不写真实凭据、Cookie 或私密配置。
 
 ## References
