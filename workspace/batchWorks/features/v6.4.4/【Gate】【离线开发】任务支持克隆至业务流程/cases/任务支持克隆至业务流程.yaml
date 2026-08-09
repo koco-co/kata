@@ -1,6 +1,7 @@
 meta:
   title: 【gate】任务支持克隆至业务流程
   feature_id: offline-task-clone-to-workflow
+  project_id: batch-works
   requirement_id: '15270'
   case_module_id: '9734'
   imports:

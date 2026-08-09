@@ -16,7 +16,7 @@ import { declaredRequirementIds } from "../../cli/lib/cases/requirement-locate.t
 import { computePrdDigest } from "../../cli/lib/prd.ts";
 
 const YAML = `
-meta: { title: 需求名, feature_id: fixture-feature, case_module_id: "" }
+meta: { title: 需求名, feature_id: fixture-feature, project_id: data-assets, case_module_id: "" }
 cases:
   - case_id: C0001
     title: 验证【数据质量】-【规则库配置】进入页面，展示规则列表
@@ -57,6 +57,23 @@ describe("kata cases build", () => {
     expect(existsSync(join(d, "cases", "exports"))).toBe(false);
   });
 
+  it("rejects a draft cases file without immutable project identity before writing artifacts", () => {
+    const d = feature();
+    const yamlPath = join(d, "cases", "需求名.yaml");
+    writeFileSync(
+      yamlPath,
+      readFileSync(yamlPath, "utf8").replace(", project_id: data-assets", ""),
+    );
+
+    const r = spawnSync("bun", ["cli/bin/kata.ts", "cases", "build", "--feature", d], {
+      encoding: "utf8",
+    });
+
+    expect(r.status).not.toBe(0);
+    expect(r.stderr).toContain("meta.project_id 缺失");
+    expect(existsSync(join(d, "cases", "exports"))).toBe(false);
+  });
+
   it("rejects a feature identity already owned by another feature in the project", () => {
     const d = feature();
     const duplicate = join(dirname(d), "【模块】重复身份需求");
@@ -93,7 +110,7 @@ describe("kata cases build", () => {
     const d = feature();
     writeFileSync(
       join(d, "cases", "需求名.yaml"),
-      'meta: { title: t, feature_id: fixture-feature, case_module_id: "" }\ncases: []\n',
+      'meta: { title: t, feature_id: fixture-feature, project_id: data-assets, case_module_id: "" }\ncases: []\n',
     );
     const r = spawnSync("bun", ["cli/bin/kata.ts", "cases", "build", "--feature", d], {
       encoding: "utf8",
@@ -104,7 +121,7 @@ describe("kata cases build", () => {
     const d = feature();
     writeFileSync(
       join(d, "cases", "需求名.yaml"),
-      `meta: { title: 需求名, feature_id: fixture-feature, case_module_id: "" }
+      `meta: { title: 需求名, feature_id: fixture-feature, project_id: data-assets, case_module_id: "" }
 cases:
   - case_id: C0001
     title: 验证【数据质量】-【规则库配置】点击新增，打开新增弹窗
@@ -131,7 +148,7 @@ cases:
     }).join("\n");
     writeFileSync(
       join(d, "cases", "需求名.yaml"),
-      `meta: { title: 需求名, feature_id: fixture-feature, case_module_id: "" }\ncases:\n${cases}\n`,
+      `meta: { title: 需求名, feature_id: fixture-feature, project_id: data-assets, case_module_id: "" }\ncases:\n${cases}\n`,
     );
     const r = spawnSync("bun", ["cli/bin/kata.ts", "cases", "build", "--feature", d], {
       encoding: "utf8",
@@ -266,6 +283,7 @@ prd_digest: "${actualPrdDigest}"
       `meta:
   title: 需求名
   feature_id: fixture-feature
+  project_id: data-assets
   case_module_id: ""
   test_points_digest: "sha256:stale"
 cases:
@@ -301,9 +319,10 @@ cases:
   });
 });
 
-const BUILD_YAML = (requirementId: string, featureId: string) => `meta:
+const BUILD_YAML = (projectId: string, requirementId: string, featureId: string) => `meta:
   title: 需求名
   feature_id: ${featureId}
+  project_id: ${projectId}
   case_module_id: ""
   requirement_id: "${requirementId}"
 cases:
@@ -327,15 +346,15 @@ function workspaceRoot(): string {
 function writeFeature(
   root: string,
   project: string,
+  projectId: string,
   requirementId: string,
   dirName: string,
 ): string {
   const featureDir = join(root, project, "features", "v1.0", dirName);
   mkdirSync(join(featureDir, "cases"), { recursive: true });
-  const projectId = project.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
   writeFileSync(
     join(featureDir, "cases", "需求名.yaml"),
-    BUILD_YAML(requirementId, `${projectId}-${requirementId}`),
+    BUILD_YAML(projectId, requirementId, `${projectId}-${requirementId}`),
   );
   return featureDir;
 }
@@ -350,7 +369,7 @@ function runBuild(args: string[], workspace?: string) {
 describe("kata cases build by requirement id", () => {
   it("builds the feature whose yaml declares the requirement id", () => {
     const root = workspaceRoot();
-    const featureDir = writeFeature(root, "dataAssets", "16019", "【模块】需求名");
+    const featureDir = writeFeature(root, "dataAssets", "data-assets", "16019", "【模块】需求名");
     try {
       const r = runBuild(["16019"], root);
       expect(r.status).toBe(0);
@@ -363,8 +382,8 @@ describe("kata cases build by requirement id", () => {
 
   it("builds every matching feature across projects", () => {
     const root = workspaceRoot();
-    const a = writeFeature(root, "dataAssets", "16019", "【模块】需求甲");
-    const b = writeFeature(root, "batchWorks", "16019", "【模块】需求乙");
+    const a = writeFeature(root, "dataAssets", "data-assets", "16019", "【模块】需求甲");
+    const b = writeFeature(root, "batchWorks", "batch-works", "16019", "【模块】需求乙");
     try {
       const r = runBuild(["16019"], root);
       expect(r.status).toBe(0);
@@ -377,14 +396,15 @@ describe("kata cases build by requirement id", () => {
 
   it("preflights every target before any write: one broken target blocks all artifacts", () => {
     const root = workspaceRoot();
-    const valid = writeFeature(root, "dataAssets", "16019", "【模块】需求甲");
-    const broken = writeFeature(root, "batchWorks", "16019", "【模块】需求乙");
+    const valid = writeFeature(root, "dataAssets", "data-assets", "16019", "【模块】需求甲");
+    const broken = writeFeature(root, "batchWorks", "batch-works", "16019", "【模块】需求乙");
     // 第二个目标在预检阶段失败：cases 为空触发 validateCases 报错
     writeFileSync(
       join(broken, "cases", "需求名.yaml"),
       `meta:
   title: 需求名
   feature_id: broken-feature
+  project_id: batch-works
   case_module_id: ""
   requirement_id: "16019"
 cases: []
@@ -404,7 +424,7 @@ cases: []
 
   it("fails when no feature declares the requirement id", () => {
     const root = workspaceRoot();
-    writeFeature(root, "dataAssets", "16019", "【模块】需求名");
+    writeFeature(root, "dataAssets", "data-assets", "16019", "【模块】需求名");
     try {
       const r = runBuild(["99999"], root);
       expect(r.status).not.toBe(0);

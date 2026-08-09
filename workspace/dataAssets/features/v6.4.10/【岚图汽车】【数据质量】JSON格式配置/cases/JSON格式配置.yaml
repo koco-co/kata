@@ -1,6 +1,7 @@
 meta:
   title: JSON格式配置
   feature_id: quality-json-format-configuration
+  project_id: data-assets
   requirement_id: '15696'
   case_module_id: ''
   exports:
@@ -8,7 +9,13 @@ meta:
 cases:
 - case_id: C0001
   automation:
-    spec_file: c0001-add-key-positive-flow-regex-check.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】新增key并执行正则匹配测试，列表新增key且正则测试显示匹配成功
   priority: P0
   steps:
@@ -77,7 +84,14 @@ cases:
   - 新增key
 - case_id: C0002
   automation:
-    spec_file: c0002-add-key-empty-name-blocked.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 表单必填校验阻断提交，未新增平台 key
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】新增key提交空key字段，输入框提示请输入key且数据未提交
   priority: P1
   steps:
@@ -99,7 +113,14 @@ cases:
   - 新增key
 - case_id: C0003
   automation:
-    spec_file: c0003-add-key-name-over-255-blocked.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 长度校验阻断提交，未新增平台 key
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】新增key输入256字符并提交，输入框提示长度不能超过255字符且数据未提交
   priority: P1
   steps:
@@ -117,7 +138,13 @@ cases:
   - 新增key
 - case_id: C0004
   automation:
-    spec_file: c0004-add-key-name-255-char-boundary.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】新增key输入255字符并提交，列表新增255字符key记录
   priority: P1
   steps:
@@ -139,7 +166,13 @@ cases:
   - 新增key
 - case_id: C0005
   automation:
-    spec_file: c0005-switch-data-source-types.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】切换数据源类型选项，下拉框回显所选类型且列表新增记录类型正确
   priority: P2
   steps:
@@ -172,7 +205,14 @@ cases:
   - 新增key
 - case_id: C0006
   automation:
-    spec_file: c0006-preserve-form-values-when-switching-source.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅切换新增表单的数据源类型且未确认保存
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】切换数据源类型，表单其余字段内容保留
   priority: P1
   steps:
@@ -197,7 +237,13 @@ cases:
   - 新增key
 - case_id: C0007
   automation:
-    spec_file: c0007-edit-key-and-save.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】编辑key名称、value格式与数据源类型并保存，列表记录更新且更新人更新时间更新
   priority: P0
   steps:
@@ -234,7 +280,13 @@ cases:
   - 编辑key
 - case_id: C0008
   automation:
-    spec_file: c0008-add-child-key-flow.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】新增子层级key，父级key展开显示子层级记录
   priority: P0
   steps:
@@ -274,7 +326,14 @@ cases:
   - 新增子层级
 - case_id: C0009
   automation:
-    spec_file: c0009-fifth-level-child-button-disabled.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅查看既有五层 key 的操作按钮状态
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】查看第5层级key操作列，新增子层级按钮置灰禁用且编辑删除可用
   priority: P1
   steps:
@@ -293,7 +352,13 @@ cases:
   - 新增子层级
 - case_id: C0010
   automation:
-    spec_file: c0010-delete-key-with-children-cascade.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】删除含子层级的key，子层级key联动删除
   priority: P0
   steps:
@@ -314,7 +379,13 @@ cases:
   - 删除key
 - case_id: C0011
   automation:
-    spec_file: c0011-batch-delete-keys-with-children.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】批量删除2条key，记录从列表消失且子层级联动删除
   priority: P0
   steps:
@@ -338,7 +409,14 @@ cases:
   - 删除key
 - case_id: C0012
   automation:
-    spec_file: c0012-fuzzy-search-key-names.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅搜索并展开既有 key，不修改平台配置
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】按key名模糊搜索，列表仅展示命中记录且子层级key可命中
   priority: P0
   steps:
@@ -362,7 +440,14 @@ cases:
   - 搜索与筛选
 - case_id: C0013
   automation:
-    spec_file: c0013-filter-by-data-source-type.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅按数据源类型筛选既有 key 列表
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】按数据源类型筛选列表，仅展示匹配类型的记录
   priority: P1
   steps:
@@ -386,7 +471,14 @@ cases:
   - 搜索与筛选
 - case_id: C0014
   automation:
-    spec_file: c0014-expand-five-level-key-hierarchy.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅展开既有层级 key，不修改平台配置
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】逐层展开5层层级key，每层仅展开当前子层级且末层无展开图标
   priority: P1
   steps:
@@ -412,7 +504,14 @@ cases:
   - 层级展开
 - case_id: C0015
   automation:
-    spec_file: c0015-test-value-format-regex.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅在未提交的新增弹窗执行正则匹配测试
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】填写value格式并执行正则匹配测试，成功与失败场景均展示对应匹配结果
   priority: P1
   steps:
@@ -439,7 +538,13 @@ cases:
   - 正则测试
 - case_id: C0016
   automation:
-    spec_file: c0016-import-valid-file-skip-duplicates.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入正确格式文件，列表新增文件中的key及子层级
   priority: P0
   steps:
@@ -474,7 +579,14 @@ cases:
   - 导入
 - case_id: C0017
   automation:
-    spec_file: c0017-download-import-template.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅下载并校验导入模板，不修改平台数据
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】下载导入模板，文件含5个Sheet且列结构正确
   priority: P1
   steps:
@@ -503,7 +615,13 @@ cases:
   - 导入
 - case_id: C0018
   automation:
-    spec_file: c0018-duplicate-overwrite-rule.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新，已存在key的value格式被更新
   priority: P0
   steps:
@@ -526,7 +644,14 @@ cases:
   - 导入
 - case_id: C0019
   automation:
-    spec_file: c0019-duplicate-skip-existing-key.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 重复导入策略跳过既有 key，平台记录保持不变
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过，已存在key的value格式保持不变
   priority: P1
   steps:
@@ -549,7 +674,14 @@ cases:
   - 导入
 - case_id: C0020
   automation:
-    spec_file: c0020-import-key-name-over-255-marked.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 导入校验失败并仅下载错误文件，平台记录未写入
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入含256字符key的文件，导入被拦截且错误文件单元格标红批注长度超限
   priority: P1
   steps:
@@ -573,7 +705,14 @@ cases:
   - 导入
 - case_id: C0021
   automation:
-    spec_file: c0021-import-required-field-missing-marked.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 必填校验拦截导入并仅下载错误文件，平台记录未写入
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入key列文件，导入被拦截且错误文件单元格标红批注必填项未填写(key = 空)
   priority: P1
   steps:
@@ -597,7 +736,14 @@ cases:
   - 导入
 - case_id: C0022
   automation:
-    spec_file: c0022-import-parent-key-mismatch-marked.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 父级匹配校验拦截导入并仅下载错误文件，平台记录未写入
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入上一层key名不匹配的文件，导入被拦截且错误文件单元格标红批注无匹配
   priority: P1
   steps:
@@ -622,7 +768,14 @@ cases:
   - 导入
 - case_id: C0023
   automation:
-    spec_file: c0023-reject-non-xlsx-import.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 不支持的 CSV 在上传阶段被拒绝，未提交平台数据
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入csv格式文件，上传被拒绝并提示仅支持xlsx
   priority: P1
   steps:
@@ -643,7 +796,14 @@ cases:
   - 导入
 - case_id: C0024
   automation:
-    spec_file: c0024-import-overwrite-conflicting-hierarchy.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 同层重复校验导致导入失败，平台列表保持不变
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新且同层级key重复，导入失败提示同层级key不可重复
   priority: P1
   steps:
@@ -666,7 +826,13 @@ cases:
   - 导入
 - case_id: C0025
   automation:
-    spec_file: c0025-import-overwrite-existing-root-key-update.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新且key已存在，一层key的value格式与中文名称被更新
   priority: P0
   steps:
@@ -689,7 +855,13 @@ cases:
   - 导入
 - case_id: C0026
   automation:
-    spec_file: c0026-import-overwrite-missing-root-key-add.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新，列表新增一层key(key = 空)
   priority: P1
   steps:
@@ -712,7 +884,13 @@ cases:
   - 导入
 - case_id: C0027
   automation:
-    spec_file: c0027-import-overwrite-existing-key-missing-value.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新且子层级key已存在，二层key的value格式被更新
   priority: P1
   steps:
@@ -735,7 +913,13 @@ cases:
   - 导入
 - case_id: C0028
   automation:
-    spec_file: c0028-import-overwrite-missing-key-add-level.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新，父级key展开显示新增子层级(子层级key = 空)
   priority: P1
   steps:
@@ -758,7 +942,14 @@ cases:
   - 导入
 - case_id: C0029
   automation:
-    spec_file: c0029-import-overwrite-missing-parent-error.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 缺失父级导致导入失败，孤儿 key 未写入平台
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新，导入失败且孤儿key未被导入(上一层key = 空)
   priority: P1
   steps:
@@ -781,7 +972,14 @@ cases:
   - 导入
 - case_id: C0030
   automation:
-    spec_file: c0030-import-skip-conflicting-hierarchy.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 同层重复校验导致导入失败，平台列表保持不变
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过且同层级key重复，导入失败提示同层级key不可重复
   priority: P1
   steps:
@@ -804,7 +1002,14 @@ cases:
   - 导入
 - case_id: C0031
   automation:
-    spec_file: c0031-import-skip-existing-root-key.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 重复则跳过策略保留既有 key，平台记录未修改
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过且key已存在，已存在key的value格式与中文名称保持不变
   priority: P1
   steps:
@@ -827,7 +1032,13 @@ cases:
   - 导入
 - case_id: C0032
   automation:
-    spec_file: c0032-import-skip-missing-root-key-add.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过，列表新增一层key(key = 空)
   priority: P1
   steps:
@@ -850,7 +1061,14 @@ cases:
   - 导入
 - case_id: C0033
   automation:
-    spec_file: c0033-import-skip-existing-key-missing-value.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 重复则跳过策略保留既有子 key，平台记录未修改
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过且子层级key已存在，二层key的value格式保持不变
   priority: P1
   steps:
@@ -873,7 +1091,13 @@ cases:
   - 导入
 - case_id: C0034
   automation:
-    spec_file: c0034-import-skip-missing-key-add-level.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过，父级key展开显示新增子层级(子层级key = 空)
   priority: P1
   steps:
@@ -896,7 +1120,14 @@ cases:
   - 导入
 - case_id: C0035
   automation:
-    spec_file: c0035-import-skip-missing-parent-error.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 缺失父级导致导入失败，孤儿 key 未写入平台
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过，导入失败且孤儿key未被导入(上一层key = 空)
   priority: P1
   steps:
@@ -919,7 +1150,14 @@ cases:
   - 导入
 - case_id: C0036
   automation:
-    spec_file: c0036-export-key-list-file.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅导出并核对既有 key 列表，不修改平台数据
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导出key列表，文件命名正确且内容与列表一致
   priority: P0
   steps:
@@ -961,7 +1199,14 @@ cases:
   - 导出
 - case_id: C0037
   automation:
-    spec_file: c0037-export-filtered-results-only.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅筛选并导出既有 key 记录，不修改平台数据
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】按创建人筛选后导出，文件仅包含筛选结果数据
   priority: P1
   steps:
@@ -984,7 +1229,14 @@ cases:
   - 导出
 - case_id: C0038
   automation:
-    spec_file: c0038-empty-search-state.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅搜索不存在的 key 并核对空列表
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】搜索key，列表显示空状态且总条数为0(key = 空)
   priority: P2
   steps:
@@ -1003,7 +1255,14 @@ cases:
   - 空列表与分页
 - case_id: C0039
   automation:
-    spec_file: c0039-large-key-list-performance.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅搜索和翻页既有大数据量 key 列表
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】在1000条key数据下搜索与翻页，列表5秒内加载且搜索结果3秒内返回
   priority: P2
   steps:
@@ -1024,7 +1283,14 @@ cases:
   - 大数据量场景
 - case_id: C0040
   automation:
-    spec_file: c0040-large-key-download-limit.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅导出既有大数据量 key 记录
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导出大数据量key记录，导出总数与列表总记录数一致
   priority: P1
   steps:
@@ -1043,7 +1309,13 @@ cases:
   - 大数据量场景
 - case_id: C0041
   automation:
-    spec_file: c0041-delete-referenced-key-preserves-rules.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】删除被规则引用的key，规则集配置不受影响且任务执行结果正常
   priority: P1
   steps:
@@ -1127,7 +1399,13 @@ cases:
   - key删除后关联影响
 - case_id: C0042
   automation:
-    spec_file: c0042-edit-add-form-consistency.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】对比新增与编辑弹窗，字段顺序与必填项一致且编辑title拼接中文名称
   priority: P1
   steps:
@@ -1161,7 +1439,13 @@ cases:
   - 编辑页与新增页表单结构对比
 - case_id: C0043
   automation:
-    spec_file: c0043-combined-export-filters.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】按数据源类型与key名组合筛选后导出，导出文件与筛选条件一致
   priority: P1
   steps:
@@ -1187,7 +1471,14 @@ cases:
   - 筛选导出行为一致性
 - case_id: C0044
   automation:
-    spec_file: c0044-import-second-sheet-parent-key-error-column.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 父级校验拦截导入并仅下载错误文件，平台记录未写入
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入二层父级key名文件，错误文件标红列应为第一层级key名(父级key = 空)
   priority: P1
   steps:

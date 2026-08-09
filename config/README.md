@@ -1,17 +1,18 @@
 # Kata 运行时配置
 
-Kata 按职责将配置分为四个区域：
+Kata 按职责将配置分为三个区域：
 
 ```text
 config/policies/   强制契约：产物路由、用例 lint、SQL 方言、XMind 映射
 config/private/    私密配置：环境、集成、基础设施和源码仓库
 config/examples/   与 private 结构对应的脱敏模板，全部纳入 Git
-config/automation/ Playwright 运行时行为配置，纳入 Git
 ```
 
 `config/private/` 权限必须为 `0700`，其中每个私密 YAML 必须为 `0600`；
 `kata config doctor` 会检查两者。整个私密目录均被 Git 忽略，任何真实值都不得提交。
-`config/policies/`、`config/examples/`、`config/automation/` 和本 README 必须纳入 Git。
+`config/policies/`、`config/examples/` 和本 README 必须纳入 Git。executor 的运行时配置归属
+`automation/<executor>/`，不得重新引入跨 executor 的 `config/automation/`。自动化运行时代码也必须
+归属已登记 executor，禁止重新创建 `runtime/automation/` 共享层。
 
 `policies/repo-policy.yaml` 同时锁定根目录文档边界：贡献与工程规则统一维护在
 `CLAUDE.md`（`AGENTS.md` 指向同一内容），不再保留独立的 `CONTRIBUTING.md`。
@@ -65,7 +66,7 @@ ZenTao 拉取凭据与 `kata zentao create` 的产品、模块和负责人映射
 
 | 族 | 职责 | 私密性 | 说明 | example 模板 |
 | --- | --- | --- | --- | --- |
-| `environments` | secret | 私密 | 平台 URL、Cookie、租户、项目、数据源与环境自动化参数 | `config/examples/environments/env.example.yaml` |
+| `environments` | secret | 私密 | 平台 URL、Cookie、租户、项目、数据源与写入安全边界 | `config/examples/environments/env.example.yaml` |
 | `integrations` | secret | 私密 | Lanhu、ZenTao、通知（DingTalk/Feishu/WeCom/SMTP）集成配置 | `config/examples/integrations/lanhu.example.yaml`<br>`config/examples/integrations/zentao.example.yaml`<br>`config/examples/integrations/notify.example.yaml` |
 | `infrastructure` | secret | 私密 | SSH 主机、数据源、凭据 profile 与已核验指纹 | `config/examples/infrastructure/hosts.example.yaml`<br>`config/examples/infrastructure/data_sources.example.yaml`<br>`config/examples/infrastructure/credentials.example.yaml` |
 | `repositories` | secret | 私密 | 本机源码仓库路径、分支与筛选范围 | `config/examples/repositories.example.yaml` |
@@ -73,13 +74,12 @@ ZenTao 拉取凭据与 `kata zentao create` 的产品、模块和负责人映射
 | `cases-lint` | contract | 跟踪 | 用例内容硬闸（标题、前置条件、步骤、禁用词、数据与 SQL 契约） | — |
 | `sql-profiles` | contract | 跟踪 | SQL 方言契约（方言 profile、必需/禁用片段与占位符） | — |
 | `xmind-mapping` | contract | 跟踪 | XMind 根标题与 ZenTao 模块 ID 映射契约 | — |
-| `automation` | runtime | 跟踪 | Playwright 运行时行为设置（可被 --set 覆盖） | `config/automation/playwright.example.yaml` |
 
 私密配置与脱敏模板对应（由注册表派生，禁止手改）:
 
 | 私密配置 | 脱敏模板 | 用途 |
 | --- | --- | --- |
-| `config/private/environments/<name>.yaml` | `config/examples/environments/env.example.yaml` | 平台 URL、Cookie、租户、项目、数据源与环境自动化参数 |
+| `config/private/environments/<name>.yaml` | `config/examples/environments/env.example.yaml` | 平台 URL、Cookie、租户、项目、数据源与写入安全边界 |
 | `config/private/integrations/lanhu.yaml` | `config/examples/integrations/lanhu.example.yaml` | Lanhu、ZenTao、通知（DingTalk/Feishu/WeCom/SMTP）集成配置 |
 | `config/private/integrations/zentao.yaml` | `config/examples/integrations/zentao.example.yaml` | Lanhu、ZenTao、通知（DingTalk/Feishu/WeCom/SMTP）集成配置 |
 | `config/private/integrations/notify.yaml` | `config/examples/integrations/notify.example.yaml` | Lanhu、ZenTao、通知（DingTalk/Feishu/WeCom/SMTP）集成配置 |

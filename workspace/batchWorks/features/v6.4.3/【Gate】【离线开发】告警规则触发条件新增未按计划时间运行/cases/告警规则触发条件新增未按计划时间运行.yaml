@@ -1,6 +1,7 @@
 meta:
   title: 【Gate】告警规则触发条件新增未按计划时间运行
   feature_id: offline-missed-schedule-alert-condition
+  project_id: batch-works
   requirement_id: "15087"
   case_module_id: "9644"
   imports:

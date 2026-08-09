@@ -1,6 +1,7 @@
 meta:
   title: 数据库列表展示版本号
   feature_id: metadata-database-version-display
+  project_id: data-assets
   case_module_id: ""
   exports:
     - 数据库列表展示版本号.xmind

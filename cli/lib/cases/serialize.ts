@@ -1,11 +1,25 @@
 import { isMap, isScalar, isSeq, parseDocument, Scalar, stringify } from "yaml";
 import { normalizeCasesFile, normalizeStructuredText } from "./normalize.ts";
-import type { CaseItem, CasesFile } from "./types.ts";
+import type { CaseAutomation, CaseItem, CasesFile } from "./types.ts";
+
+function serializedAutomation(automation: CaseAutomation) {
+  return {
+    effects: { platform_write: automation.effects.platform_write },
+    business_record:
+      automation.business_record.policy === "required"
+        ? { policy: "required" as const }
+        : {
+            policy: "not_applicable" as const,
+            reason: automation.business_record.reason,
+          },
+    implementations: automation.implementations.map(({ executor, state }) => ({ executor, state })),
+  };
+}
 
 function serializedCase(item: CaseItem) {
   return {
     case_id: item.id,
-    ...(item.automation ? { automation: item.automation } : {}),
+    ...(item.automation ? { automation: serializedAutomation(item.automation) } : {}),
     ...(item.requirement_id ? { requirement_id: item.requirement_id } : {}),
     title: item.title,
     priority: item.priority,
@@ -22,6 +36,7 @@ export function serializeCasesYaml(input: CasesFile): string {
   const meta = {
     title: file.meta.title,
     ...(file.meta.feature_id ? { feature_id: file.meta.feature_id } : {}),
+    ...(file.meta.project_id ? { project_id: file.meta.project_id } : {}),
     ...(file.meta.l1_title ? { l1_title: file.meta.l1_title } : {}),
     ...(file.meta.requirement_id ? { requirement_id: file.meta.requirement_id } : {}),
     case_module_id: file.meta.case_module_id,

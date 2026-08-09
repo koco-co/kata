@@ -82,12 +82,6 @@ export function repositoriesExamplePath(root?: string): string {
   return join(examplesDir(root), "repositories.example.yaml");
 }
 
-// ─── automation runtime behavior ──────────────────────────────────────────
-
-export function automationConfigPath(root?: string): string {
-  return join(configRoot(root), "config", "automation", "playwright.yaml");
-}
-
 // ─── shared worktree discovery ────────────────────────────────────────────
 
 /**

@@ -17,7 +17,6 @@ import { runFeaturesList } from "../../commands/features.ts";
 import type { CaseExportFormat } from "../cases/formats.ts";
 import { parseCasesYaml } from "../cases/parse.ts";
 import { listWorkspaceProjects } from "../workspace-locator.ts";
-import { automationMenu } from "./automation.ts";
 import { browseProjectFeature } from "./browse.ts";
 import { caseDetail, caseListLabel } from "./case-view.ts";
 import { recentHistory, recordFeature } from "./history.ts";
@@ -35,7 +34,6 @@ const TUI_BANNER = String.raw` _  __      _        _
 export interface TuiInitialFeature {
   project: string;
   relativePath: string;
-  target?: "automation";
 }
 
 export async function startTui(initial?: TuiInitialFeature): Promise<void> {
@@ -48,11 +46,7 @@ export async function startTui(initial?: TuiInitialFeature): Promise<void> {
       outro("Goodbye");
       return;
     }
-    if (initial.target === "automation") {
-      await automationMenu(ref);
-    } else {
-      await featureMenu(ref);
-    }
+    await featureMenu(ref);
     outro("Goodbye");
     return;
   }
@@ -67,7 +61,6 @@ async function rootMenu(): Promise<void> {
       options: [
         { value: "features", label: "Features", hint: "Browse features by project" },
         { value: "cases", label: "Cases", hint: "Case-level actions" },
-        { value: "automation", label: "Automation", hint: "Run/lint/coverage/results" },
         { value: "history", label: "History", hint: "Recent 5 features" },
         { value: "__exit__", label: "Exit", hint: "Leave kata TUI" },
       ],
@@ -77,8 +70,6 @@ async function rootMenu(): Promise<void> {
       await featuresMenu();
     } else if (choice === "cases") {
       await casesMenu();
-    } else if (choice === "automation") {
-      await browseProjectFeature(automationBrowseMenus());
     } else if (choice === "history") {
       await historyMenu();
     }
@@ -174,7 +165,6 @@ async function featureMenu(ref: FeatureRef): Promise<void> {
         { value: "lint", label: "Lint", hint: "Run cases lint" },
         { value: "build", label: "Build", hint: "Build XMind/CSV" },
         { value: "view", label: "View", hint: "View cases" },
-        { value: "automation", label: "Automation", hint: "Run/lint/coverage/results" },
         { value: "back", label: "Back", hint: "Go back" },
       ],
     });
@@ -183,8 +173,6 @@ async function featureMenu(ref: FeatureRef): Promise<void> {
       await lintFeature(ref);
     } else if (choice === "build") {
       await buildFeature(ref);
-    } else if (choice === "automation") {
-      await automationMenu(ref);
     } else {
       await viewCases(ref);
     }
@@ -303,13 +291,6 @@ function featureBrowseMenus() {
     pickVersion,
     pickFeature,
     openFeature: featureMenu,
-  };
-}
-
-function automationBrowseMenus() {
-  return {
-    ...featureBrowseMenus(),
-    openFeature: automationMenu,
   };
 }
 

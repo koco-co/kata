@@ -1,6 +1,7 @@
 meta:
   title: 名称修改
   feature_id: governance-navigation-module-renaming
+  project_id: data-assets
   case_module_id: ""
   exports:
     - 名称修改.xmind

@@ -1,6 +1,7 @@
 meta:
   title: 落标检查任务性能优化_规则sql合并
   feature_id: standards-mapping-check-sql-merge-optimization
+  project_id: data-assets
   requirement_id: "15862"
   imports:
     - 落标检查规则SQL.csv

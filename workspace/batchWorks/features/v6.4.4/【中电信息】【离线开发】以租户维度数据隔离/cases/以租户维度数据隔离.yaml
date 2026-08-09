@@ -1,6 +1,7 @@
 meta:
   title: 【中电信息】以租户维度数据隔离
   feature_id: offline-tenant-data-isolation
+  project_id: batch-works
   requirement_id: "15174"
   case_module_id: "9825"
   imports:

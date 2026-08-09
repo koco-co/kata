@@ -1,6 +1,7 @@
 meta:
   title: 【数据标准】标准目录编辑
   feature_id: standards-published-directory-editing
+  project_id: data-assets
   requirement_id: "16209"
   case_module_id: "10812"
   source: "蓝湖需求 #16209"

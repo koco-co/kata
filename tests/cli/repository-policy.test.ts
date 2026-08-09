@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, relative, resolve } from "node:path";
+import { join, resolve } from "node:path";
 import { parse } from "yaml";
 import { commitSubjectsInRange } from "../../cli/commands/repo.ts";
 import { validateCommitMessage } from "../../cli/lib/commit-message.ts";
@@ -13,7 +13,7 @@ import {
 
 const POLICY = String.raw`root:
   allowed_files: [package.json]
-  allowed_directories: [cli, config, runtime, workspace]
+  allowed_directories: [artifacts, automation, cli, config, runtime, workspace]
 forbidden_globs:
   - kata-automation-*.config.ts
   - kata-automation-config-*.ts
@@ -23,8 +23,11 @@ forbidden_globs:
   - runtime/cases/**
   - runtime/playwright/**
   - runtime/db/**
-  - workspace/**/automation/README.md
-  - workspace/**/automation/scripts/**
+  - config/automation/**
+  - playwright.config.*
+  - runtime/automation/**
+  - workspace/**/automation/**
+  - workspace/*/_shared/automation/**
   - workspace/*/_shared/helpers/**
   - workspace/*/_shared/rules/**
   - workspace/*/_shared/pages/**
@@ -42,18 +45,14 @@ artifacts:
     extensions: [csv, xlsx, md, xmind]
     tracked: false
   automation_case:
-    route: workspace/<project>/features/<version>/<feature>/automation/tests/cases/
-    filename_pattern: 'c\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.spec\.ts'
+    route: automation/<executor>/suites/<project>/tests/e2e/<version>/<feature-id>/
+    filename_pattern: 'c\d{4}_[a-z0-9]+(?:_[a-z0-9]+)*_test\.py'
   automation_sql_template:
-    route: workspace/<project>/features/<version>/<feature>/automation/tests/sql/
+    route: automation/<executor>/suites/<project>/resources/sql/
     filename_pattern: '[a-z0-9]+(?:-[a-z0-9]+)*\.sql'
   automation_run_temporary:
-    route: workspace/<project>/features/<version>/<feature>/runs/<run-id>/_tmp/
+    route: artifacts/runs/<project-id>/<logical-run-id>/executions/<executor-id>/<execution-id>/attempts/<attempt-id>/scratch/
     tracked: false
-shared_modules:
-  roots: [workspace/*/_shared/automation]
-  minimum_feature_consumers: 2
-  page_domain_pattern: "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
 dependencies:
   runtime_must_not_import: cli/
   forbidden_import_fragments:
@@ -62,16 +61,13 @@ dependencies:
     - runtime/db/
     - _shared/helpers/
     - _shared/pages/
+    - "@playwright/test"
+    - allure-playwright
 `;
 
 function writePolicy(root: string): void {
   mkdirSync(join(root, "config", "policies"), { recursive: true });
   writeFileSync(join(root, "config", "policies", "repo-policy.yaml"), POLICY);
-}
-
-function importPath(from: string, to: string): string {
-  const path = relative(dirname(from), to).split("\\").join("/").replace(/\.ts$/, "");
-  return path.startsWith(".") ? path : `./${path}`;
 }
 
 describe("repository policy", () => {
@@ -83,6 +79,16 @@ describe("repository policy", () => {
 
     expect(existsSync(join(repoRoot, "CONTRIBUTING.md"))).toBe(false);
     expect(policy.root.allowed_files).not.toContain("CONTRIBUTING.md");
+  });
+
+  it("reserves runtime automation code for registered executors", () => {
+    const repoRoot = resolve(import.meta.dir, "../..");
+    const policy = parse(
+      readFileSync(join(repoRoot, "config", "policies", "repo-policy.yaml"), "utf8"),
+    ) as { forbidden_globs: string[] };
+
+    expect(policy.forbidden_globs).toContain("runtime/automation/**");
+    expect(policy.forbidden_globs).not.toContain("runtime/automation/playwright/**");
   });
 
   it("enforces the first-party source line limit with explicit exclusions", () => {
@@ -223,6 +229,9 @@ source_code:
       "runtime/cases/parse.ts",
       "runtime/playwright/index.ts",
       "runtime/db/index.ts",
+      "runtime/automation/db/index.ts",
+      "playwright.config.ts",
+      "config/automation/playwright.yaml",
       "workspace/dataAssets/features/v1/a/automation/README.md",
       "workspace/dataAssets/_shared/helpers/index.ts",
       "workspace/dataAssets/_shared/rules/README.md",
@@ -242,6 +251,9 @@ source_code:
       "runtime/cases/parse.ts",
       "runtime/playwright/index.ts",
       "runtime/db/index.ts",
+      "runtime/automation/db/index.ts",
+      "playwright.config.ts",
+      "config/automation/playwright.yaml",
       "workspace/dataAssets/features/v1/a/automation/README.md",
       "workspace/dataAssets/_shared/helpers/index.ts",
       "workspace/dataAssets/_shared/rules/README.md",
@@ -262,15 +274,13 @@ source_code:
       checkRepositoryPolicy(root, [
         "package.json",
         "cli/lib/cases/parse.ts",
-        "runtime/automation/playwright/index.ts",
-        "runtime/automation/db/index.ts",
         "workspace/dataAssets/features/v1/a/cases/a.yaml",
         "workspace/dataAssets/features/v1/a/cases/test-points.md",
         "workspace/dataAssets/features/v1/a/cases/imports/history.csv",
         "workspace/dataAssets/features/v1/a/cases/exports/a.xmind",
-        "workspace/dataAssets/features/v1/a/automation/tests/cases/c0001-create-rule.spec.ts",
-        "workspace/dataAssets/features/v1/a/automation/tests/sql/base-tables.sql",
-        "workspace/dataAssets/features/v1/a/runs/20990101-0000-run-01/_tmp/probe.ts",
+        "automation/playwright-web-ui/suites/data-assets/tests/e2e/v7.0.0/feature-a/c0001_create_rule_test.py",
+        "automation/playwright-web-ui/suites/data-assets/resources/sql/base-tables.sql",
+        "artifacts/runs/data-assets/20990101-0000-run-01/executions/playwright-web-ui/execution-001/attempts/001/scratch/probe.py",
       ]),
     ).toEqual([]);
   });
@@ -284,7 +294,8 @@ source_code:
     };
 
     expect(policy.artifacts.automation_run_temporary).toEqual({
-      route: "workspace/<project>/features/<version>/<feature>/runs/<run-id>/_tmp/",
+      route:
+        "artifacts/runs/<project-id>/<logical-run-id>/executions/<executor-id>/<execution-id>/attempts/<attempt-id>/scratch/",
       tracked: false,
     });
     const ignored = spawnSync(
@@ -293,7 +304,7 @@ source_code:
         "check-ignore",
         "--no-index",
         "--quiet",
-        "workspace/dataAssets/features/v1/a/runs/20990101-0000-run-01/_tmp/probe.ts",
+        "artifacts/runs/data-assets/20990101-0000-run-01/executions/playwright-web-ui/execution-001/attempts/001/scratch/probe.py",
       ],
       { cwd: repoRoot },
     );
@@ -349,92 +360,6 @@ source_code:
         reason: ".gitkeep 仅用于保留空目录；目录已有内容时必须删除",
       },
     ]);
-  });
-
-  it("requires shared modules to have two transitive feature consumers and stable page domains", () => {
-    const root = mkdtempSync(join(tmpdir(), "kata-policy-shared-"));
-    writePolicy(root);
-    const shared = join(root, "workspace", "dataAssets", "_shared", "automation");
-    const page = join(shared, "pages", "data-quality", "task-page.ts");
-    const legacyPage = join(shared, "pages", "2099-main-flow", "legacy-page.ts");
-    const flow = join(shared, "flows", "quality-task.ts");
-    const lonely = join(shared, "assertions", "lonely.ts");
-    const caseA = join(
-      root,
-      "workspace",
-      "dataAssets",
-      "features",
-      "v1",
-      "a",
-      "automation",
-      "tests",
-      "cases",
-      "c0001-a.spec.ts",
-    );
-    const caseB = join(
-      root,
-      "workspace",
-      "dataAssets",
-      "features",
-      "v1",
-      "b",
-      "automation",
-      "tests",
-      "cases",
-      "c0001-b.spec.ts",
-    );
-    for (const file of [page, legacyPage, flow, lonely, caseA, caseB]) {
-      mkdirSync(dirname(file), { recursive: true });
-    }
-    writeFileSync(page, "export const page = true;\n");
-    writeFileSync(legacyPage, "export const legacy = true;\n");
-    writeFileSync(
-      flow,
-      `import { page } from "${importPath(flow, page)}";\nexport const flow = page;\n`,
-    );
-    writeFileSync(lonely, "export const lonely = true;\n");
-    writeFileSync(
-      caseA,
-      [
-        `import { flow } from "${importPath(caseA, flow)}";`,
-        `import { lonely } from "${importPath(caseA, lonely)}";`,
-        `import { legacy } from "${importPath(caseA, legacyPage)}";`,
-        "void flow; void lonely; void legacy;",
-        "",
-      ].join("\n"),
-    );
-    writeFileSync(
-      caseB,
-      [
-        `import { flow } from "${importPath(caseB, flow)}";`,
-        `import { legacy } from "${importPath(caseB, legacyPage)}";`,
-        "void flow; void legacy;",
-        "",
-      ].join("\n"),
-    );
-
-    const paths = [page, legacyPage, flow, lonely, caseA, caseB].map((path) =>
-      relative(root, path).split("\\").join("/"),
-    );
-    const violations = checkRepositoryPolicy(root, ["package.json", ...paths]);
-    expect(
-      violations.some(
-        (item) =>
-          item.path.endsWith("/assertions/lonely.ts") &&
-          item.reason.includes("至少 2 个独立 feature"),
-      ),
-    ).toBe(true);
-    expect(
-      violations.some(
-        (item) =>
-          item.path.endsWith("/pages/2099-main-flow/legacy-page.ts") &&
-          item.reason.includes("稳定产品领域"),
-      ),
-    ).toBe(true);
-    expect(violations.some((item) => item.path.endsWith("/flows/quality-task.ts"))).toBe(false);
-    expect(violations.some((item) => item.path.endsWith("/pages/data-quality/task-page.ts"))).toBe(
-      false,
-    );
   });
 
   it("validates every commit subject in a range through commitSubjectsInRange", () => {

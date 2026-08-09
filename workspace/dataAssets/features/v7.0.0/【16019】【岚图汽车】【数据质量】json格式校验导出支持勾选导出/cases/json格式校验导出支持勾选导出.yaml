@@ -1,6 +1,7 @@
 meta:
   title: json格式校验导出支持勾选导出
   feature_id: quality-json-format-selected-export
+  project_id: data-assets
   requirement_id: "16019"
   case_module_id: ""
   exports:
@@ -8,7 +9,14 @@ meta:
 cases:
   - case_id: C0001
     automation:
-      spec_file: c0001-export-selected-json-records.spec.ts
+      effects:
+        platform_write: false
+      business_record:
+        policy: not_applicable
+        reason: 仅勾选既有记录并下载导出文件，不修改平台业务数据
+      implementations:
+        - executor: playwright-web-ui
+          state: planned
     title: 验证【JSON格式校验管理】-【勾选导出】导出勾选记录，导出文件仅含勾选行
     priority: P0
     precondition: |-

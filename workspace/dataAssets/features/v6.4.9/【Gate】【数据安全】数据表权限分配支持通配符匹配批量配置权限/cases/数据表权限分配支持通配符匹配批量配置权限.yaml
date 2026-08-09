@@ -1,6 +1,7 @@
 meta:
   title: 数据表权限分配支持通配符匹配批量配置权限
   feature_id: security-wildcard-table-permissions
+  project_id: data-assets
   requirement_id: "15648"
   case_module_id: ""
   exports:

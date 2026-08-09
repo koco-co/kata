@@ -9,6 +9,8 @@ export interface CaseMeta {
   title: string;
   /** Immutable feature identity, independent of directory labels and requirement numbers. */
   feature_id?: string;
+  /** Immutable project identity, independent of workspace directory labels. */
+  project_id?: string;
   /** Lanhu/PRD requirement_id；历史未关联 PRD 的用例集可暂缺。 */
   requirement_id?: string;
   /** 禅道中存放该需求用例的模块 ID；未知时显式写空字符串。 */
@@ -42,18 +44,30 @@ export interface CaseRequirement {
   source: string;
 }
 
-/** Execution backend for a case automation mapping. */
-export type CaseAutomationExecutor = "api" | "playwright";
+/** Observable side effects declared by one canonical automation case. */
+export interface CaseAutomationEffects {
+  readonly platform_write: boolean;
+}
 
-/**
- * Automation mapping for one case.
- *
- * Legacy mappings that only declare spec_file remain implicit Playwright mappings.
- * API cases deliberately have no Playwright spec_file.
- */
+/** Evidence policy for the business record created or changed by one case. */
+export type CaseAutomationBusinessRecord =
+  | { readonly policy: "required" }
+  | { readonly policy: "not_applicable"; readonly reason: string };
+
+/** Implementation readiness inside one executor. */
+export type CaseAutomationImplementationState = "active" | "planned";
+
+/** One executor implementation of a canonical case. */
+export interface CaseAutomationImplementation {
+  readonly executor: string;
+  readonly state: CaseAutomationImplementationState;
+}
+
+/** Executor-neutral, case-level automation contract. */
 export interface CaseAutomation {
-  executor?: CaseAutomationExecutor;
-  spec_file?: string;
+  readonly effects: CaseAutomationEffects;
+  readonly business_record: CaseAutomationBusinessRecord;
+  readonly implementations: readonly CaseAutomationImplementation[];
 }
 
 /** One executable test case. */
@@ -73,7 +87,7 @@ export interface CaseItem {
   tags?: string[];
   /** 证据关联(替代 .process/),如需求条目或截图路径 */
   source_ref?: string;
-  /** Automation backend and optional Playwright file mapping. */
+  /** Executor-neutral automation effects, evidence policy, and implementations. */
   automation?: CaseAutomation;
 }
 

@@ -4,7 +4,6 @@ import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
-  automationConfigPath,
   casesLintPath,
   environmentsDir,
   environmentsExamplePath,
@@ -83,10 +82,6 @@ describe("config paths", () => {
     expect(repositoriesExamplePath(ROOT)).toBe(
       join(ROOT, "config", "examples", "repositories.example.yaml"),
     );
-  });
-
-  test("automation config is a tracked runtime file", () => {
-    expect(automationConfigPath(ROOT)).toBe(join(ROOT, "config", "automation", "playwright.yaml"));
   });
 
   test("infra helper keeps instance file and example aligned", () => {

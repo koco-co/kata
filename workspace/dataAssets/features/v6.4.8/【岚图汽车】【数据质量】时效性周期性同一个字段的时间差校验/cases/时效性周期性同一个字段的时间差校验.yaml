@@ -1,6 +1,7 @@
 meta:
   title: 时效性周期性同一个字段的时间差校验
   feature_id: quality-single-field-time-difference
+  project_id: data-assets
   case_module_id: ""
   requirement_id: "10181"
   exports:

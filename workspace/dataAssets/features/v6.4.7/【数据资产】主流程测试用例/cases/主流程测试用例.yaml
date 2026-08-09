@@ -1,6 +1,7 @@
 meta:
   title: 数据资产主流程测试用例
   feature_id: data-assets-main-flow-regression-suite
+  project_id: data-assets
   requirement_id: "none"
   case_module_id: ""
   exports:

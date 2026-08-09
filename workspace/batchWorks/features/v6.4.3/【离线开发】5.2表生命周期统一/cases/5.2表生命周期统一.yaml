@@ -1,6 +1,7 @@
 meta:
   title: 【5.2】表生命周期统一
   feature_id: offline-table-lifecycle-unification
+  project_id: batch-works
   requirement_id: "14895"
   case_module_id: "9647"
   imports:

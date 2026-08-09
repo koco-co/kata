@@ -1,6 +1,7 @@
 meta:
   title: 质量规则任务支持编辑分区信息
   feature_id: quality-task-partition-editing
+  project_id: data-assets
   requirement_id: "15524"
   case_module_id: ""
   exports:

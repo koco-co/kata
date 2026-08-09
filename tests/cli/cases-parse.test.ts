@@ -6,13 +6,21 @@ const GOOD = `
 meta:
   title: 数据质量规则合并
   feature_id: quality-rule-merge
+  project_id: data-assets
   case_module_id: ""
 cases:
   - case_id: C0001
     title: 验证单表行数校验通过
     priority: P0
     automation:
-      spec_file: c0001-single-table-row-count.spec.ts
+      effects:
+        platform_write: false
+      business_record:
+        policy: not_applicable
+        reason: 只读查询不会产生业务记录
+      implementations:
+        - executor: playwright-web-ui
+          state: active
     steps:
       - action: 进入数据质量页
         expected: 显示规则列表
@@ -21,9 +29,17 @@ cases:
 describe("parseCasesYaml", () => {
   it("parses a valid file", () => {
     const f = parseCasesYaml(GOOD);
+    expect(f.meta.project_id).toBe("data-assets");
     expect(f.cases).toHaveLength(1);
     expect(f.cases[0].priority).toBe("P0");
-    expect(f.cases[0].automation?.spec_file).toBe("c0001-single-table-row-count.spec.ts");
+    expect(f.cases[0].automation).toEqual({
+      effects: { platform_write: false },
+      business_record: {
+        policy: "not_applicable",
+        reason: "只读查询不会产生业务记录",
+      },
+      implementations: [{ executor: "playwright-web-ui", state: "active" }],
+    });
     expect(validateCases(f)).toEqual([]);
   });
   it("keeps a numeric case module id and accepts the explicit empty default", () => {
@@ -86,62 +102,110 @@ describe("parseCasesYaml", () => {
     const bad = GOOD.replace("P0", "P9");
     expect(() => parseCasesYaml(bad)).toThrow();
   });
-  it("rejects unsafe automation spec names", () => {
-    expect(() =>
-      parseCasesYaml(GOOD.replace("c0001-single-table-row-count.spec.ts", "Data Quality.ts")),
-    ).toThrow(/spec_file/);
-  });
-
-  it("accepts API automation without a Playwright spec file", () => {
-    const api = GOOD.replace(
-      "      spec_file: c0001-single-table-row-count.spec.ts",
-      "      executor: api",
+  it("accepts multiple unique active and planned executor implementations", () => {
+    const source = GOOD.replace(
+      "        - executor: playwright-web-ui\n          state: active",
+      "        - executor: playwright-web-ui\n          state: active\n        - executor: request-api\n          state: planned",
     );
-    const file = parseCasesYaml(api);
-    expect(file.cases[0].automation).toEqual({ executor: "api" });
-    expect(validateCases(file)).toEqual([]);
+
+    expect(parseCasesYaml(source).cases[0].automation?.implementations).toEqual([
+      { executor: "playwright-web-ui", state: "active" },
+      { executor: "request-api", state: "planned" },
+    ]);
   });
 
-  it("keeps legacy spec_file mappings as implicit Playwright automation", () => {
-    const file = parseCasesYaml(GOOD);
-    expect(file.cases[0].automation).toEqual({
-      spec_file: "c0001-single-table-row-count.spec.ts",
-    });
-    expect(validateCases(file)).toEqual([]);
+  it("rejects legacy and unknown automation fields fail closed", () => {
+    for (const field of [
+      "      executor: playwright-web-ui\n",
+      "      spec_file: c0001-example.spec.ts\n",
+      "      browser: chromium\n",
+    ]) {
+      expect(() =>
+        parseCasesYaml(GOOD.replace("      effects:\n", `${field}      effects:\n`)),
+      ).toThrow(/automation.*不允许字段/);
+    }
   });
 
-  it("accepts an explicit Playwright intent without a spec mapping", () => {
-    const playwright = GOOD.replace(
-      "      spec_file: c0001-single-table-row-count.spec.ts",
-      "      executor: playwright",
-    );
-    const file = parseCasesYaml(playwright);
-    expect(file.cases[0].automation).toEqual({ executor: "playwright" });
-    expect(validateCases(file)).toEqual([]);
-  });
-
-  it("rejects empty mappings, unsupported executors and API mappings with spec_file", () => {
+  it("requires the complete canonical automation structure", () => {
     expect(() =>
-      parseCasesYaml(
-        GOOD.replace("      spec_file: c0001-single-table-row-count.spec.ts", "      {}"),
-      ),
-    ).toThrow(/automation.*至少声明/);
+      parseCasesYaml(GOOD.replace("      effects:\n        platform_write: false\n", "")),
+    ).toThrow(/automation\.effects.*缺失/);
     expect(() =>
       parseCasesYaml(
         GOOD.replace(
-          "      spec_file: c0001-single-table-row-count.spec.ts",
-          "      executor: selenium",
+          "      business_record:\n        policy: not_applicable\n        reason: 只读查询不会产生业务记录\n",
+          "",
         ),
       ),
-    ).toThrow(/automation\.executor/);
+    ).toThrow(/automation\.business_record.*缺失/);
     expect(() =>
       parseCasesYaml(
         GOOD.replace(
-          "      spec_file: c0001-single-table-row-count.spec.ts",
-          "      executor: api\n      spec_file: c0001-single-table-row-count.spec.ts",
+          "      implementations:\n        - executor: playwright-web-ui\n          state: active\n",
+          "",
         ),
       ),
-    ).toThrow(/executor.*api.*spec_file|spec_file.*executor.*api/);
+    ).toThrow(/automation\.implementations.*缺失/);
+  });
+
+  it("validates effects and the business-record policy union strictly", () => {
+    expect(() =>
+      parseCasesYaml(GOOD.replace("platform_write: false", "platform_write: no")),
+    ).toThrow(/platform_write.*布尔/);
+    expect(() =>
+      parseCasesYaml(
+        GOOD.replace(
+          "        platform_write: false",
+          "        platform_write: false\n        retry: 1",
+        ),
+      ),
+    ).toThrow(/automation\.effects.*不允许字段/);
+    expect(() =>
+      parseCasesYaml(
+        GOOD.replace(
+          "        policy: not_applicable\n        reason: 只读查询不会产生业务记录",
+          "        policy: required\n        reason: 不应存在",
+        ),
+      ),
+    ).toThrow(/business_record.*不允许字段/);
+    expect(() => parseCasesYaml(GOOD.replace("只读查询不会产生业务记录", '"  有空白  "'))).toThrow(
+      /business_record\.reason.*无首尾空白/,
+    );
+  });
+
+  it("requires non-empty unique kebab executor implementations with a valid state", () => {
+    expect(() =>
+      parseCasesYaml(
+        GOOD.replace(
+          "        - executor: playwright-web-ui\n          state: active",
+          "        []",
+        ),
+      ),
+    ).toThrow(/implementations.*非空数组/);
+    expect(() =>
+      parseCasesYaml(
+        GOOD.replace(
+          "        - executor: playwright-web-ui\n          state: active",
+          "        - executor: Playwright Web\n          state: active",
+        ),
+      ),
+    ).toThrow(/implementations\[0\]\.executor/);
+    expect(() => parseCasesYaml(GOOD.replace("state: active", "state: disabled"))).toThrow(
+      /implementations\[0\]\.state/,
+    );
+    expect(() =>
+      parseCasesYaml(
+        GOOD.replace(
+          "        - executor: playwright-web-ui\n          state: active",
+          "        - executor: playwright-web-ui\n          state: active\n        - executor: playwright-web-ui\n          state: planned",
+        ),
+      ),
+    ).toThrow(/implementations.*重复 executor/);
+    expect(() =>
+      parseCasesYaml(
+        GOOD.replace("          state: active", "          state: active\n          retries: 2"),
+      ),
+    ).toThrow(/implementations\[0\].*不允许字段/);
   });
 
   it("requires declared import and export file names instead of bare formats", () => {
@@ -239,22 +303,37 @@ describe("parseCasesYaml strict optional fields", () => {
     expect(f.cases[0].source_ref).toBe("PRD#1");
   });
 
-  it("keeps immutable feature identity and rejects retired version metadata", () => {
+  it("keeps immutable project and feature identities and rejects invalid metadata", () => {
     expect(parseCasesYaml(GOOD).meta.feature_id).toBe("quality-rule-merge");
+    expect(parseCasesYaml(GOOD).meta.project_id).toBe("data-assets");
     expect(() =>
       parseCasesYaml(GOOD.replace("case_module_id", "version: v1\n  case_module_id")),
     ).toThrow(/meta\.version 已退役/);
     expect(() => parseCasesYaml(GOOD.replace("quality-rule-merge", "Quality Rule Merge"))).toThrow(
       /meta\.feature_id/,
     );
+    expect(() => parseCasesYaml(GOOD.replace("data-assets", "Data Assets"))).toThrow(
+      /meta\.project_id/,
+    );
+    expect(() => parseCasesYaml(GOOD.replace("data-assets", '" data-assets "'))).toThrow(
+      /meta\.project_id/,
+    );
   });
 
-  it("keeps draft validation reusable while canonical validation requires feature identity", () => {
-    const draft = parseCasesYaml(GOOD.replace("  feature_id: quality-rule-merge\n", ""));
+  it("keeps draft validation reusable while canonical validation requires both stable identities", () => {
+    const draft = parseCasesYaml(
+      GOOD.replace("  feature_id: quality-rule-merge\n", "").replace(
+        "  project_id: data-assets\n",
+        "",
+      ),
+    );
 
     expect(validateCases(draft)).toEqual([]);
     expect(validateCanonicalCases(draft)).toContain(
       "meta.feature_id 缺失；canonical cases 必须声明不可变身份",
+    );
+    expect(validateCanonicalCases(draft)).toContain(
+      "meta.project_id 缺失；canonical cases 必须声明不可变身份",
     );
   });
 });

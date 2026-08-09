@@ -28,7 +28,7 @@ Commands:
   scans             代码 diff 扫描报告
   defects           缺陷报告生成与结构校验
   infra             基础设施配置和 SSH connectivity 检查
-  automation        自动化 executor 生命周期与目录管理
+  automation        发现并运行可扩展 automation executor
   project           项目工作区的创建、检查与修复
   prd               PRD 证据提取、确认式定稿与检查
   zentao            禅道集成:bug 抓取与创建
@@ -70,9 +70,6 @@ Commands:
                                    ID；传需求 id 简写定位 feature
   import [options]                 将 CSV/XLSX/MD/XMind 转为 YAML；XMind 可按 L1 拆分(默认
                                    dry-run)
-  sync [options]                   按 YAML 中已声明的 Playwright spec_file 同步文件名和
-                                   generated runner；API executor 单独报告(默认
-                                   dry-run)
   lint [options]                   检查 feature 目录、cases/ 单一 YAML 源、作用域唯一的不可变
                                    feature_id、用例内容、P0 占比与历史导入文件
   help [command]                   display help for command
@@ -108,11 +105,11 @@ Options:
   -h, --help                                  display help for command
 
 Commands:
-  exec [options] <feature-path> <command...>  创建 run 并在该 run 环境中执行命令
-  new [options] <feature-path>                为需求功能分配新的规范运行目录
-  path [options] <feature-path>               输出需求功能最近一次运行目录
-  verify [options]                            校验运行目录交付契约(status.json/allure-results/handoff.md)，失败退出码 1
-  prune [options] [feature-path]              清理旧运行目录：保留最近 N 个 + baseline + 已发布
+  exec [options] <feature-path> <command...>  创建 feature-local run 并在受控环境中执行命令
+  new [options] <feature-path>                为需求功能分配新的 feature-local 运行目录
+  path [options] <feature-path>               输出需求功能最近一次 feature-local 运行目录
+  verify [options]                            核验同一 immutable automation execution/attempt 的完整证据链
+  prune [options] [feature-path]              清理旧 feature-local runs：保留最近 N 个 + baseline + 已发布
   help [command]                              display help for command
 ```
 
@@ -248,24 +245,18 @@ Commands:
 ```text
 Usage: kata automation [options] [command]
 
-自动化 executor 生命周期与目录管理
+发现并运行可扩展 automation executor
 
 Options:
-  -h, --help                                    display help for command
+  -h, --help                                     display help for command
 
 Commands:
-  setup [options]                               显式准备一个已发现 executor 的运行环境；可能安装依赖或浏览器
-  doctor [options]                              只读检查一个已发现 executor 的运行环境；不会隐式执行 setup
-  sql                                           校验和渲染自动化 SQL 模板；不连接数据库
-  run [options] <feature-or-requirement-id>     按 feature 路径或需求 ID 执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖
-  coverage <feature-dir>                        检查 cases YAML 自动化覆盖；API executor 单独报告，Playwright 校验映射、标题和实现状态
-  generate-cases [options] <feature-dir>        检查缺失的 Playwright automation.spec_file；API executor 单独报告，不生成通用占位脚本
-  generate [options] <feature-dir>              按 Playwright automation.spec_file 生成 runner import；忽略 API executor(默认 dry-run)
-  migrate-placeholders [options] <feature-dir>  移除由自然语言通用 runner 生成的占位脚本和映射(默认 dry-run)
-  scaffold [options] <feature-dir>              创建自动化骨架(tests/cases、runners、pages、fixtures、sql)；用例映射以 YAML 为准，不生成重复索引
-  normalize [options] <feature-dir>             检查自动化目录违规；仅迁移有明确受控目标的旧文件
-  lint [options] [feature-dir]                  检查 Playwright 自动化代码、用例文件名、页面元数据与共享路径
-  help [command]                                display help for command
+  setup [options]                                显式准备一个已发现 executor 的依赖或运行时
+  doctor [options]                               只读检查一个已发现 executor；不会隐式执行 setup
+  collect [options] <feature-or-requirement-id>  按 canonical active implementation 精确收集用例，不读取平台凭据
+  run [options] <feature-or-requirement-id>      精确收集后运行同一 immutable manifest，并保留独立 attempt 证据
+  sql                                            校验和渲染自动化 SQL 模板；不连接数据库
+  help [command]                                 display help for command
 ```
 
 ## kata project
@@ -439,21 +430,6 @@ Options:
   -h, --help             display help for command
 ```
 
-## kata cases sync
-
-```text
-Usage: kata cases sync [options]
-
-按 YAML 中已声明的 Playwright spec_file 同步文件名和 generated runner；API executor 单独报告(默认
-dry-run)
-
-Options:
-  --feature <dir>   feature 目录路径
-  --project <name>  项目名；feature 传相对 features/ 的完整路径时必填
-  --apply           按预览计划实际重命名并更新 runner (default: false)
-  -h, --help        display help for command
-```
-
 ## kata cases lint
 
 ```text
@@ -537,14 +513,14 @@ Options:
 ```text
 Usage: kata runs exec [options] <feature-path> <command...>
 
-创建 run 并在该 run 环境中执行命令
+创建 feature-local run 并在受控环境中执行命令
 
 Arguments:
   feature-path
   command           要运行的命令；必须放在 -- 之后
 
 Options:
-  --project <name>  项目名
+  --project <name>  workspace 项目名
   --type <type>     运行类型: preflight|run|selfrun|repair|baseline (default: "run")
   -h, --help        display help for command
 ```
@@ -554,10 +530,10 @@ Options:
 ```text
 Usage: kata runs new [options] <feature-path>
 
-为需求功能分配新的规范运行目录
+为需求功能分配新的 feature-local 运行目录
 
 Options:
-  --project <name>  项目名
+  --project <name>  workspace 项目名
   --type <type>     运行类型: preflight|run|selfrun|repair|baseline (default: "run")
   -h, --help        display help for command
 ```
@@ -567,10 +543,10 @@ Options:
 ```text
 Usage: kata runs path [options] <feature-path>
 
-输出需求功能最近一次运行目录
+输出需求功能最近一次 feature-local 运行目录
 
 Options:
-  --project <name>  项目名
+  --project <name>  workspace 项目名
   -h, --help        display help for command
 ```
 
@@ -579,14 +555,16 @@ Options:
 ```text
 Usage: kata runs verify [options]
 
-校验运行目录交付契约(status.json/allure-results/handoff.md)，失败退出码 1
+核验同一 immutable automation execution/attempt 的完整证据链
 
 Options:
-  --project <name>          项目名
-  --feature <feature-path>  需求功能（相对 features/ 的完整路径）
-  --run <run-id>            指定 run-id(默认最近一次)
-  --json                    以 JSON 输出结果 (default: false)
-  -h, --help                display help for command
+  --project <id>          canonical project_id
+  --run <logical-run-id>  logical run ID
+  --executor <id>         executor ID；logical run 内唯一时可省略
+  --execution <id>        execution ID；缺省选择该 executor 的最新 execution
+  --attempt <number>      attempt 序号；缺省选择最新 attempt
+  --json                  以 JSON 输出结果 (default: false)
+  -h, --help              display help for command
 ```
 
 ## kata runs prune
@@ -594,12 +572,12 @@ Options:
 ```text
 Usage: kata runs prune [options] [feature-path]
 
-清理旧运行目录：保留最近 N 个 + baseline + 已发布
+清理旧 feature-local runs：保留最近 N 个 + baseline + 已发布
 
 Options:
-  --project <name>  项目名
+  --project <name>  workspace 项目名
   --keep <n>        保留最近 N 个运行 (default: "5")
-  --apply           真正执行删除(默认 dry-run) (default: false)
+  --apply           真正执行删除（默认 dry-run） (default: false)
   -h, --help        display help for command
 ```
 
@@ -671,7 +649,7 @@ Arguments:
   command                要运行的命令；建议在前面使用 --
 
 Options:
-  --project <name>       工作区项目名；用于项目级 Playwright 与 feature 发现
+  --project <name>       工作区项目名；用于项目上下文与 feature 发现
   --inherit-env <names>  额外继承的环境变量名，逗号分隔 (default: "")
   -h, --help             display help for command
 ```
@@ -1007,7 +985,7 @@ Options:
 ```text
 Usage: kata automation setup [options]
 
-显式准备一个已发现 executor 的运行环境；可能安装依赖或浏览器
+显式准备一个已发现 executor 的依赖或运行时
 
 Options:
   --executor <id>  executor ID；仅发现一个时可省略
@@ -1019,11 +997,39 @@ Options:
 ```text
 Usage: kata automation doctor [options]
 
-只读检查一个已发现 executor 的运行环境；不会隐式执行 setup
+只读检查一个已发现 executor；不会隐式执行 setup
 
 Options:
   --executor <id>  executor ID；仅发现一个时可省略
   -h, --help       display help for command
+```
+
+## kata automation collect
+
+```text
+Usage: kata automation collect [options] <feature-or-requirement-id>
+
+按 canonical active implementation 精确收集用例，不读取平台凭据
+
+Options:
+  --project <name>  workspace 项目名（或使用 KATA_ACTIVE_PROJECT）
+  --executor <id>   executor ID；active executor 唯一时可省略
+  -h, --help        display help for command
+```
+
+## kata automation run
+
+```text
+Usage: kata automation run [options] <feature-or-requirement-id>
+
+精确收集后运行同一 immutable manifest，并保留独立 attempt 证据
+
+Options:
+  --project <name>    workspace 项目名（或使用 KATA_ACTIVE_PROJECT）
+  --executor <id>     executor ID；active executor 唯一时可省略
+  --env <name>        平台环境名；缺省使用 meta.automation_env
+  --workers <number>  executor worker 数，必须为正整数
+  -h, --help          display help for command
 ```
 
 ## kata automation sql
@@ -1040,120 +1046,6 @@ Commands:
   lint [options] <sql-file>    按全局 SQL profile 校验模板
   render [options] <sql-file>  将显式 --set 值渲染到 stdout，不写入项目目录
   help [command]               display help for command
-```
-
-## kata automation run
-
-```text
-Usage: kata automation run [options] <feature-or-requirement-id>
-
-按 feature 路径或需求 ID 执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖
-
-Options:
-  --env <name>                  平台环境名；缺省使用 meta.automation_env
-  --project <name>              工作区项目名（或使用 KATA_ACTIVE_PROJECT）
-  --no-interactive              跳过 TUI 深链，强制 CLI 输出
-  --type <type>                 运行类型: preflight|run|selfrun|repair|baseline
-                                (default: "run")
-  --set <path=value>            临时覆盖 YAML 配置，例如 automation.cases=1-72 (default:
-                                [])
-  --workers <number>            临时覆盖 Playwright worker 数
-  --sort-cases                  按 cases YAML 中 case_id 降序执行
-  --no-sort-cases               按 cases YAML 原顺序执行
-  --headless                    使用无头/有头浏览器
-  --headed                      使用无头/有头浏览器
-  --continue-on-failure         失败后是否继续后续用例
-  --no-continue-on-failure      失败后是否继续后续用例
-  --skip-precondition-setup     是否跳过前置准备
-  --no-skip-precondition-setup  是否跳过前置准备
-  -h, --help                    display help for command
-```
-
-## kata automation coverage
-
-```text
-Usage: kata automation coverage [options] <feature-dir>
-
-检查 cases YAML 自动化覆盖；API executor 单独报告，Playwright 校验映射、标题和实现状态
-
-Options:
-  -h, --help  display help for command
-```
-
-## kata automation generate-cases
-
-```text
-Usage: kata automation generate-cases [options] <feature-dir>
-
-检查缺失的 Playwright automation.spec_file；API executor 单独报告，不生成通用占位脚本
-
-Options:
-  --apply     拒绝并明确提示，不生成占位脚本 (default: false)
-  -h, --help  display help for command
-```
-
-## kata automation generate
-
-```text
-Usage: kata automation generate [options] <feature-dir>
-
-按 Playwright automation.spec_file 生成 runner import；忽略 API executor(默认 dry-run)
-
-Options:
-  --apply     写入 generated.ts (default: false)
-  -h, --help  display help for command
-```
-
-## kata automation migrate-placeholders
-
-```text
-Usage: kata automation migrate-placeholders [options] <feature-dir>
-
-移除由自然语言通用 runner 生成的占位脚本和映射(默认 dry-run)
-
-Options:
-  --apply     执行移除并重建 generated runner (default: false)
-  -h, --help  display help for command
-```
-
-## kata automation scaffold
-
-```text
-Usage: kata automation scaffold [options] <feature-dir>
-
-创建自动化骨架(tests/cases、runners、pages、fixtures、sql)；用例映射以 YAML 为准，不生成重复索引
-
-Options:
-  --force     覆盖已存在文件 (default: false)
-  -h, --help  display help for command
-```
-
-## kata automation normalize
-
-```text
-Usage: kata automation normalize [options] <feature-dir>
-
-检查自动化目录违规；仅迁移有明确受控目标的旧文件
-
-Options:
-  --apply      执行修复(默认 dry-run) (default: false)
-  --exit-code  存在违规时退出码为 1
-  -h, --help   display help for command
-```
-
-## kata automation lint
-
-```text
-Usage: kata automation lint [options] [feature-dir]
-
-检查 Playwright 自动化代码、用例文件名、页面元数据与共享路径
-
-Options:
-  --shared          检查 workspace 项目的 _shared/automation 共享自动化代码
-  --all-features    检查指定项目下全部 feature 的自动化代码
-  --project <name>  --shared 或 --all-features 模式下的项目名(默认取 KATA_ACTIVE_PROJECT)
-  --exit-code       存在 violation 时退出码为 1
-  -h, --help        display help for command
 ```
 
 ## kata project scan
@@ -1390,6 +1282,6 @@ Usage: kata automation sql render [options] <sql-file>
 
 Options:
   --profile <name>   先按 SQL 方言 profile 校验模板
-  --set <KEY=value>  语义占位符替换值，例如 SchemaA=dq、RunSuffix=run01，可重复 (default: [])
+  --set <KEY=value>  语义占位符替换值，可重复 (default: [])
   -h, --help         display help for command
 ```

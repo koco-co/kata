@@ -1,6 +1,7 @@
 meta:
   title: 【岚图汽车】【数据质量】支持自定义脏数据存储字段
   feature_id: quality-custom-dirty-data-fields
+  project_id: data-assets
   requirement_id: "15912"
   case_module_id: ""
   source: "蓝湖需求 #15912"

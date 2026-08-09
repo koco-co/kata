@@ -1,6 +1,7 @@
 meta:
   title: 【江苏银行】计算引擎适配Gaussdb9.1
   feature_id: offline-gaussdb91-compute-engine
+  project_id: batch-works
   requirement_id: "14913"
   case_module_id: "9673"
   imports:

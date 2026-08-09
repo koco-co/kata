@@ -1,6 +1,7 @@
 meta:
   title: 有效性JSONValue格式校验
   feature_id: quality-json-value-format-validation
+  project_id: data-assets
   requirement_id: '15694'
   case_module_id: ''
   exports:
@@ -8,7 +9,14 @@ meta:
 cases:
 - case_id: C0001
   automation:
-    spec_file: c0001-json-rule-option-order.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅查看未保存规则表单中的统计规则选项顺序
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】查看统计规则下拉选项顺序，格式-json格式校验选项位于格式校验-自定义正则上方
   priority: P1
   steps:
@@ -38,7 +46,14 @@ cases:
   - 规则配置-选项UI
 - case_id: C0002
   automation:
-    spec_file: c0002-json-rule-no-help-icon.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅查看未保存规则表单的提示图标展示
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】查看json格式校验统计函数行，不展示独立悬浮提示图标
   priority: P1
   steps:
@@ -68,7 +83,14 @@ cases:
   - 规则配置-选项UI
 - case_id: C0003
   automation:
-    spec_file: c0003-json-rule-visible-for-field-types.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅切换未保存规则表单的字段并查看统计规则选项
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】切换不同字段类型查看统计规则下拉框，格式-json格式校验选项均可见
   priority: P1
   steps:
@@ -109,7 +131,14 @@ cases:
   - 规则配置-字段类型限制
 - case_id: C0004
   automation:
-    spec_file: c0004-select-configured-value-format-keys.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅在未保存规则表单检查校验 key 可选状态
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】选择校验key，已配置value格式的key可选且未配置的key不可选
   priority: P0
   steps:
@@ -157,7 +186,14 @@ cases:
   - 规则配置-校验key选择
 - case_id: C0005
   automation:
-    spec_file: c0005-validation-key-multi-select.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅在未保存规则表单测试校验 key 多选与全选
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】多选与全选校验key，选中key回显且全选取消生效
   priority: P1
   steps:
@@ -200,7 +236,14 @@ cases:
   - 规则配置-校验key选择
 - case_id: C0006
   automation:
-    spec_file: c0006-search-validation-keys.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅在未保存规则表单搜索校验 key
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】搜索校验key，下拉列表仅展示命中key
   priority: P1
   steps:
@@ -239,7 +282,14 @@ cases:
   - 规则配置-校验key选择
 - case_id: C0007
   automation:
-    spec_file: c0007-large-key-list-initial-load.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅在未保存规则表单加载、搜索并选择 key
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】展开校验key下拉框，默认仅加载前200条且可搜索选中200条后的key
   priority: P1
   steps:
@@ -289,7 +339,13 @@ cases:
   - 规则配置-校验key选择
 - case_id: C0008
   automation:
-    spec_file: c0008-key-selection-current-level-only.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】勾选校验key并保存规则，回显以分号分隔key路径
   priority: P1
   steps:
@@ -333,7 +389,14 @@ cases:
   - 规则配置-校验key选择
 - case_id: C0009
   automation:
-    spec_file: c0009-hover-show-all-key-names.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅查看既有规则的校验 key 回显与悬浮提示
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】悬浮校验key字段，展示全部key名
   priority: P1
   steps:
@@ -372,7 +435,14 @@ cases:
   - 规则配置-校验key选择
 - case_id: C0010
   automation:
-    spec_file: c0010-value-format-preview-pagination.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅预览未保存规则表单中所选 key 的 value 格式
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】打开value格式预览弹窗，仅展示已勾选key的格式信息且支持分页
   priority: P1
   steps:
@@ -429,7 +499,14 @@ cases:
   - 规则配置-value格式预览
 - case_id: C0011
   automation:
-    spec_file: c0011-json-rule-disabled-for-other-types.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅查看未保存规则表单对 int 字段的选项限制
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】选择int类型字段查看统计规则下拉框，不出现格式-json格式校验选项
   priority: P1
   steps:
@@ -459,7 +536,14 @@ cases:
   - 规则配置
 - case_id: C0012
   automation:
-    spec_file: c0012-require-validation-key.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 必填校验阻断规则保存，平台规则未写入
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】未选择校验key保存规则，提示统计函数存在必填项未填写且规则未保存
   priority: P1
   steps:
@@ -494,7 +578,14 @@ cases:
   - 规则配置
 - case_id: C0013
   automation:
-    spec_file: c0013-saved-rule-config-fields.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅查看既有规则的配置参数
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】查看已保存规则配置参数区域，各字段值与配置一致
   priority: P1
   steps:
@@ -536,7 +627,13 @@ cases:
   - 规则配置参数展示
 - case_id: C0014
   automation:
-    spec_file: c0014-json-format-passed-flow.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】配置json格式校验规则集与任务并执行，实例校验结果显示通过
   priority: P0
   steps:
@@ -624,7 +721,13 @@ cases:
   - P0-主流程
 - case_id: C0015
   automation:
-    spec_file: c0015-json-format-failed-flow.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则集管理】配置json格式校验规则集与任务并执行，实例校验结果显示不通过且明细展示标红字段
   priority: P0
   steps:
@@ -714,7 +817,13 @@ cases:
   - P0-主流程
 - case_id: C0016
   automation:
-    spec_file: c0016-json-rule-sparkthrift.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则任务管理】执行SparkThrift2.x数据源任务，实例校验结果与记录明细正确
   priority: P0
   steps:
@@ -752,7 +861,13 @@ cases:
   - 数据源兼容性
 - case_id: C0017
   automation:
-    spec_file: c0017-json-rule-doris.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则任务管理】执行Doris3.x数据源任务，实例校验结果与记录明细正确
   priority: P0
   steps:
@@ -795,7 +910,13 @@ cases:
   - 数据源兼容性
 - case_id: C0018
   automation:
-    spec_file: c0018-json-rule-hive.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则任务管理】执行Hive2.x数据源任务，实例校验结果与记录明细正确
   priority: P1
   steps:
@@ -833,7 +954,13 @@ cases:
   - 数据源兼容性
 - case_id: C0019
   automation:
-    spec_file: c0019-large-json-key-validation.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则任务管理】执行维护上千key的任务，实例详情展示校验结果与明细
   priority: P1
   steps:
@@ -909,7 +1036,13 @@ cases:
   - 大数据量场景
 - case_id: C0020
   automation:
-    spec_file: c0020-delete-referenced-key-config.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【通用配置-json格式校验管理】删除被规则引用的key，规则配置回显移除该key且保存生效
   priority: P1
   steps:
@@ -949,7 +1082,13 @@ cases:
   - key删除后关联影响
 - case_id: C0021
   automation:
-    spec_file: c0021-delete-referenced-key-preview-execution.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则任务管理】删除被规则引用的key，value格式预览与任务执行正常
   priority: P1
   steps:
@@ -996,7 +1135,13 @@ cases:
   - key删除后关联影响
 - case_id: C0022
   automation:
-    spec_file: c0022-json-rule-with-sampling.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则任务管理】配置抽样比例执行任务，实例详情展示抽样数据量与校验结果
   priority: P1
   steps:
@@ -1056,7 +1201,13 @@ cases:
   - 抽样场景
 - case_id: C0023
   automation:
-    spec_file: c0023-json-rule-partition-validation.spec.ts
+    effects:
+      platform_write: true
+    business_record:
+      policy: required
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则任务管理】配置分区过滤条件执行任务，仅校验前一日分区数据
   priority: P1
   steps:
@@ -1106,7 +1257,14 @@ cases:
   - 分区场景
 - case_id: C0024
   automation:
-    spec_file: c0024-json-rule-built-in-rule.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅搜索并导出内置规则库内容，不修改平台数据
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【规则库配置】查看内置规则json格式校验，规则解释与规则描述等字段展示正确
   priority: P1
   steps:
@@ -1139,7 +1297,14 @@ cases:
   - 规则库-内置规则展示
 - case_id: C0025
   automation:
-    spec_file: c0025-failed-detail-download-marked-fields.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅查看并下载既有校验失败实例的明细
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【校验结果查询】下载校验不通过明细，校验字段单元格标红
   priority: P0
   steps:
@@ -1178,7 +1343,14 @@ cases:
   - 校验明细与日志
 - case_id: C0026
   automation:
-    spec_file: c0026-passed-validation-no-details.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅查看既有校验通过实例的详情
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【校验结果查询】查看质检结果为通过的实例，未记录明细且不显示查看详情入口
   priority: P1
   steps:
@@ -1218,7 +1390,14 @@ cases:
   - 校验明细与日志
 - case_id: C0027
   automation:
-    spec_file: c0027-failed-validation-log.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅查看既有校验失败实例日志
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【校验结果查询】查看校验失败实例日志，日志弹窗展示错误描述
   priority: P2
   steps:
@@ -1241,7 +1420,14 @@ cases:
   - 校验明细与日志
 - case_id: C0028
   automation:
-    spec_file: c0028-passed-json-quality-report.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅查看既有通过场景的质量报告
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【数据质量报告】查看质量报告规则行各列，字段值与通过场景一致
   priority: P1
   steps:
@@ -1289,7 +1475,14 @@ cases:
   - 质量报告展示
 - case_id: C0029
   automation:
-    spec_file: c0029-failed-json-quality-report.spec.ts
+    effects:
+      platform_write: false
+    business_record:
+      policy: not_applicable
+      reason: 仅查看既有不通过场景的质量报告
+    implementations:
+      - executor: playwright-web-ui
+        state: planned
   title: 验证【数据质量】-【数据质量报告】查看质量报告规则行各列，字段值与不通过场景一致
   priority: P0
   steps:

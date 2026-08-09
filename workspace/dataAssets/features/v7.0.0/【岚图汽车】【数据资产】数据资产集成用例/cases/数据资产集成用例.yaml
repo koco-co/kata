@@ -1,6 +1,7 @@
 meta:
   title: 数据资产集成用例
   feature_id: data-assets-core-module-integration-suite
+  project_id: data-assets
   case_module_id: ""
   layout: requirements
   imports:
@@ -72,7 +73,14 @@ cases:
   - case_id: C0002
     requirement_id: "9634"
     automation:
-      spec_file: c0002-data-standard-statistics.spec.ts
+      effects:
+        platform_write: false
+      business_record:
+        policy: not_applicable
+        reason: 仅查看统计数据并搜索既有词根、码表与标准定义
+      implementations:
+        - executor: playwright-web-ui
+          state: active
     title: 验证【数据标准】-【标准统计】查看统计卡片与分布图，标准数量、热度、目录分布、趋势与来源分布均展示
     priority: P1
     precondition: |-
@@ -106,7 +114,14 @@ cases:
   - case_id: C0003
     requirement_id: "9635"
     automation:
-      spec_file: c0003-data-model-design-and-elements.spec.ts
+      effects:
+        platform_write: false
+      business_record:
+        policy: not_applicable
+        reason: 仅查看页面结构与导航，新建表表单未提交并主动取消
+      implementations:
+        - executor: playwright-web-ui
+          state: active
     title: 验证【数据模型】-【规范建表】查看建表、规范设计与我的模型页面，导航与列表字段完整展示
     priority: P1
     precondition: |-
@@ -141,7 +156,13 @@ cases:
   - case_id: C0004
     requirement_id: "9636"
     automation:
-      spec_file: c0004-quality-project-search-and-pin.spec.ts
+      effects:
+        platform_write: true
+      business_record:
+        policy: required
+      implementations:
+        - executor: playwright-web-ui
+          state: planned
     title: 验证【数据质量】-【项目管理】搜索并置顶项目，项目列表仅展示匹配记录且置顶项目位于首位
     priority: P0
     precondition: |-

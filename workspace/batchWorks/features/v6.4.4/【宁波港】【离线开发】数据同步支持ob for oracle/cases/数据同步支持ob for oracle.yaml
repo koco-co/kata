@@ -1,6 +1,7 @@
 meta:
   title: 【宁波港】数据同步支持ob for oracle
   feature_id: offline-oceanbase-oracle-data-sync
+  project_id: batch-works
   requirement_id: '15077'
   case_module_id: '9736'
   imports:

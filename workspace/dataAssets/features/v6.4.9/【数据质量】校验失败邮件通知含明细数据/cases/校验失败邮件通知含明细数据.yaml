@@ -1,6 +1,7 @@
 meta:
   title: 【数据质量】质量校验不通过时支持发送邮件，邮件信息需要包含未通过的明细数据
   feature_id: quality-failure-email-detail-attachment
+  project_id: data-assets
   requirement_id: "15602"
   case_module_id: "10307"
   exports:

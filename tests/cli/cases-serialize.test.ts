@@ -5,6 +5,7 @@ import { serializeCasesYaml, setAutomationEnv } from "../../cli/lib/cases/serial
 const YAML = `meta:
   title: 需求名
   feature_id: stable-feature
+  project_id: data-assets
   case_module_id: "12345"
 cases:
   - case_id: C0001
@@ -23,8 +24,41 @@ describe("cases serialize automation env", () => {
         'case_module_id: "12345"\n  automation_env: ltqc-dev',
       ),
     );
-    expect(serializeCasesYaml(parsed)).toContain("feature_id: stable-feature");
-    expect(serializeCasesYaml(parsed)).toContain("automation_env: ltqc-dev");
+    const serialized = serializeCasesYaml(parsed);
+    expect(serialized).toContain("feature_id: stable-feature\n  project_id: data-assets\n");
+    expect(serialized).toContain("automation_env: ltqc-dev");
+  });
+
+  it("serializes canonical automation fields in stable order", () => {
+    const parsed = parseCasesYaml(
+      YAML.replace(
+        "    steps:",
+        `    automation:
+      effects:
+        platform_write: true
+      business_record:
+        policy: required
+      implementations:
+        - executor: playwright-web-ui
+          state: active
+        - executor: request-api
+          state: planned
+    steps:`,
+      ),
+    );
+
+    const serialized = serializeCasesYaml(parsed);
+    expect(serialized).toContain(`automation:
+      effects:
+        platform_write: true
+      business_record:
+        policy: required
+      implementations:
+        - executor: playwright-web-ui
+          state: active
+        - executor: request-api
+          state: planned`);
+    expect(parseCasesYaml(serialized)).toEqual(parsed);
   });
 
   it("rewrites only meta.automation_env and preserves the rest of the document", () => {

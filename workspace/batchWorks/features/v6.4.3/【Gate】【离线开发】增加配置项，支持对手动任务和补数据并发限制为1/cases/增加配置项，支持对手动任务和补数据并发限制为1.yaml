@@ -1,6 +1,7 @@
 meta:
   title: 【Gate】增加配置项，支持对手动任务和补数据并发限制为1
   feature_id: offline-manual-and-backfill-concurrency-limit
+  project_id: batch-works
   requirement_id: "15075"
   case_module_id: "9643"
   imports:

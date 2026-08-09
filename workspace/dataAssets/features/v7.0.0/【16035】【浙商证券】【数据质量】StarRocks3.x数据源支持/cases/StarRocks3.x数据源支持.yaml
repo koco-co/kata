@@ -1,6 +1,7 @@
 meta:
   title: StarRocks3.x数据源支持
   feature_id: quality-starrocks3-data-source-support
+  project_id: data-assets
   requirement_id: "16035"
   case_module_id: ""
   exports:

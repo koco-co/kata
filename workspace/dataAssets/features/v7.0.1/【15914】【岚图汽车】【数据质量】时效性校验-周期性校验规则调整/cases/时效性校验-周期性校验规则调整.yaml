@@ -1,6 +1,7 @@
 meta:
   title: 【数据质量】时效性校验-周期性校验规则调整
   feature_id: quality-periodic-rule-dimensions
+  project_id: data-assets
   requirement_id: "15914"
   case_module_id: ""
   source: "蓝湖需求 #15914"

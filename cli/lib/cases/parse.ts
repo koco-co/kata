@@ -6,11 +6,12 @@
 import { parse } from "yaml";
 import { assertPlatformEnvName } from "../platform-env.ts";
 import { CASE_EXPORT_FORMATS, parseCaseExportName } from "./formats.ts";
-import { FEATURE_ID_RE, SPEC_FILE_RE } from "./naming.ts";
+import { FEATURE_ID_RE } from "./naming.ts";
 import { normalizeStructuredText } from "./normalize.ts";
 import {
   type CaseAutomation,
-  type CaseAutomationExecutor,
+  type CaseAutomationBusinessRecord,
+  type CaseAutomationImplementation,
   type CaseItem,
   type CaseRequirement,
   type CasesFile,
@@ -60,7 +61,100 @@ function asCell(v: unknown, field: string): string {
   return normalizeStructuredText(v);
 }
 
-export { SPEC_FILE_RE } from "./naming.ts";
+function asRecord(v: unknown, field: string): Record<string, unknown> {
+  if (typeof v !== "object" || v === null || Array.isArray(v)) {
+    failType(field, "对象", v);
+  }
+  return v as Record<string, unknown>;
+}
+
+function exactRequiredKeys(
+  value: Record<string, unknown>,
+  allowed: readonly string[],
+  field: string,
+): void {
+  const allowedSet = new Set(allowed);
+  const unknown = Object.keys(value)
+    .filter((key) => !allowedSet.has(key))
+    .sort();
+  if (unknown.length > 0) fail(`${field} 不允许字段 ${unknown.join(", ")}`);
+  const missing = allowed.find((key) => !Object.hasOwn(value, key));
+  if (missing) fail(`${field}.${missing} 缺失`);
+}
+
+function trimmedString(v: unknown, field: string): string {
+  if (typeof v !== "string" || !v.trim() || v !== v.trim()) {
+    fail(`${field} 必须是无首尾空白的非空字符串`);
+  }
+  return v;
+}
+
+function parseAutomationBusinessRecord(
+  value: unknown,
+  field: string,
+): CaseAutomationBusinessRecord {
+  const record = asRecord(value, field);
+  if (record.policy === "required") {
+    exactRequiredKeys(record, ["policy"], field);
+    return { policy: "required" };
+  }
+  if (record.policy === "not_applicable") {
+    exactRequiredKeys(record, ["policy", "reason"], field);
+    return {
+      policy: "not_applicable",
+      reason: trimmedString(record.reason, `${field}.reason`),
+    };
+  }
+  fail(`${field}.policy 必须是 required 或 not_applicable`);
+}
+
+function parseAutomationImplementations(
+  value: unknown,
+  field: string,
+): readonly CaseAutomationImplementation[] {
+  if (!Array.isArray(value) || value.length === 0) fail(`${field} 必须是非空数组`);
+  const executors = new Set<string>();
+  return value.map((raw, implementationIndex) => {
+    const itemField = `${field}[${implementationIndex}]`;
+    const item = asRecord(raw, itemField);
+    exactRequiredKeys(item, ["executor", "state"], itemField);
+    const executor = trimmedString(item.executor, `${itemField}.executor`);
+    if (!FEATURE_ID_RE.test(executor)) {
+      fail(`${itemField}.executor 必须是小写英文 kebab 标识`);
+    }
+    if (executors.has(executor)) fail(`${field} 重复 executor: ${executor}`);
+    executors.add(executor);
+    if (item.state !== "active" && item.state !== "planned") {
+      fail(`${itemField}.state 必须是 active 或 planned`);
+    }
+    return { executor, state: item.state };
+  });
+}
+
+function parseCaseAutomation(value: unknown, index: number): CaseAutomation {
+  const field = `cases[${index}].automation`;
+  const automation = asRecord(value, field);
+  exactRequiredKeys(automation, ["effects", "business_record", "implementations"], field);
+
+  const effectsField = `${field}.effects`;
+  const effects = asRecord(automation.effects, effectsField);
+  exactRequiredKeys(effects, ["platform_write"], effectsField);
+  if (typeof effects.platform_write !== "boolean") {
+    fail(`${effectsField}.platform_write 必须是布尔值`);
+  }
+
+  return {
+    effects: { platform_write: effects.platform_write },
+    business_record: parseAutomationBusinessRecord(
+      automation.business_record,
+      `${field}.business_record`,
+    ),
+    implementations: parseAutomationImplementations(
+      automation.implementations,
+      `${field}.implementations`,
+    ),
+  };
+}
 
 function asCaseItem(v: unknown, index: number): CaseItem {
   if (typeof v !== "object" || v === null) fail(`cases[${index}] 不是对象`);
@@ -112,30 +206,7 @@ function asCaseItem(v: unknown, index: number): CaseItem {
     if (o.source_ref.trim()) item.source_ref = o.source_ref;
   }
   if (o.automation !== undefined) {
-    if (typeof o.automation !== "object" || o.automation === null) {
-      fail(`cases[${index}].automation 不是对象`);
-    }
-    const automation = o.automation as Record<string, unknown>;
-    const executor = automation.executor;
-    const specFile = automation.spec_file;
-    if (executor !== undefined && executor !== "api" && executor !== "playwright") {
-      fail(`cases[${index}].automation.executor 非法: ${String(executor)}(允许 api/playwright)`);
-    }
-    if (specFile !== undefined && (typeof specFile !== "string" || !SPEC_FILE_RE.test(specFile))) {
-      fail(
-        `cases[${index}].automation.spec_file 必须匹配 c<四位序号>-<英文slug>.spec.ts；slug 只能包含小写字母、数字和连字符`,
-      );
-    }
-    if (executor === "api" && specFile !== undefined) {
-      fail(`cases[${index}].automation.executor 为 api 时不得声明 spec_file`);
-    }
-    if (executor === undefined && specFile === undefined) {
-      fail(`cases[${index}].automation 至少声明 executor 或 spec_file`);
-    }
-    item.automation = {
-      ...(executor === undefined ? {} : { executor: executor as CaseAutomationExecutor }),
-      ...(specFile === undefined ? {} : { spec_file: specFile as string }),
-    } satisfies CaseAutomation;
+    item.automation = parseCaseAutomation(o.automation, index);
   }
   return item;
 }
@@ -169,6 +240,16 @@ export function parseCasesYaml(yamlText: string): CasesFile {
       fail("字段 meta.feature_id 必须是小写英文 kebab 标识");
     }
     meta.feature_id = m.feature_id;
+  }
+  if (m.project_id !== undefined) {
+    if (
+      typeof m.project_id !== "string" ||
+      m.project_id !== m.project_id.trim() ||
+      !FEATURE_ID_RE.test(m.project_id)
+    ) {
+      fail("字段 meta.project_id 必须是小写英文 kebab 标识");
+    }
+    meta.project_id = m.project_id;
   }
   if (m.layout !== undefined) {
     if (m.layout !== "flat" && m.layout !== "requirements") {

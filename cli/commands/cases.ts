@@ -5,7 +5,6 @@ import { type FeatureLintViolation, runFeaturesLint } from "../lib/features-lint
 import { listWorkspaceProjects, locateProject } from "../lib/workspace-locator.ts";
 import { registerCasesBuild } from "./cases-build.ts";
 import { registerCasesImport } from "./cases-import.ts";
-import { registerCasesSync } from "./cases-sync.ts";
 
 /** Run case-related structural lint: feature dir layout + naming + YAML source contract. */
 export function runCasesLint(opts: { project: string; feature?: string }): {
@@ -39,7 +38,6 @@ export function registerCases(program: Command): void {
   const cases = program.command("cases").description("用例导入、构建与检查");
   registerCasesBuild(cases);
   registerCasesImport(cases);
-  registerCasesSync(cases);
   cases
     .command("lint")
     .description(

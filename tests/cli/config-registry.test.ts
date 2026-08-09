@@ -54,9 +54,9 @@ function writeExample(root: string, rel: string, content: string): string {
 }
 
 describe("config registry", () => {
-  test("registers nine families with coherent roles and privacy", () => {
+  test("registers eight families with coherent roles and privacy", () => {
     const families = listFamilies();
-    expect(families).toHaveLength(9);
+    expect(families).toHaveLength(8);
     expect(CONFIG_FAMILIES.every((family) => family.docs.length > 0)).toBe(true);
     expect(CONFIG_FAMILIES.filter((family) => family.private).map((f) => f.name)).toEqual([
       "environments",
@@ -165,7 +165,7 @@ describe("config registry", () => {
     mkdirSync(join(root, "config", "policies"), { recursive: true });
     writeFileSync(
       join(root, "config", "policies", "repo-policy.yaml"),
-      "root:\n  allowed_files: [README.md]\n  allowed_directories: [config]\nforbidden_globs: []\nartifacts:\n  cases_yaml: { route: workspace/<project>/features/<version>/<feature>/cases/<name>.yaml }\n  case_import: { route: workspace/<project>/features/<version>/<feature>/cases/imports/<name>.<ext> }\n  case_export: { route: workspace/<project>/features/<version>/<feature>/cases/exports/<name>.<ext>, tracked: false }\n  automation_case: { route: workspace/<project>/features/<version>/<feature>/automation/tests/cases/ }\n  automation_sql_template: { route: workspace/<project>/features/<version>/<feature>/automation/tests/sql/ }\n  automation_run_temporary: { route: workspace/<project>/features/<version>/<feature>/runs/<run-id>/_tmp/, tracked: false }\n",
+      "root:\n  allowed_files: [README.md]\n  allowed_directories: [config]\nforbidden_globs: []\nartifacts:\n  cases_yaml: { route: workspace/<project>/features/<version>/<feature>/cases/<name>.yaml }\n  case_import: { route: workspace/<project>/features/<version>/<feature>/cases/imports/<name>.<ext> }\n  case_export: { route: workspace/<project>/features/<version>/<feature>/cases/exports/<name>.<ext>, tracked: false }\n  automation_case: { route: automation/<executor>/suites/<project>/tests/e2e/<version>/<feature-id>/ }\n  automation_sql_template: { route: automation/<executor>/suites/<project>/resources/sql/ }\n  automation_run_temporary: { route: artifacts/runs/<project-id>/<logical-run-id>/executions/<executor-id>/<execution-id>/attempts/<attempt-id>/scratch/, tracked: false }\n",
     );
     const shown = showFamily("repo-policy", root);
     const policy = shown.files.find((f) => f.path.endsWith("repo-policy.yaml"));
@@ -242,14 +242,6 @@ describe("config registry", () => {
     expect(hostsRow).toContain("config/examples/infrastructure/hosts.example.yaml");
     expect(hostsRow).not.toContain("data_sources.example.yaml");
     expect(hostsRow).not.toContain("credentials.example.yaml");
-  });
-
-  test("registry rejects Playwright fields that the runtime parser rejects", () => {
-    const root = makeRoot();
-    const path = join(root, "config", "automation", "playwright.yaml");
-    mkdirSync(join(root, "config", "automation"), { recursive: true });
-    writeFileSync(path, "playwright:\n  unknown_key: true\n");
-    expect(() => familyByName("automation").validateFile(path, root)).toThrow(/unknown_key/);
   });
 
   test("registry rejects malformed SQL profile regex before SQL lint execution", () => {

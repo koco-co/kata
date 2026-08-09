@@ -1,6 +1,7 @@
 meta:
   title: 【gate】任务提交至调度前需先通过审批
   feature_id: offline-task-submission-approval
+  project_id: batch-works
   requirement_id: '15030'
   case_module_id: '9826'
   imports:

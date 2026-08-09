@@ -1,6 +1,7 @@
 meta:
   title: 【数据质量】支持自定义调度周期
   feature_id: quality-custom-schedule-dates
+  project_id: data-assets
   requirement_id: "16212"
   case_module_id: ""
   source: "蓝湖需求 #16212"

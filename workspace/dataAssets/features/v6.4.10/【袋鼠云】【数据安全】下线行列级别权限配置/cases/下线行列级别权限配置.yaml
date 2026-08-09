@@ -1,6 +1,7 @@
 meta:
   title: 下线行列级别权限配置
   feature_id: security-row-column-permission-configuration-retirement
+  project_id: data-assets
   case_module_id: ""
   exports:
     - 下线行列级别权限配置.xmind

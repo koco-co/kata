@@ -1,6 +1,7 @@
 meta:
   title: 【华泰期货】数据同步vastbase支持update
   feature_id: offline-vastbase-update-sync
+  project_id: batch-works
   requirement_id: "15051"
   case_module_id: "9649"
   imports:

@@ -4,8 +4,113 @@
  */
 
 import { parseCaseExportName } from "./formats.ts";
-import { CASE_ID_RE, FEATURE_ID_RE, SPEC_FILE_RE } from "./naming.ts";
+import { CASE_ID_RE, FEATURE_ID_RE } from "./naming.ts";
 import { type CasesFile, PRIORITIES } from "./types.ts";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function reportUnknownFields(
+  value: Record<string, unknown>,
+  allowed: readonly string[],
+  field: string,
+  problems: string[],
+): void {
+  const allowedSet = new Set(allowed);
+  for (const key of Object.keys(value)
+    .filter((item) => !allowedSet.has(item))
+    .sort()) {
+    problems.push(`${field} 不允许字段 ${key}`);
+  }
+}
+
+function reportMissingFields(
+  value: Record<string, unknown>,
+  required: readonly string[],
+  field: string,
+  problems: string[],
+): void {
+  for (const key of required.filter((item) => !Object.hasOwn(value, item))) {
+    problems.push(`${field}.${key} 缺失`);
+  }
+}
+
+function validateCaseAutomation(value: unknown, caseId: string, problems: string[]): void {
+  const field = `用例 ${caseId} automation`;
+  if (!isRecord(value)) {
+    problems.push(`${field} 必须是对象`);
+    return;
+  }
+  const rootFields = ["effects", "business_record", "implementations"] as const;
+  reportUnknownFields(value, rootFields, field, problems);
+  reportMissingFields(value, rootFields, field, problems);
+
+  const effectsField = `${field}.effects`;
+  if (isRecord(value.effects)) {
+    reportUnknownFields(value.effects, ["platform_write"], effectsField, problems);
+    reportMissingFields(value.effects, ["platform_write"], effectsField, problems);
+    if (
+      Object.hasOwn(value.effects, "platform_write") &&
+      typeof value.effects.platform_write !== "boolean"
+    ) {
+      problems.push(`${effectsField}.platform_write 必须是布尔值`);
+    }
+  } else if (Object.hasOwn(value, "effects")) {
+    problems.push(`${effectsField} 必须是对象`);
+  }
+
+  const businessField = `${field}.business_record`;
+  if (isRecord(value.business_record)) {
+    const businessRecord = value.business_record;
+    if (businessRecord.policy === "required") {
+      reportUnknownFields(businessRecord, ["policy"], businessField, problems);
+    } else if (businessRecord.policy === "not_applicable") {
+      reportUnknownFields(businessRecord, ["policy", "reason"], businessField, problems);
+      reportMissingFields(businessRecord, ["reason"], businessField, problems);
+      if (
+        Object.hasOwn(businessRecord, "reason") &&
+        (typeof businessRecord.reason !== "string" ||
+          !businessRecord.reason.trim() ||
+          businessRecord.reason !== businessRecord.reason.trim())
+      ) {
+        problems.push(`${businessField}.reason 必须是无首尾空白的非空字符串`);
+      }
+    } else {
+      reportUnknownFields(businessRecord, ["policy", "reason"], businessField, problems);
+      problems.push(`${businessField}.policy 必须是 required 或 not_applicable`);
+    }
+  } else if (Object.hasOwn(value, "business_record")) {
+    problems.push(`${businessField} 必须是对象`);
+  }
+
+  const implementationsField = `${field}.implementations`;
+  if (Array.isArray(value.implementations) && value.implementations.length > 0) {
+    const executors = new Set<string>();
+    for (const [index, implementation] of value.implementations.entries()) {
+      const implementationField = `${implementationsField}[${index}]`;
+      if (!isRecord(implementation)) {
+        problems.push(`${implementationField} 必须是对象`);
+        continue;
+      }
+      reportUnknownFields(implementation, ["executor", "state"], implementationField, problems);
+      reportMissingFields(implementation, ["executor", "state"], implementationField, problems);
+      const executor = implementation.executor;
+      if (typeof executor !== "string" || !FEATURE_ID_RE.test(executor)) {
+        problems.push(`${implementationField}.executor 必须是小写英文 kebab 标识`);
+      } else if (executors.has(executor)) {
+        problems.push(`${implementationsField} executor 重复: ${executor}`);
+      } else {
+        executors.add(executor);
+      }
+      if (implementation.state !== "active" && implementation.state !== "planned") {
+        problems.push(`${implementationField}.state 必须是 active 或 planned`);
+      }
+    }
+  } else if (Object.hasOwn(value, "implementations")) {
+    problems.push(`${implementationsField} 必须是非空数组`);
+  }
+}
 
 /** Validate a parsed cases file; returns human-readable problem list. */
 export function validateCases(file: CasesFile): string[] {
@@ -13,6 +118,15 @@ export function validateCases(file: CasesFile): string[] {
   if (!file.meta.title?.trim()) problems.push("meta.title 为空");
   if (file.meta.feature_id !== undefined && !FEATURE_ID_RE.test(file.meta.feature_id)) {
     problems.push("meta.feature_id 必须是小写英文 kebab 标识");
+  }
+  const projectId = file.meta.project_id as unknown;
+  if (
+    projectId !== undefined &&
+    (typeof projectId !== "string" ||
+      projectId !== projectId.trim() ||
+      !FEATURE_ID_RE.test(projectId))
+  ) {
+    problems.push("meta.project_id 必须是小写英文 kebab 标识");
   }
   if (file.meta.requirement_id !== undefined && !/^(?:\d+|none)$/.test(file.meta.requirement_id)) {
     problems.push('meta.requirement_id 必须是数字字符串或 "none"');
@@ -111,22 +225,8 @@ export function validateCases(file: CasesFile): string[] {
     } else if (file.meta.layout === "requirements") {
       problems.push(`用例 ${c.id} 缺 requirement_id`);
     }
-    if (c.automation) {
-      const { executor, spec_file: specFile } = c.automation;
-      if (executor !== undefined && executor !== "api" && executor !== "playwright") {
-        problems.push(`用例 ${c.id} automation.executor 非法: ${executor}`);
-      }
-      if (specFile !== undefined && !SPEC_FILE_RE.test(specFile)) {
-        problems.push(
-          `用例 ${c.id} automation.spec_file 必须匹配 c<四位序号>-<英文slug>.spec.ts；slug 只能包含小写字母、数字和连字符`,
-        );
-      }
-      if (executor === "api" && specFile !== undefined) {
-        problems.push(`用例 ${c.id} automation.executor 为 api 时不得声明 spec_file`);
-      }
-      if (executor === undefined && specFile === undefined) {
-        problems.push(`用例 ${c.id} automation 至少声明 executor 或 spec_file`);
-      }
+    if (c.automation !== undefined) {
+      validateCaseAutomation(c.automation, c.id, problems);
     }
     // action/expected 允许为空字符串(续行/纯验证行是合法 QA 写法)
   }
@@ -136,6 +236,9 @@ export function validateCases(file: CasesFile): string[] {
 /** Validate a publishable canonical cases file while preserving draft validation separately. */
 export function validateCanonicalCases(file: CasesFile): string[] {
   const problems = validateCases(file);
+  if (file.meta.project_id === undefined) {
+    problems.unshift("meta.project_id 缺失；canonical cases 必须声明不可变身份");
+  }
   if (file.meta.feature_id === undefined) {
     problems.unshift("meta.feature_id 缺失；canonical cases 必须声明不可变身份");
   }

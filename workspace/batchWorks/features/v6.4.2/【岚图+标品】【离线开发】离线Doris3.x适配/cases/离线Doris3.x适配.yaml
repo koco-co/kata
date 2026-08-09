@@ -1,6 +1,7 @@
 meta:
   title: 【岚图+标品】离线Doris3.x适配
   feature_id: offline-doris3-data-source-support
+  project_id: batch-works
   requirement_id: "14835"
   case_module_id: "9404"
   imports:

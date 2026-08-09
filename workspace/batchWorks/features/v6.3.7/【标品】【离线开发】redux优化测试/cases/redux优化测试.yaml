@@ -1,6 +1,7 @@
 meta:
   title: 【标品】redux优化测试
   feature_id: offline-data-source-selector-consistency
+  project_id: batch-works
   case_module_id: "8888"
   imports:
     - 202506-离线开发v6.3.7.xmind

@@ -23,7 +23,7 @@ export interface DtStackClientLike {
   ): Promise<DtStackResponse<T>>;
 }
 
-// 重试与超时常量唯一定义点；浏览器侧适配器（adapters/playwright）复用。
+// 重试与超时常量的唯一定义点。
 export const RETRYABLE_HTTP_STATUS = new Set([502, 503, 504]);
 export const MAX_RETRY_ATTEMPTS = 6;
 export const RETRY_DELAY_MS = 2_000;

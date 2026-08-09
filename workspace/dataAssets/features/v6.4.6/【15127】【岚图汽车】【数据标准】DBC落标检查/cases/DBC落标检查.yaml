@@ -1,6 +1,7 @@
 meta:
   title: DBC落标检查
   feature_id: standards-dbc-mapping-check
+  project_id: data-assets
   requirement_id: "15522"
   case_module_id: ""
   exports:

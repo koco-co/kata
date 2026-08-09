@@ -1,6 +1,7 @@
 meta:
   title: 【数据标准】支持配置标准中英文字符限制条件
   feature_id: standards-name-character-constraints
+  project_id: data-assets
   requirement_id: "16208"
   case_module_id: ""
   exports:

@@ -1,6 +1,7 @@
 meta:
   title: 适配SparkKyuubi模式
   feature_id: metadata-spark-kyuubi-support
+  project_id: data-assets
   requirement_id: "none"
   case_module_id: ""
   exports:

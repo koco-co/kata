@@ -1,6 +1,7 @@
 meta:
   title: 多表数据一致性比对
   feature_id: quality-multi-table-consistency-comparison
+  project_id: data-assets
   case_module_id: ""
   requirement_id: "10183"
   exports:

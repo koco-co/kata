@@ -4,9 +4,7 @@
   "type": "module",
   "main": "src/index.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./adapters/playwright": "./src/adapters/playwright.ts",
-    "./adapters/execute-table": "./src/adapters/execute-table.ts"
+    ".": "./src/index.ts"
   },
   "bin": {
     "dtstack-cli": "src/cli.ts"
@@ -20,14 +18,6 @@
     "mysql2": "^3.22.3",
     "sm-crypto": "^0.4.0",
     "yaml": "^2.9.0"
-  },
-  "peerDependencies": {
-    "@playwright/test": "^1.59.1"
-  },
-  "peerDependenciesMeta": {
-    "@playwright/test": {
-      "optional": true
-    }
   },
   "devDependencies": {
     "@types/bun": "latest"

@@ -1,6 +1,7 @@
 meta:
   title: v63回归
   feature_id: quality-v63-regression-suite
+  project_id: data-assets
   requirement_id: "none"
   case_module_id: ""
   exports:
@@ -8,7 +9,13 @@ meta:
 cases:
   - case_id: C0001
     automation:
-      spec_file: c0001-rule-set-independent-run.spec.ts
+      effects:
+        platform_write: true
+      business_record:
+        policy: required
+      implementations:
+        - executor: playwright-web-ui
+          state: planned
     title: 验证【数据资产】-【规则集创建与运行】创建规则集并导入 4 条明细 SQL 规则，立即执行后生成任务查询记录
     priority: P0
     precondition: |-
@@ -81,7 +88,13 @@ cases:
       - 规则集管理
   - case_id: C0002
     automation:
-      spec_file: c0002-rule-set-edit-delete-prompt.spec.ts
+      effects:
+        platform_write: true
+      business_record:
+        policy: required
+      implementations:
+        - executor: playwright-web-ui
+          state: planned
     title: 验证【数据资产】-【规则集变更与删除】编辑规则内容并删除规则集，编辑保存生效且删除前提示清除历史任务
     priority: P2
     precondition: |-
@@ -134,7 +147,13 @@ cases:
       - 规则集管理
   - case_id: C0003
     automation:
-      spec_file: c0003-field-integrity-rule-result.spec.ts
+      effects:
+        platform_write: true
+      business_record:
+        policy: required
+      implementations:
+        - executor: playwright-web-ui
+          state: planned
     title: 验证【数据资产】-【完整性校验】添加单字段与多字段完整性规则并执行，实际值与统计 SQL 预期值一致
     priority: P0
     precondition: |-
@@ -252,7 +271,13 @@ cases:
       - 规则任务配置
   - case_id: C0004
     automation:
-      spec_file: c0004-table-row-count-rule-result.spec.ts
+      effects:
+        platform_write: true
+      business_record:
+        policy: required
+      implementations:
+        - executor: playwright-web-ui
+          state: planned
     title: 验证【数据资产】-【完整性校验】添加表行数规则并执行，期望值准确时通过且改错后校验异常
     priority: P1
     precondition: |-

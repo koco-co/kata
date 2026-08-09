@@ -8,6 +8,7 @@ const YAML = `
 meta:
   title: 需求名
   feature_id: fixture-feature
+  project_id: data-assets
   case_module_id: "10812"
   exports: [交付用例.csv, 交付用例.xlsx, 交付用例.md, 交付用例.xmind]
 cases:

@@ -1,6 +1,7 @@
 meta:
   title: 时效性及时性两个字段之间的时间差校验
   feature_id: quality-multi-field-time-difference
+  project_id: data-assets
   case_module_id: ""
   requirement_id: "10182"
   exports:

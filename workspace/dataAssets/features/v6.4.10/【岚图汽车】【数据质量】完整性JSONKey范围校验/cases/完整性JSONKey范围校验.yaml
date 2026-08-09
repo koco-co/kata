@@ -1,6 +1,7 @@
 meta:
   title: 完整性JSONKey范围校验
   feature_id: quality-json-key-range-validation
+  project_id: data-assets
   requirement_id: "15693"
   case_module_id: ""
   exports:
@@ -8,7 +9,14 @@ meta:
 cases:
   - case_id: C0001
     automation:
-      spec_file: c0001-key-range-single-field-selection.spec.ts
+      effects:
+        platform_write: false
+      business_record:
+        policy: not_applicable
+        reason: 仅校验规则编辑表单的字段选择交互，不保存平台配置
+      implementations:
+        - executor: playwright-web-ui
+          state: planned
     title: 验证【数据质量】-【规则集管理】选择 key 范围校验统计函数，字段选择框切换为单选
     priority: P0
     precondition: |-
@@ -30,7 +38,13 @@ cases:
 
   - case_id: C0002
     automation:
-      spec_file: c0002-include-exclude-method-results.spec.ts
+      effects:
+        platform_write: true
+      business_record:
+        policy: required
+      implementations:
+        - executor: playwright-web-ui
+          state: planned
     title: 验证【数据质量】-【规则任务管理】切换包含与不包含校验方法并执行，异常明细与校验方法一致
     priority: P0
     precondition: |-
@@ -59,7 +73,14 @@ cases:
 
   - case_id: C0003
     automation:
-      spec_file: c0003-key-range-select-all.spec.ts
+      effects:
+        platform_write: false
+      business_record:
+        policy: not_applicable
+        reason: 仅校验未保存规则表单中的多选与全选交互
+      implementations:
+        - executor: playwright-web-ui
+          state: planned
     title: 验证【数据质量】-【规则集管理】多选与全选校验内容，6 个 key 全部选中并回显
     priority: P1
     precondition: |-
@@ -83,7 +104,14 @@ cases:
 
   - case_id: C0004
     automation:
-      spec_file: c0004-search-validation-content.spec.ts
+      effects:
+        platform_write: false
+      business_record:
+        policy: not_applicable
+        reason: 仅在规则表单下拉框中搜索并核对展示结果
+      implementations:
+        - executor: playwright-web-ui
+          state: planned
     title: 验证【数据质量】-【规则集管理】输入关键词搜索校验内容，下拉框命中过滤并展示暂无数据
     priority: P1
     precondition: |-
@@ -107,7 +135,14 @@ cases:
 
   - case_id: C0005
     automation:
-      spec_file: c0005-key-range-default-200-search.spec.ts
+      effects:
+        platform_write: false
+      business_record:
+        policy: not_applicable
+        reason: 测试步骤只读取并搜索已准备的 key 列表，不修改平台数据
+      implementations:
+        - executor: playwright-web-ui
+          state: planned
     title: 验证【数据质量】-【规则集管理】加载校验内容下拉框，默认展示前 200 条且搜索可命中未加载 key(校验内容条数 > 200)
     priority: P1
     precondition: |-
@@ -137,7 +172,13 @@ cases:
       ["数据质量", "规则集管理"]
   - case_id: C0006
     automation:
-      spec_file: c0006-key-range-display-format.spec.ts
+      effects:
+        platform_write: true
+      business_record:
+        policy: required
+      implementations:
+        - executor: playwright-web-ui
+          state: planned
     title: 验证【数据质量】-【规则集管理】保存多层级校验内容，回显为同层横线拼接与层级分号分隔
     priority: P1
     precondition: |-
@@ -159,7 +200,14 @@ cases:
 
   - case_id: C0007
     automation:
-      spec_file: c0007-key-range-report-tooltip.spec.ts
+      effects:
+        platform_write: false
+      business_record:
+        policy: not_applicable
+        reason: 仅查看既有质量报告的校验内容与悬浮提示
+      implementations:
+        - executor: playwright-web-ui
+          state: planned
     title: 验证【数据质量】-【数据质量报告】查看校验内容列，默认展示前两个 key 且悬浮展示全部
     priority: P1
     precondition: |-
@@ -181,7 +229,13 @@ cases:
 
   - case_id: C0008
     automation:
-      spec_file: c0008-json-string-field-types.spec.ts
+      effects:
+        platform_write: true
+      business_record:
+        policy: required
+      implementations:
+        - executor: playwright-web-ui
+          state: planned
     title: 验证【数据质量】-【规则任务管理】执行 JSON 与 string 字段 key 范围规则，异常记录包含缺失 key 行
     priority: P0
     precondition: |-

@@ -1,7 +1,6 @@
-/** Canonical case IDs and explicit Playwright file names stored in YAML. */
+/** Stable canonical identities stored in authored YAML. */
 export const CASE_ID_RE = /^C\d{4}$/;
 export const FEATURE_ID_RE = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
-export const SPEC_FILE_RE = /^c\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.spec\.ts$/;
 
 export function caseIdForIndex(index: number): string {
   if (!Number.isInteger(index) || index < 0 || index >= 10_000) {

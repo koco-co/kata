@@ -13,7 +13,6 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
 import { parse } from "yaml";
-import { loadPlaywrightAutomationConfigFile } from "../../runtime/automation/config/playwright.ts";
 import { loadZentaoCreateConfig } from "../integrations/zentao/create.ts";
 import { loadSqlProfilesFile } from "./automation/sql.ts";
 import { loadCasesLintConfig } from "./cases/content-lint.ts";
@@ -40,8 +39,7 @@ export type ConfigFamilyName =
   | "repo-policy"
   | "cases-lint"
   | "sql-profiles"
-  | "xmind-mapping"
-  | "automation";
+  | "xmind-mapping";
 
 export interface ConfigTemplateMapping {
   /** 模板复制后的目标路径；多实例族使用 <name> 占位。 */
@@ -180,7 +178,7 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     name: "environments",
     role: "secret",
     private: true,
-    docs: "平台 URL、Cookie、租户、项目、数据源与环境自动化参数",
+    docs: "平台 URL、Cookie、租户、项目、数据源与写入安全边界",
     files: [],
     instancesDir: "config/private/environments",
     templates: [
@@ -200,7 +198,6 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
         "datasources",
         "defaults",
         "safety",
-        "automation",
       ]);
       readPlatformEnvConfig(basename(path, ".yaml"), { repoRoot: root });
     },
@@ -214,7 +211,6 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
         "datasources",
         "defaults",
         "safety",
-        "automation",
       ]);
       if (doc.schema_version !== 2) throw new Error(`${path} schema_version 必须为 2`);
       if (!isRecord(doc.auth) || typeof doc.auth.cookie !== "string") {
@@ -414,29 +410,6 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     },
     validateExample: (path) => {
       throw new Error(`${path} 不是 example 模板（契约文件无模板）`);
-    },
-  },
-  {
-    name: "automation",
-    role: "runtime",
-    private: false,
-    docs: "Playwright 运行时行为设置（可被 --set 覆盖）",
-    files: ["config/automation/playwright.yaml"],
-    templates: [
-      {
-        target: "config/automation/playwright.yaml",
-        example: join("config", "automation", "playwright.example.yaml"),
-      },
-    ],
-    loadFile: (path) => {
-      loadPlaywrightAutomationConfigFile(path);
-      return readYaml(path);
-    },
-    validateFile: (path) => {
-      loadPlaywrightAutomationConfigFile(path);
-    },
-    validateExample: (path) => {
-      loadPlaywrightAutomationConfigFile(path);
     },
   },
 ];

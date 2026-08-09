@@ -1244,8 +1244,28 @@ output_file="test_table_16178_c0001.sql"
   });
 
   it("rejects pure API cases from the functional suite without removing generic executor support", () => {
-    const item = testCase({ automation: { executor: "api" } });
+    const item = testCase({
+      automation: {
+        effects: { platform_write: false },
+        business_record: { policy: "not_applicable", reason: "只读接口检查不产生业务记录" },
+        implementations: [{ executor: "request-api", state: "active" }],
+      },
+    });
     expect(lintCaseContent(doc(item), config).map((entry) => entry.rule)).toContain(
+      "case_pure_api",
+    );
+
+    const automation = item.automation;
+    if (automation === undefined) throw new Error("expected automation contract");
+    item.automation = {
+      effects: automation.effects,
+      business_record: automation.business_record,
+      implementations: [
+        { executor: "request-api", state: "active" },
+        { executor: "playwright-web-ui", state: "planned" },
+      ],
+    };
+    expect(lintCaseContent(doc(item), config).map((entry) => entry.rule)).not.toContain(
       "case_pure_api",
     );
   });

@@ -1965,12 +1965,17 @@ export function lintCaseContent(
     itemViolations.push(...lintPartitionDataSplit(item));
     itemViolations.push(...lintSqlExpected(item));
     itemViolations.push(...lintSamplingExpected(item));
-    if (item.automation?.executor === "api") {
+    const automationExecutors =
+      item.automation?.implementations.map((implementation) => implementation.executor) ?? [];
+    if (
+      automationExecutors.length > 0 &&
+      automationExecutors.every((executor) => executor.endsWith("-api"))
+    ) {
       itemViolations.push(
         makeViolation(
           "case_pure_api",
           "功能用例集只保留可由用户功能路径执行的用例；纯接口用例不纳入当前用例集",
-          "存在 automation.executor: api",
+          `仅声明 API executor: ${automationExecutors.join("、")}`,
         ),
       );
     }

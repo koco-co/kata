@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { normalizeStructuredText } from "../../cli/lib/cases/normalize.ts";
+import { normalizeCasesFile, normalizeStructuredText } from "../../cli/lib/cases/normalize.ts";
+import { parseCasesYaml } from "../../cli/lib/cases/parse.ts";
 import { normalizeCasesYamlText } from "../../cli/lib/cases/serialize.ts";
 
 describe("normalizeStructuredText", () => {
@@ -107,5 +108,46 @@ cases:
     expect(normalized).toContain("exports:\n    - 需求.xmind");
     expect(normalized).toContain("action: |-\n          配置如下:");
     expect(normalized).toContain("expected: |-\n          1) 成功\n          2) 返回");
+  });
+});
+
+describe("normalizeCasesFile", () => {
+  it("deep-copies canonical automation contracts", () => {
+    const source = parseCasesYaml(`meta:
+  title: 需求
+  feature_id: stable-feature
+  project_id: data-assets
+  case_module_id: ""
+cases:
+  - case_id: C0001
+    title: 验证写入
+    priority: P1
+    automation:
+      effects:
+        platform_write: true
+      business_record:
+        policy: required
+      implementations:
+        - executor: playwright-web-ui
+          state: active
+    steps:
+      - action: 保存
+        expected: 成功
+`);
+
+    const normalized = normalizeCasesFile(source);
+    expect(normalized).toEqual(source);
+    expect(normalized.meta.project_id).toBe("data-assets");
+    expect(normalized.cases[0].automation).not.toBe(source.cases[0].automation);
+    expect(normalized.cases[0].automation?.effects).not.toBe(source.cases[0].automation?.effects);
+    expect(normalized.cases[0].automation?.business_record).not.toBe(
+      source.cases[0].automation?.business_record,
+    );
+    expect(normalized.cases[0].automation?.implementations).not.toBe(
+      source.cases[0].automation?.implementations,
+    );
+    expect(normalized.cases[0].automation?.implementations[0]).not.toBe(
+      source.cases[0].automation?.implementations[0],
+    );
   });
 });

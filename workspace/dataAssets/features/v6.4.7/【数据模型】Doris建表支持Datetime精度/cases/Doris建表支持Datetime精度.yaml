@@ -1,6 +1,7 @@
 meta:
   title: Doris建表支持Datetime精度
   feature_id: modeling-doris-datetime-precision
+  project_id: data-assets
   case_module_id: ""
   exports:
     - Doris建表支持Datetime精度.xmind

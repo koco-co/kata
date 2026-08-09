@@ -39,6 +39,6 @@ prd_digest: "stale:legacy"
 
 ## 自动化注意事项
 
-- 落标检查无已评审自动化脚本，本 feature 为纯功能 YAML 用例，未声明 automation.spec_file。
+- 落标检查当前没有 `active` executor 实现；canonical YAML 用例保持功能与业务事实来源，后续 Python 实现须逐条登记 `automation.implementations` 状态。
 - 检查任务 SQL 合并语义：空值数/字符串长度/数据精度/精度倍数/取值范围 可合并（源表单次扫描、SUM(CASE WHEN)、同一脏数据表）；重复数不合并（独立 select、独立脏数据表）。
 - UI 自动化不得以页面可见性替代检查结果、标准达标率和脏数据明细的业务断言。

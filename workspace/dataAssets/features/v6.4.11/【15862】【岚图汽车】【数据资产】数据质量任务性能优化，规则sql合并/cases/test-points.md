@@ -39,4 +39,4 @@ prd_digest: "stale:legacy"
 - 已关联规则集的数据表再次创建规则集时会被过滤，不作为缺陷处理。
 - 可复用同一张表，但单个规则集最多 20 个规则包；若保存明显变慢，按用例拆表/拆规则集处理。
 - UI 自动化不得以页面可见性替代规则 SQL、实例详情和质量报告的业务断言。
-- 自动化脚本以 `automation.spec_file` 声明的 spec 为准（c0001–c0072）。
+- canonical YAML 已登记 72 条 `playwright-web-ui: planned` 实现；只有对应 Python capability 与业务证据契约完成后，才可逐条改为 `active`。

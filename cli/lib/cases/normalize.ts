@@ -167,7 +167,17 @@ export function normalizeCasesFile(file: CasesFile): CasesFile {
         expected: normalizeStructuredText(step.expected),
       })),
       ...(item.tags ? { tags: [...item.tags] } : {}),
-      ...(item.automation ? { automation: { ...item.automation } } : {}),
+      ...(item.automation
+        ? {
+            automation: {
+              effects: { ...item.automation.effects },
+              business_record: { ...item.automation.business_record },
+              implementations: item.automation.implementations.map((implementation) => ({
+                ...implementation,
+              })),
+            },
+          }
+        : {}),
     })),
   };
 }

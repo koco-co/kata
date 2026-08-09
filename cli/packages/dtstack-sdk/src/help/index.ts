@@ -38,7 +38,7 @@ ENVIRONMENT
   {ENV}_BASE_URL            Base URL for env, e.g. EXAMPLE_BASE_URL
 
 NOTE
-  Playwright / platform API 场景建议使用：
+  platform API 场景建议使用：
   kata env run <env> -- dtstack-cli ...
   它会复用 config/private/environments/<env>.yaml 的 URL 和 auth.cookie。
 `;
