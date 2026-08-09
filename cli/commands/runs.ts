@@ -166,8 +166,9 @@ export function formatAutomationVerifyOutput(
   return [
     `run:       ${result.logicalRunId}`,
     `execution: ${result.executorId}/${result.executionId}`,
-    `attempt:   ${String(result.attempt).padStart(3, "0")}`,
-    `path:      ${result.attemptPath}`,
+    `attempt:   ${result.attempt === null ? "unavailable" : String(result.attempt).padStart(3, "0")}`,
+    `path:      ${result.attemptPath ?? "unavailable"}`,
+    ...(result.failureCode === undefined ? [] : [`failure:   ${result.failureCode}`]),
     `handoff:   ${result.handoffPath}`,
     ...result.checks.map(
       (check) => `  ${check.passed ? "✓" : "✗"} ${check.name}: ${check.message}`,
@@ -236,12 +237,12 @@ export function registerRuns(program: Command): void {
 
   runs
     .command("verify")
-    .description("核验同一 immutable automation execution/attempt 的完整证据链")
+    .description("核验 immutable automation attempt 或正式 attempt 前失败的证据链")
     .requiredOption("--project <id>", "canonical project_id")
     .requiredOption("--run <logical-run-id>", "logical run ID")
     .option("--executor <id>", "executor ID；logical run 内唯一时可省略")
     .option("--execution <id>", "execution ID；缺省选择该 executor 的最新 execution")
-    .option("--attempt <number>", "attempt 序号；缺省选择最新 attempt")
+    .option("--attempt <number>", "attempt 序号；缺省选择最新 attempt 或核验 attempt 前失败")
     .option("--json", "以 JSON 输出结果", false)
     .action(
       (options: {

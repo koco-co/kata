@@ -2,7 +2,11 @@ import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSyn
 import { basename, join, resolve } from "node:path";
 import { CASE_ID_RE } from "../cases/naming.ts";
 import { RUN_ID_RE } from "../run-id.ts";
-import { writeAutomationHandoff } from "./automation-handoff.ts";
+import type { AutomationExecutionErrorCode } from "./automation-execution.ts";
+import {
+  writeAutomationHandoff,
+  writeAutomationPreAttemptFailureHandoff,
+} from "./automation-handoff.ts";
 import {
   type ExecutionCase,
   type ExecutionManifest,
@@ -38,6 +42,19 @@ const BUSINESS_RECORD_FIELDS = new Set([
   "schema_version",
   "ui_readback",
 ]);
+const PREPARATION_FAILURE_CODES: ReadonlySet<AutomationExecutionErrorCode> = new Set([
+  "AUTOMATION_ATTEMPT_ALLOCATION_FAILED",
+  "AUTOMATION_ENV_INVALID",
+  "AUTOMATION_ENV_REQUIRED",
+  "AUTOMATION_ENV_RESOLUTION_FAILED",
+  "AUTOMATION_PLATFORM_CONTEXT_INVALID",
+  "AUTOMATION_PREPARATION_FAILED",
+  "AUTOMATION_WORKERS_INVALID",
+  "PLATFORM_WRITE_FORBIDDEN",
+]);
+export type AutomationPreAttemptFailureCode =
+  | AutomationExecutionErrorCode
+  | "AUTOMATION_COLLECTION_FAILED";
 
 export interface AutomationVerifyCheck {
   readonly name:
@@ -52,20 +69,34 @@ export interface AutomationVerifyCheck {
   readonly message: string;
 }
 
-export interface AutomationVerifyResult {
+interface AutomationVerifyResultBase {
   readonly projectId: string;
   readonly logicalRunId: string;
   readonly logicalRunPath: string;
   readonly executorId: string;
   readonly executionId: string;
   readonly executionPath: string;
-  readonly attempt: number;
-  readonly attemptPath: string;
   readonly manifestCaseCount: number | null;
   readonly handoffPath: string;
   readonly ok: boolean;
   readonly checks: readonly AutomationVerifyCheck[];
 }
+
+export interface AutomationAttemptVerifyResult extends AutomationVerifyResultBase {
+  readonly attempt: number;
+  readonly attemptPath: string;
+  readonly failureCode?: never;
+}
+
+export interface AutomationPreAttemptVerifyResult extends AutomationVerifyResultBase {
+  readonly attempt: null;
+  readonly attemptPath: null;
+  readonly failureCode: AutomationPreAttemptFailureCode;
+}
+
+export type AutomationVerifyResult =
+  | AutomationAttemptVerifyResult
+  | AutomationPreAttemptVerifyResult;
 
 interface VerifyOptions {
   readonly repoRoot: string;
@@ -162,7 +193,10 @@ function selectExecution(logicalRunPath: string, executorId: string, requested?:
   return latest;
 }
 
-function selectAttempt(executionPath: string, requested?: number): { id: string; number: number } {
+function selectAttempt(
+  executionPath: string,
+  requested?: number,
+): { id: string; number: number } | undefined {
   if (requested !== undefined && (!Number.isSafeInteger(requested) || requested < 1)) {
     throw new Error("automation verify: attempt 必须是正整数");
   }
@@ -170,6 +204,7 @@ function selectAttempt(executionPath: string, requested?: number): { id: string;
     (left, right) => Number(left) - Number(right),
   );
   const id = requested === undefined ? available.at(-1) : String(requested).padStart(3, "0");
+  if (id === undefined && requested === undefined) return undefined;
   if (id === undefined || !available.includes(id)) {
     throw new Error("automation verify: attempt 不存在");
   }
@@ -253,6 +288,111 @@ function verifyPreparationStatus(path: string, manifest: ExecutionManifest): str
     return "preparation-status.json 必须是同一 execution 的 passed 状态";
   }
   return undefined;
+}
+
+interface PreAttemptFailure {
+  readonly phase: "collection" | "preparation";
+  readonly errorCode: AutomationPreAttemptFailureCode;
+  readonly checks: readonly AutomationVerifyCheck[];
+}
+
+function hasValidStatusIdentity(
+  value: Record<string, unknown>,
+  phase: "collect" | "prepare",
+  manifest: ExecutionManifest,
+): boolean {
+  return (
+    value.schema_version === 1 &&
+    value.phase === phase &&
+    value.logical_run_id === manifest.logical_run_id &&
+    value.execution_id === manifest.execution_id &&
+    value.executor_id === manifest.executor_id &&
+    typeof value.started_at === "string" &&
+    typeof value.finished_at === "string" &&
+    !Number.isNaN(Date.parse(value.started_at)) &&
+    !Number.isNaN(Date.parse(value.finished_at))
+  );
+}
+
+function hasFailedCollectionStatus(path: string, manifest: ExecutionManifest): boolean {
+  const value = readJsonObject(path);
+  if (value === undefined) return false;
+  const expectedKeys = new Set([
+    "schema_version",
+    "phase",
+    "status",
+    "exit_code",
+    "logical_run_id",
+    "execution_id",
+    "executor_id",
+    "started_at",
+    "finished_at",
+  ]);
+  return (
+    hasExactKeys(value, expectedKeys) &&
+    hasValidStatusIdentity(value, "collect", manifest) &&
+    value.status === "failed" &&
+    Number.isSafeInteger(value.exit_code) &&
+    (value.exit_code as number) > 0
+  );
+}
+
+function failedPreparationCode(
+  path: string,
+  manifest: ExecutionManifest,
+): AutomationExecutionErrorCode | undefined {
+  const value = readJsonObject(path);
+  if (value === undefined) return undefined;
+  const expectedKeys = new Set([
+    "schema_version",
+    "phase",
+    "status",
+    "logical_run_id",
+    "execution_id",
+    "executor_id",
+    "error_code",
+    "started_at",
+    "finished_at",
+  ]);
+  const errorCode = value.error_code;
+  if (
+    !hasExactKeys(value, expectedKeys) ||
+    !hasValidStatusIdentity(value, "prepare", manifest) ||
+    value.status !== "failed" ||
+    typeof errorCode !== "string" ||
+    !PREPARATION_FAILURE_CODES.has(errorCode as AutomationExecutionErrorCode)
+  ) {
+    return undefined;
+  }
+  return errorCode as AutomationExecutionErrorCode;
+}
+
+function verifyPreAttemptFailure(
+  executionPath: string,
+  manifest: ExecutionManifest,
+): PreAttemptFailure | undefined {
+  const collectionPath = join(executionPath, "collection-status.json");
+  const preparationPath = join(executionPath, "preparation-status.json");
+  const manifestCheck = passedCheck("manifest", `${manifest.cases.length} 个 canonical cases`);
+  if (hasFailedCollectionStatus(collectionPath, manifest) && !lstatExists(preparationPath)) {
+    return {
+      phase: "collection",
+      errorCode: "AUTOMATION_COLLECTION_FAILED",
+      checks: [manifestCheck, failedCheck("collection", "AUTOMATION_COLLECTION_FAILED")],
+    };
+  }
+  if (verifyStatus(collectionPath, "collect", manifest) !== undefined) return undefined;
+  const preparationCode = failedPreparationCode(preparationPath, manifest);
+  if (preparationCode === undefined) return undefined;
+  return {
+    phase: "preparation",
+    errorCode: preparationCode,
+    checks: [
+      manifestCheck,
+      passedCheck("collection", "exact collection command_passed/0"),
+      failedCheck("preparation", preparationCode),
+    ],
+  };
 }
 
 function canonicalKey(projectId: string, featureId: string, caseId: string): string {
@@ -486,10 +626,34 @@ function checked(
 }
 
 function publishHandoff(
-  result: Omit<AutomationVerifyResult, "handoffPath">,
+  result: Omit<AutomationAttemptVerifyResult, "handoffPath">,
   repoRoot: string,
-): AutomationVerifyResult {
+): AutomationAttemptVerifyResult {
   const handoffPath = writeAutomationHandoff(result, repoRoot);
+  return { ...result, handoffPath };
+}
+
+function publishPreAttemptHandoff(
+  result: Omit<AutomationPreAttemptVerifyResult, "handoffPath" | "manifestCaseCount"> & {
+    readonly manifestCaseCount: number;
+  },
+  phase: PreAttemptFailure["phase"],
+  repoRoot: string,
+): AutomationPreAttemptVerifyResult {
+  const handoffPath = writeAutomationPreAttemptFailureHandoff(
+    {
+      projectId: result.projectId,
+      logicalRunId: result.logicalRunId,
+      logicalRunPath: result.logicalRunPath,
+      executorId: result.executorId,
+      executionId: result.executionId,
+      executionPath: result.executionPath,
+      manifestCaseCount: result.manifestCaseCount,
+      phase,
+      errorCode: result.failureCode,
+    },
+    repoRoot,
+  );
   return { ...result, handoffPath };
 }
 
@@ -519,13 +683,16 @@ export function verifyAutomationRun(options: VerifyOptions): AutomationVerifyRes
     executionId,
   });
   const selectedAttempt = selectAttempt(executionPath, options.attempt);
-  const attemptPath = join(executionPath, "attempts", selectedAttempt.id);
   const manifestPath = join(executionPath, "execution-manifest.json");
   let manifest: ExecutionManifest;
   try {
     if (!isRealFile(manifestPath)) throw new Error("manifest path unsafe");
     manifest = readExecutionManifest(manifestPath);
   } catch {
+    if (selectedAttempt === undefined) {
+      throw new Error("automation verify: attempt 不存在");
+    }
+    const attemptPath = join(executionPath, "attempts", selectedAttempt.id);
     const checks = [failedCheck("manifest", "execution-manifest.json 缺失、不安全或无效")];
     return publishHandoff(
       {
@@ -551,6 +718,30 @@ export function verifyAutomationRun(options: VerifyOptions): AutomationVerifyRes
     manifest.execution_id === executionId
       ? undefined
       : "manifest identity 与 artifact 路径不一致";
+  if (selectedAttempt === undefined) {
+    if (manifestError !== undefined) throw new Error("automation verify: attempt 不存在");
+    const failure = verifyPreAttemptFailure(executionPath, manifest);
+    if (failure === undefined) throw new Error("automation verify: attempt 不存在");
+    return publishPreAttemptHandoff(
+      {
+        projectId: options.projectId,
+        logicalRunId: options.logicalRunId,
+        logicalRunPath,
+        executorId,
+        executionId,
+        executionPath,
+        attempt: null,
+        attemptPath: null,
+        manifestCaseCount: manifest.cases.length,
+        failureCode: failure.errorCode,
+        ok: false,
+        checks: failure.checks,
+      },
+      failure.phase,
+      repoRoot,
+    );
+  }
+  const attemptPath = join(executionPath, "attempts", selectedAttempt.id);
   const collectionError = verifyStatus(
     join(executionPath, "collection-status.json"),
     "collect",

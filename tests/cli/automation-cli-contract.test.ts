@@ -84,4 +84,40 @@ describe("automation CLI contract", () => {
     expect(JSON.parse(output)).toEqual(result);
     expect(output).not.toContain("[runs verify]");
   });
+
+  it("renders a structured pre-attempt failure without inventing an attempt path", () => {
+    const result: AutomationVerifyResult = {
+      projectId: "data-assets",
+      logicalRunId: "20260809-0100-run-01",
+      logicalRunPath: "/repo/artifacts/runs/data-assets/20260809-0100-run-01",
+      executorId: "playwright-web-ui",
+      executionId: "execution-01",
+      executionPath:
+        "/repo/artifacts/runs/data-assets/20260809-0100-run-01/executions/playwright-web-ui/execution-01",
+      attempt: null,
+      attemptPath: null,
+      manifestCaseCount: 2,
+      handoffPath: "/repo/artifacts/runs/data-assets/20260809-0100-run-01/handoff.md",
+      failureCode: "AUTOMATION_ENV_RESOLUTION_FAILED",
+      ok: false,
+      checks: [
+        {
+          name: "preparation",
+          passed: false,
+          message: "AUTOMATION_ENV_RESOLUTION_FAILED",
+        },
+      ],
+    };
+
+    const human = formatAutomationVerifyOutput(result, false);
+    expect(human).toContain("attempt:   unavailable");
+    expect(human).toContain("path:      unavailable");
+    expect(human).toContain("failure:   AUTOMATION_ENV_RESOLUTION_FAILED");
+    expect(human).not.toContain("null");
+
+    const json = JSON.parse(formatAutomationVerifyOutput(result, true));
+    expect(json.attempt).toBeNull();
+    expect(json.attemptPath).toBeNull();
+    expect(json.failureCode).toBe("AUTOMATION_ENV_RESOLUTION_FAILED");
+  });
 });

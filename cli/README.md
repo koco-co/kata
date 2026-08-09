@@ -108,7 +108,7 @@ Commands:
   exec [options] <feature-path> <command...>  创建 feature-local run 并在受控环境中执行命令
   new [options] <feature-path>                为需求功能分配新的 feature-local 运行目录
   path [options] <feature-path>               输出需求功能最近一次 feature-local 运行目录
-  verify [options]                            核验同一 immutable automation execution/attempt 的完整证据链
+  verify [options]                            核验 immutable automation attempt 或正式 attempt 前失败的证据链
   prune [options] [feature-path]              清理旧 feature-local runs：保留最近 N 个 + baseline + 已发布
   help [command]                              display help for command
 ```
@@ -555,14 +555,14 @@ Options:
 ```text
 Usage: kata runs verify [options]
 
-核验同一 immutable automation execution/attempt 的完整证据链
+核验 immutable automation attempt 或正式 attempt 前失败的证据链
 
 Options:
   --project <id>          canonical project_id
   --run <logical-run-id>  logical run ID
   --executor <id>         executor ID；logical run 内唯一时可省略
   --execution <id>        execution ID；缺省选择该 executor 的最新 execution
-  --attempt <number>      attempt 序号；缺省选择最新 attempt
+  --attempt <number>      attempt 序号；缺省选择最新 attempt 或核验 attempt 前失败
   --json                  以 JSON 输出结果 (default: false)
   -h, --help              display help for command
 ```

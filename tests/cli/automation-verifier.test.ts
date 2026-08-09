@@ -23,6 +23,7 @@ const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0
 interface PassingFixture {
   root: string;
   runId: string;
+  logicalRunPath: string;
   executionId: string;
   attempt: number;
   executionPath: string;
@@ -156,6 +157,7 @@ function passingFixture(): PassingFixture {
   return {
     root,
     runId: run.id,
+    logicalRunPath: run.path,
     executionId: execution.id,
     attempt: attempt.number,
     executionPath: execution.path,
@@ -288,6 +290,150 @@ describe("automation artifact verifier", () => {
       expect(handoff).toContain("Result: **NOT VERIFIED**");
       expect(handoff).toContain("Manifest case count: `unavailable`");
       expect(handoff).toContain("- FAIL `manifest`");
+    } finally {
+      rmSync(item.root, { recursive: true, force: true });
+    }
+  });
+
+  it("verifies a structured preparation failure without fabricating an attempt or leaking detail", () => {
+    const item = passingFixture();
+    const secretDetail = "cookie-super-secret-value";
+    try {
+      rmSync(join(item.executionPath, "attempts"), { recursive: true });
+      writeJson(join(item.executionPath, "preparation-status.json"), {
+        schema_version: 1,
+        phase: "prepare",
+        status: "failed",
+        logical_run_id: item.runId,
+        execution_id: item.executionId,
+        executor_id: "playwright-web-ui",
+        error_code: "AUTOMATION_ENV_RESOLUTION_FAILED",
+        started_at: "2026-08-09T01:00:30.000Z",
+        finished_at: "2026-08-09T01:00:31.000Z",
+      });
+      writeFileSync(join(item.logicalRunPath, "handoff.md"), `stale ${secretDetail}\n`);
+
+      const result = verifyAutomationRun({
+        repoRoot: item.root,
+        projectId: "data-assets",
+        logicalRunId: item.runId,
+      });
+
+      expect(result.ok).toBe(false);
+      expect(result.attempt).toBeNull();
+      expect(result.attemptPath).toBeNull();
+      expect(result.failureCode).toBe("AUTOMATION_ENV_RESOLUTION_FAILED");
+      expect(result.checks).toEqual([
+        { name: "manifest", passed: true, message: "2 个 canonical cases" },
+        { name: "collection", passed: true, message: "exact collection command_passed/0" },
+        {
+          name: "preparation",
+          passed: false,
+          message: "AUTOMATION_ENV_RESOLUTION_FAILED",
+        },
+      ]);
+      const handoff = readFileSync(result.handoffPath, "utf8");
+      expect(handoff).toContain("Result: **NOT VERIFIED**");
+      expect(handoff).toContain("Attempt: `unavailable`");
+      expect(handoff).toContain("Attempt path: `unavailable`");
+      expect(handoff).toContain("- FAIL `preparation`: `AUTOMATION_ENV_RESOLUTION_FAILED`");
+      expect(handoff).not.toContain(secretDetail);
+      expect(JSON.stringify(result)).not.toContain(secretDetail);
+    } finally {
+      rmSync(item.root, { recursive: true, force: true });
+    }
+  });
+
+  it("verifies a structured collection failure without requiring an attempt", () => {
+    const item = passingFixture();
+    try {
+      rmSync(join(item.executionPath, "attempts"), { recursive: true });
+      rmSync(join(item.executionPath, "preparation-status.json"));
+      writeJson(join(item.executionPath, "collection-status.json"), {
+        ...status("collect", item.runId, item.executionId),
+        status: "failed",
+        exit_code: 7,
+      });
+
+      const result = verifyAutomationRun({
+        repoRoot: item.root,
+        projectId: "data-assets",
+        logicalRunId: item.runId,
+      });
+
+      expect(result.ok).toBe(false);
+      expect(result.attempt).toBeNull();
+      expect(result.attemptPath).toBeNull();
+      expect(result.failureCode).toBe("AUTOMATION_COLLECTION_FAILED");
+      expect(result.checks).toEqual([
+        { name: "manifest", passed: true, message: "2 个 canonical cases" },
+        {
+          name: "collection",
+          passed: false,
+          message: "AUTOMATION_COLLECTION_FAILED",
+        },
+      ]);
+      expect(readFileSync(result.handoffPath, "utf8")).toContain(
+        "- FAIL `collection`: `AUTOMATION_COLLECTION_FAILED`",
+      );
+    } finally {
+      rmSync(item.root, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects an unregistered preparation error code instead of echoing it", () => {
+    const item = passingFixture();
+    const untrustedCode = "COOKIE_SUPER_SECRET_VALUE";
+    try {
+      rmSync(join(item.executionPath, "attempts"), { recursive: true });
+      writeJson(join(item.executionPath, "preparation-status.json"), {
+        schema_version: 1,
+        phase: "prepare",
+        status: "failed",
+        logical_run_id: item.runId,
+        execution_id: item.executionId,
+        executor_id: "playwright-web-ui",
+        error_code: untrustedCode,
+        started_at: "2026-08-09T01:00:30.000Z",
+        finished_at: "2026-08-09T01:00:31.000Z",
+      });
+
+      expect(() =>
+        verifyAutomationRun({
+          repoRoot: item.root,
+          projectId: "data-assets",
+          logicalRunId: item.runId,
+        }),
+      ).toThrow("automation verify: attempt 不存在");
+    } finally {
+      rmSync(item.root, { recursive: true, force: true });
+    }
+  });
+
+  it("still rejects an explicitly requested attempt that does not exist", () => {
+    const item = passingFixture();
+    try {
+      rmSync(join(item.executionPath, "attempts"), { recursive: true });
+      writeJson(join(item.executionPath, "preparation-status.json"), {
+        schema_version: 1,
+        phase: "prepare",
+        status: "failed",
+        logical_run_id: item.runId,
+        execution_id: item.executionId,
+        executor_id: "playwright-web-ui",
+        error_code: "AUTOMATION_ENV_RESOLUTION_FAILED",
+        started_at: "2026-08-09T01:00:30.000Z",
+        finished_at: "2026-08-09T01:00:31.000Z",
+      });
+
+      expect(() =>
+        verifyAutomationRun({
+          repoRoot: item.root,
+          projectId: "data-assets",
+          logicalRunId: item.runId,
+          attempt: 1,
+        }),
+      ).toThrow("automation verify: attempt 不存在");
     } finally {
       rmSync(item.root, { recursive: true, force: true });
     }
