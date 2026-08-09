@@ -3,7 +3,11 @@ name = "data-assets-playwright-web-ui"
 version = "0.1.0"
 description = "Data Assets Playwright Web UI suite package."
 requires-python = ">=3.14,<3.15"
-dependencies = ["playwright-web-ui"]
+dependencies = [
+  "defusedxml>=0.7.1",
+  "openpyxl>=3.1.5",
+  "playwright-web-ui",
+]
 
 [project.entry-points."playwright_web_ui.suites"]
 data-assets = "data_assets_playwright_web_ui:SUITE"
