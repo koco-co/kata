@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/automation-contracts.iml" filepath="$PROJECT_DIR$/.idea/automation-contracts.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/automation-workspace.iml" filepath="$PROJECT_DIR$/.idea/automation-workspace.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/data-assets-playwright-web-ui.iml" filepath="$PROJECT_DIR$/.idea/data-assets-playwright-web-ui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/lanhu-mcp-server.iml" filepath="$PROJECT_DIR$/.idea/lanhu-mcp-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/playwright-web-ui.iml" filepath="$PROJECT_DIR$/.idea/playwright-web-ui.iml" />
+    </modules>
+  </component>
+</project>

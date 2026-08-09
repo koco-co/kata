@@ -7,7 +7,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from data_assets_playwright_web_ui.components.navigation import DataAssetsNavigation
-from data_assets_playwright_web_ui.domains.data_model.schema_design import SchemaDesignScreen
+from data_assets_playwright_web_ui.domains.data_model.schema_design import (
+    SchemaDesignScreen,
+)
 from playwright_web_ui import automation_case
 
 if TYPE_CHECKING:
@@ -31,7 +33,9 @@ def test_data_model_schema_design_and_elements(
     screen = SchemaDesignScreen(DataAssetsNavigation(page, platform_context))
 
     with step(
-        action="进入【数据模型 → 规范建表】页面", expected="规范建表页面加载成功", target="规范建表"
+        action="进入【数据模型 → 规范建表】页面",
+        expected="规范建表页面加载成功",
+        target="规范建表",
     ):
         screen.open_table_builder()
     with step(

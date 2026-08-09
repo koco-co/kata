@@ -1,6 +1,7 @@
 """C0031: full-scan multi-field completeness rules all remain unpassed."""
+# ruff: noqa: E501, INP001, PLR0913, PLR0917, RUF001
 
-# ruff: noqa: INP001, PLR0913, PLR0917, RUF001
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -9,11 +10,11 @@ from data_assets_playwright_web_ui.components.navigation import DataAssetsNaviga
 from data_assets_playwright_web_ui.domains.data_quality.sql_merge_optimization.actions import (
     SqlMergeWriteActions,
 )
-from data_assets_playwright_web_ui.domains.data_quality.sql_merge_optimization.catalog_builders import (  # noqa: E501
+from data_assets_playwright_web_ui.domains.data_quality.sql_merge_optimization.catalog_builders import (
     rule_set_spec,
     task_spec,
 )
-from data_assets_playwright_web_ui.domains.data_quality.sql_merge_optimization.completeness_rule_catalog import (  # noqa: E501
+from data_assets_playwright_web_ui.domains.data_quality.sql_merge_optimization.completeness_rule_catalog import (
     CompletenessRuleProfile,
     completeness_rules,
 )
