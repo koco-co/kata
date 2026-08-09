@@ -14,5 +14,6 @@ SUITE: Final = SuiteDefinition(
     fixture_plugins=(
         "data_assets_playwright_web_ui.domains.data_quality.json_configuration.fixtures",
         "data_assets_playwright_web_ui.domains.data_quality.json_value_validation.fixtures",
+        "data_assets_playwright_web_ui.domains.data_quality.sql_merge_optimization.fixtures",
     ),
 )

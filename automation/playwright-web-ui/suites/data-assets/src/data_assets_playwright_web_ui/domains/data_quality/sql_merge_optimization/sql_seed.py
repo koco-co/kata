@@ -38,6 +38,8 @@ __all__ = [
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
 
+    from playwright.sync_api import Page
+
     from playwright_web_ui.platform_context import PlatformContext
 
 _CATALOGUE_PATH = "/api/rdos/batch/batchCatalogue/getCatalogue"
@@ -191,7 +193,7 @@ class _Page(Protocol):
 class SparkBatchSeedClient:
     """Seed and clean runtime-owned Spark tables through controlled platform APIs."""
 
-    page: _Page
+    page: _Page | Page
     platform_context: PlatformContext
     request_timeout_ms: int = _DEFAULT_REQUEST_TIMEOUT_MS
     poll_timeout_ms: int = _DEFAULT_POLL_TIMEOUT_MS
