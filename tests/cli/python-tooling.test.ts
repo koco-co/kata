@@ -66,6 +66,29 @@ describe("Python automation tooling", () => {
     );
   });
 
+  it("keeps the official Allure Pytest adapter wired into the executor runtime", () => {
+    const root = resolve(import.meta.dir, "../..");
+    const executorProject = readFileSync(
+      join(root, "automation/playwright-web-ui/pyproject.toml"),
+      "utf8",
+    );
+    const descriptor = readFileSync(
+      join(root, "automation/playwright-web-ui/executor.toml"),
+      "utf8",
+    );
+    const lifecycle = readFileSync(
+      join(root, "automation/playwright-web-ui/src/playwright_web_ui/lifecycle.py"),
+      "utf8",
+    );
+
+    expect(executorProject).toContain('"allure-pytest>=2.16.0"');
+    expect(executorProject).not.toContain('"pytest-allure');
+    expect(descriptor).toContain('"allure-results"');
+    expect(lifecycle).toContain('"allure-pytest"');
+    expect(lifecycle).toContain('"--alluredir"');
+    expect(lifecycle).toContain('"--allure-no-capture"');
+  });
+
   it("documents the trace-safe Playwright failure evidence contract", () => {
     const root = resolve(import.meta.dir, "../..");
     const guide = readFileSync(join(root, "automation/playwright-web-ui/agent/guide.md"), "utf8");
