@@ -1,3 +1,13 @@
 {
-  "cSpell.words": ["kata", "sparkthrift"]
+  "cSpell.words": [
+    "addopts",
+    "kata",
+    "minversion",
+    "pycache",
+    "pytest",
+    "sparkthrift",
+    "testpaths",
+    "venv",
+    "xmind"
+  ]
 }

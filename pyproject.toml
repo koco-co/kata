@@ -14,6 +14,7 @@ dev = [
 
 [tool.uv]
 package = false
+required-version = ">=0.11.28,<0.12.0"
 
 [tool.uv.sources]
 automation-contracts = { workspace = true }
@@ -76,4 +77,4 @@ include = [
   "automation/playwright-web-ui/suites/data-assets/src",
   "automation/playwright-web-ui/suites/data-assets/tests",
 ]
-exclude = ["**/__pycache__"]
+exclude = ["**/__pycache__", "**/node_modules", "**/.*", ".venv"]

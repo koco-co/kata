@@ -31,16 +31,16 @@ repos:
         files: ^(pyproject\.toml|uv\.lock|automation/.*/pyproject\.toml)$
         pass_filenames: false
 
-      - id: python-contracts
-        name: Python automation contracts
-        entry: uv run --locked --no-sync pytest automation/playwright-web-ui/tests/contract automation/playwright-web-ui/suites/data-assets/tests/contract -q
+      - id: python-tests
+        name: Python automation offline tests
+        entry: uv run --locked --no-sync pytest automation/playwright-web-ui/tests automation/playwright-web-ui/suites/data-assets/tests/contract automation/playwright-web-ui/suites/data-assets/tests/unit -q
         language: system
         files: ^(automation/contracts/|automation/playwright-web-ui/(src|tests|suites)/|pyproject\.toml|uv\.lock)
         pass_filenames: false
 
       - id: control-plane-contracts
         name: Automation control-plane contracts
-        entry: bun test tests/cli/executor-registry.test.ts tests/cli/execution-manifest.test.ts tests/cli/automation-run-layout.test.ts
+        entry: bun test tests/cli/executor-registry.test.ts tests/cli/executor-command.test.ts tests/cli/executor-lifecycle.test.ts tests/cli/execution-manifest.test.ts tests/cli/automation-run-layout.test.ts tests/cli/automation-selection.test.ts tests/cli/automation-execution.test.ts tests/cli/automation-verifier.test.ts tests/cli/automation-cli-contract.test.ts
         language: system
-        files: ^(automation/.*/executor\.toml|automation/contracts/|cli/lib/automation/(executor-registry|execution-manifest|run-layout)\.ts|tests/cli/(executor-registry|execution-manifest|automation-run-layout)\.test\.ts)$
+        files: ^(automation/.*/executor\.toml|automation/contracts/|cli/commands/(automation|runs)\.ts|cli/lib/automation/(executor-registry|executor-command|executor-lifecycle|execution-manifest|run-layout|automation-selection|automation-execution|automation-handoff|automation-verifier)\.ts|tests/cli/(executor-registry|executor-command|executor-lifecycle|execution-manifest|automation-run-layout|automation-selection|automation-execution|automation-verifier|automation-cli-contract)\.test\.ts)$
         pass_filenames: false

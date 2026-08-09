@@ -49,3 +49,33 @@ jobs:
       - run: bun install --frozen-lockfile
       - name: Full project checks
         run: bun run pre-push
+
+  python-automation-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.11.28"
+          enable-cache: true
+      - name: Install Python automation workspace
+        run: uv sync --locked --all-packages --all-groups
+      - name: Validate Python automation lock
+        run: uv lock --check
+      - name: Ruff format
+        run: uv run --locked --no-sync ruff format --check automation
+      - name: Ruff lint
+        run: uv run --locked --no-sync ruff check automation
+      - name: Pyright strict
+        run: uv run --locked --no-sync pyright
+      - name: Offline Python automation tests
+        run: |
+          uv run --locked --no-sync pytest \
+            automation/playwright-web-ui/tests \
+            automation/playwright-web-ui/suites/data-assets/tests/contract \
+            automation/playwright-web-ui/suites/data-assets/tests/unit \
+            -q
+      - name: Validate pre-commit configuration
+        run: uv run --locked --no-sync pre-commit validate-config
