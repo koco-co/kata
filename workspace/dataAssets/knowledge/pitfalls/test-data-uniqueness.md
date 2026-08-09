@@ -1,58 +1,32 @@
 ---
 title: 测试数据名称必须唯一化
 type: pitfall
-tags: [测试数据, 唯一化, uniqueName]
+tags: [测试数据, 唯一化, uniqueName, pytest]
 status: observed
-source: "历史沉淀约定,迁移时补全 frontmatter"
-updated: 2026-07-25
+source: 历史并发冲突约定；playwright_web_ui.runtime_identity 当前实现与契约测试
+updated: 2026-08-09
 ---
 
 # 测试数据名称必须唯一化
 
-所有测试脚本中在系统中创建持久化实体的名称，**必须使用 `uniqueName()` 封装**，避免同名冲突。
-
-## 命名方式
-
-**拼接规则：** `uniqueName(用例中提供的数据名称)`
-
-即在用例（Archive MD）中定义的原始名称上直接调 `uniqueName()`：
-
-```typescript
-// ✅ 正确：用例原名 + uniqueName
-const tableName = uniqueName("test_json_key_range");
-const packageName = uniqueName("key范围校验测试包");
-const taskName = uniqueName("task_json_key_range_test");
-
-// ❌ 错误：自造短前缀
-const tableName = uniqueName("t16tbl");
-```
+凡 `automation.effects.platform_write: true` 的 Python 自动化用例，只要会创建持久化实体，就必须使用对并发 worker 与重复 attempt 均不冲突的最终名称。
 
 ## 适用范围
 
-所有在系统中创建持久化实体的名称：
+- 数据表名
+- 任务名与规则集名
+- 规则包名
+- JSON key 配置名
+- 其他受唯一约束的持久化实体
 
-- **数据表名**（SQL DDL 中的表名）
-- **任务名**（监控规则任务名称）
-- **规则包名**
-- **JSON key 配置名**（如 "key1"、"key2" 等系统级 key 配置）
+## 当前约束
 
-## 约束
+- 基础名称沿用 canonical YAML 中的业务语义，不得为了省长度改成不可读短前缀。
+- 请求公开的 `automation_identity` fixture，并调用 `automation_identity.unique_name(base, max_length=...)`；该 API 按 logical run、execution、attempt、worker 和 canonical case 生成稳定 collision token。
+- helper 不会截断业务基础名；超过产品字段上限时会硬失败，要求 capability 选择仍可读且合规的基础名。
+- 最终创建成功后，必须通过 `business_records` 写入同一 case 的 UI readback，记录实际名称或稳定业务 ID。
+- capability 尚未确定该领域的字符集和长度边界时，case 保持 `planned`，不得仅靠硬编码时间戳改为 `active`。
 
-- 封装后完整名称（含时间戳后缀）**不超过 50 字符**
-- 基础名称确保能在 50 字符内容纳 `_1777529675366`（13 位时间戳）后缀
+## 原因
 
-## 示例
-
-```typescript
-import { uniqueName } from "../../../../runtime/automation/playwright";
-
-const tableName = uniqueName("test_json_key_range");
-// → "test_json_key_range_1777529675366" (34 字符 ✓)
-
-const taskName = uniqueName("task_json_key_range_test");
-// → "task_json_key_range_test_1777529675366" (41 字符 ✓)
-```
-
-## Why
-
-避免并行运行、重复运行时因名称冲突导致失败（表已存在、任务名重复等）。
+避免 xdist 并发、重复执行和失败重试因同名实体产生假失败，同时让清理、业务记录和问题定位能够关联到同一 immutable execution。

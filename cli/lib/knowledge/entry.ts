@@ -177,17 +177,16 @@ export function runWriteEntry(opts: {
           incoming,
         };
       }
+      const confirmedReplacement = opts.confirmed && oldBody !== newBody;
       entry = {
         ...incoming,
         tags: [...new Set([...existing.tags, ...incoming.tags])],
         body:
-          oldBody === newBody || oldBody.includes(newBody)
+          !confirmedReplacement && (oldBody === newBody || oldBody.includes(newBody))
             ? existing.body
-            : newBody.includes(oldBody)
-              ? incoming.body
-              : `${existing.body.trim()}\n\n${incoming.body.trim()}`,
+            : incoming.body,
       };
-      action = compatible ? "merge" : "replace-confirmed";
+      action = compatible && !confirmedReplacement ? "merge" : "replace-confirmed";
     }
   }
   const file = writeEntry(paths, entry);

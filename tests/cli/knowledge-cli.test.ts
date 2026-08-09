@@ -221,6 +221,40 @@ describe("kata knowledge write", () => {
     const content = readFileSync(file, "utf8");
     expect(content.match(/第一段/g)).toHaveLength(1);
     expect(content).toContain("第二段");
+
+    const replaced = kata(root, [...base, "--body", "第一段", "--confirmed"]);
+    expect(JSON.parse(replaced.stdout).action).toBe("replace-confirmed");
+    expect(readFileSync(file, "utf8")).not.toContain("第二段");
+  });
+
+  it("replaces an incompatible entry body after explicit confirmation", () => {
+    const root = proj();
+    const base = [
+      "knowledge",
+      "write",
+      "--project",
+      "dataAssets",
+      "--type",
+      "pitfall",
+      "--status",
+      "observed",
+      "--title",
+      "迁移条目",
+      "--source",
+      "tests/knowledge-cli.test.ts",
+    ];
+    expect(kata(root, [...base, "--body", "# 迁移条目\n\n旧实现说明"]).status).toBe(0);
+    const pending = kata(root, [...base, "--body", "# 迁移条目\n\n新实现说明"]);
+    expect(JSON.parse(pending.stdout).pending).toBe(true);
+
+    const confirmed = kata(root, [...base, "--body", "# 迁移条目\n\n新实现说明", "--confirmed"]);
+    expect(confirmed.status).toBe(0);
+    expect(JSON.parse(confirmed.stdout).action).toBe("replace-confirmed");
+    const file = join(root, "workspace", "dataAssets", "knowledge", "pitfalls", "迁移条目.md");
+    const content = readFileSync(file, "utf8");
+    expect(content).toContain("新实现说明");
+    expect(content).not.toContain("旧实现说明");
+    expect(content.match(/^# /gm)).toHaveLength(1);
   });
 
   it("keeps observed→verified promotion pending until --confirmed", () => {

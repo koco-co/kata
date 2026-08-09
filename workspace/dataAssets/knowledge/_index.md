@@ -21,7 +21,7 @@
 
 ## Pitfalls
 
-- [2026-04-27-datasource-type-case-sensitive.md](pitfalls/2026-04-27-datasource-type-case-sensitive.md) — 数据源类型 select 选项大小写敏感（Hive2.x ≠ hive2.x） (updated: 2026-07-31, status: observed)
+- [2026-04-27-datasource-type-case-sensitive.md](pitfalls/2026-04-27-datasource-type-case-sensitive.md) — 数据源类型 select 选项大小写敏感（Hive2.x ≠ hive2.x） [tags: 数据源, Playwright, 大小写] (updated: 2026-08-09, status: observed)
 - [2026-04-27-field-regex-precision.md](pitfalls/2026-04-27-field-regex-precision.md) — /字段/ 误命中"字段级" (updated: 2026-07-31, status: observed)
 - [2026-04-27-legacy-rule-function-list.md](pitfalls/2026-04-27-legacy-rule-function-list.md) — .rule__function-list__item legacy DOM (updated: 2026-07-31, status: observed)
 - [2026-04-27-preconditions-adapter.md](pitfalls/2026-04-27-preconditions-adapter.md) — preconditions adapter — 旧调用形态映射 (updated: 2026-07-31, status: observed)
@@ -30,9 +30,9 @@
 - [2026-04-27-rule-type-prerequisite.md](pitfalls/2026-04-27-rule-type-prerequisite.md) — 必须先选「规则类型 = 字段级」才显示统计函数 (updated: 2026-07-31, status: observed)
 - [2026-04-27-sparkthrift-keyword-hadoop.md](pitfalls/2026-04-27-sparkthrift-keyword-hadoop.md) — SparkThrift datasource keyword 漏 hadoop (updated: 2026-07-31, status: observed)
 - [2026-04-27-sparkthrift-no-json-field.md](pitfalls/2026-04-27-sparkthrift-no-json-field.md) — SparkThrift2.x 不支持 JSON 字段类型 (updated: 2026-07-31, status: observed)
-- [2026-04-27-step-fixture-no-return.md](pitfalls/2026-04-27-step-fixture-no-return.md) — step fixture 不返回 callback 值 (updated: 2026-07-31, status: observed)
+- [2026-04-27-step-fixture-no-return.md](pitfalls/2026-04-27-step-fixture-no-return.md) — step fixture 不返回 callback 值 [tags: pytest, 证据] (updated: 2026-08-09, status: verified)
 - [2026-04-27-treeselect-search-not-scroll.md](pitfalls/2026-04-27-treeselect-search-not-scroll.md) — TreeSelect / Select 用搜索框过滤，不要逐层展开滚动 (updated: 2026-07-31, status: observed)
-- [test-data-uniqueness.md](pitfalls/test-data-uniqueness.md) — 测试数据名称必须唯一化 [tags: 测试数据, 唯一化, uniqueName] (updated: 2026-07-25, status: observed)
+- [test-data-uniqueness.md](pitfalls/test-data-uniqueness.md) — 测试数据名称必须唯一化 [tags: 测试数据, 唯一化, uniqueName, pytest] (updated: 2026-08-09, status: observed)
 
 ## Sites
 
@@ -43,9 +43,9 @@
 ## Standards
 
 - [standards/ltqc/data-quality.md](standards/ltqc/data-quality.md) — 岚图汽车(ltqc) 数据质量 用例编写规范 [tags: customer:ltqc, 数据质量, 规则集管理, 规则任务管理, 调度属性, 表单配置, 脏数据明细] (updated: 2026-08-06, status: observed)
-- [standards/lzlj/asset-inventory.md](standards/lzlj/asset-inventory.md) — 泸州老窖(lzlj) 数据地图与元数据导入导出用例编写规范 [tags: customer:lzlj, 元数据, 数据地图, 元数据管理, L4, L5] (updated: 2026-08-05, status: observed)
+- [standards/lzlj/asset-inventory.md](standards/lzlj/asset-inventory.md) — 泸州老窖(lzlj) 数据地图与元数据导入导出用例编写规范 [tags: customer:lzlj, 元数据, 数据地图, 数据目录, 目录管理, 元数据管理, L4, L5] (updated: 2026-08-07, status: observed)
 - [standards/lzlj/catalog-management.md](standards/lzlj/catalog-management.md) — 泸州老窖(lzlj) 目录管理用例编写规范 [tags: customer:lzlj, 元数据, 数据目录, 属性管理, 目录管理] (updated: 2026-08-05, status: observed)
-- [standards/lzlj/data-permission.md](standards/lzlj/data-permission.md) — 泸州老窖(lzlj) 数据权限用例编写规范 [tags: customer:lzlj, 数据安全, 数据权限管理, 数据权限分配, 行级权限] (updated: 2026-08-05, status: observed)
+- [standards/lzlj/data-permission.md](standards/lzlj/data-permission.md) — 泸州老窖(lzlj) 数据权限用例编写规范 [tags: customer:lzlj, 数据安全, 数据权限管理, 数据权限分配, 行级权限] (updated: 2026-08-07, status: observed)
 - [standards/lzlj/data-security.md](standards/lzlj/data-security.md) — 泸州老窖(lzlj) 数据分级分类用例编写规范 [tags: customer:lzlj, 数据安全, 数据分级分类, 级别管理, 自动分级, 分级数据] (updated: 2026-08-05, status: observed)
 - [standards/lzlj/data-standard.md](standards/lzlj/data-standard.md) — 泸州老窖(lzlj) 数据标准与码表用例编写规范 [tags: customer:lzlj, 数据标准, 标准定义, 标准属性管理, 码表管理] (updated: 2026-08-05, status: observed)
 - [standards/lzlj/metadata-model.md](standards/lzlj/metadata-model.md) — 泸州老窖(lzlj) 元模型与内置属性用例编写规范 [tags: customer:lzlj, 元数据, 元模型管理, 元数据管理, 内置属性] (updated: 2026-08-05, status: observed)
@@ -57,4 +57,4 @@
 - [lzlj.md](customers/lzlj.md) — 泸州老窖 [tags: customer:lzlj] (updated: 2026-08-05, status: verified)
 - [zszq.md](customers/zszq.md) — 浙商证券 [tags: customer:zszq] (updated: 2026-08-05, status: verified)
 
-<!-- last-indexed: 2026-08-06T02:59:38.262Z -->
+<!-- last-indexed: 2026-08-09T04:58:35.808Z -->
