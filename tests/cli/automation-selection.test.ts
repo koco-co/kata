@@ -132,6 +132,28 @@ describe("automation execution selection", () => {
     );
   });
 
+  it("selects planned candidates only when collect explicitly opts in", () => {
+    const featureDir = feature(
+      canonicalCase({ id: "C0001", executor: "playwright-web-ui", state: "planned" }) +
+        canonicalCase({ id: "C0002", executor: "request-api", state: "planned" }),
+    );
+
+    expect(
+      selectAutomationExecution(featureDir, "playwright-web-ui", { includePlanned: true }).cases,
+    ).toEqual([
+      {
+        feature_id: "automation-selection-contract",
+        case_id: "C0001",
+        title: "用例 C0001",
+        effects: { platform_write: false },
+        business_record: { policy: "required" },
+      },
+    ]);
+    expect(() =>
+      selectAutomationExecution(featureDir, undefined, { includePlanned: true }),
+    ).toThrow(/多个 executor/);
+  });
+
   it("requires canonical project and feature identities", () => {
     const featureDir = feature(
       canonicalCase({ id: "C0001", executor: "playwright-web-ui", state: "active" }),

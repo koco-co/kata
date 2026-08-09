@@ -253,7 +253,7 @@ Options:
 Commands:
   setup [options]                                显式准备一个已发现 executor 的依赖或运行时
   doctor [options]                               只读检查一个已发现 executor；不会隐式执行 setup
-  collect [options] <feature-or-requirement-id>  按 canonical active implementation 精确收集用例，不读取平台凭据
+  collect [options] <feature-or-requirement-id>  按 canonical implementation 精确收集用例，不读取平台凭据
   run [options] <feature-or-requirement-id>      精确收集后运行同一 immutable manifest，并保留独立 attempt 证据
   sql                                            校验和渲染自动化 SQL 模板；不连接数据库
   help [command]                                 display help for command
@@ -1009,12 +1009,13 @@ Options:
 ```text
 Usage: kata automation collect [options] <feature-or-requirement-id>
 
-按 canonical active implementation 精确收集用例，不读取平台凭据
+按 canonical implementation 精确收集用例，不读取平台凭据
 
 Options:
-  --project <name>  workspace 项目名（或使用 KATA_ACTIVE_PROJECT）
-  --executor <id>   executor ID；active executor 唯一时可省略
-  -h, --help        display help for command
+  --project <name>   workspace 项目名（或使用 KATA_ACTIVE_PROJECT）
+  --executor <id>    executor ID；可收集 executor 唯一时可省略
+  --include-planned  同时收集 planned 候选实现；不会授权 automation run
+  -h, --help         display help for command
 ```
 
 ## kata automation run

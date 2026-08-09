@@ -33,6 +33,10 @@ export interface SelectedAutomationExecution {
   readonly cases: readonly ExecutionCase[];
 }
 
+export interface AutomationSelectionOptions {
+  readonly includePlanned?: boolean;
+}
+
 function fail(code: AutomationSelectionErrorCode, message: string): never {
   throw new AutomationSelectionError(code, message);
 }
@@ -49,39 +53,53 @@ function canonicalIdentities(file: CasesFile): { projectId: string; featureId: s
   return { projectId, featureId };
 }
 
-function activeExecutors(file: CasesFile): readonly string[] {
+function implementationIsSelectable(state: "active" | "planned", includePlanned: boolean): boolean {
+  return state === "active" || (includePlanned && state === "planned");
+}
+
+function selectableExecutors(file: CasesFile, includePlanned: boolean): readonly string[] {
   const executors = new Set<string>();
   for (const item of file.cases) {
     for (const implementation of item.automation?.implementations ?? []) {
-      if (implementation.state === "active") executors.add(implementation.executor);
+      if (implementationIsSelectable(implementation.state, includePlanned)) {
+        executors.add(implementation.executor);
+      }
     }
   }
   return [...executors].sort();
 }
 
-function selectExecutor(file: CasesFile, requestedExecutor?: string): string {
+function selectExecutor(
+  file: CasesFile,
+  requestedExecutor: string | undefined,
+  includePlanned: boolean,
+): string {
   if (requestedExecutor !== undefined && !AUTOMATION_ID_RE.test(requestedExecutor)) {
     fail("AUTOMATION_EXECUTOR_ID_INVALID", "--executor 必须是小写 kebab ID");
   }
-  const available = activeExecutors(file);
+  const available = selectableExecutors(file, includePlanned);
+  const implementationLabel = includePlanned ? "active/planned" : "active";
   if (requestedExecutor !== undefined) {
     if (!available.includes(requestedExecutor)) {
       fail(
         "AUTOMATION_EXECUTOR_NOT_ACTIVE",
         available.length === 0
-          ? "canonical cases 没有 active 自动化实现"
-          : `指定 executor 没有 active 实现；available=${available.join(",")}`,
+          ? `canonical cases 没有 ${implementationLabel} 自动化实现`
+          : `指定 executor 没有 ${implementationLabel} 实现；available=${available.join(",")}`,
       );
     }
     return requestedExecutor;
   }
   if (available.length === 0) {
-    fail("AUTOMATION_EXECUTOR_NOT_ACTIVE", "canonical cases 没有 active 自动化实现");
+    fail(
+      "AUTOMATION_EXECUTOR_NOT_ACTIVE",
+      `canonical cases 没有 ${implementationLabel} 自动化实现`,
+    );
   }
   if (available.length > 1) {
     fail(
       "AUTOMATION_EXECUTOR_AMBIGUOUS",
-      `多个 executor 存在 active 实现，必须显式指定 --executor；available=${available.join(",")}`,
+      `多个 executor 存在 ${implementationLabel} 实现，必须显式指定 --executor；available=${available.join(",")}`,
     );
   }
   return available[0] as string;
@@ -91,11 +109,13 @@ function selectedCases(
   file: CasesFile,
   featureId: string,
   executorId: string,
+  includePlanned: boolean,
 ): readonly ExecutionCase[] {
   return file.cases.flatMap((item) => {
     const selected = item.automation?.implementations.some(
       (implementation) =>
-        implementation.executor === executorId && implementation.state === "active",
+        implementation.executor === executorId &&
+        implementationIsSelectable(implementation.state, includePlanned),
     );
     if (!selected || item.automation === undefined) return [];
     return [
@@ -114,16 +134,18 @@ function selectedCases(
 export function selectAutomationExecution(
   featureDir: string,
   requestedExecutor?: string,
+  options: AutomationSelectionOptions = {},
 ): SelectedAutomationExecution {
   const { yamlPath } = findCasesYaml(featureDir);
   const file = parseCasesYaml(readFileSync(yamlPath, "utf8"));
   const { projectId, featureId } = canonicalIdentities(file);
-  const executorId = selectExecutor(file, requestedExecutor);
+  const includePlanned = options.includePlanned === true;
+  const executorId = selectExecutor(file, requestedExecutor, includePlanned);
   return {
     projectId,
     featureId,
     executorId,
     ...(file.meta.automation_env === undefined ? {} : { automationEnv: file.meta.automation_env }),
-    cases: selectedCases(file, featureId, executorId),
+    cases: selectedCases(file, featureId, executorId, includePlanned),
   };
 }

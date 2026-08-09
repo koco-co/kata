@@ -63,6 +63,10 @@ interface BaseAutomationExecutionOptions {
   readonly dependencies?: AutomationExecutionDependencies;
 }
 
+export interface CollectAutomationExecutionOptions extends BaseAutomationExecutionOptions {
+  readonly includePlanned?: boolean;
+}
+
 export interface RunAutomationExecutionOptions extends BaseAutomationExecutionOptions {
   readonly environmentName?: string;
   readonly workers?: number;
@@ -131,9 +135,12 @@ function selectDescriptor(
 function prepareExecution(
   options: BaseAutomationExecutionOptions,
   runType: "preflight" | "run",
+  includePlanned = false,
 ): PreparedExecution {
   const repoRoot = realpathSync(options.repoRoot);
-  const selected = selectAutomationExecution(options.featureDir, options.executorId);
+  const selected = selectAutomationExecution(options.featureDir, options.executorId, {
+    includePlanned,
+  });
   const activeDependencies = dependencies(options.dependencies);
   const descriptor = selectDescriptor(
     activeDependencies.discoverExecutors(repoRoot),
@@ -323,9 +330,9 @@ function normalizedPreparationError(error: unknown): AutomationExecutionError {
 
 /** Allocate and run an executor's exact collection without loading platform credentials. */
 export async function collectAutomationExecution(
-  options: BaseAutomationExecutionOptions,
+  options: CollectAutomationExecutionOptions,
 ): Promise<AutomationExecutionResult> {
-  const prepared = prepareExecution(options, "preflight");
+  const prepared = prepareExecution(options, "preflight", options.includePlanned === true);
   const exitCode = await executePhase(
     prepared,
     "collect",

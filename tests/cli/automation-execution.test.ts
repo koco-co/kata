@@ -30,7 +30,7 @@ interface Fixture {
   descriptor: ExecutorDescriptor;
 }
 
-function fixture(options: { write?: boolean } = {}): Fixture {
+function fixture(options: { state?: "active" | "planned"; write?: boolean } = {}): Fixture {
   const root = mkdtempSync(join(tmpdir(), "automation-execution-"));
   const featureDir = join(root, "workspace", "dataAssets", "features", "v1.0.0", "需求");
   const executorRoot = join(root, "automation", "playwright-web-ui");
@@ -54,7 +54,7 @@ cases:
         policy: ${options.write === true ? "required" : "not_applicable"}
 ${options.write === true ? "" : "        reason: 只读核对，不产生业务数据记录\n"}      implementations:
         - executor: playwright-web-ui
-          state: active
+          state: ${options.state ?? "active"}
     title: 执行受控用例
     priority: P0
     steps:
@@ -151,6 +151,39 @@ describe("descriptor-driven automation execution", () => {
         exit_code: 0,
       });
       expect(existsSync(join(result.executionPath, "attempts"))).toBe(false);
+    } finally {
+      rmSync(item.root, { recursive: true, force: true });
+    }
+  });
+
+  it("collects planned candidates only for an explicit read-only preflight", async () => {
+    const item = fixture({ state: "planned" });
+    try {
+      const result = await collectAutomationExecution({
+        repoRoot: item.root,
+        featureDir: item.featureDir,
+        executorId: "playwright-web-ui",
+        includePlanned: true,
+        dependencies: {
+          discoverExecutors: () => [item.descriptor],
+          executeCommand: async () => 0,
+        },
+      });
+
+      const manifest = readJson(result.manifestPath);
+      expect(manifest.cases).toEqual([
+        {
+          feature_id: "automation-execution-contract",
+          case_id: "C0001",
+          title: "执行受控用例",
+          effects: { platform_write: false },
+          business_record: {
+            policy: "not_applicable",
+            reason: "只读核对，不产生业务数据记录",
+          },
+        },
+      ]);
+      expect(result.attempt).toBeUndefined();
     } finally {
       rmSync(item.root, { recursive: true, force: true });
     }

@@ -22,6 +22,10 @@ interface AutomationSelectionOptions {
   readonly project?: string;
 }
 
+interface AutomationCollectOptions extends AutomationSelectionOptions {
+  readonly includePlanned?: boolean;
+}
+
 interface AutomationRunOptions extends AutomationSelectionOptions {
   readonly env?: string;
   readonly workers?: string;
@@ -74,7 +78,7 @@ function printExecution(result: Awaited<ReturnType<typeof collectAutomationExecu
 
 async function collectAutomation(
   selector: string,
-  options: AutomationSelectionOptions,
+  options: AutomationCollectOptions,
 ): Promise<void> {
   const repoRoot = locateProjectRoot();
   const feature = resolveAutomationRunTarget(selector, workspaceProject(options), repoRoot);
@@ -82,6 +86,7 @@ async function collectAutomation(
     repoRoot,
     featureDir: feature.dir,
     ...(options.executor === undefined ? {} : { executorId: options.executor }),
+    ...(options.includePlanned === true ? { includePlanned: true } : {}),
   });
   printExecution(result);
 }
@@ -119,10 +124,11 @@ export function registerAutomation(program: Command): void {
 
   automation
     .command("collect <feature-or-requirement-id>")
-    .description("按 canonical active implementation 精确收集用例，不读取平台凭据")
+    .description("按 canonical implementation 精确收集用例，不读取平台凭据")
     .option("--project <name>", "workspace 项目名（或使用 KATA_ACTIVE_PROJECT）")
-    .option("--executor <id>", "executor ID；active executor 唯一时可省略")
-    .action((selector: string, options: AutomationSelectionOptions) =>
+    .option("--executor <id>", "executor ID；可收集 executor 唯一时可省略")
+    .option("--include-planned", "同时收集 planned 候选实现；不会授权 automation run")
+    .action((selector: string, options: AutomationCollectOptions) =>
       collectAutomation(selector, options),
     );
 
