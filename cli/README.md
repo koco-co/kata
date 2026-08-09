@@ -1014,6 +1014,7 @@ Usage: kata automation collect [options] <feature-or-requirement-id>
 Options:
   --project <name>   workspace 项目名（或使用 KATA_ACTIVE_PROJECT）
   --executor <id>    executor ID；可收集 executor 唯一时可省略
+  --case <case-id>   仅选择 canonical case ID，可重复
   --include-planned  同时收集 planned 候选实现；不会授权 automation run
   -h, --help         display help for command
 ```
@@ -1028,6 +1029,7 @@ Usage: kata automation run [options] <feature-or-requirement-id>
 Options:
   --project <name>    workspace 项目名（或使用 KATA_ACTIVE_PROJECT）
   --executor <id>     executor ID；active executor 唯一时可省略
+  --case <case-id>    仅选择 canonical active case ID，可重复
   --env <name>        平台环境名；缺省使用 meta.automation_env
   --workers <number>  executor worker 数，必须为正整数
   -h, --help          display help for command

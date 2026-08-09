@@ -20,6 +20,7 @@ interface AutomationLifecycleOptions {
 interface AutomationSelectionOptions {
   readonly executor?: string;
   readonly project?: string;
+  readonly case?: readonly string[];
 }
 
 interface AutomationCollectOptions extends AutomationSelectionOptions {
@@ -71,6 +72,14 @@ function parseWorkers(value: string | undefined): number | undefined {
   return parsed;
 }
 
+function appendCaseId(value: string, previous: readonly string[] = []): readonly string[] {
+  return [...previous, value];
+}
+
+function selectedCaseIds(options: AutomationSelectionOptions): readonly string[] | undefined {
+  return options.case === undefined || options.case.length === 0 ? undefined : options.case;
+}
+
 function printExecution(result: Awaited<ReturnType<typeof collectAutomationExecution>>): void {
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   if (result.exitCode !== 0) process.exitCode = result.exitCode;
@@ -82,10 +91,12 @@ async function collectAutomation(
 ): Promise<void> {
   const repoRoot = locateProjectRoot();
   const feature = resolveAutomationRunTarget(selector, workspaceProject(options), repoRoot);
+  const caseIds = selectedCaseIds(options);
   const result = await collectAutomationExecution({
     repoRoot,
     featureDir: feature.dir,
     ...(options.executor === undefined ? {} : { executorId: options.executor }),
+    ...(caseIds === undefined ? {} : { caseIds }),
     ...(options.includePlanned === true ? { includePlanned: true } : {}),
   });
   printExecution(result);
@@ -94,10 +105,12 @@ async function collectAutomation(
 async function runAutomation(selector: string, options: AutomationRunOptions): Promise<void> {
   const repoRoot = locateProjectRoot();
   const feature = resolveAutomationRunTarget(selector, workspaceProject(options), repoRoot);
+  const caseIds = selectedCaseIds(options);
   const result = await runAutomationExecution({
     repoRoot,
     featureDir: feature.dir,
     ...(options.executor === undefined ? {} : { executorId: options.executor }),
+    ...(caseIds === undefined ? {} : { caseIds }),
     ...(options.env === undefined ? {} : { environmentName: options.env }),
     ...(options.workers === undefined ? {} : { workers: parseWorkers(options.workers) }),
   });
@@ -127,6 +140,7 @@ export function registerAutomation(program: Command): void {
     .description("按 canonical implementation 精确收集用例，不读取平台凭据")
     .option("--project <name>", "workspace 项目名（或使用 KATA_ACTIVE_PROJECT）")
     .option("--executor <id>", "executor ID；可收集 executor 唯一时可省略")
+    .option("--case <case-id>", "仅选择 canonical case ID，可重复", appendCaseId)
     .option("--include-planned", "同时收集 planned 候选实现；不会授权 automation run")
     .action((selector: string, options: AutomationCollectOptions) =>
       collectAutomation(selector, options),
@@ -137,6 +151,7 @@ export function registerAutomation(program: Command): void {
     .description("精确收集后运行同一 immutable manifest，并保留独立 attempt 证据")
     .option("--project <name>", "workspace 项目名（或使用 KATA_ACTIVE_PROJECT）")
     .option("--executor <id>", "executor ID；active executor 唯一时可省略")
+    .option("--case <case-id>", "仅选择 canonical active case ID，可重复", appendCaseId)
     .option("--env <name>", "平台环境名；缺省使用 meta.automation_env")
     .option("--workers <number>", "executor worker 数，必须为正整数")
     .action((selector: string, options: AutomationRunOptions) => runAutomation(selector, options));

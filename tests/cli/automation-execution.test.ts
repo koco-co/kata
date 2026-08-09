@@ -30,7 +30,42 @@ interface Fixture {
   descriptor: ExecutorDescriptor;
 }
 
-function fixture(options: { state?: "active" | "planned"; write?: boolean } = {}): Fixture {
+interface AdditionalFixtureCase {
+  readonly id: string;
+  readonly state?: "active" | "planned";
+  readonly write?: boolean;
+}
+
+function renderedCase(
+  id: string,
+  state: "active" | "planned",
+  write: boolean,
+  title: string,
+): string {
+  return `  - case_id: ${id}
+    automation:
+      effects:
+        platform_write: ${write}
+      business_record:
+        policy: ${write ? "required" : "not_applicable"}
+${write ? "" : "        reason: 只读核对，不产生业务数据记录\n"}      implementations:
+        - executor: playwright-web-ui
+          state: ${state}
+    title: ${title}
+    priority: P0
+    steps:
+      - action: 执行业务动作
+        expected: 结果正确
+`;
+}
+
+function fixture(
+  options: {
+    state?: "active" | "planned";
+    write?: boolean;
+    additionalCases?: readonly AdditionalFixtureCase[];
+  } = {},
+): Fixture {
   const root = mkdtempSync(join(tmpdir(), "automation-execution-"));
   const featureDir = join(root, "workspace", "dataAssets", "features", "v1.0.0", "需求");
   const executorRoot = join(root, "automation", "playwright-web-ui");
@@ -46,21 +81,13 @@ function fixture(options: { state?: "active" | "planned"; write?: boolean } = {}
   case_module_id: ""
   automation_env: ci63
 cases:
-  - case_id: C0001
-    automation:
-      effects:
-        platform_write: ${options.write === true}
-      business_record:
-        policy: ${options.write === true ? "required" : "not_applicable"}
-${options.write === true ? "" : "        reason: 只读核对，不产生业务数据记录\n"}      implementations:
-        - executor: playwright-web-ui
-          state: ${options.state ?? "active"}
-    title: 执行受控用例
-    priority: P0
-    steps:
-      - action: 执行业务动作
-        expected: 结果正确
-`,
+${renderedCase("C0001", options.state ?? "active", options.write === true, "执行受控用例")}${(
+  options.additionalCases ?? []
+)
+  .map((item) =>
+    renderedCase(item.id, item.state ?? "active", item.write === true, `执行受控用例 ${item.id}`),
+  )
+  .join("")}`,
   );
   const commands = {
     setup: { argv: ["executor", "setup"] },
@@ -184,6 +211,56 @@ describe("descriptor-driven automation execution", () => {
         },
       ]);
       expect(result.attempt).toBeUndefined();
+    } finally {
+      rmSync(item.root, { recursive: true, force: true });
+    }
+  });
+
+  it("writes an exact case subset to the manifest in canonical order", async () => {
+    const item = fixture({
+      additionalCases: [{ id: "C0002" }, { id: "C0003" }],
+    });
+    try {
+      const result = await collectAutomationExecution({
+        repoRoot: item.root,
+        featureDir: item.featureDir,
+        caseIds: ["C0003", "C0001"],
+        dependencies: {
+          discoverExecutors: () => [item.descriptor],
+          executeCommand: async () => 0,
+        },
+      });
+
+      const manifest = readJson(result.manifestPath);
+      expect((manifest.cases as Array<{ case_id: string }>).map((item) => item.case_id)).toEqual([
+        "C0001",
+        "C0003",
+      ]);
+    } finally {
+      rmSync(item.root, { recursive: true, force: true });
+    }
+  });
+
+  it("applies platform write safety only to the selected run subset", async () => {
+    const item = fixture({ additionalCases: [{ id: "C0002", write: true }] });
+    try {
+      const result = await runAutomationExecution({
+        repoRoot: item.root,
+        featureDir: item.featureDir,
+        caseIds: ["C0001"],
+        dependencies: {
+          discoverExecutors: () => [item.descriptor],
+          executeCommand: async () => 0,
+          resolveEnvironment: async () => overlay(false),
+        },
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(
+        (readJson(result.manifestPath).cases as Array<{ case_id: string }>).map(
+          (selected) => selected.case_id,
+        ),
+      ).toEqual(["C0001"]);
     } finally {
       rmSync(item.root, { recursive: true, force: true });
     }

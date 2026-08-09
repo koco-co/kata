@@ -39,13 +39,17 @@ describe("automation CLI contract", () => {
     const collect = help("automation", "collect");
     expect(collect).toContain("--project <name>");
     expect(collect).toContain("--executor <id>");
+    expect(collect).toContain("--case <case-id>");
+    expect(collect).toContain("--include-planned");
     expect(collect).not.toContain("--env <name>");
 
     const run = help("automation", "run");
     expect(run).toContain("--project <name>");
     expect(run).toContain("--executor <id>");
+    expect(run).toContain("--case <case-id>");
     expect(run).toContain("--env <name>");
     expect(run).toContain("--workers <number>");
+    expect(run).not.toContain("--include-planned");
     expect(run).not.toContain("--set");
     expect(run).not.toContain("--headed");
   });

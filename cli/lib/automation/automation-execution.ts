@@ -59,6 +59,7 @@ interface BaseAutomationExecutionOptions {
   readonly repoRoot: string;
   readonly featureDir: string;
   readonly executorId?: string;
+  readonly caseIds?: readonly string[];
   readonly now?: Date;
   readonly dependencies?: AutomationExecutionDependencies;
 }
@@ -140,6 +141,7 @@ function prepareExecution(
   const repoRoot = realpathSync(options.repoRoot);
   const selected = selectAutomationExecution(options.featureDir, options.executorId, {
     includePlanned,
+    ...(options.caseIds === undefined ? {} : { caseIds: options.caseIds }),
   });
   const activeDependencies = dependencies(options.dependencies);
   const descriptor = selectDescriptor(
