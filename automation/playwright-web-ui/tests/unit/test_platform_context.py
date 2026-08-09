@@ -24,7 +24,6 @@ if TYPE_CHECKING:
 _SCHEMA_VERSION = 2
 _TENANT_USER_ID = 42
 _METADATA_ID = 202
-_SCAN_MAX_PAGES = 3
 
 
 def platform_context_payload() -> dict[str, object]:
@@ -60,12 +59,6 @@ def platform_context_payload() -> dict[str, object]:
         },
         "defaults": {"datasource": "primary"},
         "safety": {"allowWrite": False},
-        "automation": {
-            "result_strict": True,
-            "case_timeout_ms": 30_000,
-            "task_scan_max_pages": 3,
-            "resource_group": "synthetic-group",
-        },
         "warnings": ["synthetic_compatibility_warning"],
     }
 
@@ -76,6 +69,10 @@ def _set_old_schema(payload: dict[str, object]) -> None:
 
 def _add_unknown_field(payload: dict[str, object]) -> None:
     payload["unexpected"] = True
+
+
+def _add_retired_automation_node(payload: dict[str, object]) -> None:
+    payload["automation"] = {"cases": "C0001"}
 
 
 def _set_boolean_tenant_id(payload: dict[str, object]) -> None:
@@ -96,8 +93,6 @@ def test_parse_platform_context_returns_deeply_immutable_typed_context() -> None
     assert context.datasources["primary"].metadata.id == _METADATA_ID
     assert context.defaults.datasource == "primary"
     assert context.safety.allow_write is False
-    assert context.automation is not None
-    assert context.automation.task_scan_max_pages == _SCAN_MAX_PAGES
     assert context.warnings == ("synthetic_compatibility_warning",)
     with pytest.raises(FrozenInstanceError):
         context.env = "changed"  # pyright: ignore[reportAttributeAccessIssue]
@@ -105,31 +100,12 @@ def test_parse_platform_context_returns_deeply_immutable_typed_context() -> None
         cast("dict[str, object]", context.datasources)["other"] = object()
 
 
-@pytest.mark.parametrize("field", ["task_scan_max_pages", "ruleset_scan_max_pages"])
-def test_parse_platform_context_accepts_zero_for_optional_scan_limits(field: str) -> None:
-    payload = platform_context_payload()
-    cast("dict[str, object]", payload["automation"])[field] = 0
-
-    context = parse_platform_context(json.dumps(payload))
-
-    assert context.automation is not None
-    assert getattr(context.automation, field) == 0
-
-
-@pytest.mark.parametrize("field", ["task_scan_max_pages", "ruleset_scan_max_pages"])
-def test_parse_platform_context_rejects_negative_scan_limits(field: str) -> None:
-    payload = platform_context_payload()
-    cast("dict[str, object]", payload["automation"])[field] = -1
-
-    with pytest.raises(PlatformContextError, match="PLATFORM_CONTEXT_SCHEMA_INVALID"):
-        parse_platform_context(json.dumps(payload))
-
-
 @pytest.mark.parametrize(
     ("mutation", "code"),
     [
         (_set_old_schema, "PLATFORM_CONTEXT_SCHEMA_INVALID"),
         (_add_unknown_field, "PLATFORM_CONTEXT_SCHEMA_INVALID"),
+        (_add_retired_automation_node, "PLATFORM_CONTEXT_SCHEMA_INVALID"),
         (_set_boolean_tenant_id, "PLATFORM_CONTEXT_SCHEMA_INVALID"),
         (_set_integer_write_flag, "PLATFORM_CONTEXT_SCHEMA_INVALID"),
     ],
@@ -207,7 +183,6 @@ def test_parse_platform_context_rejects_escaped_control_characters() -> None:
     [
         ("tenant", "id"),
         ("projects", "offline"),
-        ("root", "automation"),
         ("root", "warnings"),
     ],
 )

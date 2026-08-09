@@ -107,6 +107,7 @@ def test_xdist_workers_remove_auth_cookie_before_collecting_suite_code(
             "feature_id": "asset-catalog",
             "case_id": "C0002",
             "title": "Create another asset",
+            "effects": {"platform_write": False},
             "business_record": {"policy": "required"},
         }
     )

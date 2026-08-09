@@ -14,15 +14,27 @@
   ],
   "properties": {
     "schema_version": {
-      "const": 1
+      "const": 2
     },
     "logical_run_id": {
-      "type": "string",
-      "pattern": "^[0-9]{8}-[0-9]{4}-(?:preflight|run|selfrun|repair|baseline)-[0-9]{2,}$"
+      "allOf": [
+        {
+          "$ref": "#/$defs/trimmed_non_empty_string"
+        },
+        {
+          "pattern": "^[0-9]{8}-[0-9]{4}-(?:preflight|run|selfrun|repair|baseline)-[0-9]{2,}$"
+        }
+      ]
     },
     "execution_id": {
-      "type": "string",
-      "pattern": "^execution-[0-9]{2,}$"
+      "allOf": [
+        {
+          "$ref": "#/$defs/trimmed_non_empty_string"
+        },
+        {
+          "pattern": "^execution-[0-9]{2,}$"
+        }
+      ]
     },
     "project_id": {
       "$ref": "#/$defs/kebab_id"
@@ -40,24 +52,50 @@
   },
   "$defs": {
     "kebab_id": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/trimmed_non_empty_string"
+        },
+        {
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        }
+      ]
+    },
+    "trimmed_non_empty_string": {
       "type": "string",
-      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+      "minLength": 1,
+      "pattern": "^(?!\\s)(?![\\s\\S]*\\s$)[\\s\\S]+$"
     },
     "case": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["feature_id", "case_id", "title", "business_record"],
+      "required": ["feature_id", "case_id", "title", "effects", "business_record"],
       "properties": {
         "feature_id": {
           "$ref": "#/$defs/kebab_id"
         },
         "case_id": {
-          "type": "string",
-          "pattern": "^C[0-9]{4}$"
+          "allOf": [
+            {
+              "$ref": "#/$defs/trimmed_non_empty_string"
+            },
+            {
+              "pattern": "^C[0-9]{4}$"
+            }
+          ]
         },
         "title": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/trimmed_non_empty_string"
+        },
+        "effects": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["platform_write"],
+          "properties": {
+            "platform_write": {
+              "type": "boolean"
+            }
+          }
         },
         "business_record": {
           "oneOf": [
@@ -80,8 +118,7 @@
                   "const": "not_applicable"
                 },
                 "reason": {
-                  "type": "string",
-                  "minLength": 1
+                  "$ref": "#/$defs/trimmed_non_empty_string"
                 }
               }
             }

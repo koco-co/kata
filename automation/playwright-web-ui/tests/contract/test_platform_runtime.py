@@ -642,6 +642,7 @@ def test_xdist_workers_receive_platform_context_and_inject_auth_cookies(
             "feature_id": "asset-catalog",
             "case_id": "C0002",
             "title": "Create another asset",
+            "effects": {"platform_write": False},
             "business_record": {"policy": "required"},
         }
     )

@@ -38,13 +38,6 @@ function config(cookie = "dt_tenant_name=tenant-a; sid=executor-only-secret"): P
     },
     defaults: { datasource: "doris" },
     safety: { allow_write: true },
-    automation: {
-      cases: "1-3",
-      result_strict: true,
-      doris_jdbc_url: "jdbc:mysql://private.example.test:9030/database-a",
-      doris_user: "private-user",
-      doris_password: "private-password",
-    },
   };
 }
 
@@ -136,7 +129,6 @@ describe("automation executor platform environment", () => {
         offline?: { id: number; name: string };
       };
       safety: { allowWrite: boolean };
-      automation?: Record<string, unknown>;
     };
     expect(context.schemaVersion).toBe(2);
     expect(context.env).toBe("ci63");
@@ -147,11 +139,8 @@ describe("automation executor platform environment", () => {
       offline: { id: 202, name: "offline-a" },
     });
     expect(context.safety.allowWrite).toBe(true);
-    expect(context.automation).toEqual({ cases: "1-3", result_strict: true });
+    expect("automation" in context).toBe(false);
     expect(contextText).not.toContain(privateConfig.auth.cookie);
-    expect(contextText).not.toContain("private-password");
-    expect(contextText).not.toContain("private-user");
-    expect(contextText).not.toContain("jdbc:mysql://private.example.test");
     expect(contextText).not.toContain("config/private");
     expect(readdirSync(root)).toEqual([]);
   });

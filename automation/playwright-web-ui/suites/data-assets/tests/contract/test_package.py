@@ -13,3 +13,11 @@ def test_data_assets_suite_registers_typed_definition_and_test_resource() -> Non
     assert loaded == SUITE
     assert loaded.tests_path.is_dir()
     assert loaded.tests_path.is_relative_to(loaded.root_path)
+
+
+def test_data_assets_suite_exposes_domain_first_source_layout() -> None:
+    source = SUITE.root_path / "src" / "data_assets_playwright_web_ui"
+
+    assert (source / "components" / "navigation.py").is_file()
+    assert (source / "domains" / "data_standard" / "standard_statistics").is_dir()
+    assert (source / "domains" / "data_model" / "schema_design").is_dir()

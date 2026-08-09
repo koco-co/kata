@@ -24,7 +24,14 @@ argv = ["uv", "run", "--locked", "--no-sync", "python", "-m", "playwright_web_ui
 
 [capabilities]
 requires = ["python-3.14", "chromium"]
-provides = ["exact-collection", "pytest-xdist", "allure-results", "failure-evidence"]
+provides = [
+  "exact-collection",
+  "pytest-xdist",
+  "allure-results",
+  "sanitized-failure-json",
+  "failure-screenshot",
+  "failure-video",
+]
 
 [agent]
 guide = "agent/guide.md"

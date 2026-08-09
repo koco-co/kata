@@ -1,0 +1,1 @@
+"""Data Standard domain capabilities."""

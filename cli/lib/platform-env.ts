@@ -79,35 +79,6 @@ export interface PlatformEnvConfig {
   >;
   readonly defaults: { readonly datasource: string };
   readonly safety: { readonly allow_write: boolean };
-  readonly automation?: PlatformAutomationConfig;
-}
-
-/** Environment-specific automation defaults; secrets and platform identity stay outside this node. */
-export interface PlatformAutomationConfig {
-  readonly cases?: string;
-  readonly table_batch_suffix?: string;
-  readonly table_partition?: string;
-  readonly result_strict?: boolean;
-  readonly case_timeout_ms?: number;
-  readonly result_timeout_ms?: number;
-  readonly result_query_retry_timeout_ms?: number;
-  readonly result_query_retry_interval_ms?: number;
-  readonly table_option_timeout_ms?: number;
-  readonly rule_set_save_prompt_close_timeout_ms?: number;
-  readonly task_search_query?: string;
-  readonly task_scan_max_pages?: number;
-  readonly ruleset_scan_max_pages?: number;
-  readonly spin_timeout_ms?: number;
-  readonly import_form_timeout_ms?: number;
-  readonly select_spin_timeout_ms?: number;
-  readonly resource_group?: string;
-  readonly execute_submit_wait_ms?: number;
-  readonly doris_jdbc_url?: string;
-  readonly doris_user?: string;
-  readonly doris_password?: string;
-  readonly doris_connect_timeout_ms?: number;
-  readonly limited_env?: string;
-  readonly probe_table?: string;
 }
 
 interface ApiEnvelope<T> {
@@ -177,7 +148,6 @@ export interface ResolvedPlatformEnv {
   >;
   readonly defaults: { readonly datasource: string };
   readonly safety: { readonly allowWrite: boolean };
-  readonly automation?: PlatformAutomationConfig;
   /** Non-fatal platform compatibility diagnostics collected during resolution. */
   readonly warnings?: readonly string[];
 }
@@ -307,178 +277,6 @@ function requiredBoolean(value: unknown, path: string): boolean {
   return value;
 }
 
-function optionalString(value: unknown, path: string): string | undefined {
-  if (value === undefined) return undefined;
-  return requiredString(value, path);
-}
-
-function optionalPositiveInteger(value: unknown, path: string): number | undefined {
-  if (value === undefined) return undefined;
-  if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
-    throw new Error(`${path} must be a positive integer`);
-  }
-  return value;
-}
-
-function optionalNonNegativeInteger(value: unknown, path: string): number | undefined {
-  if (value === undefined) return undefined;
-  if (typeof value !== "number" || !Number.isInteger(value) || value < 0) {
-    throw new Error(`${path} must be a non-negative integer`);
-  }
-  return value;
-}
-
-function parseAutomationConfig(value: unknown): PlatformAutomationConfig | undefined {
-  if (value === undefined) return undefined;
-  const automation = record(value, "automation");
-  exactKeys(
-    automation,
-    [
-      "cases",
-      "table_batch_suffix",
-      "table_partition",
-      "result_strict",
-      "case_timeout_ms",
-      "result_timeout_ms",
-      "result_query_retry_timeout_ms",
-      "result_query_retry_interval_ms",
-      "table_option_timeout_ms",
-      "rule_set_save_prompt_close_timeout_ms",
-      "task_search_query",
-      "task_scan_max_pages",
-      "ruleset_scan_max_pages",
-      "spin_timeout_ms",
-      "import_form_timeout_ms",
-      "select_spin_timeout_ms",
-      "resource_group",
-      "execute_submit_wait_ms",
-      "doris_jdbc_url",
-      "doris_user",
-      "doris_password",
-      "doris_connect_timeout_ms",
-      "limited_env",
-      "probe_table",
-    ],
-    "automation",
-  );
-  const cases = optionalString(automation.cases, "automation.cases");
-  const tableBatchSuffix = optionalString(
-    automation.table_batch_suffix,
-    "automation.table_batch_suffix",
-  );
-  if (tableBatchSuffix !== undefined && !/^[a-z]{8}$/.test(tableBatchSuffix)) {
-    throw new Error("automation.table_batch_suffix must be 8 lowercase letters");
-  }
-  const tablePartition = optionalString(automation.table_partition, "automation.table_partition");
-  if (tablePartition !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(tablePartition)) {
-    throw new Error("automation.table_partition must be yyyy-MM-dd");
-  }
-  if (automation.result_strict !== undefined && typeof automation.result_strict !== "boolean") {
-    throw new Error("automation.result_strict must be boolean");
-  }
-  const resourceGroup = optionalString(automation.resource_group, "automation.resource_group");
-  return {
-    ...(cases === undefined ? {} : { cases }),
-    ...(tableBatchSuffix === undefined ? {} : { table_batch_suffix: tableBatchSuffix }),
-    ...(tablePartition === undefined ? {} : { table_partition: tablePartition }),
-    ...(automation.result_strict === undefined ? {} : { result_strict: automation.result_strict }),
-    ...(optionalPositiveInteger(automation.case_timeout_ms, "automation.case_timeout_ms") ===
-    undefined
-      ? {}
-      : { case_timeout_ms: automation.case_timeout_ms as number }),
-    ...(optionalPositiveInteger(automation.result_timeout_ms, "automation.result_timeout_ms") ===
-    undefined
-      ? {}
-      : { result_timeout_ms: automation.result_timeout_ms as number }),
-    ...(optionalPositiveInteger(
-      automation.result_query_retry_timeout_ms,
-      "automation.result_query_retry_timeout_ms",
-    ) === undefined
-      ? {}
-      : { result_query_retry_timeout_ms: automation.result_query_retry_timeout_ms as number }),
-    ...(optionalPositiveInteger(
-      automation.result_query_retry_interval_ms,
-      "automation.result_query_retry_interval_ms",
-    ) === undefined
-      ? {}
-      : { result_query_retry_interval_ms: automation.result_query_retry_interval_ms as number }),
-    ...(optionalPositiveInteger(
-      automation.table_option_timeout_ms,
-      "automation.table_option_timeout_ms",
-    ) === undefined
-      ? {}
-      : { table_option_timeout_ms: automation.table_option_timeout_ms as number }),
-    ...(optionalPositiveInteger(
-      automation.rule_set_save_prompt_close_timeout_ms,
-      "automation.rule_set_save_prompt_close_timeout_ms",
-    ) === undefined
-      ? {}
-      : {
-          rule_set_save_prompt_close_timeout_ms:
-            automation.rule_set_save_prompt_close_timeout_ms as number,
-        }),
-    ...(optionalString(automation.task_search_query, "automation.task_search_query") === undefined
-      ? {}
-      : { task_search_query: automation.task_search_query as string }),
-    ...(optionalNonNegativeInteger(
-      automation.task_scan_max_pages,
-      "automation.task_scan_max_pages",
-    ) === undefined
-      ? {}
-      : { task_scan_max_pages: automation.task_scan_max_pages as number }),
-    ...(optionalNonNegativeInteger(
-      automation.ruleset_scan_max_pages,
-      "automation.ruleset_scan_max_pages",
-    ) === undefined
-      ? {}
-      : { ruleset_scan_max_pages: automation.ruleset_scan_max_pages as number }),
-    ...(optionalPositiveInteger(automation.spin_timeout_ms, "automation.spin_timeout_ms") ===
-    undefined
-      ? {}
-      : { spin_timeout_ms: automation.spin_timeout_ms as number }),
-    ...(optionalPositiveInteger(
-      automation.import_form_timeout_ms,
-      "automation.import_form_timeout_ms",
-    ) === undefined
-      ? {}
-      : { import_form_timeout_ms: automation.import_form_timeout_ms as number }),
-    ...(optionalPositiveInteger(
-      automation.select_spin_timeout_ms,
-      "automation.select_spin_timeout_ms",
-    ) === undefined
-      ? {}
-      : { select_spin_timeout_ms: automation.select_spin_timeout_ms as number }),
-    ...(resourceGroup === undefined ? {} : { resource_group: resourceGroup }),
-    ...(optionalPositiveInteger(
-      automation.execute_submit_wait_ms,
-      "automation.execute_submit_wait_ms",
-    ) === undefined
-      ? {}
-      : { execute_submit_wait_ms: automation.execute_submit_wait_ms as number }),
-    ...(optionalString(automation.doris_jdbc_url, "automation.doris_jdbc_url") === undefined
-      ? {}
-      : { doris_jdbc_url: automation.doris_jdbc_url as string }),
-    ...(optionalString(automation.doris_user, "automation.doris_user") === undefined
-      ? {}
-      : { doris_user: automation.doris_user as string }),
-    ...(optionalString(automation.doris_password, "automation.doris_password") === undefined
-      ? {}
-      : { doris_password: automation.doris_password as string }),
-    ...(optionalPositiveInteger(
-      automation.doris_connect_timeout_ms,
-      "automation.doris_connect_timeout_ms",
-    ) === undefined
-      ? {}
-      : { doris_connect_timeout_ms: automation.doris_connect_timeout_ms as number }),
-    ...(optionalString(automation.limited_env, "automation.limited_env") === undefined
-      ? {}
-      : { limited_env: automation.limited_env as string }),
-    ...(optionalString(automation.probe_table, "automation.probe_table") === undefined
-      ? {}
-      : { probe_table: automation.probe_table as string }),
-  };
-}
-
 function normalizeRootUrl(value: unknown): string {
   const raw = requiredString(value, "url");
   let url: URL;
@@ -508,17 +306,7 @@ function parseConfigText(text: string, path: string): PlatformEnvConfig {
   const top = record(raw, "environment");
   exactKeys(
     top,
-    [
-      "schema_version",
-      "url",
-      "auth",
-      "guard",
-      "projects",
-      "datasources",
-      "defaults",
-      "safety",
-      "automation",
-    ],
+    ["schema_version", "url", "auth", "guard", "projects", "datasources", "defaults", "safety"],
     "environment",
   );
   if (top.schema_version !== 2) throw new Error("schema_version must be 2");
@@ -529,7 +317,6 @@ function parseConfigText(text: string, path: string): PlatformEnvConfig {
   const datasources = record(top.datasources, "datasources");
   const defaults = record(top.defaults, "defaults");
   const safety = record(top.safety, "safety");
-  const automation = parseAutomationConfig(top.automation);
   exactKeys(auth, ["cookie"], "auth");
   exactKeys(guard, ["expected_tenant"], "guard");
   exactKeys(projects, ["quality", "offline"], "projects");
@@ -583,7 +370,6 @@ function parseConfigText(text: string, path: string): PlatformEnvConfig {
     datasources: parsedDatasources,
     defaults: { datasource: defaultDatasource },
     safety: { allow_write: safety.allow_write },
-    ...(automation === undefined ? {} : { automation }),
   };
 }
 
@@ -1001,7 +787,6 @@ export async function resolvePlatformEnv(
     datasources: resolvedDatasources,
     defaults: config.defaults,
     safety: { allowWrite: config.safety.allow_write },
-    ...(config.automation === undefined ? {} : { automation: config.automation }),
     ...(inventory.assetsInventoryFallback
       ? { warnings: ["assets_datasource_inventory_fallback"] }
       : {}),
@@ -1195,16 +980,6 @@ function normalizeChildProject(project: string | undefined): string | undefined 
   return normalized;
 }
 
-function resolvedForChild(resolved: ResolvedPlatformEnv): ResolvedPlatformEnv {
-  if (!resolved.automation) return resolved;
-  const automation = Object.fromEntries(
-    Object.entries(resolved.automation).filter(
-      ([key]) => !["doris_jdbc_url", "doris_user", "doris_password"].includes(key),
-    ),
-  ) as PlatformAutomationConfig;
-  return { ...resolved, automation };
-}
-
 function executorError(error: unknown, cookie: string): Error {
   const message = error instanceof Error ? error.message : String(error);
   return new Error(cookie === "" ? message : message.replaceAll(cookie, "<redacted>"));
@@ -1223,7 +998,7 @@ export async function resolveAutomationExecutorEnv(
   try {
     const resolved = await resolvePlatformEnv(normalized, { ...ctx, config });
     return {
-      [AUTOMATION_PLATFORM_CONTEXT_ENV]: JSON.stringify(resolvedForChild(resolved)),
+      [AUTOMATION_PLATFORM_CONTEXT_ENV]: JSON.stringify(resolved),
       [AUTOMATION_AUTH_COOKIE_ENV]: config.auth.cookie,
     };
   } catch (error) {
@@ -1242,7 +1017,7 @@ export function buildPlatformEnvChildEnv(
   return {
     ...selectPlatformEnvChildBaseEnv(base, ctx?.inheritEnv ?? []),
     [ACTIVE_ENV_CONFIG_ENV]: effectivePlatformEnvPath(name, root),
-    [ACTIVE_ENV_RESOLVED_ENV]: JSON.stringify(resolvedForChild(resolved)),
+    [ACTIVE_ENV_RESOLVED_ENV]: JSON.stringify(resolved),
     ...(project === undefined ? {} : { KATA_ACTIVE_PROJECT: project }),
   };
 }

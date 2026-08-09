@@ -92,6 +92,57 @@ function linkedEnvironmentRoot(): { main: string; linked: string; cleanup: () =>
 }
 
 describe("platform environment datasource inventory compatibility", () => {
+  test("keeps the public environment example executor-neutral", () => {
+    const example = readFileSync(
+      join(import.meta.dir, "../../config/examples/environments/env.example.yaml"),
+      "utf8",
+    );
+
+    expect(example).not.toMatch(/^\s*#?\s*automation:/m);
+  });
+
+  test("rejects the retired top-level automation tuning node", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-platform-env-retired-automation-"));
+    const envDir = join(root, "config", "private", "environments");
+    mkdirSync(envDir, { recursive: true, mode: 0o700 });
+    chmodSync(envDir, 0o700);
+    const path = join(envDir, "fixture.yaml");
+    writeFileSync(
+      path,
+      [
+        "schema_version: 2",
+        "url: https://platform.example.invalid",
+        "auth:",
+        '  cookie: ""',
+        "guard:",
+        "  expected_tenant: tenant-a",
+        "projects:",
+        "  quality: quality-a",
+        "datasources:",
+        "  sparkthrift:",
+        "    name: spark-a",
+        "    database: database-a",
+        "defaults:",
+        "  datasource: sparkthrift",
+        "safety:",
+        "  allow_write: false",
+        "automation:",
+        "  cases: C0001",
+        "",
+      ].join("\n"),
+      { mode: 0o600 },
+    );
+    chmodSync(path, 0o600);
+
+    try {
+      expect(() => readPlatformEnvConfig("fixture", { repoRoot: root })).toThrow(
+        "environment contains unsupported keys: automation",
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   test("rejects duplicate Cookie names before tenant validation without exposing the header", () => {
     const secret = "dt_tenant_name=tenant-a; sid=first; sid=never-report-this-cookie-fragment";
     let message = "";

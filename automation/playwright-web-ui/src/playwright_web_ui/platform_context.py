@@ -42,39 +42,6 @@ _SENSITIVE_COOKIE_PARTS = {
     "ticket",
     "token",
 }
-_AUTOMATION_STRING_FIELDS = {
-    "cases",
-    "limited_env",
-    "probe_table",
-    "resource_group",
-    "table_batch_suffix",
-    "table_partition",
-    "task_search_query",
-}
-_AUTOMATION_INTEGER_FIELDS = {
-    "case_timeout_ms",
-    "doris_connect_timeout_ms",
-    "execute_submit_wait_ms",
-    "import_form_timeout_ms",
-    "result_query_retry_interval_ms",
-    "result_query_retry_timeout_ms",
-    "result_timeout_ms",
-    "rule_set_save_prompt_close_timeout_ms",
-    "select_spin_timeout_ms",
-    "spin_timeout_ms",
-    "table_option_timeout_ms",
-}
-_AUTOMATION_NON_NEGATIVE_INTEGER_FIELDS = {
-    "ruleset_scan_max_pages",
-    "task_scan_max_pages",
-}
-_AUTOMATION_BOOLEAN_FIELDS = {"result_strict"}
-_AUTOMATION_FIELDS = (
-    _AUTOMATION_STRING_FIELDS
-    | _AUTOMATION_INTEGER_FIELDS
-    | _AUTOMATION_NON_NEGATIVE_INTEGER_FIELDS
-    | _AUTOMATION_BOOLEAN_FIELDS
-)
 
 
 class PlatformContextError(ValueError):
@@ -160,33 +127,6 @@ class PlatformSafety:
 
 
 @dataclass(frozen=True, slots=True)
-class AutomationDefaults:
-    """Typed optional executor tuning emitted by the control plane."""
-
-    cases: str | None = None
-    table_batch_suffix: str | None = None
-    table_partition: str | None = None
-    result_strict: bool | None = None
-    case_timeout_ms: int | None = None
-    result_timeout_ms: int | None = None
-    result_query_retry_timeout_ms: int | None = None
-    result_query_retry_interval_ms: int | None = None
-    table_option_timeout_ms: int | None = None
-    rule_set_save_prompt_close_timeout_ms: int | None = None
-    task_search_query: str | None = None
-    task_scan_max_pages: int | None = None
-    ruleset_scan_max_pages: int | None = None
-    spin_timeout_ms: int | None = None
-    import_form_timeout_ms: int | None = None
-    select_spin_timeout_ms: int | None = None
-    resource_group: str | None = None
-    execute_submit_wait_ms: int | None = None
-    doris_connect_timeout_ms: int | None = None
-    limited_env: str | None = None
-    probe_table: str | None = None
-
-
-@dataclass(frozen=True, slots=True)
 class PlatformContext:
     """Deeply immutable, versioned platform context for one execution."""
 
@@ -198,7 +138,6 @@ class PlatformContext:
     datasources: Mapping[str, PlatformDataSource]
     defaults: PlatformDefaults
     safety: PlatformSafety
-    automation: AutomationDefaults | None
     warnings: tuple[str, ...]
     serialized: str
 
@@ -272,7 +211,6 @@ def parse_platform_context(text: str) -> PlatformContext:
             "datasources",
             "defaults",
             "safety",
-            "automation",
             "warnings",
         },
         required={
@@ -298,7 +236,6 @@ def parse_platform_context(text: str) -> PlatformContext:
     datasources = _parse_datasources(root["datasources"])
     defaults = _parse_defaults(root["defaults"], datasources)
     safety = _parse_safety(root["safety"])
-    automation = _parse_automation(root["automation"]) if "automation" in root else None
     warnings = _parse_warnings(root["warnings"]) if "warnings" in root else ()
     canonical = json.dumps(
         normalized,
@@ -316,7 +253,6 @@ def parse_platform_context(text: str) -> PlatformContext:
         datasources=MappingProxyType(datasources),
         defaults=defaults,
         safety=safety,
-        automation=automation,
         warnings=warnings,
         serialized=canonical,
     )
@@ -531,53 +467,6 @@ def _parse_safety(value: JsonValue) -> PlatformSafety:
     return PlatformSafety(allow_write=_required_bool(item["allowWrite"], "safety.allowWrite"))
 
 
-def _parse_automation(value: JsonValue) -> AutomationDefaults:
-    item = _record(value, "automation")
-    _exact_keys(item, _AUTOMATION_FIELDS, required=set(), path="automation")
-    parsed: dict[str, str | int | bool] = {}
-    for key, raw in item.items():
-        if key in _AUTOMATION_STRING_FIELDS:
-            parsed[key] = _required_string(raw, f"automation.{key}")
-        elif key in _AUTOMATION_INTEGER_FIELDS:
-            parsed[key] = _positive_int(raw, f"automation.{key}")
-        elif key in _AUTOMATION_NON_NEGATIVE_INTEGER_FIELDS:
-            parsed[key] = _non_negative_int(raw, f"automation.{key}")
-        else:
-            parsed[key] = _required_bool(raw, f"automation.{key}")
-    return AutomationDefaults(
-        cases=cast("str | None", parsed.get("cases")),
-        table_batch_suffix=cast("str | None", parsed.get("table_batch_suffix")),
-        table_partition=cast("str | None", parsed.get("table_partition")),
-        result_strict=cast("bool | None", parsed.get("result_strict")),
-        case_timeout_ms=cast("int | None", parsed.get("case_timeout_ms")),
-        result_timeout_ms=cast("int | None", parsed.get("result_timeout_ms")),
-        result_query_retry_timeout_ms=cast(
-            "int | None",
-            parsed.get("result_query_retry_timeout_ms"),
-        ),
-        result_query_retry_interval_ms=cast(
-            "int | None",
-            parsed.get("result_query_retry_interval_ms"),
-        ),
-        table_option_timeout_ms=cast("int | None", parsed.get("table_option_timeout_ms")),
-        rule_set_save_prompt_close_timeout_ms=cast(
-            "int | None",
-            parsed.get("rule_set_save_prompt_close_timeout_ms"),
-        ),
-        task_search_query=cast("str | None", parsed.get("task_search_query")),
-        task_scan_max_pages=cast("int | None", parsed.get("task_scan_max_pages")),
-        ruleset_scan_max_pages=cast("int | None", parsed.get("ruleset_scan_max_pages")),
-        spin_timeout_ms=cast("int | None", parsed.get("spin_timeout_ms")),
-        import_form_timeout_ms=cast("int | None", parsed.get("import_form_timeout_ms")),
-        select_spin_timeout_ms=cast("int | None", parsed.get("select_spin_timeout_ms")),
-        resource_group=cast("str | None", parsed.get("resource_group")),
-        execute_submit_wait_ms=cast("int | None", parsed.get("execute_submit_wait_ms")),
-        doris_connect_timeout_ms=cast("int | None", parsed.get("doris_connect_timeout_ms")),
-        limited_env=cast("str | None", parsed.get("limited_env")),
-        probe_table=cast("str | None", parsed.get("probe_table")),
-    )
-
-
 def _parse_warnings(value: JsonValue) -> tuple[str, ...]:
     if not isinstance(value, list):
         _fail("PLATFORM_CONTEXT_SCHEMA_INVALID", "warnings must be an array")
@@ -622,12 +511,6 @@ def _required_string(value: JsonValue, path: str) -> str:
 def _positive_int(value: JsonValue, path: str) -> int:
     if type(value) is not int or value < 1:
         _fail("PLATFORM_CONTEXT_SCHEMA_INVALID", f"{path} must be a positive integer")
-    return value
-
-
-def _non_negative_int(value: JsonValue, path: str) -> int:
-    if type(value) is not int or value < 0:
-        _fail("PLATFORM_CONTEXT_SCHEMA_INVALID", f"{path} must be a non-negative integer")
     return value
 
 

@@ -44,11 +44,19 @@ class BusinessRecord:
 
 
 @dataclass(frozen=True, slots=True)
+class AutomationEffects:
+    """Declared platform side effects for one canonical case."""
+
+    platform_write: bool
+
+
+@dataclass(frozen=True, slots=True)
 class AutomationCase:
     """One selected canonical case in an immutable execution manifest."""
 
     key: CaseKey
     title: str
+    effects: AutomationEffects
     business_record: BusinessRecord
 
 
@@ -56,7 +64,7 @@ class AutomationCase:
 class ExecutionManifest:
     """Typed immutable selection handed from the control plane to the executor."""
 
-    schema_version: Literal[1]
+    schema_version: Literal[2]
     logical_run_id: str
     execution_id: str
     project_id: str
@@ -91,7 +99,7 @@ def load_execution_manifest(path: str | Path) -> ExecutionManifest:
     cases = tuple(_decode_case(project_id, item) for item in _case_objects(raw["cases"]))
     _ensure_unique_case_keys(cases)
     return ExecutionManifest(
-        schema_version=1,
+        schema_version=2,
         logical_run_id=cast("str", raw["logical_run_id"]),
         execution_id=cast("str", raw["execution_id"]),
         project_id=project_id,
@@ -106,6 +114,7 @@ def _case_objects(value: JsonValue) -> tuple[dict[str, JsonValue], ...]:
 
 
 def _decode_case(project_id: str, raw: dict[str, JsonValue]) -> AutomationCase:
+    effects = cast("dict[str, JsonValue]", raw["effects"])
     business_record = cast("dict[str, JsonValue]", raw["business_record"])
     policy = cast("BusinessRecordPolicy", business_record["policy"])
     reason = cast("str | None", business_record.get("reason"))
@@ -120,6 +129,7 @@ def _decode_case(project_id: str, raw: dict[str, JsonValue]) -> AutomationCase:
             case_id=cast("str", raw["case_id"]),
         ),
         title=title,
+        effects=AutomationEffects(platform_write=cast("bool", effects["platform_write"])),
         business_record=BusinessRecord(policy=policy, reason=reason),
     )
 

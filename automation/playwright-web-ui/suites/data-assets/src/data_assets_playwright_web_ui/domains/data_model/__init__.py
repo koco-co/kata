@@ -1,0 +1,1 @@
+"""Data Model domain capabilities."""

@@ -9,15 +9,20 @@ export type BusinessRecordPolicy =
   | { readonly policy: "required" }
   | { readonly policy: "not_applicable"; readonly reason: string };
 
+export interface ExecutionEffects {
+  readonly platform_write: boolean;
+}
+
 export interface ExecutionCase {
   readonly feature_id: string;
   readonly case_id: string;
   readonly title: string;
+  readonly effects: ExecutionEffects;
   readonly business_record: BusinessRecordPolicy;
 }
 
 export interface ExecutionManifest {
-  readonly schema_version: 1;
+  readonly schema_version: 2;
   readonly logical_run_id: string;
   readonly execution_id: string;
   readonly project_id: string;
@@ -70,16 +75,26 @@ function parseBusinessRecord(value: unknown, path: string): BusinessRecordPolicy
   fail(`${path}.policy`, "必须是 required 或 not_applicable");
 }
 
+function parseEffects(value: unknown, path: string): ExecutionEffects {
+  const item = record(value, path);
+  exactKeys(item, ["platform_write"], path);
+  if (typeof item.platform_write !== "boolean") {
+    fail(`${path}.platform_write`, "必须是布尔值");
+  }
+  return { platform_write: item.platform_write };
+}
+
 function parseCase(value: unknown, index: number): ExecutionCase {
   const path = `cases[${index}]`;
   const item = record(value, path);
-  exactKeys(item, ["feature_id", "case_id", "title", "business_record"], path);
+  exactKeys(item, ["feature_id", "case_id", "title", "effects", "business_record"], path);
   const caseId = requiredString(item.case_id, `${path}.case_id`);
   if (!CASE_ID_RE.test(caseId)) fail(`${path}.case_id`, "必须匹配 C0001 格式");
   return {
     feature_id: stableId(item.feature_id, `${path}.feature_id`),
     case_id: caseId,
     title: requiredString(item.title, `${path}.title`),
+    effects: parseEffects(item.effects, `${path}.effects`),
     business_record: parseBusinessRecord(item.business_record, `${path}.business_record`),
   };
 }
@@ -92,7 +107,7 @@ export function parseExecutionManifest(value: unknown): ExecutionManifest {
     ["schema_version", "logical_run_id", "execution_id", "project_id", "executor_id", "cases"],
     "root",
   );
-  if (manifest.schema_version !== 1) fail("schema_version", "仅支持 1");
+  if (manifest.schema_version !== 2) fail("schema_version", "仅支持 2");
   const logicalRunId = requiredString(manifest.logical_run_id, "logical_run_id");
   if (!RUN_ID_RE.test(logicalRunId)) fail("logical_run_id", "格式非法");
   const executionId = requiredString(manifest.execution_id, "execution_id");
@@ -110,7 +125,7 @@ export function parseExecutionManifest(value: unknown): ExecutionManifest {
     identities.add(identity);
   }
   return {
-    schema_version: 1,
+    schema_version: 2,
     logical_run_id: logicalRunId,
     execution_id: executionId,
     project_id: projectId,

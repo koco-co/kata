@@ -58,9 +58,9 @@ class InspectingEntryPoint:
         return self.target
 
 
-def manifest_payload() -> dict[str, object]:
+def manifest_payload(*, platform_write: bool = False) -> dict[str, object]:
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "logical_run_id": "20260808-1030-run-01",
         "execution_id": "execution-01",
         "project_id": "data-assets",
@@ -70,13 +70,14 @@ def manifest_payload() -> dict[str, object]:
                 "feature_id": "asset-catalog",
                 "case_id": "C0001",
                 "title": "Create an asset",
+                "effects": {"platform_write": platform_write},
                 "business_record": {"policy": "required"},
             }
         ],
     }
 
 
-def execution_manifest(tmp_path: Path) -> Path:
+def execution_manifest(tmp_path: Path, *, platform_write: bool = False) -> Path:
     path = (
         tmp_path
         / "artifacts"
@@ -89,7 +90,7 @@ def execution_manifest(tmp_path: Path) -> Path:
         / "execution-manifest.json"
     )
     path.parent.mkdir(parents=True)
-    path.write_text(json.dumps(manifest_payload()), encoding="utf-8")
+    path.write_text(json.dumps(manifest_payload(platform_write=platform_write)), encoding="utf-8")
     return path
 
 
@@ -305,6 +306,49 @@ def test_run_consumes_platform_secrets_before_loading_suite_entry_point(
 
     assert result == 0
     assert observed_inputs == [(None, None)]
+    assert PLATFORM_CONTEXT_ENV not in os.environ
+    assert AUTH_COOKIE_ENV not in os.environ
+
+
+def test_run_rejects_forbidden_platform_write_before_suite_outputs_and_pytest(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest = execution_manifest(tmp_path, platform_write=True)
+    base_entry, _tests_path = suite_entry(tmp_path)
+    attempt = manifest.parent / "attempts" / "001"
+    attempt.mkdir(parents=True)
+    runtime = runtime_environ(attempt)
+    for name, value in runtime.items():
+        monkeypatch.setenv(name, value)
+    observed_inputs: list[tuple[str | None, str | None]] = []
+    entry = InspectingEntryPoint(
+        name=base_entry.name,
+        value=base_entry.value,
+        target=base_entry.target,
+        observed_inputs=observed_inputs,
+    )
+    pytest_called = False
+
+    def run_pytest(_arguments: Sequence[str]) -> int:
+        nonlocal pytest_called
+        pytest_called = True
+        return 0
+
+    with pytest.raises(LifecycleError, match="PLATFORM_WRITE_FORBIDDEN") as raised:
+        run_execution(
+            manifest,
+            entries=[entry],
+            environ=os.environ,
+            pytest_runner=run_pytest,
+        )
+
+    assert raised.value.code == "PLATFORM_WRITE_FORBIDDEN"
+    assert "synthetic-session-001" not in str(raised.value)
+    assert "synthetic-tenant" not in str(raised.value)
+    assert observed_inputs == []
+    assert not pytest_called
+    assert list(attempt.iterdir()) == []
     assert PLATFORM_CONTEXT_ENV not in os.environ
     assert AUTH_COOKIE_ENV not in os.environ
 

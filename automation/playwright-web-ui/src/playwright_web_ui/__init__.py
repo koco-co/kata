@@ -9,14 +9,17 @@ from playwright_web_ui.manifest import (
     ManifestError,
     load_execution_manifest,
 )
+from playwright_web_ui.runtime_identity import AutomationRuntimeIdentity, RuntimeIdentityError
 from playwright_web_ui.suite import SuiteDefinition, SuiteRegistryError
 
 __all__ = [
     "AutomationCase",
+    "AutomationRuntimeIdentity",
     "BusinessRecord",
     "CaseKey",
     "ExecutionManifest",
     "ManifestError",
+    "RuntimeIdentityError",
     "SuiteDefinition",
     "SuiteRegistryError",
     "automation_case",

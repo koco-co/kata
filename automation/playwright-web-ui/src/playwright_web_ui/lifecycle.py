@@ -65,6 +65,7 @@ _MANIFEST_INVALID = "MANIFEST_INVALID"
 _MANIFEST_PATH_INVALID = "MANIFEST_PATH_INVALID"
 _PATH_NOT_FOUND = "PATH_NOT_FOUND"
 _PATH_UNSAFE = "PATH_UNSAFE"
+_PLATFORM_WRITE_FORBIDDEN = "PLATFORM_WRITE_FORBIDDEN"
 _SETUP_BROWSER_INSTALL_FAILED = "SETUP_BROWSER_INSTALL_FAILED"
 _WORKERS_INVALID = "WORKERS_INVALID"
 _WORKERS_MESSAGE = "workers must be a positive integer"
@@ -192,6 +193,7 @@ def run_execution(
         platform_environment = load_platform_environment(platform_inputs)
     except PlatformContextError as error:
         raise LifecycleError(error.code, error.detail) from error
+    _validate_platform_write(context.manifest, platform_environment)
     suite = _load_suite(context.manifest.project_id, entries)
     _validate_sync_policy((suite,))
     _prepare_attempt_outputs(attempt)
@@ -422,6 +424,19 @@ def _capture_platform_inputs(environment: Mapping[str, str]) -> dict[str, str]:
         environment.pop(AUTH_COOKIE_ENV, None)
     _remove_platform_secret_environment()
     return captured
+
+
+def _validate_platform_write(
+    manifest: ExecutionManifest,
+    platform_environment: PlatformEnvironment,
+) -> None:
+    if platform_environment.context.safety.allow_write:
+        return
+    if any(selected_case.effects.platform_write for selected_case in manifest.cases):
+        raise LifecycleError(
+            _PLATFORM_WRITE_FORBIDDEN,
+            "execution requires platform writes but the environment does not allow them",
+        )
 
 
 def _run_command(arguments: Sequence[str]) -> int:

@@ -17,6 +17,7 @@ from playwright_web_ui.allure_guard import (
     AllureSecretGuard,
     install_guarded_allure_logger,
 )
+from playwright_web_ui.allure_identity import apply_canonical_case_labels
 from playwright_web_ui.artifact_gate import collect_artifact_gate_errors
 from playwright_web_ui.artifacts import redact_secret_text
 from playwright_web_ui.business_records import BusinessRecordRecorder
@@ -57,6 +58,7 @@ from playwright_web_ui.pytest_runtime_paths import (
     validate_playwright_output_path,
     xdist_worker_output_path,
 )
+from playwright_web_ui.runtime_identity import AutomationRuntimeIdentity, RuntimeIdentityError
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
@@ -355,11 +357,18 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
         config.hook.pytest_deselected(items=deselected_items)
 
 
-@pytest.hookimpl(trylast=True)
-def pytest_runtest_setup(item: pytest.Item) -> None:
-    """Reject outcome-control markers added dynamically by setup fixtures."""
+@pytest.hookimpl(wrapper=True, tryfirst=True)
+def pytest_runtest_setup(item: pytest.Item) -> Generator[None]:
+    """Label canonical results before setup and reject dynamic outcome control."""
+    key = item.stash.get(_ITEM_CASE_KEY, None)
+    cases = item.config.stash.get(_CASES_KEY, None)
+    if key is not None and cases is not None:
+        apply_canonical_case_labels(cases[key].key)
+
+    yield
+
     runtime_active = item.config.stash.get(_ATTEMPT_KEY, None) is not None
-    canonical_item = item.stash.get(_ITEM_CASE_KEY, None) is not None
+    canonical_item = key is not None
     forbidden = {"skip", "skipif", "xfail"}
     if (
         runtime_active
@@ -451,6 +460,35 @@ def business_records(request: pytest.FixtureRequest) -> BusinessRecordRecorder:
         records_root=attempt.business_records,
         secret_values=_secret_values(request.config),
     )
+
+
+@pytest.fixture
+def automation_identity(request: pytest.FixtureRequest) -> AutomationRuntimeIdentity:
+    """Expose the selected case's immutable, non-secret execution identity."""
+    selected_case, attempt = _fixture_context(request)
+    manifest = request.config.stash.get(_MANIFEST_KEY, None)
+    if manifest is None:
+        message = "RUNTIME_IDENTITY_MISSING: execution manifest was not initialized"
+        raise pytest.UsageError(message)
+    worker_input = cast(
+        "dict[str, object] | None",
+        getattr(request.config, "workerinput", None),
+    )
+    worker_id = "serial" if worker_input is None else worker_input.get("workerid")
+    if not isinstance(worker_id, str) or not attempt.path.name.isdigit():
+        message = "RUNTIME_IDENTITY_INVALID: runtime worker or attempt is invalid"
+        raise pytest.UsageError(message)
+    try:
+        return AutomationRuntimeIdentity(
+            case=selected_case.key,
+            logical_run_id=manifest.logical_run_id,
+            execution_id=manifest.execution_id,
+            executor_id=manifest.executor_id,
+            attempt=int(attempt.path.name),
+            worker_id=worker_id,
+        )
+    except RuntimeIdentityError as error:
+        raise pytest.UsageError(str(error)) from error
 
 
 @pytest.fixture(name="platform_context")

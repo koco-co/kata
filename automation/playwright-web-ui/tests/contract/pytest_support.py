@@ -22,10 +22,10 @@ VALID_PNG = b64decode(
 )
 
 
-def manifest_payload() -> dict[str, object]:
+def manifest_payload(*, platform_write: bool = False) -> dict[str, object]:
     """Return one valid single-case execution manifest payload."""
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "logical_run_id": "20260808-1030-run-01",
         "execution_id": "execution-01",
         "project_id": "data-assets",
@@ -35,6 +35,7 @@ def manifest_payload() -> dict[str, object]:
                 "feature_id": "asset-catalog",
                 "case_id": "C0001",
                 "title": "Create an asset",
+                "effects": {"platform_write": platform_write},
                 "business_record": {"policy": "required"},
             }
         ],

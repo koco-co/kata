@@ -668,6 +668,7 @@ def test_runtime_artifact_gate_is_xdist_safe(
             "feature_id": "asset-catalog",
             "case_id": "C0002",
             "title": "Create another asset",
+            "effects": {"platform_write": False},
             "business_record": {"policy": "required"},
         }
     )
