@@ -49,6 +49,11 @@
             "checklist_id": "CL-006",
             "verdict": "skipped",
             "reason": "无跨模块/跨任务依赖，对照适用条件跳过。"
+          },
+          {
+            "checklist_id": "CL-007",
+            "verdict": "skipped",
+            "reason": "未引入历史/跨分支用例，本需求用例与当前客户、版本、页面基线一致，对照适用条件跳过。"
           }
         ]
       }

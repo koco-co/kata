@@ -21,38 +21,17 @@
    - 完成条件：原始来源、选中页面、文本摘要和引用图片均可追踪。
 
 3. 解析客户身份并注入知识与规范（写用例前必执行）
-   - 从需求标题/VCS 分支/feature 目录名识别客户编号：
-     - **高置信度** → 自行确认，不过问用户
-     - **低置信度** → 向用户确认，确认前先基于知识库/源码验证给推荐答案
-   - 列出可用客户：`kata knowledge list --project <项目>`
-   - 注入用例编写规范：
-     ```bash
-     kata knowledge read --project <项目> --type standard --customer <客户编号>
-     ```
-   - 注入项目业务知识：
-     ```bash
-     kata knowledge read --project <项目> --module <模块>
-     ```
-   - 无客户专属文件或文件落后时，**必须按此分支补齐再写用例**：
-     - `customers/<code>.md` 缺环境地址或源码分支 → 向用户索要测试环境地址与源码仓库/分支
-     - `kata repos prepare --project <项目> --module <模块> --customer <客户或标品>` 拉取源码；对测试环境做 DOM 探测
-     - 按 [../templates/standard-template.md](../templates/standard-template.md) 结构初始化或更新 `standards/<customer>/` 文档
-     - 向用户报备（写哪个文件、依据、影响），同意后 `kata knowledge write --type standard --customer <客户>` 落盘
-     - 重新加载后再写用例
-   - 准备源码（已在上面分支时执行过则跳过）：
-     ```bash
-     kata repos prepare --project <项目> --module <模块> --customer <客户或标品>
-     ```
+   - 完整读取 [../references/customer-bootstrap.md](../references/customer-bootstrap.md)：识别客户编号 → 注入公共/客户专属规范与业务知识 → 无客户文件时补齐 `standards/<customer>/` → 准备源码。
    - 完成条件：客户身份确定，规范与知识已加载，客户专属文件存在且时效满足需求
 
 4. 扫描遗漏与清单判定
    - 第一轮：需求明确写出的目标、范围、角色、字段、状态、异常、兼容和验收。
-   - 第二轮：按 [../checklists/clarify.md](../checklists/clarify.md) 的 6 条清单逐条判定
+   - 第二轮：按 [../checklists/clarify.md](../checklists/clarify.md) 的澄清清单逐条判定
      `skipped`（不涉及，reason 写明适用条件）/ `self-resolved`（代码/知识自查出答案，answer 落自查结论）/ `asked`（需要用户裁决）。
    - 判定前先自查：纯增删改查、代码/知识库能明确、明显不涉及的条目**禁止提问**。
    - Lanhu 表预期变更，verified 知识表既有规则，release 源码表当前实现；目标行为冲突由用户决策。
    - 判定结果写入 `prd/.process/session.json` 的 `preparation.omission_scans` 第 2 轮 `checklist_verdicts`（结构见 [../examples/prd-session.json](../examples/prd-session.json)）。
-   - 完成条件：6 条清单全部有判定且已记录，所有会改变范围的冲突已转成待决策问题。
+   - 完成条件：澄清清单全部有判定且已记录，所有会改变范围的冲突已转成待决策问题。
 
 5. 逐问确认并记录
    - 一次一个问题，给出当前证据、业务影响、风险、推荐答案和用户最终答案。

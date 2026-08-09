@@ -245,6 +245,30 @@ precondition: |-
   expected: 进入「监控规则」步骤
 ```
 
+### 明细数据=脏数据（规则包/规则集校验）
+
+规则包/规则集的规则靠**校验 SQL** 定义违规明细行。查看明细用例在前置建表插数中**构造违规数据**，expected 同时给出校验 SQL（`SELECT 列 FROM 表 WHERE 违规条件`）及返回记录。
+
+```yaml
+precondition: |-
+  1) 授权数据源：${DataSourceA}
+  2) 数据源类型：SparkThrift2.x
+  3) 存在数据库：${SchemaA}
+  4) 创建数据表并插入违规数据（金额为空）：
+     DROP TABLE IF EXISTS ${SchemaA}.test_table_13925_c0260;
+     CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13925_c0260 (
+       id BIGINT, amount DECIMAL(10,2)
+     );
+     INSERT INTO ${SchemaA}.test_table_13925_c0260 VALUES
+       (1, 100.00),
+       (2, NULL);
+- action: 点击该规则「校验SQL」查看明细
+  expected: |-
+    1) 校验SQL：
+       SELECT id, amount FROM ${SchemaA}.test_table_13925_c0260 WHERE amount IS NULL;
+    2) 返回记录：id=2, amount=空
+```
+
 ### 生成脚本
 
 一次性 Bash 命令的每一行与所在编号行保持同一 YAML 缩进；`BASH`/`PY` 结束符复制后必须位于第 1 列，不要额外嵌套缩进。
