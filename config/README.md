@@ -14,6 +14,16 @@ config/examples/   与 private 结构对应的脱敏模板，全部纳入 Git
 `automation/<executor>/`，不得重新引入跨 executor 的 `config/automation/`。自动化运行时代码也必须
 归属已登记 executor，禁止重新创建 `runtime/automation/` 共享层。
 
+已有私密环境文件中的顶层 `automation` 节点继续按原字段合同读取、校验并在 Cookie 更新时原样保留，
+但它只属于旧运行时兼容数据，不会进入 execution manifest、platform context 或任何 executor。新环境
+仍以脱敏模板为准，不新增该节点；`kata env doctor` 会用 `legacy_automation_ignored` 提示其执行语义
+已由 canonical case、executor descriptor 和 suite 自有合同接管。
+
+已有环境中的 Cookie 请求头继续按文件原值保存；运行时 tenant 校验、在线解析和 executor 使用同一份
+按旧 Map 稳定 last-value 语义生成的唯一名称 Cookie。`kata env doctor` 会以
+`legacy_cookie_duplicates_canonicalized` 明示该兼容处理，不要求改写现有私密文件；新的 Cookie set
+和显式 override 仍拒绝重复名称，避免继续生成歧义配置。
+
 `policies/repo-policy.yaml` 同时锁定根目录文档边界：贡献与工程规则统一维护在
 `CLAUDE.md`（`AGENTS.md` 指向同一内容），不再保留独立的 `CONTRIBUTING.md`。
 

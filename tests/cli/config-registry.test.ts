@@ -195,6 +195,46 @@ describe("config registry", () => {
     ).toBe(true);
   });
 
+  test("validates existing private environment automation nodes without adding them to examples", () => {
+    const root = makeRoot();
+    const path = writePrivate(
+      root,
+      "config/private/environments/fixture.yaml",
+      [
+        "schema_version: 2",
+        "url: https://platform.example.invalid",
+        "auth:",
+        '  cookie: ""',
+        "guard:",
+        "  expected_tenant: tenant-a",
+        "projects:",
+        "  quality: quality-a",
+        "datasources:",
+        "  primary:",
+        "    name: primary-a",
+        "    database: database-a",
+        "defaults:",
+        "  datasource: primary",
+        "safety:",
+        "  allow_write: false",
+        "automation:",
+        "  cases: C0001-C0003",
+        "  result_strict: true",
+        "",
+      ].join("\n"),
+    );
+
+    expect(() => familyByName("environments").validateFile(path, root)).not.toThrow();
+    const example = writeExample(
+      root,
+      "config/examples/environments/env.example.yaml",
+      'schema_version: 2\nauth:\n  cookie: ""\nautomation:\n  cases: C0001\n',
+    );
+    expect(() => familyByName("environments").validateExample(example)).toThrow(
+      /未知字段: automation/,
+    );
+  });
+
   test("validate rejects retired notification field spellings", () => {
     const root = makeRoot();
     writePrivate(

@@ -38,6 +38,13 @@ function config(cookie = "dt_tenant_name=tenant-a; sid=executor-only-secret"): P
     },
     defaults: { datasource: "doris" },
     safety: { allow_write: true },
+    automation: {
+      cases: "C0001-C0003",
+      result_strict: true,
+      doris_jdbc_url: "jdbc:mysql://private.example.test:9030/database-a",
+      doris_user: "private-user",
+      doris_password: "private-password",
+    },
   };
 }
 
@@ -142,7 +149,27 @@ describe("automation executor platform environment", () => {
     expect("automation" in context).toBe(false);
     expect(contextText).not.toContain(privateConfig.auth.cookie);
     expect(contextText).not.toContain("config/private");
+    expect(contextText).not.toContain("private-password");
+    expect(contextText).not.toContain("private-user");
+    expect(contextText).not.toContain("jdbc:mysql://private.example.test");
     expect(readdirSync(root)).toEqual([]);
+  });
+
+  it("uses one canonical Cookie identity for online resolution and the executor", async () => {
+    const root = fixtureRoot();
+    const cookieHeaders: string[] = [];
+    const rawCookie = "dt_tenant_name=tenant-a; preference=first; stable=value; preference=last";
+    const canonicalCookie = "dt_tenant_name=tenant-a; preference=last; stable=value";
+
+    const overlay = await resolveAutomationExecutorEnv("ci63", {
+      repoRoot: root,
+      config: config(rawCookie),
+      fetchImpl: resolvedFetch(cookieHeaders),
+    });
+
+    expect(overlay[AUTOMATION_AUTH_COOKIE_ENV]).toBe(canonicalCookie);
+    expect(cookieHeaders.length).toBeGreaterThan(0);
+    expect(cookieHeaders.every((value) => value === canonicalCookie)).toBe(true);
   });
 
   it("does not expose the cookie when online resolution fails", async () => {
@@ -182,7 +209,7 @@ describe("automation executor platform environment", () => {
 
   it("rejects an invalid Cookie header before online resolution", async () => {
     const root = fixtureRoot();
-    const secret = "dt_tenant_name=tenant-a; sid=first; sid=never-report-this-cookie-fragment";
+    const secret = "dt_tenant_name=tenant-a; sid =never-report-this-cookie-fragment";
     let requests = 0;
     let message = "";
     try {

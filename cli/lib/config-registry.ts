@@ -198,6 +198,7 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
         "datasources",
         "defaults",
         "safety",
+        "automation",
       ]);
       readPlatformEnvConfig(basename(path, ".yaml"), { repoRoot: root });
     },

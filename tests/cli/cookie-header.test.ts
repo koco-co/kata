@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { parseCookieHeader } from "../../cli/lib/cookie-header.ts";
+import {
+  canonicalizeLegacyCookieHeader,
+  hasLegacyCookieDuplicates,
+  parseCookieHeader,
+} from "../../cli/lib/cookie-header.ts";
 
 describe("strict platform Cookie header contract", () => {
   test.each([
@@ -24,8 +28,21 @@ describe("strict platform Cookie header contract", () => {
     expect(parseCookieHeader(header)).toEqual(expected);
   });
 
+  test("keeps the strict executor boundary aligned with Python unique-name semantics", () => {
+    const header = "alpha=first; beta=stable; alpha=last; gamma=same; gamma=same";
+
+    expect(() => parseCookieHeader(header)).toThrow("AUTH_COOKIE_INVALID");
+  });
+
+  test("canonicalizes existing duplicate names at the control-plane compatibility boundary", () => {
+    expect(
+      canonicalizeLegacyCookieHeader("csrf=first; stable=value; csrf=last; sid=same; sid=same"),
+    ).toBe("csrf=last; stable=value; sid=same");
+    expect(hasLegacyCookieDuplicates("csrf=first; csrf=last")).toBe(true);
+    expect(hasLegacyCookieDuplicates("csrf=last; stable=value")).toBe(false);
+  });
+
   test.each([
-    "alpha=one;alpha=two",
     " alpha=one",
     "alpha=one ",
     "alpha=one;  beta=two",

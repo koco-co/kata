@@ -19,8 +19,16 @@ import {
   privateFileRepoRoot,
   privateInstanceFiles,
 } from "./config-paths.ts";
-import { parseCookieHeader } from "./cookie-header.ts";
+import {
+  canonicalizeLegacyCookieHeader,
+  hasLegacyCookieDuplicates,
+  parseCookieHeader,
+} from "./cookie-header.ts";
 import { assertNoSymlinkPath } from "./features-layout.ts";
+import {
+  type PlatformAutomationConfig,
+  parsePlatformAutomationConfig,
+} from "./platform-env-legacy-automation.ts";
 import { repoRoot as defaultRepoRoot, validateProjectName } from "./workspace-locator.ts";
 
 export const ACTIVE_ENV_RESOLVED_ENV = "KATA_ACTIVE_ENV_RESOLVED";
@@ -79,6 +87,8 @@ export interface PlatformEnvConfig {
   >;
   readonly defaults: { readonly datasource: string };
   readonly safety: { readonly allow_write: boolean };
+  /** @deprecated Retained only so existing private environment files round-trip unchanged. */
+  readonly automation?: PlatformAutomationConfig;
 }
 
 interface ApiEnvelope<T> {
@@ -306,7 +316,17 @@ function parseConfigText(text: string, path: string): PlatformEnvConfig {
   const top = record(raw, "environment");
   exactKeys(
     top,
-    ["schema_version", "url", "auth", "guard", "projects", "datasources", "defaults", "safety"],
+    [
+      "schema_version",
+      "url",
+      "auth",
+      "guard",
+      "projects",
+      "datasources",
+      "defaults",
+      "safety",
+      "automation",
+    ],
     "environment",
   );
   if (top.schema_version !== 2) throw new Error("schema_version must be 2");
@@ -317,13 +337,14 @@ function parseConfigText(text: string, path: string): PlatformEnvConfig {
   const datasources = record(top.datasources, "datasources");
   const defaults = record(top.defaults, "defaults");
   const safety = record(top.safety, "safety");
+  const automation = parsePlatformAutomationConfig(top.automation);
   exactKeys(auth, ["cookie"], "auth");
   exactKeys(guard, ["expected_tenant"], "guard");
   exactKeys(projects, ["quality", "offline"], "projects");
   exactKeys(defaults, ["datasource"], "defaults");
   exactKeys(safety, ["allow_write"], "safety");
   if (typeof auth.cookie !== "string") throw new Error("auth.cookie must be a string");
-  if (auth.cookie !== "") parseCookieHeader(auth.cookie);
+  if (auth.cookie !== "") canonicalizeLegacyCookieHeader(auth.cookie);
   if (typeof safety.allow_write !== "boolean")
     throw new Error("safety.allow_write must be boolean");
 
@@ -370,6 +391,7 @@ function parseConfigText(text: string, path: string): PlatformEnvConfig {
     datasources: parsedDatasources,
     defaults: { datasource: defaultDatasource },
     safety: { allow_write: safety.allow_write },
+    ...(automation === undefined ? {} : { automation }),
   };
 }
 
@@ -460,14 +482,25 @@ export function listPlatformEnvs(
 
 export function showPlatformEnv(name: string, ctx?: PlatformEnvContext): Record<string, unknown> {
   const config = readPlatformEnvConfig(name, ctx);
+  const { automation, ...visible } = config;
   return {
-    ...config,
+    ...visible,
     auth: { cookie: config.auth.cookie ? "<redacted>" : "" },
+    ...(automation === undefined ? {} : { automation: "<retained-redacted>" }),
   };
 }
 
 function cookieMap(cookie: string): Map<string, string> {
-  return new Map(parseCookieHeader(cookie).map(({ name, value }) => [name, value]));
+  const canonical = canonicalizeLegacyCookieHeader(cookie);
+  return new Map(
+    parseCookieHeader(canonical).map(({ name, value }) => {
+      try {
+        return [name, decodeURIComponent(value)];
+      } catch {
+        return [name, value];
+      }
+    }),
+  );
 }
 
 function numberFromCookie(cookies: Map<string, string>, key: string): number | undefined {
@@ -580,7 +613,13 @@ async function post<T>(
     }
 
     if (!response.ok) {
-      throw new Error(`authentication_or_http_failure: ${path} returned HTTP ${response.status}`);
+      const code =
+        response.status === 401 || response.status === 403
+          ? "platform_authentication_failed"
+          : response.status >= 500
+            ? "platform_upstream_failure"
+            : "platform_http_failure";
+      throw new Error(`${code}: ${path} returned HTTP ${response.status}`);
     }
 
     let envelope: ApiEnvelope<T>;
@@ -682,7 +721,7 @@ export async function resolvePlatformEnv(
   ctx?: PlatformEnvContext & { config?: PlatformEnvConfig },
 ): Promise<ResolvedPlatformEnv> {
   const normalized = assertPlatformEnvName(name);
-  const config = ctx?.config ?? readPlatformEnvConfig(normalized, ctx);
+  const config = canonicalRuntimeConfig(ctx?.config ?? readPlatformEnvConfig(normalized, ctx));
   const cookies = assertTenant(config);
   const fetchImpl = ctx?.fetchImpl ?? fetch;
   const inventory = await fetchInventory(config, fetchImpl);
@@ -798,10 +837,11 @@ export async function discoverPlatformEnv(
   ctx?: PlatformEnvContext & { cookie?: string },
 ): Promise<Record<string, unknown>> {
   const stored = readPlatformEnvConfig(name, ctx);
-  const config =
+  const config = canonicalRuntimeConfig(
     ctx?.cookie === undefined
       ? stored
-      : { ...stored, auth: { cookie: normalizeCookieInput(ctx.cookie) } };
+      : { ...stored, auth: { cookie: normalizeCookieInput(ctx.cookie) } },
+  );
   assertTenant(config);
   const fetchImpl = ctx?.fetchImpl ?? fetch;
   const inventory = await fetchInventory(config, fetchImpl);
@@ -899,6 +939,20 @@ export async function diagnosePlatformEnv(
       }
       if (!config.auth.cookie)
         findings.push({ code: "cookie_missing", severity: "error", path: `${path}#auth.cookie` });
+      else if (hasLegacyCookieDuplicates(config.auth.cookie)) {
+        findings.push({
+          code: "legacy_cookie_duplicates_canonicalized",
+          severity: "warn",
+          path: `${path}#auth.cookie`,
+        });
+      }
+      if (config.automation) {
+        findings.push({
+          code: "legacy_automation_ignored",
+          severity: "warn",
+          path: `${path}#automation`,
+        });
+      }
       if (
         JSON.stringify({
           guard: config.guard,
@@ -957,6 +1011,12 @@ function normalizeCookieInput(cookie: string): string {
   return cookie;
 }
 
+function canonicalRuntimeConfig(config: PlatformEnvConfig): PlatformEnvConfig {
+  if (config.auth.cookie === "") return config;
+  const cookie = canonicalizeLegacyCookieHeader(config.auth.cookie);
+  return cookie === config.auth.cookie ? config : { ...config, auth: { cookie } };
+}
+
 function selectPlatformEnvChildBaseEnv(
   base: NodeJS.ProcessEnv,
   inheritEnv: readonly string[],
@@ -994,7 +1054,7 @@ export async function resolveAutomationExecutorEnv(
   ctx?: AutomationExecutorEnvContext,
 ): Promise<AutomationExecutorEnvOverlay> {
   const normalized = assertPlatformEnvName(name);
-  const config = ctx?.config ?? readPlatformEnvConfig(normalized, ctx);
+  const config = canonicalRuntimeConfig(ctx?.config ?? readPlatformEnvConfig(normalized, ctx));
   try {
     const resolved = await resolvePlatformEnv(normalized, { ...ctx, config });
     return {
