@@ -55,6 +55,67 @@ def test_plugin_accepts_exact_manifest_to_collection_mapping(pytester: pytest.Py
     result.stdout.fnmatch_lines(["*1 test collected*"])
 
 
+def test_plugin_accepts_parametrized_items_with_distinct_canonical_markers(
+    pytester: pytest.Pytester,
+) -> None:
+    payload = manifest_payload()
+    cases = cast("list[dict[str, object]]", payload["cases"])
+    cases.append(
+        {
+            "feature_id": "asset-catalog",
+            "case_id": "C0002",
+            "title": "Read an asset",
+            "effects": {"platform_write": False},
+            "business_record": {
+                "policy": "not_applicable",
+                "reason": "Read-only validation.",
+            },
+        }
+    )
+    manifest = write_manifest(pytester, payload)
+    pytester.makepyfile(
+        """
+        import pytest
+
+        from playwright_web_ui import automation_case
+
+        SCENARIOS = (
+            pytest.param(
+                "create",
+                id="C0001",
+                marks=automation_case(
+                    project_id="data-assets",
+                    feature_id="asset-catalog",
+                    case_id="C0001",
+                ),
+            ),
+            pytest.param(
+                "read",
+                id="C0002",
+                marks=automation_case(
+                    project_id="data-assets",
+                    feature_id="asset-catalog",
+                    case_id="C0002",
+                ),
+            ),
+        )
+
+        @pytest.mark.parametrize("scenario", SCENARIOS)
+        def test_case(scenario):
+            assert scenario in {"create", "read"}
+        """
+    )
+
+    result = pytester.runpytest(
+        "--execution-manifest",
+        str(manifest),
+        "--collect-only",
+    )
+
+    assert result.ret == pytest.ExitCode.OK
+    result.stdout.fnmatch_lines(["*2 tests collected*"])
+
+
 def test_collect_only_validates_page_case_without_starting_browser(
     pytester: pytest.Pytester,
 ) -> None:
