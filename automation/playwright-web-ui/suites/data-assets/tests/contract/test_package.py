@@ -14,9 +14,11 @@ def test_data_assets_suite_registers_typed_definition_and_test_resource() -> Non
     assert loaded.tests_path.is_dir()
     assert loaded.tests_path.is_relative_to(loaded.root_path)
     assert loaded.fixture_plugins == (
+        "data_assets_playwright_web_ui.domains.data_quality.json_configuration.fixtures",
         "data_assets_playwright_web_ui.domains.data_quality.json_value_validation.fixtures",
     )
     assert (source := loaded.root_path / "src" / "data_assets_playwright_web_ui").is_dir()
+    assert (source / "domains" / "data_quality" / "json_configuration" / "fixtures.py").is_file()
     assert (source / "domains" / "data_quality" / "json_value_validation" / "fixtures.py").is_file()
     assert list(loaded.tests_path.rglob("conftest.py")) == []
 

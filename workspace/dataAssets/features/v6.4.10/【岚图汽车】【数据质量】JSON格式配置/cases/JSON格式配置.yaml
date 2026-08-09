@@ -15,7 +15,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】新增key并执行正则匹配测试，列表新增key且正则测试显示匹配成功
   priority: P0
   steps:
@@ -91,7 +91,7 @@ cases:
       reason: 表单必填校验阻断提交，未新增平台 key
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】新增key提交空key字段，输入框提示请输入key且数据未提交
   priority: P1
   steps:
@@ -120,7 +120,7 @@ cases:
       reason: 长度校验阻断提交，未新增平台 key
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】新增key输入256字符并提交，输入框提示长度不能超过255字符且数据未提交
   priority: P1
   steps:
@@ -144,7 +144,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】新增key输入255字符并提交，列表新增255字符key记录
   priority: P1
   steps:
@@ -172,7 +172,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】切换数据源类型选项，下拉框回显所选类型且列表新增记录类型正确
   priority: P2
   steps:
@@ -212,7 +212,7 @@ cases:
       reason: 仅切换新增表单的数据源类型且未确认保存
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】切换数据源类型，表单其余字段内容保留
   priority: P1
   steps:
@@ -243,7 +243,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】编辑key名称、value格式与数据源类型并保存，列表记录更新且更新人更新时间更新
   priority: P0
   steps:
@@ -286,7 +286,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】新增子层级key，父级key展开显示子层级记录
   priority: P0
   steps:
@@ -358,7 +358,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】删除含子层级的key，子层级key联动删除
   priority: P0
   steps:
@@ -385,7 +385,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】批量删除2条key，记录从列表消失且子层级联动删除
   priority: P0
   steps:
@@ -511,7 +511,7 @@ cases:
       reason: 仅在未提交的新增弹窗执行正则匹配测试
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】填写value格式并执行正则匹配测试，成功与失败场景均展示对应匹配结果
   priority: P1
   steps:
@@ -544,7 +544,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入正确格式文件，列表新增文件中的key及子层级
   priority: P0
   steps:
@@ -586,7 +586,7 @@ cases:
       reason: 仅下载并校验导入模板，不修改平台数据
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】下载导入模板，文件含5个Sheet且列结构正确
   priority: P1
   steps:
@@ -621,7 +621,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新，已存在key的value格式被更新
   priority: P0
   steps:
@@ -681,7 +681,7 @@ cases:
       reason: 导入校验失败并仅下载错误文件，平台记录未写入
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入含256字符key的文件，导入被拦截且错误文件单元格标红批注长度超限
   priority: P1
   steps:
@@ -712,7 +712,7 @@ cases:
       reason: 必填校验拦截导入并仅下载错误文件，平台记录未写入
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入key列文件，导入被拦截且错误文件单元格标红批注必填项未填写(key = 空)
   priority: P1
   steps:
@@ -743,7 +743,7 @@ cases:
       reason: 父级匹配校验拦截导入并仅下载错误文件，平台记录未写入
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入上一层key名不匹配的文件，导入被拦截且错误文件单元格标红批注无匹配
   priority: P1
   steps:
@@ -775,7 +775,7 @@ cases:
       reason: 不支持的 CSV 在上传阶段被拒绝，未提交平台数据
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入csv格式文件，上传被拒绝并提示仅支持xlsx
   priority: P1
   steps:
@@ -803,7 +803,7 @@ cases:
       reason: 同层重复校验导致导入失败，平台列表保持不变
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新且同层级key重复，导入失败提示同层级key不可重复
   priority: P1
   steps:
@@ -832,7 +832,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新且key已存在，一层key的value格式与中文名称被更新
   priority: P0
   steps:
@@ -861,7 +861,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新，列表新增一层key(key = 空)
   priority: P1
   steps:
@@ -890,7 +890,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新且子层级key已存在，二层key的value格式被更新
   priority: P1
   steps:
@@ -919,7 +919,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新，父级key展开显示新增子层级(子层级key = 空)
   priority: P1
   steps:
@@ -949,7 +949,7 @@ cases:
       reason: 缺失父级导致导入失败，孤儿 key 未写入平台
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新，导入失败且孤儿key未被导入(上一层key = 空)
   priority: P1
   steps:
@@ -979,7 +979,7 @@ cases:
       reason: 同层重复校验导致导入失败，平台列表保持不变
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过且同层级key重复，导入失败提示同层级key不可重复
   priority: P1
   steps:
@@ -1038,7 +1038,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过，列表新增一层key(key = 空)
   priority: P1
   steps:
@@ -1097,7 +1097,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过，父级key展开显示新增子层级(子层级key = 空)
   priority: P1
   steps:
@@ -1127,7 +1127,7 @@ cases:
       reason: 缺失父级导致导入失败，孤儿 key 未写入平台
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过，导入失败且孤儿key未被导入(上一层key = 空)
   priority: P1
   steps:
@@ -1405,7 +1405,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】对比新增与编辑弹窗，字段顺序与必填项一致且编辑title拼接中文名称
   priority: P1
   steps:
@@ -1445,7 +1445,7 @@ cases:
       policy: required
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】按数据源类型与key名组合筛选后导出，导出文件与筛选条件一致
   priority: P1
   steps:
@@ -1478,7 +1478,7 @@ cases:
       reason: 父级校验拦截导入并仅下载错误文件，平台记录未写入
     implementations:
       - executor: playwright-web-ui
-        state: planned
+        state: active
   title: 验证【数据质量】-【通用配置-json格式校验管理】导入二层父级key名文件，错误文件标红列应为第一层级key名(父级key = 空)
   priority: P1
   steps:
