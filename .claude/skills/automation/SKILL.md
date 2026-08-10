@@ -15,7 +15,7 @@ description: 编排、实现、修复、运行或验证 Kata 自动化。用户�
 | 只编写或修改业务用例       | 转`test-case`                              |
 | 只生成静态缺陷扫描报告     | 转`defect-analyze`                         |
 
-只从 `automation/*/executor.toml` 发现 executor。根据 surface、canonical implementation、项目默认值和用户显式选择确定唯一 executor；多匹配且无默认值时停止并请用户决策。选定后完整读取 descriptor 及其 `agent.guide`，引擎细节以 guide 为准。
+只从 `automation/*/executor.toml` 发现 executor；选择规则与唯一判定见 [references/executor-contract.md](references/executor-contract.md)，多匹配且无默认值时停止并请用户决策。选定后完整读取 descriptor 及其 `agent.guide`，引擎细节以 guide 为准。
 
 ## Steps
 
@@ -64,5 +64,5 @@ description: 编排、实现、修复、运行或验证 Kata 自动化。用户�
 - 证据合同：[references/evidence-contract.md](references/evidence-contract.md)
 - 并行 worker：[prompts/worker.md](prompts/worker.md)
 - 交付自审：[checklists/review.md](checklists/review.md)
-- Handoff 格式：[templates/handoff.md](templates/handoff.md)；
+- Handoff 格式：[templates/handoff.md](templates/handoff.md)
 - 脱敏示例：[examples/handoff.md](examples/handoff.md)

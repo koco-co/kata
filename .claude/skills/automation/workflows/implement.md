@@ -35,4 +35,4 @@
 - 运行 `kata cases lint --project <project> --feature <feature> --exit-code`，确认 YAML 合同有效。
 - 完成条件：代码、collection 与 active 状态三者一致；未实现或未收集成功的 case 保持 planned。
 
-范围可独立且主会话已完成准备时，可按 [../prompts/worker.md](../prompts/worker.md) 委派实现；完成后进入 [deliver.md](deliver.md)。
+满足 [worker.md](../prompts/worker.md) 委派条件时可按其委派实现；完成后进入 [deliver.md](deliver.md)。

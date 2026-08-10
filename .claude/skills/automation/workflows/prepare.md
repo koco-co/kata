@@ -9,8 +9,7 @@
 
 ## 2. 发现并选择 executor
 
-- 按 [../references/executor-contract.md](../references/executor-contract.md) 发现已登记 descriptor。
-- 优先使用用户显式 executor；否则依据 active implementation、surface 和项目默认值选择。多匹配且无权威默认值时停止并请求决策。
+- 按 [../references/executor-contract.md](../references/executor-contract.md) 的选择规则发现已登记 descriptor 并判定唯一 executor；多匹配且无默认值时停止并请求决策。
 - 完整读取选中 `executor.toml` 及 `agent.guide` 指向的文件；不要把未发现的示例 ID当作已实现能力。
 - 完成条件：executor 唯一，descriptor 校验通过，guide 已完整读取，required capabilities 可满足。
 
