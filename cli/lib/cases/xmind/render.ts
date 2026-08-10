@@ -55,19 +55,21 @@ function topicChildren(group: TopicGroup): TopicBuilder[] {
   );
 }
 
-function requirementTopics(file: CasesFile): TopicBuilder[] {
+function requirementTopics(file: CasesFile, meta: XmindMeta): TopicBuilder[] {
   return (file.requirements ?? []).map((requirement) => {
     const requirementCases = file.cases.filter(
       (item) => item.requirement_id === requirement.requirement_id,
     );
+    // 聚合布局下 L1 需求节点统一挂父级 requirement_id；无父 id 的旧 feature 回退子需求 id。
+    const label = meta.requirement_id ?? requirement.requirement_id;
     return Topic(requirement.title)
-      .labels([`(#${requirement.requirement_id})`])
+      .labels([`(#${label})`])
       .children(topicChildren(casesToTopicRoot({ ...file, cases: requirementCases })));
   });
 }
 
 function wrappedRequirementTopics(file: CasesFile, meta: XmindMeta): TopicBuilder[] {
-  let l1 = Topic(file.meta.l1_title ?? buildL1Title(meta)).children(requirementTopics(file));
+  let l1 = Topic(file.meta.l1_title ?? buildL1Title(meta)).children(requirementTopics(file, meta));
   const labels = buildL1Labels(meta);
   if (labels.length > 0) l1 = l1.labels(labels);
   return [l1];
@@ -92,7 +94,9 @@ export async function renderXmindBuffer(
   const meta = casesMeta(file, projectName, context);
   let l1Topics: TopicBuilder[];
   if (file.meta.layout === "requirements") {
-    l1Topics = file.meta.l1_title ? wrappedRequirementTopics(file, meta) : requirementTopics(file);
+    l1Topics = file.meta.l1_title
+      ? wrappedRequirementTopics(file, meta)
+      : requirementTopics(file, meta);
   } else {
     const l1Children = topicChildren(casesToTopicRoot(file));
     let l1 = Topic(buildL1Title(meta)).children(l1Children);

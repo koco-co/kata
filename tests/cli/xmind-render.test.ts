@@ -1,5 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import type { CaseItem } from "../../cli/lib/cases/types.ts";
+import JSZip from "jszip";
+import type { CaseItem, CasesFile } from "../../cli/lib/cases/types.ts";
+import { renderXmindBuffer } from "../../cli/lib/cases/xmind/render.ts";
 import {
   applyAllRightL1Layout,
   applyProgressiveFolding,
@@ -109,5 +111,53 @@ describe("shouldUseStepsAsNotes", () => {
     expect(shouldUseStepsAsNotes(tc(2), { stepsAsNotes: true, stepsAsNotesMinSteps: 2 })).toBe(
       true,
     );
+  });
+});
+
+describe("requirements layout L1 labels", () => {
+  const file = (parentRequirementId?: string): CasesFile => ({
+    meta: {
+      title: "T",
+      feature_id: "f",
+      project_id: "data-assets",
+      case_module_id: "10826",
+      layout: "requirements",
+      ...(parentRequirementId ? { requirement_id: parentRequirementId } : {}),
+    },
+    requirements: [{ requirement_id: "13183", title: "R1", source: "x" }],
+    cases: [
+      {
+        id: "C0001",
+        title: "c1",
+        priority: "P1",
+        requirement_id: "13183",
+        steps: [{ action: "a", expected: "e" }],
+      },
+    ],
+  });
+
+  async function l1Labels(source: CasesFile): Promise<Array<{ title: string; labels: string[] }>> {
+    const buffer = await renderXmindBuffer(source, "dataAssets", {
+      version: "v7.0.0",
+      featureKey: "f",
+    });
+    const zip = await JSZip.loadAsync(buffer);
+    const contentEntry = zip.file("content.json");
+    if (!contentEntry) throw new Error("missing content.json");
+    const content = JSON.parse(await contentEntry.async("string"));
+    return content[0].rootTopic.children.attached.map(
+      (topic: { title: string; labels?: string[] }) => ({
+        title: topic.title,
+        labels: topic.labels ?? [],
+      }),
+    );
+  }
+
+  it("tags L1 requirement topics with the parent requirement id when present", async () => {
+    expect(await l1Labels(file("15911"))).toEqual([{ title: "R1", labels: ["(#15911)"] }]);
+  });
+
+  it("falls back to the sub-requirement id without a parent id", async () => {
+    expect(await l1Labels(file())).toEqual([{ title: "R1", labels: ["(#13183)"] }]);
   });
 });
