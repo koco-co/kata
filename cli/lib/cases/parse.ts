@@ -341,10 +341,21 @@ export function parseCasesYaml(yamlText: string): CasesFile {
       if (!/^\d+$/.test(requirementId)) {
         fail(`字段 requirements[${index}].requirement_id 必须是数字字符串`);
       }
+      let moduleId: string | undefined;
+      if (r.module_id !== undefined) {
+        if (typeof r.module_id !== "string" && typeof r.module_id !== "number") {
+          failType(`requirements[${index}].module_id`, "数字字符串", r.module_id);
+        }
+        moduleId = String(r.module_id).trim();
+        if (!/^\d+$/.test(moduleId)) {
+          fail(`字段 requirements[${index}].module_id 必须是数字字符串`);
+        }
+      }
       return {
         requirement_id: requirementId,
         title: asString(r.title, `requirements[${index}].title`),
         source: asString(r.source, `requirements[${index}].source`),
+        ...(moduleId ? { module_id: moduleId } : {}),
       };
     });
   }

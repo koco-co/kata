@@ -188,17 +188,15 @@ export function validateCases(file: CasesFile): string[] {
     problems.push("requirements 布局至少需要一个需求");
   }
   const requirements = file.requirements ?? [];
-  const requirementIds = new Set<string>();
   for (const [index, requirement] of requirements.entries()) {
     if (!/^\d+$/.test(requirement.requirement_id)) {
       problems.push(`requirements[${index}].requirement_id 必须是数字字符串`);
     }
     if (!requirement.title?.trim()) problems.push(`requirements[${index}].title 为空`);
     if (!requirement.source?.trim()) problems.push(`requirements[${index}].source 为空`);
-    if (requirementIds.has(requirement.requirement_id)) {
-      problems.push(`需求 id 重复: ${requirement.requirement_id}`);
+    if (requirement.module_id !== undefined && !/^\d+$/.test(requirement.module_id.trim())) {
+      problems.push(`requirements[${index}].module_id 必须是数字字符串`);
     }
-    requirementIds.add(requirement.requirement_id);
   }
   if (file.cases.length === 0) {
     problems.push("用例数为 0");
@@ -218,7 +216,7 @@ export function validateCases(file: CasesFile): string[] {
       } else if (
         file.meta.layout === "requirements" &&
         c.requirement_id !== "none" &&
-        !requirementIds.has(c.requirement_id)
+        !requirements.some((requirement) => requirement.requirement_id === c.requirement_id)
       ) {
         problems.push(`用例 ${c.id} 引用了未知需求 ${c.requirement_id}`);
       }

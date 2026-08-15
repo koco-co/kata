@@ -14,6 +14,8 @@ import {
 import { runAllCasesLint, runCasesLint } from "../../commands/cases.ts";
 import { findCasesYaml, runCasesBuild } from "../../commands/cases-build.ts";
 import { runFeaturesList } from "../../commands/features.ts";
+import type { RequirementModuleChoice } from "../cases/build-interactive.ts";
+import { resolveRequirementModuleIds } from "../cases/build-interactive.ts";
 import type { CaseExportFormat } from "../cases/formats.ts";
 import { parseCasesYaml } from "../cases/parse.ts";
 import { listWorkspaceProjects } from "../workspace-locator.ts";
@@ -22,7 +24,12 @@ import { caseDetail, caseListLabel } from "./case-view.ts";
 import { recentHistory, recordFeature } from "./history.ts";
 import { lintDetail, lintLabel, lintSummary, type TuiLintViolation } from "./lint-result.ts";
 import { type PagedItemView, selectPagedItem, showPagedItems } from "./paged.ts";
-import { existingCaseModuleId, featureRefByProjectPath, formatBuildReport } from "./registry.ts";
+import {
+  existingCaseModuleId,
+  featureRefByProjectPath,
+  formatBuildReport,
+  loadFeatureRequirements,
+} from "./registry.ts";
 import type { FeatureRef } from "./types.ts";
 
 const TUI_BANNER = String.raw` _  __      _        _
@@ -204,16 +211,30 @@ async function buildFeature(ref: FeatureRef): Promise<void> {
   }
   const formats = [...formatChoice] as CaseExportFormat[];
   let caseModuleId: string | undefined;
+  let requirementModuleIds: RequirementModuleChoice[] | undefined;
   if (formats.includes("csv")) {
-    const existing = existingCaseModuleId(ref);
-    const input = await text({
-      message: existing ? `ZenTao module ID (current ${existing})` : "ZenTao module ID",
-      initialValue: existing || undefined,
-      validate: (value) =>
-        /^\d+$/.test((value ?? "").trim()) ? undefined : "Module ID must be a non-empty number",
-    });
-    if (isCancel(input)) return;
-    caseModuleId = input.trim();
+    const requirements = loadFeatureRequirements(ref);
+    if (requirements.length > 1) {
+      // 多个子需求：跳过全局模块 ID，直接逐个轮询每个子需求的模块 ID
+      const choices = await resolveRequirementModuleIds(requirements, existingCaseModuleId(ref));
+      if (!choices) return;
+      requirementModuleIds = choices;
+    } else {
+      const existing = existingCaseModuleId(ref);
+      const input = await text({
+        message: existing ? `ZenTao module ID (current ${existing})` : "ZenTao module ID",
+        initialValue: existing || undefined,
+        validate: (value) =>
+          /^\d+$/.test((value ?? "").trim()) ? undefined : "Module ID must be a non-empty number",
+      });
+      if (isCancel(input)) return;
+      caseModuleId = input.trim();
+      if (requirements.length === 1) {
+        const choices = await resolveRequirementModuleIds(requirements, caseModuleId);
+        if (!choices) return;
+        requirementModuleIds = choices;
+      }
+    }
   }
   const formatLabel = formats.map((format) => format.toUpperCase()).join(" + ");
   const confirmed = await confirm({
@@ -226,7 +247,11 @@ async function buildFeature(ref: FeatureRef): Promise<void> {
   }
   recordFeature(ref);
   try {
-    const report = await runCasesBuild(ref.featureDir, { formats, caseModuleId });
+    const report = await runCasesBuild(ref.featureDir, {
+      formats,
+      caseModuleId,
+      requirementModuleIds,
+    });
     note(formatBuildReport(report), "Build");
   } catch (error) {
     log.error(`Build failed: ${errorMessage(error)}`);

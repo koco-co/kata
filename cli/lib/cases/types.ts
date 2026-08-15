@@ -42,6 +42,8 @@ export interface CaseRequirement {
   requirement_id: string;
   title: string;
   source: string;
+  /** ZenTao 模块 ID，用于 CSV 导出时按子需求定位所属模块；可选。 */
+  module_id?: string;
 }
 
 /** Observable side effects declared by one canonical automation case. */

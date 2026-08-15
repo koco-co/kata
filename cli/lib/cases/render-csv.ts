@@ -16,15 +16,28 @@ function field(v: string): string {
   return v;
 }
 
+/** 用例所属子需求的禅道模块 ID；子需求未填时回退 meta 级模块 ID。 */
+function moduleIdForCase(file: CasesFile, requirementId: string | undefined): string {
+  if (requirementId && file.requirements) {
+    const requirement = file.requirements.find((item) => item.requirement_id === requirementId);
+    const moduleId = requirement?.module_id?.trim();
+    if (moduleId) return moduleId;
+  }
+  return file.meta.case_module_id.trim();
+}
+
 /** Render ZenTao CSV text with one row per case; steps numbered inline. */
 export function renderCsv(file: CasesFile): string {
-  const moduleId = file.meta.case_module_id.trim();
-  if (!moduleId) {
+  const fallbackModuleId = file.meta.case_module_id.trim();
+  if (!fallbackModuleId) {
     throw new Error("CSV 导出必须提供非空禅道模块 ID(meta.case_module_id)");
   }
-  const moduleCell = `${file.meta.title}(#${moduleId})`;
+  const requirementCell = file.meta.requirement_id?.trim()
+    ? `(#${file.meta.requirement_id.trim()})`
+    : "";
   const header = [
     "所属模块",
+    "相关需求",
     "用例标题",
     "前置条件",
     "步骤",
@@ -38,9 +51,12 @@ export function renderCsv(file: CasesFile): string {
     const steps = c.steps.map((s, i) => `${i + 1}. ${s.action}`).join("\n");
     const expected = c.steps.map((s, i) => `${i + 1}. ${s.expected}`).join("\n");
     const precondition = (c.precondition ?? "").replace(/\r?\n/g, "<br>");
+    // 禅道按 ID 定位模块，名称不进 CSV；括号一律英文，中文括号会导致禅道导入失败
+    const moduleCell = `(#${moduleIdForCase(file, c.requirement_id)})`;
     lines.push(
       [
         moduleCell,
+        requirementCell,
         c.title,
         precondition,
         steps,

@@ -67,7 +67,7 @@ Options:
 Commands:
   build [options] [requirementId]  canonical feature_id、用例内容 lint 与 P0
                                    占比硬校验通过后生成派生产物；TTY 下可交互选择 XMind/CSV，CSV 需禅道模块
-                                   ID；传需求 id 简写定位 feature
+                                   ID（多子需求时逐个轮询确认并回填）；传需求 id 简写定位 feature
   import [options]                 将 CSV/XLSX/MD/XMind 转为 YAML；XMind 可按 L1 拆分(默认
                                    dry-run)
   lint [options]                   检查 feature 目录、cases/ 单一 YAML 源、作用域唯一的不可变
@@ -395,7 +395,7 @@ Options:
 Usage: kata cases build [options] [requirementId]
 
 canonical feature_id、用例内容 lint 与 P0 占比硬校验通过后生成派生产物；TTY 下可交互选择 XMind/CSV，CSV
-需禅道模块 ID；传需求 id 简写定位 feature
+需禅道模块 ID（多子需求时逐个轮询确认并回填）；传需求 id 简写定位 feature
 
 Arguments:
   requirementId          需求 id；按 cases YAML 中 requirement_id 字段定位 feature

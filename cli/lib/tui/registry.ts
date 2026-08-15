@@ -34,6 +34,20 @@ export function existingCaseModuleId(ref: FeatureRef): string {
   }
 }
 
+export function loadFeatureRequirements(ref: FeatureRef): {
+  requirement_id: string;
+  title: string;
+  module_id?: string;
+}[] {
+  try {
+    const { yamlPath } = findCasesYaml(ref.featureDir);
+    const file = parseCasesYaml(readFileSync(yamlPath, "utf8"));
+    return file.requirements ?? [];
+  } catch {
+    return [];
+  }
+}
+
 export function existingAutomationEnv(ref: FeatureRef): string {
   try {
     const { yamlPath } = findCasesYaml(ref.featureDir);

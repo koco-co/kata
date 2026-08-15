@@ -113,6 +113,33 @@ export function setCaseModuleId(yamlText: string, caseModuleId: string): string 
   return document.toString({ lineWidth: 0 });
 }
 
+/** Rewrite only requirements[].module_id while preserving the rest of the document. */
+export function setRequirementModuleIds(
+  yamlText: string,
+  requirements: { requirement_id: string; module_id?: string }[],
+): string {
+  const document = parseDocument(yamlText);
+  if (document.errors.length > 0) {
+    throw new Error(`yaml 解析失败: ${document.errors.map((error) => error.message).join("; ")}`);
+  }
+  const list = document.getIn(["requirements"], true);
+  if (!isSeq(list)) {
+    throw new Error(`yaml 缺少 requirements 数组`);
+  }
+  for (const item of list.items) {
+    if (!isMap(item)) continue;
+    const requirementId = String(item.get("requirement_id", true) ?? "");
+    const choice = requirements.find((requirement) => requirement.requirement_id === requirementId);
+    if (!choice) continue;
+    if (choice.module_id?.trim()) {
+      item.set("module_id", choice.module_id.trim());
+    } else {
+      item.delete("module_id");
+    }
+  }
+  return document.toString({ lineWidth: 0 });
+}
+
 /** Rewrite only meta.automation_env while preserving the rest of the document. */
 export function setAutomationEnv(yamlText: string, automationEnv: string): string {
   const document = parseDocument(yamlText);

@@ -99,3 +99,49 @@ export async function resolveModuleIdInteractively(
     ...(normalized && id !== normalized ? { changedFrom: normalized } : {}),
   };
 }
+
+/** 子需求轮询结果：每个需求的禅道模块 ID（空表示保持现状）。 */
+export interface RequirementModuleChoice {
+  requirementId: string;
+  moduleId: string;
+  changedFrom?: string;
+}
+
+/** 多个子需求共用一个模块 ID 时的统一回填入口。 */
+export async function resolveRequirementModuleIds(
+  requirements: { requirement_id: string; title: string; module_id?: string }[],
+  fallbackModuleId: string,
+): Promise<RequirementModuleChoice[] | null> {
+  console.log("子需求禅道模块 ID 轮询：");
+  requirements.forEach((requirement, index) => {
+    const current = requirement.module_id?.trim() ?? fallbackModuleId;
+    console.log(
+      `  ${index + 1}. ${requirement.title} (#${requirement.requirement_id})${current ? `，当前 ${current}` : ""}`,
+    );
+  });
+  const choices: RequirementModuleChoice[] = [];
+  for (const requirement of requirements) {
+    const current = requirement.module_id?.trim() ?? fallbackModuleId;
+    const input = await text({
+      message: `${requirement.title} (#${requirement.requirement_id}) 禅道模块 ID`,
+      initialValue: current || undefined,
+      placeholder: "仅数字",
+      validate: (value) => {
+        const candidate = (value ?? "").trim();
+        if (!/^\d+$/.test(candidate)) return "模块 ID 必须为非空数字";
+        return undefined;
+      },
+    });
+    if (isCancel(input)) {
+      cancel("已取消");
+      return null;
+    }
+    const id = input.trim();
+    choices.push({
+      requirementId: requirement.requirement_id,
+      moduleId: id,
+      ...(current && id !== current ? { changedFrom: current } : {}),
+    });
+  }
+  return choices;
+}

@@ -39,7 +39,7 @@ import { renderMarkdown } from "../lib/cases/render-md.ts";
 import { renderXlsx } from "../lib/cases/render-xlsx.ts";
 import { locateFeaturesByRequirementId } from "../lib/cases/requirement-locate.ts";
 import { validateCanonicalCases } from "../lib/cases/schema.ts";
-import { setCaseModuleId } from "../lib/cases/serialize.ts";
+import { setCaseModuleId, setRequirementModuleIds } from "../lib/cases/serialize.ts";
 import type { CaseRenderContext, CasesFile } from "../lib/cases/types.ts";
 import { renderXmindBuffer } from "../lib/cases/xmind/render.ts";
 import {
@@ -321,6 +321,8 @@ function assertFeatureIdUnique(featureDir: string, featureId: string | undefined
 export interface RunCasesBuildOptions {
   formats?: CaseExportFormat[];
   caseModuleId?: string;
+  /** TUI 轮询得到的子需求模块 ID 映射；覆盖 requirements[].module_id 并回填 YAML。 */
+  requirementModuleIds?: { requirementId: string; moduleId: string; changedFrom?: string }[];
 }
 
 /** Build all declared derived artifacts for one feature directory. */
@@ -345,8 +347,27 @@ export async function runCasesBuild(
       opts.caseModuleId !== undefined && file.meta.case_module_id !== moduleId;
     file.meta.case_module_id = moduleId;
   }
+  // TUI 轮询结果回填到 requirements[].module_id（meta.case_module_id 保留为兜底）
+  const requirementModuleIds = opts.requirementModuleIds ?? [];
+  let shouldPersistRequirementModuleIds = false;
+  if (requirementModuleIds.length > 0 && file.requirements) {
+    for (const choice of requirementModuleIds) {
+      const requirement = file.requirements.find(
+        (item) => item.requirement_id === choice.requirementId,
+      );
+      if (!requirement) continue;
+      if (requirement.module_id !== choice.moduleId) {
+        requirement.module_id = choice.moduleId;
+        shouldPersistRequirementModuleIds = true;
+      }
+    }
+  }
   if (shouldPersistModuleId) {
     writeFileAtomic(yamlPath, setCaseModuleId(originalYaml, file.meta.case_module_id));
+  }
+  if (shouldPersistRequirementModuleIds && file.requirements) {
+    const updated = setRequirementModuleIds(originalYaml, file.requirements);
+    writeFileAtomic(yamlPath, updated);
   }
   try {
     const artifacts = await renderArtifacts(file, featureDir, name, formats);
@@ -414,7 +435,7 @@ export function registerCasesBuild(cases: Command): void {
   cases
     .command("build")
     .description(
-      "canonical feature_id、用例内容 lint 与 P0 占比硬校验通过后生成派生产物；TTY 下可交互选择 XMind/CSV，CSV 需禅道模块 ID；传需求 id 简写定位 feature",
+      "canonical feature_id、用例内容 lint 与 P0 占比硬校验通过后生成派生产物；TTY 下可交互选择 XMind/CSV，CSV 需禅道模块 ID（多子需求时逐个轮询确认并回填）；传需求 id 简写定位 feature",
     )
     .argument("[requirementId]", "需求 id；按 cases YAML 中 requirement_id 字段定位 feature")
     .option("--feature <dir>", "feature 目录路径；与 <requirementId> 二选一")
