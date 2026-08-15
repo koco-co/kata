@@ -81,6 +81,7 @@ const PYTHON_TERMINATOR_RE = /^PY$/m;
 const BASH_SHEBANG_RE = /#!\/usr\/bin\/env bash/;
 const SAMPLING_SETTING_RE = /抽样检查设置[：:]\s*(?!关闭)/;
 const SAMPLING_QUERY_RESULT_RE = /查询结果[：:]\s*(?:\d+\s*行|[\d,，]+|NULL|null|即|具体|20\d\d)/;
+const OPAQUE_TEMPLATE_IDENTIFIER_RE = /\b[A-Za-z][A-Za-z0-9_]*Template\b/g;
 
 function strings(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === "string" && item.length > 0);
@@ -161,6 +162,53 @@ function semanticText(item: CaseItem): string[] {
     ...item.steps.flatMap((step) => [step.action, step.expected]),
     ...(item.tags ?? []),
   ];
+}
+
+/** 禁止用代码式 Template 标识符替代人类可执行的业务配置步骤；引号内的真实产品名称不拦截。 */
+function lintTemplatePlaceholder(item: CaseItem): CaseContentViolation[] {
+  const authoredSetup = [item.precondition ?? "", ...item.steps.map((step) => step.action)];
+  const matches = new Set<string>();
+  for (const text of authoredSetup) {
+    const withoutDisplayedNames = text.replace(/「[^」]*」|“[^”]*”|"[^"]*"|'[^']*'|`[^`]*`/g, "");
+    for (const match of withoutDisplayedNames.matchAll(OPAQUE_TEMPLATE_IDENTIFIER_RE)) {
+      matches.add(match[0]);
+    }
+  }
+  if (matches.size === 0) return [];
+  const identifiers = [...matches].join("、");
+  return [
+    makeViolation(
+      "case_template_placeholder",
+      "前置条件和 action 必须写出可由人类执行的页面路径、表单字段、取值、提交动作与可观察结果，不得用以 Template 结尾的代码式标识符代替配置过程",
+      identifiers,
+      `删除 ${identifiers}，把模板隐含的准备过程拆成完整 action；若产品确有可选择的命名模板，使用页面真实字段并以引号写明展示名称`,
+    ),
+  ];
+}
+
+const OBSERVABLE_PASS_STATUS_RE =
+  /(?:质检结果|校验结果)(?:分别)?(?:显示)?(?:为|是)?\s*[：:]?\s*「校验通过」/g;
+
+function normalizeForbiddenText(text: string): string {
+  return text.replaceAll("多个标签用英文分号分隔", "英文分号分隔标签");
+}
+
+function containsForbiddenTerm(item: CaseItem, term: string): boolean {
+  const nonExpectedFields = [
+    item.title,
+    item.precondition ?? "",
+    ...item.steps.map((step) => step.action),
+    ...(item.tags ?? []),
+  ];
+  if (nonExpectedFields.some((field) => normalizeForbiddenText(field).includes(term))) {
+    return true;
+  }
+  return item.steps.some((step) => {
+    let expected = normalizeForbiddenText(step.expected);
+    // 产品状态与可观测字段绑定时保留精确文案；裸写或标题中的泛化词仍由禁词规则拦截。
+    if (term === "校验通过") expected = expected.replace(OBSERVABLE_PASS_STATUS_RE, "");
+    return expected.includes(term);
+  });
 }
 
 function compactActual(value: string): string {
@@ -1300,7 +1348,20 @@ function lintPartitionFixture(
   config: CasesLintConfig,
 ): CaseContentViolation | undefined {
   const text = semanticText(item).join("\n");
-  if (!config.partition_case_terms.some((term) => text.includes(term))) return undefined;
+  // 「不设置分区」「分区：空」是在明确声明非分区分支，不应仅因出现“分区”二字触发分区数据硬闸。
+  // 逐行剔除这些否定式表单值；真正的分区标题、前置 SQL 或其他肯定式步骤仍会继续命中。
+  const affirmativePartitionText = text
+    .split("\n")
+    .filter(
+      (line) =>
+        !/(?:不设置分区|不选择分区|未选择分区|非分区表|未设置分区条件|分区[：:]\s*(?:空|无|否)(?:\s|$)|分区(?:条件|设置)?(?:均)?(?:为|是)?[「“"']?(?:空|无)[」”"']?)/.test(
+          line,
+        ),
+    )
+    .join("\n");
+  if (!config.partition_case_terms.some((term) => affirmativePartitionText.includes(term))) {
+    return undefined;
+  }
   const precondition = item.precondition ?? "";
   const hasPartitionTable = /\bPARTITIONED\s+BY\b|\bPARTITION\s+BY\b/i.test(precondition);
   const hasPreviousDate =
@@ -1856,13 +1917,9 @@ export function lintCaseContent(
         ),
       );
     }
-    const fields = semanticText(item);
-    const forbiddenFields = fields.map((field) =>
-      field.replaceAll("多个标签用英文分号分隔", "英文分号分隔标签"),
-    );
     for (const [category, terms] of Object.entries(config.forbidden_terms)) {
       for (const term of terms) {
-        const matched = forbiddenFields.some((field) => field.includes(term));
+        const matched = containsForbiddenTerm(item, term);
         if (!matched) continue;
         const matches = forbiddenByCategory.get(category) ?? new Set<string>();
         matches.add(term);
@@ -1958,6 +2015,7 @@ export function lintCaseContent(
     const generatorProblem = generatorViolation(precondition);
     if (generatorProblem) itemViolations.push(generatorProblem);
     itemViolations.push(...lintImportFixture(precondition, config.bulk_row_threshold));
+    itemViolations.push(...lintTemplatePlaceholder(item));
     itemViolations.push(...lintPreconditionConfigAction(precondition));
     itemViolations.push(...lintPreconditionDependencyNote(precondition));
     const partitionProblem = lintPartitionFixture(item, config);

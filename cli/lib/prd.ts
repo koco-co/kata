@@ -40,7 +40,7 @@ const UNRESOLVED = /(?<!等)待确认|用户确认补充|TODO|TBD|待补充/;
  */
 export const PRD_CHECKLIST_SEED = [
   { id: "CL-001", title: "兼容与迁移" },
-  { id: "CL-002", title: "边界值与枚举" },
+  { id: "CL-002", title: "边界值、枚举与下游覆盖" },
   { id: "CL-003", title: "权限与角色" },
   { id: "CL-004", title: "失败与恢复" },
   { id: "CL-005", title: "并发与幂等" },
