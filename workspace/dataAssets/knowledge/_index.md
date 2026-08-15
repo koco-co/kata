@@ -42,12 +42,12 @@
 
 ## Standards
 
-- [standards/ltqc/data-quality.md](standards/ltqc/data-quality.md) — 岚图汽车(ltqc) 数据质量 用例编写规范 [tags: customer:ltqc, 数据质量, 规则集管理, 规则任务管理, 调度属性, 表单配置, 脏数据明细] (updated: 2026-08-06, status: observed)
+- [standards/ltqc/data-quality.md](standards/ltqc/data-quality.md) — 岚图汽车(ltqc) 数据质量 用例编写规范 [tags: customer:ltqc, 数据质量, 规则集管理, 规则任务管理, 调度属性, 表单配置, 脏数据明细, 项目管理, 落标检查] (updated: 2026-08-10, status: observed)
 - [standards/lzlj/asset-inventory.md](standards/lzlj/asset-inventory.md) — 泸州老窖(lzlj) 数据地图与元数据导入导出用例编写规范 [tags: customer:lzlj, 元数据, 数据地图, 数据目录, 目录管理, 元数据管理, L4, L5] (updated: 2026-08-07, status: observed)
 - [standards/lzlj/catalog-management.md](standards/lzlj/catalog-management.md) — 泸州老窖(lzlj) 目录管理用例编写规范 [tags: customer:lzlj, 元数据, 数据目录, 属性管理, 目录管理] (updated: 2026-08-05, status: observed)
 - [standards/lzlj/data-permission.md](standards/lzlj/data-permission.md) — 泸州老窖(lzlj) 数据权限用例编写规范 [tags: customer:lzlj, 数据安全, 数据权限管理, 数据权限分配, 行级权限] (updated: 2026-08-07, status: observed)
 - [standards/lzlj/data-security.md](standards/lzlj/data-security.md) — 泸州老窖(lzlj) 数据分级分类用例编写规范 [tags: customer:lzlj, 数据安全, 数据分级分类, 级别管理, 自动分级, 分级数据] (updated: 2026-08-05, status: observed)
-- [standards/lzlj/data-standard.md](standards/lzlj/data-standard.md) — 泸州老窖(lzlj) 数据标准与码表用例编写规范 [tags: customer:lzlj, 数据标准, 标准定义, 标准属性管理, 码表管理] (updated: 2026-08-05, status: observed)
+- [standards/lzlj/data-standard.md](standards/lzlj/data-standard.md) — 泸州老窖(lzlj) 数据标准与码表用例编写规范 [tags: customer:lzlj, 数据标准, 标准定义, 标准属性管理, 码表管理] (updated: 2026-08-11, status: observed)
 - [standards/lzlj/metadata-model.md](standards/lzlj/metadata-model.md) — 泸州老窖(lzlj) 元模型与内置属性用例编写规范 [tags: customer:lzlj, 元数据, 元模型管理, 元数据管理, 内置属性] (updated: 2026-08-05, status: observed)
 - [standards/lzlj/platform-management.md](standards/lzlj/platform-management.md) — 泸州老窖(lzlj) 平台管理用例编写规范 [tags: customer:lzlj, 平台管理, 编码管理, 目录操作审计] (updated: 2026-08-05, status: observed)
 
@@ -57,4 +57,4 @@
 - [lzlj.md](customers/lzlj.md) — 泸州老窖 [tags: customer:lzlj] (updated: 2026-08-05, status: verified)
 - [zszq.md](customers/zszq.md) — 浙商证券 [tags: customer:zszq] (updated: 2026-08-05, status: verified)
 
-<!-- last-indexed: 2026-08-09T04:58:35.808Z -->
+<!-- last-indexed: 2026-08-11T11:26:17.514Z -->

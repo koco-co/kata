@@ -3,9 +3,9 @@ meta:
   feature_id: quality-data-trend-rule-dimensions
   project_id: data-assets
   requirement_id: "15915"
-  case_module_id: ""
+  case_module_id: "10845"
   source: "蓝湖需求 #15915"
-  test_points_digest: "sha256:e5426193c11b1a4b37fd71756967293962529b1b5bc3178a861746938ef120f8"
+  test_points_digest: "sha256:7c29a3da4874b4c28d5c3a322bfc04c01c855b4777c6f807593c1185c58ab994"
   exports:
     - 合理性校验-数据变化趋势规则调整.xmind
 cases:
@@ -97,7 +97,7 @@ cases:
   - case_id: C0003
     title: 验证【规则集管理】配置维度字段的规则保存成功，规则详情展示维度字段
     source_ref: TP-003
-    priority: P0
+    priority: P1
     precondition: |-
       1) 授权数据源：${DataSourceA}
       2) 数据源类型：SparkThrift2.x
@@ -1200,3 +1200,119 @@ cases:
     tags:
       - 数据质量
       - 规则任务管理
+  - case_id: C0016
+    title: 验证【质量报告】-【规则校验明细】运行十维度字段边界任务，分别展示达标与不达标记录
+    source_ref: TP-016
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并写入两个十字段维度组合：sales_pass 在各组合内均单调递增，sales_fail 在 A 组合内不符合单调递增：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15915_c0016;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15915_c0016 (
+           id BIGINT,
+           f01 STRING,
+           f02 STRING,
+           f03 STRING,
+           f04 STRING,
+           f05 STRING,
+           f06 STRING,
+           f07 STRING,
+           f08 STRING,
+           f09 STRING,
+           f10 STRING,
+           month STRING,
+           sales_pass BIGINT,
+           sales_fail BIGINT
+         );
+         INSERT INTO ${SchemaA}.test_table_15915_c0016 VALUES
+           (1, 'A01', 'A02', 'A03', 'A04', 'A05', 'A06', 'A07', 'A08', 'A09', 'A10', '2026-01', 100, 100),
+           (2, 'A01', 'A02', 'A03', 'A04', 'A05', 'A06', 'A07', 'A08', 'A09', 'A10', '2026-02', 110, 120),
+           (3, 'A01', 'A02', 'A03', 'A04', 'A05', 'A06', 'A07', 'A08', 'A09', 'A10', '2026-03', 120, 110),
+           (4, 'B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B09', 'B10', '2026-01', 200, 200),
+           (5, 'B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B09', 'B10', '2026-02', 210, 210);
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: |-
+          点击「新建规则集」，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15915_c0016
+          规则集描述：十个维度字段边界执行与报告验证
+          点击「下一步」
+        expected: 进入规则配置步骤，基础信息回显规则集名称、描述、数据源、数据库和数据表
+      - action: |-
+          在规则包「packA」中配置规则1（合理性校验-数据变化趋势）：
+          * 字段：sales_pass
+          * 统计函数：数据变化趋势
+          维度字段：f01、f02、f03、f04、f05、f06、f07、f08、f09、f10
+          过滤条件：空
+          * 选择排序字段：month
+          * 校验方法：单调递增
+          * 强弱规则：弱规则
+          规则描述：十维度边界-通过规则
+        expected: 规则1配置完成，已选维度字段数量为 10，规则项完整展示 f01 至 f10
+      - action: |-
+          继续在规则包「packA」中配置规则2（合理性校验-数据变化趋势）：
+          * 字段：sales_fail
+          * 统计函数：数据变化趋势
+          维度字段：f01、f02、f03、f04、f05、f06、f07、f08、f09、f10
+          过滤条件：空
+          * 选择排序字段：month
+          * 校验方法：单调递增
+          * 强弱规则：弱规则
+          规则描述：十维度边界-不通过规则
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则集列表新增 RuleSetA，规则包 packA 规则数量为 2，两条规则均保留 f01 至 f10
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击「新建规则任务」
+        expected: 打开「新建规则任务」创建向导
+      - action: |-
+          新建监控任务：
+          * 规则名称：RuleA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15915_c0016
+          抽样检查设置：关闭
+          点击「下一步」
+        expected: 进入「监控规则」步骤
+      - action: |-
+          引入规则包：
+          * 规则包：packA
+          * 规则类型：全部
+          点击「引入」并「确定」
+        expected: 规则包区域展示 packA，规则行数量为 2，两条规则均显示 10 个维度字段
+      - action: |-
+          配置调度属性：
+          * 调度周期：手动触发
+          * 规则拼接包：1
+          * 资源组：default
+          * 超时时间：不限制
+          告警方式：无
+          无需生成报告：不勾选
+          报告名称：质量报告A
+          点击「保存」
+        expected: Toast提示:「保存成功」,规则任务列表新增 RuleA
+      - action: 点击「表名」进入 RuleA 规则任务详情页
+        expected: RuleA 详情展示 sales_pass、sales_fail 两条规则，且两条规则的维度字段均完整显示 f01 至 f10
+      - action: 点击「立即执行」
+        expected: 提示执行成功，任务进入调度
+      - action: 进入【数据质量 → 校验结果查询】页面，查看 RuleA 最新实例
+        expected: sales_pass 的质检结果：「校验通过」；sales_fail 的质检结果：「校验不通过」
+      - action: 进入【数据质量 → 数据质量报告】页面，打开报告名称为质量报告A且关联 RuleA 最新实例的报告
+        expected: 规则校验明细展示 2 条「数据变化趋势校验」记录，sales_pass 的质检结果：「校验通过」，sales_fail 的质检结果：「校验不通过」
+      - action: 查看并在需要时展开校验字段 sales_pass 的规则详情说明
+        expected: |-
+          1) 完整展示维度字段 f01、f02、f03、f04、f05、f06、f07、f08、f09、f10，无遗漏或串值
+          2) 展示排序字段 month、校验方法单调递增和「符合规则」结果
+      - action: 查看并在需要时展开校验字段 sales_fail 的规则详情说明
+        expected: |-
+          1) 完整展示维度字段 f01、f02、f03、f04、f05、f06、f07、f08、f09、f10，无遗漏或串值
+          2) 展示排序字段 month、校验方法单调递增和「不符合规则」结果
+    tags:
+      - 数据质量
+      - 数据质量报告

@@ -10,38 +10,47 @@ meta:
     - 泸州老窖.csv
   exports:
     - 资产定制化代码剥离.xmind
-  test_points_digest: sha256:2577086d7ede4db7b1517852a8bd3902c6cdb182c879bfa0c762c2f56cf3d7ae
+  test_points_digest: sha256:056a8858e07820e922a2d82bde1d8a1ef0923da66413c603b489d1d66e31d226
 requirements:
-  - requirement_id: '13183'
+  - requirement_id: '15911'
     title: 【数据标准】标准属性管理
     source: prd/prd.md；蓝湖/禅道需求 13183
-  - requirement_id: '13184'
+    module_id: "10838"
+  - requirement_id: '15911'
     title: 【数据标准】标准维护管理
     source: prd/prd.md；蓝湖/禅道需求 13184
-  - requirement_id: '13185'
+    module_id: "10838"
+  - requirement_id: '15911'
     title: 【数据标准】码表管理
     source: prd/prd.md；蓝湖/禅道需求 13185
-  - requirement_id: '13186'
+    module_id: "10838"
+  - requirement_id: '15911'
     title: 【数据安全】隐私等级管理
     source: prd/prd.md；蓝湖/禅道需求 13186
-  - requirement_id: '13187'
+    module_id: "10838"
+  - requirement_id: '15911'
     title: 【数据安全】自动分级管理
     source: prd/prd.md；蓝湖/禅道需求 13187
-  - requirement_id: '13188'
+    module_id: "10838"
+  - requirement_id: '15911'
     title: 【数据安全】表级别自动分级
     source: prd/prd.md；蓝湖/禅道需求 13188
-  - requirement_id: '13925'
+    module_id: "10838"
+  - requirement_id: '15911'
     title: 【泸州老窖】优化L4、L5导出速度
     source: prd/prd.md；蓝湖/禅道需求 13925
-  - requirement_id: '14050'
+    module_id: "10838"
+  - requirement_id: '15911'
     title: 【泸州老窖】L1～L5内置属性逻辑优化
     source: prd/prd.md；蓝湖/禅道需求 14050
-  - requirement_id: '14280'
+    module_id: "10838"
+  - requirement_id: '15911'
     title: 【泸州老窖】码表支持引入数据表创建
     source: prd/prd.md；蓝湖/禅道需求 14280
+    module_id: "10838"
 cases:
-  - requirement_id: '13183'
-    title: 验证【属性编辑】编辑枚举类标准属性，仅可修改中文名、枚举值与必填且已用枚举值删除后标准记录值清空
+  - requirement_id: '15911'
+    title: 验证【标准属性管理】-【操作限制】查看已新增属性，编辑按钮置灰且不可点击
     priority: P1
     precondition: |-
       1) 标准属性管理列表已存在枚举属性_01（值 a、b）、STRING文本属性_01、BIGINT文本属性_01 和树形目录属性_01
@@ -49,37 +58,21 @@ cases:
          b. STRING文本属性_01 创建方式：点击【新增属性】，配置属性名 string_13183_01、属性中文名 STRING文本属性_01、属性类型 文本框、字段类型 string、是否必填 非必填，点击【确定】
          c. BIGINT文本属性_01 创建方式：点击【新增属性】，配置属性名 bigint_13183_01、属性中文名 BIGINT文本属性_01、属性类型 文本框、字段类型 bigint、是否必填 非必填，点击【确定】
          d. 树形目录属性_01 创建方式：点击【新增属性】，配置属性名 tree_13183_01、属性中文名 树形目录属性_01、属性类型 树形目录、编辑目录添加根节点与子节点、是否必填 非必填，点击【确定】
-      2) 标准记录 StandardA 已关联这些属性
-         a. 创建方式：先确认已导入 cases/imports/metadata数据.zip 中的组织/人员数据；进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 StandardA、标准英文名称 StandardB、标准英文缩写 STD01、标准编码 STD_13183_01、标准目录 CatalogA、标准负责人（EMP_CODE）842025（王宇）、标准责任公司（ORG_ORGANIZATION_CODE）GS100136（泸州老窖股份有限公司）、标准责任部门（ORG_ORGANIZATION_CODE）BM100247（人力资源管理中心），枚举属性_01 选择 a，点击【保存】
-      3) 已发布 L3 目录 CatalogA 已存在
-         a. 创建方式：先导入 cases/imports/metadata数据.zip 中的组织/人员数据；进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 CatalogRoot、CatalogParent、CatalogA，目录必填项使用责任公司 GS100136（泸州老窖股份有限公司）、责任部门 BM100247（人力资源管理中心）、数据责任人 842025（王宇，在职），L3 数据管家使用 842213（刘艾琳，在职）
     steps:
       - action: 进入【数据标准 → 标准管理 → 标准属性管理】页面
         expected: 进入成功
-      - action: |-
-          1）进入【数据标准 → 标准管理 → 标准属性管理】页面
-          2）选择【枚举属性_01-枚举类数据类型】，点击【编辑】按钮
-        expected: |-
-          1）仅支持修改属性中文名、枚举值、是否必填信息
-          2）枚举值删除弹二次弹窗确认信息
-      - action: |-
-          1）进入【数据标准 → 标准管理 → 标准属性管理】页面
-          2）选择【枚举属性_01-枚举类数据类型】，点击【编辑】按钮
-          3）删除枚举属性_01中枚举值a,二次弹窗确认删除
-          4）点击确定按钮保存
-        expected: 已使用枚举值 a 的标准记录清空该属性值且属性列仍保留
-      - action: |-
-          1）进入【数据标准 → 标准管理 → 标准属性管理】页面
-          2）选择【STRING文本属性_01-文本框类数据类型】，点击【编辑】按钮
-        expected: 1）仅支持修改属性中文名、是否必填信息
-    source_ref: TP-030
+      - action: 在属性名筛选框依次搜索 enum_13183_01、string_13183_01、bigint_13183_01
+        expected: 列表分别展示枚举属性_01、STRING文本属性_01、BIGINT文本属性_01
+      - action: 分别查看三个属性所在行的操作列，并检查【编辑】按钮的交互状态
+        expected: 三个属性行均展示【编辑】按钮，按钮置灰且不可点击，不打开编辑属性弹窗
+    source_ref: TP-031
     case_id: C0174
     tags:
       - 数据标准
       - 标准管理
       - 标准属性管理
-  - requirement_id: '13183'
-    title: 验证【新增属性】-【枚举】新增枚举值并编辑、移动与删除，枚举值保存后按操作更新且删除弹二次确认
+  - requirement_id: '15911'
+    title: 验证【新增属性】-【枚举】新增并调整枚举选项，标准表单按保存结果展示且编辑按钮置灰
     priority: P1
     precondition: |-
       1) 标准属性管理列表已存在枚举属性_01（值 a、b）、STRING文本属性_01、BIGINT文本属性_01 和树形目录属性_01
@@ -87,6 +80,7 @@ cases:
          b. STRING文本属性_01 创建方式：点击【新增属性】，配置属性名 string_13183_01、属性中文名 STRING文本属性_01、属性类型 文本框、字段类型 string、是否必填 非必填，点击【确定】
          c. BIGINT文本属性_01 创建方式：点击【新增属性】，配置属性名 bigint_13183_01、属性中文名 BIGINT文本属性_01、属性类型 文本框、字段类型 bigint、是否必填 非必填，点击【确定】
          d. 树形目录属性_01 创建方式：点击【新增属性】，配置属性名 tree_13183_01、属性中文名 树形目录属性_01、属性类型 树形目录、编辑目录添加根节点与子节点、是否必填 非必填，点击【确定】
+      2) 标准定义列表已存在可编辑的标准记录 StandardA
     steps:
       - action: 进入【数据标准 → 标准管理 → 标准属性管理】页面
         expected: 进入成功
@@ -103,18 +97,20 @@ cases:
           是否必填：非必填
           点击【确认】
         expected: 属性保存成功，列表展示新枚举属性
-      - action: 打开该属性的编辑弹窗核对枚举值
-        expected: 枚举值名称更新为步骤输入值，剩余枚举值顺序与保存前一致
-      - action: 再次删除一个枚举值
-        expected: 删除枚举值时弹出二次确认弹窗
+      - action: 进入【数据标准 → 标准管理 → 标准定义】页面，打开 StandardA 的编辑表单
+        expected: 自定义属性区域展示枚举属性_0175，选项仅包含 C
+      - action: 为枚举属性_0175 选择 C 并保存 StandardA
+        expected: 标准保存成功，详情中枚举属性_0175 的值为 C
+      - action: 返回【标准属性管理】页面，查看 enum_13183_c0175 所在行的操作列，并检查【编辑】按钮的交互状态
+        expected: 该属性行展示【编辑】按钮，按钮置灰且不可点击，不打开编辑属性弹窗
     source_ref: TP-030
     case_id: C0175
     tags:
       - 数据标准
       - 标准管理
       - 标准属性管理
-  - requirement_id: '13183'
-    title: 验证【新增属性】-【文本框】新增文本框属性并选择字段类型，bigint仅能输入正整数且string可输入文本
+  - requirement_id: '15911'
+    title: 验证【新增属性】-【文本框】新增 bigint 与 string 属性并维护标准，正负整数与文本均保存成功
     priority: P0
     precondition: |-
       1) 标准属性管理列表已存在枚举属性_01（值 a、b）、STRING文本属性_01、BIGINT文本属性_01 和树形目录属性_01
@@ -123,36 +119,47 @@ cases:
          c. BIGINT文本属性_01 创建方式：点击【新增属性】，配置属性名 bigint_13183_01、属性中文名 BIGINT文本属性_01、属性类型 文本框、字段类型 bigint、是否必填 非必填，点击【确定】
          d. 树形目录属性_01 创建方式：点击【新增属性】，配置属性名 tree_13183_01、属性中文名 树形目录属性_01、属性类型 树形目录、编辑目录添加根节点与子节点、是否必填 非必填，点击【确定】
       2) 标准记录 StandardA 已关联这些属性
-         a. 创建方式：先确认已导入 cases/imports/metadata数据.zip 中的组织/人员数据；进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 StandardA、标准英文名称 StandardB、标准英文缩写 STD01、标准编码 STD_13183_01、标准目录 CatalogA、标准负责人（EMP_CODE）842025（王宇）、标准责任公司（ORG_ORGANIZATION_CODE）GS100136（泸州老窖股份有限公司）、标准责任部门（ORG_ORGANIZATION_CODE）BM100247（人力资源管理中心），枚举属性_01 选择 a，点击【保存】
+         a. 创建方式：进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 StandardA、标准英文名称 StandardB、标准英文缩写 STD01、标准编码 STD_13183_01、标准目录 CatalogA、标准负责人 user_001、标准责任公司 泸州老窖、标准责任部门 数据资产部，枚举属性_01 选择 a，点击【保存】
       3) 已发布 L3 目录 CatalogA 已存在
-         a. 创建方式：先导入 cases/imports/metadata数据.zip 中的组织/人员数据；进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 CatalogRoot、CatalogParent、CatalogA，目录必填项使用责任公司 GS100136（泸州老窖股份有限公司）、责任部门 BM100247（人力资源管理中心）、数据责任人 842025（王宇，在职），L3 数据管家使用 842213（刘艾琳，在职）
+         a. 创建方式：进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 CatalogRoot、CatalogParent、CatalogA，目录必填项使用 数据资产部/泸州老窖/张三/1001/在职，L3 数据管家使用 李四/2001/在职
     steps:
       - action: 进入【数据标准 → 标准管理 → 标准属性管理】页面
         expected: 进入成功
       - action: 点击【新增属性】
         expected: 打开「新增属性」弹窗
       - action: |-
-          配置文本框属性：
-          属性名：text_13183_c0176
-          属性中文名：文本框属性_0176
+          配置 BIGINT 文本框属性：
+          属性名：bigint_13183_c0176
+          属性中文名：BIGINT文本框属性_0176
           属性类型：文本框
           字段类型：bigint
           是否必填：必填
           点击【确认】
         expected: 属性保存成功，列表展示 bigint 文本框属性
-      - action: 在标准记录中填写该属性值并输入负数或非数字
-        expected: bigint 仅能输入正整数，负数或非数字校验不通过
       - action: |-
-          打开该属性编辑弹窗，将字段类型改为 string 并保存；
-          在标准记录中填写 DataAssets_v700_string_01
-        expected: string 类型可输入该文本内容
+          再次点击【新增属性】，配置 STRING 文本框属性：
+          属性名：string_13183_c0176
+          属性中文名：STRING文本框属性_0176
+          属性类型：文本框
+          字段类型：string
+          是否必填：非必填
+          点击【确认】
+        expected: 属性保存成功，列表分别展示 BIGINT文本框属性_0176 和 STRING文本框属性_0176
+      - action: |-
+          进入【数据标准 → 标准管理 → 标准定义】页面，编辑 StandardA：
+          BIGINT文本框属性_0176：100
+          STRING文本框属性_0176：DataAssets_v700_string_01
+          点击【保存】
+        expected: 标准保存成功，详情分别回显 100 和 DataAssets_v700_string_01
+      - action: 再次编辑 StandardA，将 BIGINT文本框属性_0176 改为 -100 并保存
+        expected: 标准保存成功，详情回显 -100，STRING文本框属性_0176 仍为 DataAssets_v700_string_01
     source_ref: TP-030
     case_id: C0176
     tags:
       - 数据标准
       - 标准管理
       - 标准属性管理
-  - requirement_id: '13183'
+  - requirement_id: '15911'
     title: 验证【标准属性管理】-【新增属性】新增文本框与枚举值属性并校验弹窗，属性新增成功且记录数加1
     priority: P1
     precondition: |-
@@ -184,7 +191,7 @@ cases:
         expected: |-
           1）新增属性成功，页面记录数+1
           2）【属性类型】列展示为【文本框】
-          3）bigint 仅允许输入正整数
+          3）该文本框属性的字段类型与新增时选择的 bigint 或 string 一致
       - action: |-
           1）输入【属性名】
           2）输入【属性中文名】
@@ -200,7 +207,7 @@ cases:
       - 数据标准
       - 标准管理
       - 标准属性管理
-  - requirement_id: '13183'
+  - requirement_id: '15911'
     title: 验证【标准属性管理】-【分页】执行页码跳转与筛选后分页，跳转后正确展示对应页码属性信息
     priority: P2
     precondition: |-
@@ -230,7 +237,7 @@ cases:
       - 数据标准
       - 标准管理
       - 标准属性管理
-  - requirement_id: '13183'
+  - requirement_id: '15911'
     title: 验证【标准属性管理】-【筛选框】输入属性名或中文名精准与模糊匹配，返回匹配属性且无匹配展示缺省页
     priority: P2
     precondition: |-
@@ -264,7 +271,7 @@ cases:
       - 数据标准
       - 标准管理
       - 标准属性管理
-  - requirement_id: '13183'
+  - requirement_id: '15911'
     title: 验证【标准属性管理】-【页面展示】进入标准属性管理页面，筛选框、新增按钮与属性列完整展示
     priority: P2
     precondition: |-
@@ -283,14 +290,14 @@ cases:
       - action: 查看属性列表列
         expected: 展示【属性名】【属性中文名】【属性类型】【是否必填】【最近修改时间】【操作】列
       - action: 查看属性行与分页
-        expected: 展示属性行信息，属性行含【编辑】【删除】按钮，页面底部展示分页按钮
-    source_ref: TP-030
+        expected: 展示属性行信息，操作列展示【编辑】和【删除】按钮，其中【编辑】按钮置灰且不可点击，页面底部展示分页按钮
+    source_ref: TP-031
     case_id: C0180
     tags:
       - 数据标准
       - 标准管理
       - 标准属性管理
-  - requirement_id: '13183'
+  - requirement_id: '15911'
     title: 验证【标准属性管理】点击标准管理入口，展示标准属性管理菜单入口
     priority: P1
     precondition: |-
@@ -312,19 +319,19 @@ cases:
       - 数据标准
       - 标准管理
       - 标准属性管理
-  - requirement_id: '13184'
+  - requirement_id: '15911'
     title: 验证【标准定义】-【数据库拾取】查看数据库拾取列表，展示隐藏状态、标准中文名与操作列且隐藏批量引用按钮
     priority: P2
     precondition: |-
       1) 标准目录包含已发布 L1_01→L2_01→CatalogA
-         a. 创建方式：先导入 cases/imports/metadata数据.zip 中的组织/人员数据；进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 L1_01、L2_01、CatalogA，目录必填项使用责任公司 GS100136（泸州老窖股份有限公司）、责任部门 BM100247（人力资源管理中心）、数据责任人 842025（王宇，在职），L3 数据管家使用 842213（刘艾琳，在职）
-      2) 固定外部组织/人员数据：标准负责人使用 EMP_CODE=842025（王宇，在职），标准责任公司使用 ORG_ORGANIZATION_CODE=GS100136（泸州老窖股份有限公司），标准责任部门使用 ORG_ORGANIZATION_CODE=BM100247（人力资源管理中心）
+         a. 创建方式：进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 L1_01、L2_01、CatalogA，目录必填项使用 数据资产部/泸州老窖/张三/1001/在职，L3 数据管家使用 李四/2001/在职
+      2) 责任人 user_001 为在职人员
       3) 码表 code_table_01 已存在（CatalogB 下，内容 A01/启用）
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，新建目录 CatalogB，点击【新建代码】，配置码表名称 code_table_01、编码 CODE_01、所属目录 CatalogB、码表内容手动添加，添加 A01/启用，点击【确定】
       4) 创建导入文件 standard_c0178.xlsx
         Sheet: Sheet1
-        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度
-        Line1: STD_C0178, 标准_C0178, STD_C0178_EN, L3_01, string, 255
+        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度,标准负责人,标准责任公司,标准责任部门
+        Line1: STD_C0178, 标准_C0178, STD_C0178_EN, L3_01, string, 255, user_001, 泸州老窖, 数据资产部
     steps:
       - action: 进入【数据标准 → 标准基础 → 数据库拾取】页面
         expected: 进入成功
@@ -342,19 +349,19 @@ cases:
       - 数据标准
       - 标准基础
       - 数据库拾取
-  - requirement_id: '13184'
+  - requirement_id: '15911'
     title: 验证【标准定义】-【行业模版】进入行业模版页面，右上角展示引用标准按钮
     priority: P2
     precondition: |-
       1) 标准目录包含已发布 L1_01→L2_01→L3_01
-         a. 创建方式：先导入 cases/imports/metadata数据.zip 中的组织/人员数据；进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 L1_01、L2_01、L3_01，目录必填项使用责任公司 GS100136（泸州老窖股份有限公司）、责任部门 BM100247（人力资源管理中心）、数据责任人 842025（王宇，在职），L3 数据管家使用 842213（刘艾琳，在职）
-      2) 固定外部组织/人员数据：标准负责人使用 EMP_CODE=842025（王宇，在职），标准责任公司使用 ORG_ORGANIZATION_CODE=GS100136（泸州老窖股份有限公司），标准责任部门使用 ORG_ORGANIZATION_CODE=BM100247（人力资源管理中心）
+         a. 创建方式：进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 L1_01、L2_01、L3_01，目录必填项使用 数据资产部/泸州老窖/张三/1001/在职，L3 数据管家使用 李四/2001/在职
+      2) 责任人 user_001 为在职人员
       3) 码表 code_table_01 已存在（CatalogB 下，内容 A01/启用）
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，新建目录 CatalogB，点击【新建代码】，配置码表名称 code_table_01、编码 CODE_01、所属目录 CatalogB、码表内容手动添加，添加 A01/启用，点击【确定】
       4) 创建导入文件 standard_c0179.xlsx
         Sheet: Sheet1
-        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度
-        Line1: STD_C0179, 标准_C0179, STD_C0179_EN, L3_01, string, 255
+        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度,标准负责人,标准责任公司,标准责任部门
+        Line1: STD_C0179, 标准_C0179, STD_C0179_EN, L3_01, string, 255, user_001, 泸州老窖, 数据资产部
     steps:
       - action: 进入【数据标准 → 标准基础 → 行业模版】页面
         expected: 进入成功
@@ -370,13 +377,13 @@ cases:
       - 数据标准
       - 标准基础
       - 行业模版
-  - requirement_id: '13184'
+  - requirement_id: '15911'
     title: 验证【词根管理】-【被引用】点击词根被引用数量，数量大于0弹出被引用标准列表且可跳转详情
     priority: P1
     precondition: |-
       1) 标准目录包含已发布 L1_01→L2_01→L3_01
-         a. 创建方式：先导入 cases/imports/metadata数据.zip 中的组织/人员数据；进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 L1_01、L2_01、L3_01，目录必填项使用责任公司 GS100136（泸州老窖股份有限公司）、责任部门 BM100247（人力资源管理中心）、数据责任人 842025（王宇，在职），L3 数据管家使用 842213（刘艾琳，在职）
-      2) 固定外部组织/人员数据：标准负责人使用 EMP_CODE=842025（王宇，在职），标准责任公司使用 ORG_ORGANIZATION_CODE=GS100136（泸州老窖股份有限公司），标准责任部门使用 ORG_ORGANIZATION_CODE=BM100247（人力资源管理中心）
+         a. 创建方式：进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 L1_01、L2_01、L3_01，目录必填项使用 数据资产部/泸州老窖/张三/1001/在职，L3 数据管家使用 李四/2001/在职
+      2) 责任人 user_001 为在职人员
       3) 码表 code_table_01 已存在（CatalogB 下，内容 A01/启用）
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，新建目录 CatalogB，点击【新建代码】，配置码表名称 code_table_01、编码 CODE_01、所属目录 CatalogB、码表内容手动添加，添加 A01/启用，点击【确定】
       4) 词根 Root_CUS 已存在（简称 CUS、全称 customer、中文名 客户词根）
@@ -384,8 +391,8 @@ cases:
       5) 词根 Root_EMPTY 已存在（简称 EMPTY、全称 empty、中文名 空引用词根），无标准引用
          a. 创建方式：进入【数据标准 → 标准基础 → 词根管理】，点击【新建词根】，配置词根简称 EMPTY、词根全称 empty、词根中文名 空引用词根，点击【保存】
       6) 已存在 2 条引用 Root_CUS 的标准：标准_C0184_A、标准_C0184_B
-         a. 创建方式：先确认已导入 cases/imports/metadata数据.zip 中的组织/人员数据；进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 标准_C0184_A、标准英文名称 StandardA、标准英文缩写 CUS_001、标准编码 STD_C0184_A、标准目录 CatalogA、标准负责人（EMP_CODE）842025（王宇）、标准责任公司（ORG_ORGANIZATION_CODE）GS100136（泸州老窖股份有限公司）、标准责任部门（ORG_ORGANIZATION_CODE）BM100247（人力资源管理中心），点击【保存】
-         b. 创建方式：进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 标准_C0184_B、标准英文名称 StandardB、标准英文缩写 CUS_002、标准编码 STD_C0184_B、标准目录 CatalogA、标准负责人（EMP_CODE）842025（王宇）、标准责任公司（ORG_ORGANIZATION_CODE）GS100136（泸州老窖股份有限公司）、标准责任部门（ORG_ORGANIZATION_CODE）BM100247（人力资源管理中心），点击【保存】
+         a. 创建方式：进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 标准_C0184_A、标准英文名称 StandardA、标准英文缩写 CUS_001、标准编码 STD_C0184_A、标准目录 CatalogA、标准负责人 user_001、标准责任公司 泸州老窖、标准责任部门 数据资产部，点击【保存】
+         b. 创建方式：进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 标准_C0184_B、标准英文名称 StandardB、标准英文缩写 CUS_002、标准编码 STD_C0184_B、标准目录 CatalogA、标准负责人 user_001、标准责任公司 泸州老窖、标准责任部门 数据资产部，点击【保存】
     steps:
       - action: 进入【数据标准 → 标准基础 → 词根管理】页面
         expected: 进入成功
@@ -421,7 +428,7 @@ cases:
       - 数据标准
       - 标准基础
       - 词根管理
-  - requirement_id: '13184'
+  - requirement_id: '15911'
     title: 验证【标准定义】-【导出标准】选择L1至L3目录范围导出标准，下载文件内容与选择范围一致
     priority: P0
     precondition: |-
@@ -452,19 +459,19 @@ cases:
       - 数据标准
       - 标准管理
       - 标准定义
-  - requirement_id: '13184'
+  - requirement_id: '15911'
     title: 验证【标准定义】-【导入标准】导入标准文件，导入结果弹窗展示失败计数且错误文件定位原因(文件数据 = 无效)
     priority: P1
     precondition: |-
       1) 标准目录包含已发布 L1_01→L2_01→CatalogA
-         a. 创建方式：先导入 cases/imports/metadata数据.zip 中的组织/人员数据；进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 L1_01、L2_01、CatalogA，目录必填项使用责任公司 GS100136（泸州老窖股份有限公司）、责任部门 BM100247（人力资源管理中心）、数据责任人 842025（王宇，在职），L3 数据管家使用 842213（刘艾琳，在职）
-      2) 固定外部组织/人员数据：标准负责人使用 EMP_CODE=842025（王宇，在职），标准责任公司使用 ORG_ORGANIZATION_CODE=GS100136（泸州老窖股份有限公司），标准责任部门使用 ORG_ORGANIZATION_CODE=BM100247（人力资源管理中心）
+         a. 创建方式：进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 L1_01、L2_01、CatalogA，目录必填项使用 数据资产部/泸州老窖/张三/1001/在职，L3 数据管家使用 李四/2001/在职
+      2) 责任人 user_001 为在职人员
       3) 码表 code_table_01 已存在（CatalogB 下，内容 A01/启用）
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，新建目录 CatalogB，点击【新建代码】，配置码表名称 code_table_01、编码 CODE_01、所属目录 CatalogB、码表内容手动添加，添加 A01/启用，点击【确定】
       4) 创建导入文件 standard_c0182.xlsx
         Sheet: Sheet1
-        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度
-        Line1: STD_C0182, 标准_C0182, STD_C0182_EN, L3_01, string, 255
+        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度,标准负责人,标准责任公司,标准责任部门
+        Line1: STD_C0182, 标准_C0182, STD_C0182_EN, L3_01, string, 255, user_001, 泸州老窖, 数据资产部
     steps:
       - action: 进入【数据标准 → 标准管理 → 标准定义】页面
         expected: 进入成功
@@ -480,11 +487,11 @@ cases:
         expected: 页面提示「下载成功」，下载文件为「标准导入异常结果_日期.xlsx」，其中各行对应校验原因分别为：标准编码「编码信息无法匹配已有编码」、英文名称「英文名称不能为空」、英文缩写「英文缩写不符合规范只支持小写英文字母」、中文名称「标准名称重复」、数据长度「数据长度格式不正确，请输入=或<=，如：=10或<=10」、数据精度「数据精度格式不正确，请输入 数字/数字，如3/6」
       - action: |-
           再次导入含以下无效数据的标准文件：
-          * 责任人工号不存在、公司工号不存在、部门工号不存在的行
+          * 【标准负责人】填写不存在的值、【标准责任公司】填写不存在的值、【标准责任部门】填写不存在的值；合法基线值分别使用 user_001、泸州老窖、数据资产部
           * 标准目录路径不足L3或L1目录不存在的行
           * 必填自定义属性值为空、枚举自定义属性值不存在的行
           点击【导入标准】并确认
-        expected: 弹出「导入结果」弹窗，导入失败计数与无效行数一致；下载错误文件后各行对应校验原因分别为：责任人工号「标准责任人找不到」、公司工号「* 所属公司工号找不到」、部门工号「* 所属部门工号找不到」、目录路径不足L3时「标准目录需要指定L3」、目录L1找不到时「目录L1：CatalogA 找不到」、自定义属性「自定义属性必填项值不能为空」或「自定义属性值不存在」
+        expected: 弹出「导入结果」弹窗，导入失败计数与无效行数一致；下载错误文件后各行对应校验原因分别为：【标准负责人】「标准责任人找不到」、【标准责任公司】提示责任公司不存在、【标准责任部门】提示责任部门不存在、目录路径不足L3时「标准目录需要指定L3」、目录L1找不到时「目录L1：CatalogA 找不到」、自定义属性「自定义属性必填项值不能为空」或「自定义属性值不存在」
       - action: '导入标准编码已发布且选择「重复则覆盖更新」的文件'
         expected: 弹出「导入结果」弹窗，导入失败计数为 1，下载错误文件后该行标准编码对应校验原因为「已经发布的目录不能更新」
       - action: 导入完全删除必填表头（如删除“* 中文名称”列）的标准文件
@@ -497,19 +504,19 @@ cases:
       - 数据标准
       - 标准管理
       - 标准定义
-  - requirement_id: '13184'
+  - requirement_id: '15911'
     title: 验证【标准定义】-【导入标准】下载导入模版并上传标准文件，标准按重复处理规则导入且错误可导出文件
     priority: P0
     precondition: |-
       1) 标准目录包含已发布 L1_01→L2_01→L3_01
-         a. 创建方式：先导入 cases/imports/metadata数据.zip 中的组织/人员数据；进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 L1_01、L2_01、L3_01，目录必填项使用责任公司 GS100136（泸州老窖股份有限公司）、责任部门 BM100247（人力资源管理中心）、数据责任人 842025（王宇，在职），L3 数据管家使用 842213（刘艾琳，在职）
-      2) 固定外部组织/人员数据：标准负责人使用 EMP_CODE=842025（王宇，在职），标准责任公司使用 ORG_ORGANIZATION_CODE=GS100136（泸州老窖股份有限公司），标准责任部门使用 ORG_ORGANIZATION_CODE=BM100247（人力资源管理中心）
+         a. 创建方式：进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 L1_01、L2_01、L3_01，目录必填项使用 数据资产部/泸州老窖/张三/1001/在职，L3 数据管家使用 李四/2001/在职
+      2) 责任人 user_001 为在职人员
       3) 码表 code_table_01 已存在（CatalogB 下，内容 A01/启用）
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，新建目录 CatalogB，点击【新建代码】，配置码表名称 code_table_01、编码 CODE_01、所属目录 CatalogB、码表内容手动添加，添加 A01/启用，点击【确定】
       4) 创建导入文件 standard_c0183.xlsx
         Sheet: Sheet1
-        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度
-        Line1: STD_C0183, 标准_C0183, STD_C0183_EN, L3_01, string, 255
+        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度,标准负责人,标准责任公司,标准责任部门
+        Line1: STD_C0183, 标准_C0183, STD_C0183_EN, L3_01, string, 255, user_001, 泸州老窖, 数据资产部
     steps:
       - action: 进入【数据标准 → 标准管理 → 标准定义】页面
         expected: 进入成功
@@ -519,7 +526,7 @@ cases:
           3）点击弹窗上【下载模版】按钮
         expected: |-
           1）模板Excel新增列【标准编码】，放第一列
-          2）新增“标准责任人工号”列，位于标准来源字段右侧
+          2）模板包含固定字段【标准负责人】【标准责任公司】【标准责任部门】；合法值固定填写 user_001、泸州老窖、数据资产部
           3）删除自定义属性列
           4）自定义属性以单列形式展示，展示名称取属性的中文名，针对必填的自定义属性前面需要加一个“*”作为标识
       - action: 鼠标hover到【重复则覆盖更新】上
@@ -556,7 +563,7 @@ cases:
       - 数据标准
       - 标准管理
       - 标准定义
-  - requirement_id: '13184'
+  - requirement_id: '15911'
     title: 验证【标准定义】-【置顶】置顶或取消置顶标准，标准列表位置更新且左侧目录列表同步
     priority: P2
     precondition: |-
@@ -566,7 +573,7 @@ cases:
       3) 码表 code_table_01 已存在（CatalogB 下，内容 A01/启用）
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，新建目录 CatalogB，点击【新建代码】，配置码表名称 code_table_01、编码 CODE_01、所属目录 CatalogB、码表内容手动添加，添加 A01/启用，点击【确定】
       4) 标准 StandardA 已存在
-         a. 创建方式：先确认已导入 cases/imports/metadata数据.zip 中的组织/人员数据；进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 标准_C0188、标准英文名称 StandardA、标准英文缩写 std_c0188、标准编码 STD_C0188、标准目录 CatalogA、标准负责人（EMP_CODE）842025（王宇）、标准责任公司（ORG_ORGANIZATION_CODE）GS100136（泸州老窖股份有限公司）、标准责任部门（ORG_ORGANIZATION_CODE）BM100247（人力资源管理中心），点击【保存】
+         a. 创建方式：进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 标准_C0188、标准英文名称 StandardA、标准英文缩写 std_c0188、标准编码 STD_C0188、标准目录 CatalogA、标准负责人 user_001、标准责任公司 泸州老窖、标准责任部门 数据资产部，点击【保存】
     steps:
       - action: 进入【数据标准 → 标准管理 → 标准定义】页面
         expected: 进入成功
@@ -590,7 +597,7 @@ cases:
       - 数据标准
       - 标准管理
       - 标准定义
-  - requirement_id: '13184'
+  - requirement_id: '15911'
     title: 验证【标准定义】-【标准映射入口】点击标准名称，展示标准映射页面
     priority: P2
     precondition: |-
@@ -600,7 +607,7 @@ cases:
       3) 码表 code_table_01 已存在（CatalogB 下，内容 A01/启用）
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，新建目录 CatalogB，点击【新建代码】，配置码表名称 code_table_01、编码 CODE_01、所属目录 CatalogB、码表内容手动添加，添加 A01/启用，点击【确定】
       4) 标准 StandardA 已存在
-         a. 创建方式：先确认已导入 cases/imports/metadata数据.zip 中的组织/人员数据；进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 标准_C0189、标准英文名称 StandardA、标准英文缩写 std_c0189、标准编码 STD_C0189、标准目录 CatalogA、标准负责人（EMP_CODE）842025（王宇）、标准责任公司（ORG_ORGANIZATION_CODE）GS100136（泸州老窖股份有限公司）、标准责任部门（ORG_ORGANIZATION_CODE）BM100247（人力资源管理中心），点击【保存】
+         a. 创建方式：进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 标准_C0189、标准英文名称 StandardA、标准英文缩写 std_c0189、标准编码 STD_C0189、标准目录 CatalogA、标准负责人 user_001、标准责任公司 泸州老窖、标准责任部门 数据资产部，点击【保存】
     steps:
       - action: 进入【数据标准 → 标准管理 → 标准定义】页面
         expected: 进入成功
@@ -616,7 +623,7 @@ cases:
       - 数据标准
       - 标准管理
       - 标准定义
-  - requirement_id: '13184'
+  - requirement_id: '15911'
     title: 验证【标准定义】-【编辑】编辑标准所有信息并保存，保存成功且所有信息可修改
     priority: P1
     precondition: |-
@@ -626,7 +633,7 @@ cases:
       3) 码表 code_table_01 已存在（CatalogB 下，内容 A01/启用）
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，新建目录 CatalogB，点击【新建代码】，配置码表名称 code_table_01、编码 CODE_01、所属目录 CatalogB、码表内容手动添加，添加 A01/启用，点击【确定】
       4) 标准 StandardA 已存在
-         a. 创建方式：先确认已导入 cases/imports/metadata数据.zip 中的组织/人员数据；进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 标准_C0190、标准英文名称 StandardA、标准英文缩写 std_c0190、标准编码 STD_C0190、标准目录 CatalogA、标准负责人（EMP_CODE）842025（王宇）、标准责任公司（ORG_ORGANIZATION_CODE）GS100136（泸州老窖股份有限公司）、标准责任部门（ORG_ORGANIZATION_CODE）BM100247（人力资源管理中心），点击【保存】
+         a. 创建方式：进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 标准_C0190、标准英文名称 StandardA、标准英文缩写 std_c0190、标准编码 STD_C0190、标准目录 CatalogA、标准负责人 user_001、标准责任公司 泸州老窖、标准责任部门 数据资产部，点击【保存】
     steps:
       - action: 进入【数据标准 → 标准管理 → 标准定义】页面
         expected: 进入成功
@@ -637,14 +644,14 @@ cases:
       - action: 修改标准所有可编辑信息并点击【保存】
         expected: 保存成功，编辑可修改所有信息
       - action: 重新打开 标准_C0190 编辑页核对
-        expected: 修改后的信息完整回显
+        expected: 修改后的信息完整回显；标准负责人、标准责任公司、标准责任部门回显为 user_001、泸州老窖、数据资产部
     source_ref: TP-032
     case_id: C0190
     tags:
       - 数据标准
       - 标准管理
       - 标准定义
-  - requirement_id: '13184'
+  - requirement_id: '15911'
     title: 验证【标准定义】-【新增】新建标准并填写自定义属性与负责人，保存后进入标准映射页面
     priority: P1
     precondition: |-
@@ -655,8 +662,8 @@ cases:
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，新建目录 CatalogB，点击【新建代码】，配置码表名称 code_table_01、编码 CODE_01、所属目录 CatalogB、码表内容手动添加，添加 A01/启用，点击【确定】
       4) 创建导入文件 standard_c0187.xlsx
         Sheet: Sheet1
-        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度
-        Line1: STD_C0187, 标准_C0187, STD_C0187_EN, L3_01, string, 255
+        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度,标准负责人,标准责任公司,标准责任部门
+        Line1: STD_C0187, 标准_C0187, STD_C0187_EN, L3_01, string, 255, user_001, 泸州老窖, 数据资产部
     steps:
       - action: 进入【数据标准 → 标准管理 → 标准定义】页面
         expected: 进入成功
@@ -665,17 +672,17 @@ cases:
       - action: 点击【新建标准】按钮
         expected: 打开「新建标准」页面或弹窗
       - action: |-
-          输入标准所有信息，选择【自定义属性】、【标准负责人】等信息，点击【保存】
+          输入标准所有信息；标准负责人固定填写 user_001，标准责任公司固定选择 泸州老窖，标准责任部门固定选择 数据资产部；再选择【自定义属性】并点击【保存】
         expected: 保存成功，标准新建成功
       - action: 在标准列表点击刚创建标准的中文名称
-        expected: 进入标准映射页面并展示刚创建标准的映射入口
+        expected: 进入标准映射页面并展示刚创建标准的映射入口；标准负责人、标准责任公司、标准责任部门回显为 user_001、泸州老窖、数据资产部
     source_ref: TP-032
     case_id: C0191
     tags:
       - 数据标准
       - 标准管理
       - 标准定义
-  - requirement_id: '13184'
+  - requirement_id: '15911'
     title: 验证【标准定义】-【新增页面】打开新建标准页面，自定义属性标题按配置展示且新增标准负责人字段
     priority: P0
     precondition: |-
@@ -686,8 +693,8 @@ cases:
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，新建目录 CatalogB，点击【新建代码】，配置码表名称 code_table_01、编码 CODE_01、所属目录 CatalogB、码表内容手动添加，添加 A01/启用，点击【确定】
       4) 创建导入文件 standard_c0188.xlsx
         Sheet: Sheet1
-        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度
-        Line1: STD_C0188, 标准_C0188, STD_C0188_EN, L3_01, string, 255
+        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度,标准负责人,标准责任公司,标准责任部门
+        Line1: STD_C0188, 标准_C0188, STD_C0188_EN, L3_01, string, 255, user_001, 泸州老窖, 数据资产部
     steps:
       - action: 进入【数据标准 → 标准管理 → 标准定义】页面
         expected: 进入成功
@@ -707,14 +714,14 @@ cases:
           1）进入【数据标准 → 标准管理 → 标准定义】页面
           2）点击标准定义-【新建标准】按钮
           3）验证页面新增【标准负责人】字段
-        expected: 展示组织架构内人员，可多选
+        expected: 展示固定字段【标准负责人】【标准责任公司】【标准责任部门】，字段值固定为 user_001、泸州老窖、数据资产部；标准负责人 user_001 仅允许选择在职人员
     source_ref: TP-032
     case_id: C0192
     tags:
       - 数据标准
       - 标准管理
       - 标准定义
-  - requirement_id: '13184'
+  - requirement_id: '15911'
     title: 验证【标准定义】-【标准编码】查看标准列表与新增标准，标准编码列位于中文名称右侧且取值正确
     priority: P1
     precondition: |-
@@ -725,8 +732,8 @@ cases:
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，新建目录 CatalogB，点击【新建代码】，配置码表名称 code_table_01、编码 CODE_01、所属目录 CatalogB、码表内容手动添加，添加 A01/启用，点击【确定】
       4) 创建导入文件 standard_c0189.xlsx
         Sheet: Sheet1
-        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度
-        Line1: STD_C0189, 标准_C0189, STD_C0189_EN, L3_01, string, 255
+        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度,标准负责人,标准责任公司,标准责任部门
+        Line1: STD_C0189, 标准_C0189, STD_C0189_EN, L3_01, string, 255, user_001, 泸州老窖, 数据资产部
     steps:
       - action: 进入【数据标准 → 标准管理 → 标准定义】页面
         expected: 进入成功
@@ -736,11 +743,11 @@ cases:
         expected: 已存在的标准列表列新增【标准编码】列，在【中文名称】右边
       - action: |-
           1）进入【数据标准 → 标准管理 → 标准定义】页面
-          2）点击【新建标准】，依次创建标准中文名【标准_C0193_1】【标准_C0193_2】【标准_C0193_3】，对应标准编码【STD_C0193_1】【STD_C0193_2】【STD_C0193_3】
+          2）点击【新建标准】，依次创建标准中文名【标准_C0193_1】【标准_C0193_2】【标准_C0193_3】，对应标准编码【STD_C0193_1】【STD_C0193_2】【STD_C0193_3】；三个标准的标准负责人、标准责任公司、标准责任部门分别固定使用 user_001、泸州老窖、数据资产部
         expected: 标准列表按中文名称展示三条记录，且标准编码分别为 STD_C0193_1、STD_C0193_2、STD_C0193_3
       - action: |-
           1）进入【数据标准 → 标准管理 → 标准定义】页面
-          2）点击【新建标准】，依次创建标准中文名【标准_C0193_1】【标准_C0193_2】【标准_C0193_3】，对应标准编码【STD_C0193_1】【STD_C0193_2】【STD_C0193_3】
+          2）点击【新建标准】，依次创建标准中文名【标准_C0193_1】【标准_C0193_2】【标准_C0193_3】，对应标准编码【STD_C0193_1】【STD_C0193_2】【STD_C0193_3】；三个标准的标准负责人、标准责任公司、标准责任部门分别固定使用 user_001、泸州老窖、数据资产部
           3）删除【标准_C0193_3】，再创建标准中文名【标准_C0193_4】，标准编码【STD_C0193_4】
         expected: 列表移除 STD_C0193_3，并新增 STD_C0193_4；其他标准编码保持不变
     source_ref: TP-032
@@ -749,7 +756,7 @@ cases:
       - 数据标准
       - 标准管理
       - 标准定义
-  - requirement_id: '13184'
+  - requirement_id: '15911'
     title: 验证【标准定义】-【落标字段数】导入落标字段并查看已落标与可落标字段数，统计数值正确且数量为0无法下钻
     priority: P1
     precondition: |-
@@ -760,8 +767,8 @@ cases:
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，新建目录 CatalogB，点击【新建代码】，配置码表名称 code_table_01、编码 CODE_01、所属目录 CatalogB、码表内容手动添加，添加 A01/启用，点击【确定】
       4) 创建导入文件 standard_c0190.xlsx
         Sheet: Sheet1
-        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度
-        Line1: STD_C0190, 标准_C0190, STD_C0190_EN, L3_01, string, 255
+        Title: * 标准编码,* 标准中文名,* 标准英文名,* 标准目录（L3）,数据类型,长度,标准负责人,标准责任公司,标准责任部门
+        Line1: STD_C0190, 标准_C0190, STD_C0190_EN, L3_01, string, 255, user_001, 泸州老窖, 数据资产部
     steps:
       - action: 进入【数据标准 → 标准管理 → 标准定义】页面
         expected: 进入成功
@@ -818,7 +825,7 @@ cases:
       - 数据标准
       - 标准管理
       - 标准定义
-  - requirement_id: '13185'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【导出】默认导出全部或按目录导出代码，导出文件列头与模版一致且命名规范
     priority: P1
     precondition: |-
@@ -847,7 +854,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '13185'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【导入】导入代码文件，错误文件错误原因列定位必填、长度与编码重复等原因(文件数据 = 无效)
     priority: P1
     precondition: |-
@@ -907,7 +914,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '13185'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【导入】导入代码文件并按编码重复处理，新增、更新或报错且错误文件可下载
     priority: P0
     precondition: |-
@@ -967,7 +974,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '13185'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【代码详情】点击代码名称查看详情，详情页展示上级代码与代码状态字段
     priority: P2
     precondition: |-
@@ -996,7 +1003,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '13185'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【代码编辑】打开代码编辑页面，编辑页展示代码编号、上级代码与代码状态
     priority: P2
     precondition: |-
@@ -1027,7 +1034,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '13185'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【新建代码】新建代码选择代码状态，可选有效与无效且保存成功
     priority: P1
     precondition: |-
@@ -1058,7 +1065,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '13185'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【新建代码】新建代码填写上级代码，最大输入255字符且非必填
     priority: P1
     precondition: |-
@@ -1089,7 +1096,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '13185'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【新建代码】新建代码，提示当前编码取值已存在(编码取值 = 重复)
     priority: P1
     precondition: |-
@@ -1120,7 +1127,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '13185'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【新建代码】打开新建代码页面，展示代码编号并新增上级代码与代码状态字段
     priority: P0
     precondition: |-
@@ -1151,7 +1158,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '13186'
+  - requirement_id: '15911'
     title: 验证【隐私级别】-【置顶】置顶、取消置顶或同列表拖动隐私级别，级别位置变更(rankType = 隐私级别)
     priority: P1
     precondition: |-
@@ -1173,7 +1180,7 @@ cases:
       - 数据安全
       - 数据分级分类
       - 级别管理
-  - requirement_id: '13186'
+  - requirement_id: '15911'
     title: 验证【隐私级别】-【删除】删除无引用与存在引用的隐私级别，无引用删除成功且存在引用提示需下架字段与规则(rankType = 隐私级别)
     priority: P1
     precondition: |-
@@ -1194,7 +1201,7 @@ cases:
       - 数据安全
       - 数据分级分类
       - 级别管理
-  - requirement_id: '13186'
+  - requirement_id: '15911'
     title: 验证【安全级别】-【编辑】编辑级别名称与描述并保存，取消不生效且确定后编辑生效(rankType = 安全级别)
     priority: P1
     precondition: |-
@@ -1216,7 +1223,7 @@ cases:
       - 数据安全
       - 数据分级分类
       - 级别管理
-  - requirement_id: '13186'
+  - requirement_id: '15911'
     title: 验证【安全级别】-【添加级别】打开添加级别弹窗并填写名称描述，弹窗元素完整且确定后添加成功(rankType = 安全级别)
     priority: P1
     precondition: 1) 使用 UserA 账号进入数据资产平台
@@ -1241,7 +1248,7 @@ cases:
       - 数据安全
       - 数据分级分类
       - 级别管理
-  - requirement_id: '13186'
+  - requirement_id: '15911'
     title: 验证【级别管理】进入级别管理页，同页展示安全级别与隐私级别两套目录(目录数 = 2)
     priority: P2
     precondition: 1) 使用 UserA 账号进入数据资产平台
@@ -1262,7 +1269,7 @@ cases:
       - 数据安全
       - 数据分级分类
       - 级别管理
-  - requirement_id: '13187'
+  - requirement_id: '15911'
     title: 验证【分级数据】-【手动分级】选择等级目录后执行手动分级，下拉只展示所选等级目录下可选值(等级类型 = 安全等级)
     priority: P1
     precondition: |-
@@ -1271,14 +1278,14 @@ cases:
       3) 数据源类型：SparkThrift2.x
       4) 存在数据库：${SchemaA}
       5) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13187_c0209;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13187_c0209 (amount DECIMAL(10,2), note STRING);
-         INSERT INTO ${SchemaA}.test_table_13187_c0209 VALUES (100.00,'备注一'),(200.00,'备注二');
-      6) test_table_13187_c0209 已同步至数据地图并自动分级：字段 amount 安全等级 L2、隐私等级 P1
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0209;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0209 (amount DECIMAL(10,2), note STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0209 VALUES (100.00,'备注一'),(200.00,'备注二');
+      6) test_table_15911_c0209 已同步至数据地图并自动分级：字段 amount 安全等级 L2、隐私等级 P1
 
       7) 自动分级数据创建步骤（保证第 6 条成立）：
          a. 进入【数据安全 → 数据分级分类 → 自动分级】，点击【添加】；在第一步填写规则名称 RuleA、所属分类 CatalogA、安全分级 L2、隐私分级 P1，点击【下一步】
-         b. 在第二步选择数据源类型 SparkThrift2.x、数据源 ${DataSourceA}、数据库 ${SchemaA} 和数据表 test_table_13187_c0209，勾选【元数据字段识别】并添加字段名称 amount，选择【增量识别】，点击【立即生效】
+         b. 在第二步选择数据源类型 SparkThrift2.x、数据源 ${DataSourceA}、数据库 ${SchemaA} 和数据表 test_table_15911_c0209，勾选【元数据字段识别】并添加字段名称 amount，选择【增量识别】，点击【立即生效】
          c. 进入【分级数据】确认 amount 安全等级 L2、隐私等级 P1
     steps:
       - action: 进入【数据安全 → 数据分级分类 → 分级数据】页面
@@ -1295,7 +1302,7 @@ cases:
       - 数据安全
       - 数据分级分类
       - 分级数据
-  - requirement_id: '13187'
+  - requirement_id: '15911'
     title: 验证【分级数据】查看分级数据等级下拉，可按安全等级与隐私等级目录独立查看与筛选(目录数 = 2)
     priority: P1
     precondition: |-
@@ -1304,14 +1311,14 @@ cases:
       3) 数据源类型：SparkThrift2.x
       4) 存在数据库：${SchemaA}
       5) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13187_c0210;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13187_c0210 (amount DECIMAL(10,2), note STRING);
-         INSERT INTO ${SchemaA}.test_table_13187_c0210 VALUES (100.00,'备注一'),(200.00,'备注二');
-      6) test_table_13187_c0210 已同步至数据地图并自动分级：字段 amount 安全等级 L2、隐私等级 P1，字段 note 安全等级 L1
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0210;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0210 (amount DECIMAL(10,2), note STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0210 VALUES (100.00,'备注一'),(200.00,'备注二');
+      6) test_table_15911_c0210 已同步至数据地图并自动分级：字段 amount 安全等级 L2、隐私等级 P1，字段 note 安全等级 L1
 
       7) 自动分级数据创建步骤（保证第 6 条成立）：
          a. 进入【数据安全 → 数据分级分类 → 自动分级】，点击【添加】；在第一步填写规则名称 RuleA、所属分类 CatalogA、安全分级 L2、隐私分级 P1，点击【下一步】
-         b. 在第二步选择数据源类型 SparkThrift2.x、数据源 ${DataSourceA}、数据库 ${SchemaA} 和数据表 test_table_13187_c0210，勾选【元数据字段识别】并添加字段名称 amount，选择【增量识别】，点击【立即生效】
+         b. 在第二步选择数据源类型 SparkThrift2.x、数据源 ${DataSourceA}、数据库 ${SchemaA} 和数据表 test_table_15911_c0210，勾选【元数据字段识别】并添加字段名称 amount，选择【增量识别】，点击【立即生效】
          c. 进入【分级数据】确认 amount 安全等级 L2、隐私等级 P1，note 安全等级 L1
     steps:
       - action: 进入【数据安全 → 数据分级分类 → 分级数据】页面
@@ -1328,7 +1335,7 @@ cases:
       - 数据安全
       - 数据分级分类
       - 分级数据
-  - requirement_id: '13187'
+  - requirement_id: '15911'
     title: 验证【自动分级】-【规则详情】打开规则详情页，安全等级与隐私等级字段独立展示(字段数 = 2)
     priority: P2
     precondition: |-
@@ -1337,13 +1344,13 @@ cases:
       3) 数据源类型：SparkThrift2.x
       4) 存在数据库：${SchemaA}
       5) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13187_c0211;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13187_c0211 (amount DECIMAL(10,2), customer_name STRING);
-         INSERT INTO ${SchemaA}.test_table_13187_c0211 VALUES (100.00,'张三'),(200.00,'李四');
-      6) test_table_13187_c0211 已同步至数据地图
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0211;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0211 (amount DECIMAL(10,2), customer_name STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0211 VALUES (100.00,'张三'),(200.00,'李四');
+      6) test_table_15911_c0211 已同步至数据地图
       7) 自动分级数据创建步骤（保证 RuleA 存在）：
          a. 进入【数据安全 → 数据分级分类 → 自动分级】，点击【添加】；在第一步填写规则名称 RuleA、所属分类 CatalogA、安全分级 L2、隐私分级 P1，点击【下一步】
-         b. 在第二步选择数据源类型 SparkThrift2.x、数据源 ${DataSourceA}、数据库 ${SchemaA} 和数据表 test_table_13187_c0211，勾选【元数据字段识别】并添加字段名称 amount，选择【增量识别】，点击【立即生效】
+         b. 在第二步选择数据源类型 SparkThrift2.x、数据源 ${DataSourceA}、数据库 ${SchemaA} 和数据表 test_table_15911_c0211，勾选【元数据字段识别】并添加字段名称 amount，选择【增量识别】，点击【立即生效】
     steps:
       - action: 进入【数据安全 → 数据分级分类 → 自动分级】页面
         expected: 进入成功
@@ -1359,7 +1366,7 @@ cases:
       - 数据安全
       - 数据分级分类
       - 自动分级
-  - requirement_id: '13187'
+  - requirement_id: '15911'
     title: 验证【自动分级】-【隐私等级】按隐私等级筛选规则，存在即展示等级内容且不存在展示占位
     priority: P1
     precondition: |-
@@ -1368,13 +1375,13 @@ cases:
       3) 数据源类型：SparkThrift2.x
       4) 存在数据库：${SchemaA}
       5) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13187_c0212;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13187_c0212 (amount DECIMAL(10,2), customer_name STRING);
-         INSERT INTO ${SchemaA}.test_table_13187_c0212 VALUES (100.00,'张三'),(200.00,'李四');
-      6) test_table_13187_c0212 已同步至数据地图
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0212;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0212 (amount DECIMAL(10,2), customer_name STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0212 VALUES (100.00,'张三'),(200.00,'李四');
+      6) test_table_15911_c0212 已同步至数据地图
       7) 自动分级数据创建步骤（保证 RuleA、RuleB 存在）：
-         a. 进入【自动分级】，点击【添加】；第一步填写 RuleA、所属分类及隐私分级 P2，点击【下一步】；第二步选择数据源/数据库/数据表 test_table_13187_c0212，勾选【元数据字段识别】并添加字段名称 amount，点击【立即生效】
-         b. 按同样的两步向导新增 RuleB：第一步仅选择安全分级 L1；第二步选择数据源/数据库/数据表 test_table_13187_c0212，勾选【元数据字段识别】并添加字段名称 customer_name，不配置隐私分级，点击【立即生效】
+         a. 进入【自动分级】，点击【添加】；第一步填写 RuleA、所属分类及隐私分级 P2，点击【下一步】；第二步选择数据源/数据库/数据表 test_table_15911_c0212，勾选【元数据字段识别】并添加字段名称 amount，点击【立即生效】
+         b. 按同样的两步向导新增 RuleB：第一步仅选择安全分级 L1；第二步选择数据源/数据库/数据表 test_table_15911_c0212，勾选【元数据字段识别】并添加字段名称 customer_name，不配置隐私分级，点击【立即生效】
     steps:
       - action: 进入【数据安全 → 数据分级分类 → 自动分级】页面
         expected: 进入成功
@@ -1388,7 +1395,7 @@ cases:
       - 数据安全
       - 数据分级分类
       - 自动分级
-  - requirement_id: '13187'
+  - requirement_id: '15911'
     title: 验证【自动分级】查看自动分级列表页，级别筛选文案变更为安全等级且新增隐私等级筛选列(筛选列数 = 2)
     priority: P1
     precondition: 1) 使用 UserA 账号进入数据资产平台
@@ -1409,7 +1416,7 @@ cases:
       - 数据安全
       - 数据分级分类
       - 自动分级
-  - requirement_id: '13187'
+  - requirement_id: '15911'
     title: 验证【自动分级】-【添加规则】打开添加规则页面，安全分级与隐私分级至少必选其一(必选数 ≥ 1)
     priority: P1
     precondition: 1) 使用 UserA 账号进入数据资产平台
@@ -1431,7 +1438,7 @@ cases:
       - 数据安全
       - 数据分级分类
       - 自动分级
-  - requirement_id: '13188'
+  - requirement_id: '15911'
     title: 验证【分级数据】-【表级别】切换检索对象为找表，按表名检索并展示表级安全/隐私等级(检索对象 = TABLE)
     priority: P0
     precondition: |-
@@ -1444,34 +1451,34 @@ cases:
       4) 存在数据库：${SchemaA}
 
       5) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13188_c0215;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13188_c0215 (code STRING, amount DECIMAL(10,2), security_level STRING, privacy_level STRING);
-         INSERT INTO ${SchemaA}.test_table_13188_c0215 VALUES ('C001',100.00,'L2','P1'),('C002',200.00,'L2','P1');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0215;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0215 (code STRING, amount DECIMAL(10,2), security_level STRING, privacy_level STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0215 VALUES ('C001',100.00,'L2','P1'),('C002',200.00,'L2','P1');
 
-      6) test_table_13188_c0215 已同步至数据地图，字段 code、amount 均完成分级：安全等级 L2、隐私等级 P1
+      6) test_table_15911_c0215 已同步至数据地图，字段 code、amount 均完成分级：安全等级 L2、隐私等级 P1
 
-      7) 表级别分级结果已生成：test_table_13188_c0215 安全等级 L2、隐私等级 P1
+      7) 表级别分级结果已生成：test_table_15911_c0215 安全等级 L2、隐私等级 P1
 
       8) 分级结果创建步骤（保证第 6、7 条成立）：
          a. 进入【数据安全 → 数据分级分类 → 分级数据】，等级目录切换为「安全等级」，检索 code、amount，分别手动分级为 L2
          b. 等级目录切换为「隐私等级」，检索 code、amount，分别手动分级为 P1
-         c. 选择【找表】检索 test_table_13188_c0215，在安全等级与隐私等级目录分别确认表级 L2、P1
+         c. 选择【找表】检索 test_table_15911_c0215，在安全等级与隐私等级目录分别确认表级 L2、P1
     steps:
       - action: 进入【数据安全 → 数据分级分类 → 分级数据】页面
         expected: 进入成功
-      - action: 将检索对象切换为【找表】（底层选项 TABLE），搜索 test_table_13188_c0215
-        expected: 检索结果只展示 test_table_13188_c0215
+      - action: 将检索对象切换为【找表】（底层选项 TABLE），搜索 test_table_15911_c0215
+        expected: 检索结果只展示 test_table_15911_c0215
       - action: 查看表级别列表
         expected: 当前等级目录下列表展示表名、数据库、数据源、级别、分级方式，不返回字段记录
       - action: 切换等级目录为「隐私等级」并重新查询
-        expected: 表级别结果按隐私等级目录过滤，test_table_13188_c0215 隐私等级仍展示 P1
+        expected: 表级别结果按隐私等级目录过滤，test_table_15911_c0215 隐私等级仍展示 P1
     source_ref: TP-044
     case_id: C0215
     tags:
       - 数据安全
       - 数据分级分类
       - 分级数据
-  - requirement_id: '13188'
+  - requirement_id: '15911'
     title: 验证【分级数据】-【表级别】分别查看安全与隐私等级，结果按字段最高等级从严汇总(表级 = 字段最高等级)
     priority: P0
     precondition: |-
@@ -1484,23 +1491,23 @@ cases:
       4) 存在数据库：${SchemaA}
 
       5) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13188_c0216;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13188_c0216 (code STRING, amount DECIMAL(10,2), security_level STRING, privacy_level STRING);
-         INSERT INTO ${SchemaA}.test_table_13188_c0216 VALUES ('C001',100.00,'L2','P1'),('C002',200.00,'L3','P2');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0216;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0216 (code STRING, amount DECIMAL(10,2), security_level STRING, privacy_level STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0216 VALUES ('C001',100.00,'L2','P1'),('C002',200.00,'L3','P2');
 
-      6) test_table_13188_c0216 已同步至数据地图，字段等级为：code 安全 L2/隐私 P1，amount 安全 L3/隐私 P2
+      6) test_table_15911_c0216 已同步至数据地图，字段等级为：code 安全 L2/隐私 P1，amount 安全 L3/隐私 P2
 
-      7) 表级别分级结果已生成：test_table_13188_c0216 安全等级 L3、隐私等级 P2
+      7) 表级别分级结果已生成：test_table_15911_c0216 安全等级 L3、隐私等级 P2
 
       8) 分级结果创建步骤（保证第 6、7 条成立）：
          a. 进入【分级数据】，安全等级目录下将 code 手动分级为 L2、amount 手动分级为 L3
          b. 隐私等级目录下将 code 手动分级为 P1、amount 手动分级为 P2
-         c. 选择【找表】检索 test_table_13188_c0216，在安全等级与隐私等级目录分别确认表级 L3、P2
+         c. 选择【找表】检索 test_table_15911_c0216，在安全等级与隐私等级目录分别确认表级 L3、P2
     steps:
       - action: 进入【数据安全 → 数据分级分类 → 分级数据】页面
         expected: 进入成功
-      - action: 将检索对象切换为【找表】（底层选项 TABLE），搜索 test_table_13188_c0216
-        expected: 检索结果只展示 test_table_13188_c0216
+      - action: 将检索对象切换为【找表】（底层选项 TABLE），搜索 test_table_15911_c0216
+        expected: 检索结果只展示 test_table_15911_c0216
       - action: 在【安全等级】目录核对表级别
         expected: 当前【级别】列为字段安全等级最高值 L3
       - action: 切换【隐私等级】目录并重新查询
@@ -1515,7 +1522,7 @@ cases:
       - 数据安全
       - 数据分级分类
       - 分级数据
-  - requirement_id: '13925'
+  - requirement_id: '15911'
     title: 验证【L4导出】分别导出799、800、801行数据，文件可打开且行数与筛选条件一致(行数 = 799/800/801)
     priority: P2
     precondition: |-
@@ -1530,7 +1537,7 @@ cases:
       set -euo pipefail
       output_file="prepare_13925_c0253.sql"
       schema='${SchemaA}'
-      prefix='test_table_13925_c0253'
+      prefix='test_table_15911_c0253'
       : > "$output_file"
       gen_tables() {
         local group=$1
@@ -1551,28 +1558,28 @@ cases:
       6) 进入【元数据 → 元数据同步】，选择数据源 ${DataSourceA}、数据库 ${SchemaA}，执行元数据同步，将以上表同步至数据地图
 
       7) 分组表名前缀：
-         - 799 行：test_table_13925_c0253_g799_
-         - 800 行：test_table_13925_c0253_g800_
-         - 801 行：test_table_13925_c0253_g801_
+         - 799 行：test_table_15911_c0253_g799_
+         - 800 行：test_table_15911_c0253_g800_
+         - 801 行：test_table_15911_c0253_g801_
     steps:
       - action: 进入【元数据 → 数据地图】页面
         expected: 进入成功
-      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_13925_c0253_g799_
+      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_15911_c0253_g799_
         expected: 列表展示 799 条 L4 数据表记录
       - action: 点击【导出】，导出维度选择 L4，导出数据源类型选择 SparkThrift2.x，点击【确定】
         expected: 导出任务创建成功，等待轮询后提示「下载成功」
       - action: 打开下载文件，核对行数、表头、首尾表名
         expected: 文件可打开，L4 sheet 共 799 行，表头完整，记录与筛选结果一致
-      - action: 返回列表，将搜索条件改为 test_table_13925_c0253_g800_，重复导出并下载
+      - action: 返回列表，将搜索条件改为 test_table_15911_c0253_g800_，重复导出并下载
         expected: 文件 L4 sheet 共 800 行，记录与筛选结果一致
-      - action: 返回列表，将搜索条件改为 test_table_13925_c0253_g801_，重复导出并下载
+      - action: 返回列表，将搜索条件改为 test_table_15911_c0253_g801_，重复导出并下载
         expected: 文件 L4 sheet 共 801 行，记录与筛选结果一致，无截断或重复
     source_ref: TP-069
     case_id: C0253
     tags:
       - 元数据
       - 数据地图
-  - requirement_id: '13925'
+  - requirement_id: '15911'
     title: 验证【L5导出】分别导出799、800、801行数据，文件可打开且行数与筛选条件一致(行数 = 799/800/801)
     priority: P2
     precondition: |-
@@ -1587,7 +1594,7 @@ cases:
       set -euo pipefail
       output_file="prepare_13925_c0254.sql"
       schema='${SchemaA}'
-      prefix='test_table_13925_c0254'
+      prefix='test_table_15911_c0254'
       : > "$output_file"
       gen_tables() {
         local group=$1
@@ -1608,28 +1615,28 @@ cases:
       6) 进入【元数据 → 元数据同步】，选择数据源 ${DataSourceA}、数据库 ${SchemaA}，执行元数据同步，将以上表同步至数据地图
 
       7) 分组表名前缀：
-         - 799 行：test_table_13925_c0254_g799_
-         - 800 行：test_table_13925_c0254_g800_
-         - 801 行：test_table_13925_c0254_g801_
+         - 799 行：test_table_15911_c0254_g799_
+         - 800 行：test_table_15911_c0254_g800_
+         - 801 行：test_table_15911_c0254_g801_
     steps:
       - action: 进入【元数据 → 数据地图】页面
         expected: 进入成功
-      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_13925_c0254_g799_
+      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_15911_c0254_g799_
         expected: 列表展示 799 条 L4 数据表记录
       - action: 点击【导出】，导出维度选择 L5，导出数据源类型选择 SparkThrift2.x，点击【确定】
         expected: 导出任务创建成功，等待轮询后提示「下载成功」
       - action: 打开下载文件，核对行数、表头、首尾字段
         expected: 文件可打开，L5 sheet 共 799 行，表头完整，记录与筛选结果一致
-      - action: 返回列表，将搜索条件改为 test_table_13925_c0254_g800_，重复导出并下载
+      - action: 返回列表，将搜索条件改为 test_table_15911_c0254_g800_，重复导出并下载
         expected: 文件 L5 sheet 共 800 行，记录与筛选结果一致
-      - action: 返回列表，将搜索条件改为 test_table_13925_c0254_g801_，重复导出并下载
+      - action: 返回列表，将搜索条件改为 test_table_15911_c0254_g801_，重复导出并下载
         expected: 文件 L5 sheet 共 801 行，记录与筛选结果一致，无截断或重复
     source_ref: TP-070
     case_id: C0254
     tags:
       - 元数据
       - 数据地图
-  - requirement_id: '13925'
+  - requirement_id: '15911'
     title: 验证【L4导出】导出10000行数据，文件行数完整且记录耗时与180秒目标比较(行数 = 10000)
     priority: P0
     precondition: |-
@@ -1644,7 +1651,7 @@ cases:
       set -euo pipefail
       output_file="prepare_13925_c0255.sql"
       schema='${SchemaA}'
-      prefix='test_table_13925_c0255'
+      prefix='test_table_15911_c0255'
       : > "$output_file"
       for ((i = 1; i <= 10000; i++)); do
         table="${schema}.${prefix}_$(printf '%05d' "$i")"
@@ -1657,11 +1664,11 @@ cases:
 
       6) 进入【元数据 → 元数据同步】，选择数据源 ${DataSourceA}、数据库 ${SchemaA}，执行元数据同步，将以上表同步至数据地图
 
-      7) 表名前缀：test_table_13925_c0255_
+      7) 表名前缀：test_table_15911_c0255_
     steps:
       - action: 进入【元数据 → 数据地图】页面
         expected: 进入成功
-      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_13925_c0255_
+      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_15911_c0255_
         expected: 列表展示 10000 条 L4 数据表记录
       - action: 记录导出开始时间，点击【导出】，导出维度选择 L4，导出数据源类型选择 SparkThrift2.x，点击【确定】
         expected: 导出任务创建成功
@@ -1674,7 +1681,7 @@ cases:
     tags:
       - 元数据
       - 数据地图
-  - requirement_id: '13925'
+  - requirement_id: '15911'
     title: 验证【L5导出】导出10000行数据，文件行数完整且记录耗时与180秒目标比较(行数 = 10000)
     priority: P2
     precondition: |-
@@ -1689,7 +1696,7 @@ cases:
       set -euo pipefail
       output_file="prepare_13925_c0256.sql"
       schema='${SchemaA}'
-      prefix='test_table_13925_c0256'
+      prefix='test_table_15911_c0256'
       : > "$output_file"
       for ((i = 1; i <= 10000; i++)); do
         table="${schema}.${prefix}_$(printf '%05d' "$i")"
@@ -1702,11 +1709,11 @@ cases:
 
       6) 进入【元数据 → 元数据同步】，选择数据源 ${DataSourceA}、数据库 ${SchemaA}，执行元数据同步，将以上表同步至数据地图
 
-      7) 表名前缀：test_table_13925_c0256_
+      7) 表名前缀：test_table_15911_c0256_
     steps:
       - action: 进入【元数据 → 数据地图】页面
         expected: 进入成功
-      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_13925_c0256_
+      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_15911_c0256_
         expected: 列表展示 10000 条 L4 数据表记录
       - action: 记录导出开始时间，点击【导出】，导出维度选择 L5，导出数据源类型选择 SparkThrift2.x，点击【确定】
         expected: 导出任务创建成功
@@ -1719,7 +1726,7 @@ cases:
     tags:
       - 元数据
       - 数据地图
-  - requirement_id: '13925'
+  - requirement_id: '15911'
     title: 验证【L4/L5导出】同时导出L4与L5数据，两类文件按约定维度输出且不串行不丢失
     priority: P2
     precondition: |-
@@ -1734,7 +1741,7 @@ cases:
       set -euo pipefail
       output_file="prepare_13925_c0257.sql"
       schema='${SchemaA}'
-      prefix='test_table_13925_c0257'
+      prefix='test_table_15911_c0257'
       : > "$output_file"
       for ((i = 1; i <= 801; i++)); do
         table="${schema}.${prefix}_$(printf '%04d' "$i")"
@@ -1747,11 +1754,11 @@ cases:
 
       6) 进入【元数据 → 元数据同步】，选择数据源 ${DataSourceA}、数据库 ${SchemaA}，执行元数据同步，将以上表同步至数据地图
 
-      7) 表名前缀：test_table_13925_c0257_
+      7) 表名前缀：test_table_15911_c0257_
     steps:
       - action: 进入【元数据 → 数据地图】页面
         expected: 进入成功
-      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_13925_c0257_
+      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_15911_c0257_
         expected: 列表展示 801 条 L4 数据表记录
       - action: 点击【导出】，导出维度同时选择 L4、L5，导出数据源类型选择 SparkThrift2.x，点击【确定】
         expected: 导出任务创建成功，等待轮询后提示「下载成功」
@@ -1762,7 +1769,7 @@ cases:
     tags:
       - 元数据
       - 数据地图
-  - requirement_id: '13925'
+  - requirement_id: '15911'
     title: 验证【L4/L5导出】按状态、目录或属性筛选后导出，文件只包含符合筛选条件的记录
     priority: P2
     precondition: |-
@@ -1777,7 +1784,7 @@ cases:
       set -euo pipefail
       output_file="prepare_13925_c0258.sql"
       schema='${SchemaA}'
-      prefix='test_table_13925_c0258'
+      prefix='test_table_15911_c0258'
       : > "$output_file"
       for ((i = 1; i <= 801; i++)); do
         table="${schema}.${prefix}_$(printf '%04d' "$i")"
@@ -1790,11 +1797,11 @@ cases:
 
       6) 进入【元数据 → 元数据同步】，选择数据源 ${DataSourceA}、数据库 ${SchemaA}，执行元数据同步，将以上表同步至数据地图
 
-      7) 表名前缀：test_table_13925_c0258_
+      7) 表名前缀：test_table_15911_c0258_
     steps:
       - action: 进入【元数据 → 数据地图】页面
         expected: 进入成功
-      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_13925_c0258_
+      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_15911_c0258_
         expected: 列表仅展示前缀匹配的 L4 数据表记录
       - action: 点击【导出】，导出维度选择 L4、L5，导出数据源类型选择 SparkThrift2.x，点击【确定】
         expected: 导出任务创建成功，等待轮询后提示「下载成功」
@@ -1805,7 +1812,7 @@ cases:
     tags:
       - 元数据
       - 数据地图
-  - requirement_id: '13925'
+  - requirement_id: '15911'
     title: 验证【L4/L5导出】连续发起两次同范围导出，两个任务独立状态且文件内容与各自条件一致
     priority: P2
     precondition: |-
@@ -1820,7 +1827,7 @@ cases:
       set -euo pipefail
       output_file="prepare_13925_c0259.sql"
       schema='${SchemaA}'
-      prefix='test_table_13925_c0259'
+      prefix='test_table_15911_c0259'
       : > "$output_file"
       for ((i = 1; i <= 801; i++)); do
         table="${schema}.${prefix}_$(printf '%04d' "$i")"
@@ -1833,11 +1840,11 @@ cases:
 
       6) 进入【元数据 → 元数据同步】，选择数据源 ${DataSourceA}、数据库 ${SchemaA}，执行元数据同步，将以上表同步至数据地图
 
-      7) 表名前缀：test_table_13925_c0259_
+      7) 表名前缀：test_table_15911_c0259_
     steps:
       - action: 进入【元数据 → 数据地图】页面
         expected: 进入成功
-      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_13925_c0259_
+      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_15911_c0259_
         expected: 列表展示 801 条 L4 数据表记录
       - action: 点击【导出】，导出维度选择 L4、L5，导出数据源类型选择 SparkThrift2.x，点击【确定】发起第一次导出
         expected: 第一次导出任务创建成功
@@ -1850,7 +1857,7 @@ cases:
     tags:
       - 元数据
       - 数据地图
-  - requirement_id: '14050'
+  - requirement_id: '15911'
     title: 验证【内置属性】-【编辑】修改L1～L3内置属性中文名与必填状态，列表、详情与表单各入口同步
     priority: P0
     precondition: |-
@@ -1873,7 +1880,7 @@ cases:
       - 元数据
       - 数据目录
       - 属性管理
-  - requirement_id: '14050'
+  - requirement_id: '15911'
     title: 验证【内置属性】-【编辑】修改L4/L5内置业务属性配置，数据地图各入口名称、必填与属性值一致
     priority: P2
     precondition: |-
@@ -1887,18 +1894,18 @@ cases:
       5) 存在数据库：${SchemaA}
 
       6) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_14050_c0261;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14050_c0261 (id BIGINT, code STRING, name STRING);
-         INSERT INTO ${SchemaA}.test_table_14050_c0261 VALUES (1,'C001','记录一'),(2,'C002','记录二');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0261;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0261 (id BIGINT, code STRING, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0261 VALUES (1,'C001','记录一'),(2,'C002','记录二');
 
-      7) test_table_14050_c0261 已同步至数据地图
-         a. 同步方式：进入【元数据 → 元数据同步】，选择 ${DataSourceA}/${SchemaA}，勾选 test_table_14050_c0261 并执行同步
+      7) test_table_15911_c0261 已同步至数据地图
+         a. 同步方式：进入【元数据 → 元数据同步】，选择 ${DataSourceA}/${SchemaA}，勾选 test_table_15911_c0261 并执行同步
     steps:
       - action: 进入【元数据 → 元模型管理 → 字段元模型】页面
         expected: 进入成功
       - action: 在 security_Level 行点击【编辑】，将中文名改为「安全等级_全链路」，必填改为「必填」，点击【确定】
         expected: 编辑成功，列表展示新中文名和必填状态
-      - action: 打开 test_table_14050_c0261 的字段元数据编辑入口和数据地图表详情字段列表
+      - action: 打开 test_table_15911_c0261 的字段元数据编辑入口和数据地图表详情字段列表
         expected: 字段标签展示「安全等级_全链路」，提交缺失该字段的数据时按必填校验
       - action: 下载 L5 导入模版并导出字段数据
         expected: 模版和导出文件列头使用「安全等级_全链路」，必填标记与配置一致
@@ -1907,7 +1914,7 @@ cases:
     tags:
       - 元数据
       - 元模型管理
-  - requirement_id: '14050'
+  - requirement_id: '15911'
     title: 验证【内置属性】-【顺序】调整内置属性展示顺序并保存，列表与导入导出列按新顺序输出
     priority: P2
     precondition: |-
@@ -1927,7 +1934,7 @@ cases:
     tags:
       - 元数据
       - 元模型管理
-  - requirement_id: '14050'
+  - requirement_id: '15911'
     title: 验证【目录管理】-【L1～L3导出】导出含公司部门数据的目录，文件同时包含编码列与名称列且一一对应
     priority: P2
     precondition: |-
@@ -1948,7 +1955,7 @@ cases:
       - 元数据
       - 数据目录
       - 目录管理
-  - requirement_id: '14050'
+  - requirement_id: '15911'
     title: 验证【标准导出】选择全部范围或一级目录全选L3导出，文件包含对应标准且不包含其他目录
     priority: P2
     precondition: |-
@@ -1957,7 +1964,7 @@ cases:
          a. 创建方式：进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 CatalogA、CatalogB、CatalogC、CatalogD、CatalogE、CatalogF，CatalogB/E 的上级分别选择 CatalogA/D，CatalogC/F 的上级分别选择 CatalogB/E，目录必填项使用 数据资产部/泸州老窖/张三/1001/在职，L3 数据管家使用 李四/2001/在职
       3) CatalogC 下存在已发布标准 StandardA、StandardB
       4) CatalogF 下存在已发布标准 StandardC
-         a. 标准创建方式：进入【数据标准 → 标准管理 → 标准定义】，点击【新增标准】，配置标准中文名称 StandardA、标准英文名称 StandardA、标准英文缩写 std_a、标准编码 STD_14050_A、标准目录 CatalogC、标准负责人 user_001、标准责任公司 泸州老窖、标准责任部门 数据资产部，点击【保存】
+         a. 标准创建方式：进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 StandardA、标准英文名称 StandardA、标准英文缩写 std_a、标准编码 STD_14050_A、标准目录 CatalogC、标准负责人 user_001、标准责任公司 泸州老窖、标准责任部门 数据资产部，点击【保存】
          b. 按同样方式新增 StandardB（STD_14050_B）于 CatalogC，新增 StandardC（STD_14050_C）于 CatalogF
     steps:
       - action: 进入【数据标准 → 标准管理 → 标准定义】页面
@@ -1972,7 +1979,7 @@ cases:
       - 数据标准
       - 标准管理
       - 标准定义
-  - requirement_id: '14050'
+  - requirement_id: '15911'
     title: 验证【内置属性】-【配置】修改内置属性中文名后刷新页面，列名、详情与筛选均使用新名称且无重复字段
     priority: P2
     precondition: |-
@@ -1995,7 +2002,7 @@ cases:
       - 元数据
       - 数据目录
       - 属性管理
-  - requirement_id: '14050'
+  - requirement_id: '15911'
     title: 验证【内置属性】-【配置】修改内置属性后点击取消，原配置保持不变且未保存内容不泄露
     priority: P2
     precondition: |-
@@ -2015,7 +2022,7 @@ cases:
     tags:
       - 元数据
       - 元模型管理
-  - requirement_id: '14050'
+  - requirement_id: '15911'
     title: 验证【内置属性】-【配置】将属性改为必填并保存，新增、编辑与导入入口均执行必填校验
     priority: P2
     precondition: |-
@@ -2029,18 +2036,18 @@ cases:
       5) 存在数据库：${SchemaA}
 
       6) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_14050_c0267;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14050_c0267 (id BIGINT, code STRING, name STRING);
-         INSERT INTO ${SchemaA}.test_table_14050_c0267 VALUES (1,'C001','记录一'),(2,'C002','记录二');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0267;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0267 (id BIGINT, code STRING, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0267 VALUES (1,'C001','记录一'),(2,'C002','记录二');
 
-      7) test_table_14050_c0267 已同步至数据地图
-         a. 同步方式：进入【元数据 → 元数据同步】，选择 ${DataSourceA}/${SchemaA}，勾选 test_table_14050_c0267 并执行同步
+      7) test_table_15911_c0267 已同步至数据地图
+         a. 同步方式：进入【元数据 → 元数据同步】，选择 ${DataSourceA}/${SchemaA}，勾选 test_table_15911_c0267 并执行同步
     steps:
       - action: 进入【元数据 → 元模型管理 → 字段元模型】页面
         expected: 进入成功
       - action: 在 security_Level 行点击【编辑】，将是否必填改为「必填」，点击【确定】
         expected: 编辑成功，列表展示必填状态
-      - action: 进入 test_table_14050_c0267 的数据地图字段列表或字段元数据编辑页，点击保存，未填写安全等级_全链路/security_Level 的字段
+      - action: 进入 test_table_15911_c0267 的数据地图字段列表或字段元数据编辑页，点击保存，未填写安全等级_全链路/security_Level 的字段
         expected: 保存被阻断，提示安全等级字段必填
       - action: 上传 L5 字段元数据文件，文件中安全等级单元格留空
         expected: 导入错误，错误文件对应单元格批注安全等级字段为空或必填
@@ -2049,7 +2056,7 @@ cases:
     tags:
       - 元数据
       - 元模型管理
-  - requirement_id: '14050'
+  - requirement_id: '15911'
     title: 验证【标准导出】选择一级目录下2个L3导出标准，文件包含所选L3标准且层级属性完整
     priority: P2
     precondition: |-
@@ -2058,7 +2065,7 @@ cases:
          a. 创建方式：进入【元数据 → 数据目录 → 目录管理】，依次新建并发布 CatalogA、CatalogB、CatalogC、CatalogD、CatalogE、CatalogF，CatalogB/E 的上级分别选择 CatalogA/D，CatalogC/F 的上级分别选择 CatalogB/E，目录必填项使用 数据资产部/泸州老窖/张三/1001/在职，L3 数据管家使用 李四/2001/在职
       3) CatalogC 下存在已发布标准 StandardA、StandardB
       4) CatalogD→E→F 下存在 StandardC
-         a. 标准创建方式：进入【数据标准 → 标准管理 → 标准定义】，点击【新增标准】，配置标准中文名称 StandardA、标准英文名称 StandardA、标准英文缩写 std_a、标准编码 STD_14050_A、标准目录 CatalogC、标准负责人 user_001、标准责任公司 泸州老窖、标准责任部门 数据资产部，点击【保存】
+         a. 标准创建方式：进入【数据标准 → 标准管理 → 标准定义】，点击【新建标准】，配置标准中文名称 StandardA、标准英文名称 StandardA、标准英文缩写 std_a、标准编码 STD_14050_A、标准目录 CatalogC、标准负责人 user_001、标准责任公司 泸州老窖、标准责任部门 数据资产部，点击【保存】
          b. 按同样方式新增 StandardB（STD_14050_B）于 CatalogC，新增 StandardC（STD_14050_C）于 CatalogF
     steps:
       - action: 进入【数据标准 → 标准管理 → 标准定义】页面
@@ -2073,7 +2080,7 @@ cases:
       - 数据标准
       - 标准管理
       - 标准定义
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【新建码表】新建码表并填写必填信息保存，配置方式默认手工添加且创建成功
     priority: P0
     precondition: |-
@@ -2081,9 +2088,9 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0269;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0269 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0269 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0269;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0269 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0269 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
       5) 码表目录 CatalogA 已存在
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，在目录树点击新增，目录名称 CatalogA，保存
     steps:
@@ -2107,7 +2114,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【引用数据表】切换配置方式引用Hive2.x数据表并保存，码表创建成功且详情显示来源与字段映射(数据源 = Hive2.x)
     priority: P0
     precondition: |-
@@ -2115,9 +2122,9 @@ cases:
       2) 数据源类型：Hive2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0270;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0270 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0270 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0270;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0270 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0270 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
       5) 码表目录 CatalogA 已存在
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，在目录树点击新增，目录名称 CatalogA，保存
     steps:
@@ -2129,21 +2136,21 @@ cases:
           配置引用字段：
           * 数据源：${DataSourceA}
           * 数据库：${SchemaA}
-          * 数据表：test_table_14280_c0270
+          * 数据表：test_table_15911_c0270
           * 编码取值：code
           * 编码名称：name
           * 编码说明：description
           * 上级代码：不选择
           * 代码状态：不选择
           点击【确定】
-        expected: 提示「新增成功」，详情显示 Hive2.x 来源、数据表 test_table_14280_c0270 和 code/name/description 映射
+        expected: 提示「新增成功」，详情显示 Hive2.x 来源、数据表 test_table_15911_c0270 和 code/name/description 映射
     source_ref: TP-081
     case_id: C0270
     tags:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【引用数据表】切换配置方式引用SparkThrift2.x数据表并保存，码表创建成功且详情显示来源与字段映射(数据源 = SparkThrift2.x)
     priority: P0
     precondition: |-
@@ -2151,9 +2158,9 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0271;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0271 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0271 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0271;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0271 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0271 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
       5) 码表目录 CatalogA 已存在
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，在目录树点击新增，目录名称 CatalogA，保存
     steps:
@@ -2165,21 +2172,21 @@ cases:
           配置引用字段：
           * 数据源：${DataSourceA}
           * 数据库：${SchemaA}
-          * 数据表：test_table_14280_c0271
+          * 数据表：test_table_15911_c0271
           * 编码取值：code
           * 编码名称：name
           * 编码说明：description
           * 上级代码：不选择
           * 代码状态：不选择
           点击【确定】
-        expected: 提示「新增成功」，详情显示 SparkThrift2.x 来源、数据表 test_table_14280_c0271 和 code/name/description 映射
+        expected: 提示「新增成功」，详情显示 SparkThrift2.x 来源、数据表 test_table_15911_c0271 和 code/name/description 映射
     source_ref: TP-082
     case_id: C0271
     tags:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【引用数据表】只填写必填字段保存，配置可保存且清空任一必填字段后保存被阻断
     priority: P1
     precondition: |-
@@ -2187,9 +2194,9 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0272;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0272 (code STRING, name STRING, description STRING, parent_code STRING, status STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0272 VALUES ('A01','启用','可用',NULL,'有效'),('A02','停用','不可用','A01','无效'),('A03','冻结',NULL,NULL,'有效');
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0272;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0272 (code STRING, name STRING, description STRING, parent_code STRING, status STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0272 VALUES ('A01','启用','可用',NULL,'有效'),('A02','停用','不可用','A01','无效'),('A03','冻结',NULL,NULL,'有效');
       5) 码表目录 CatalogA 已存在
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，在目录树点击新增，目录名称 CatalogA，保存
     steps:
@@ -2199,7 +2206,7 @@ cases:
           点击【新建代码】，配置码表名称「引用码表_0272」、编码 REF_0272、所属目录 CatalogA，码表内容选择「引用数据表」，配置：
           * 数据源：${DataSourceA}
           * 数据库：${SchemaA}
-          * 数据表：test_table_14280_c0272
+          * 数据表：test_table_15911_c0272
           * 编码取值：code
           * 编码名称：name
           点击【确定】
@@ -2216,7 +2223,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【引用数据表】映射说明、上级代码与状态可选字段，映射成功且源表缺少字段时空值展示
     priority: P1
     precondition: |-
@@ -2224,9 +2231,9 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0273;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0273 (code STRING, name STRING, description STRING, parent_code STRING, status STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0273 VALUES ('A01','启用','可用',NULL,'有效'),('A02','停用','不可用','A01','无效'),('A03','冻结',NULL,NULL,'有效');
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0273;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0273 (code STRING, name STRING, description STRING, parent_code STRING, status STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0273 VALUES ('A01','启用','可用',NULL,'有效'),('A02','停用','不可用','A01','无效'),('A03','冻结',NULL,NULL,'有效');
       5) 码表目录 CatalogA 已存在
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，在目录树点击新增，目录名称 CatalogA，保存
     steps:
@@ -2236,7 +2243,7 @@ cases:
           点击【新建代码】，配置码表名称「引用码表_0273」、编码 REF_0273、所属目录 CatalogA，码表内容选择「引用数据表」，配置：
           * 数据源：${DataSourceA}
           * 数据库：${SchemaA}
-          * 数据表：test_table_14280_c0273
+          * 数据表：test_table_15911_c0273
           * 编码取值：code
           * 编码名称：name
           * 编码说明：description
@@ -2252,7 +2259,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【引用数据表】选择来源后切换数据源，数据库、表与字段映射被清空且不自动恢复
     priority: P1
     precondition: |-
@@ -2260,24 +2267,24 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0274_source_01;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0274_source_01 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0274_source_01 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0274_source_01;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0274_source_01 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0274_source_01 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
       5) 授权数据源 B：${DataSourceB}
       6) 数据源 B 类型：Hive2.x
       7) 数据源 B 存在数据库：${SchemaB}
-      8) 创建数据源 B 数据表 test_table_14280_c0274_source_02：
-         DROP TABLE IF EXISTS ${SchemaB}.test_table_14280_c0274_source_02;
-         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_14280_c0274_source_02 (code STRING, name STRING, description STRING);
-         INSERT INTO ${SchemaB}.test_table_14280_c0274_source_02 VALUES ('B01','启用B','可用B'),('B02','停用B','不可用B');
-      9) 已存在引用码表 code_table_0274（CatalogA 下，引用 test_table_14280_c0274_source_01，编码取值 code、编码名称 name、编码说明 description）
+      8) 创建数据源 B 数据表 test_table_15911_c0274_source_02：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15911_c0274_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15911_c0274_source_02 (code STRING, name STRING, description STRING);
+         INSERT INTO ${SchemaB}.test_table_15911_c0274_source_02 VALUES ('B01','启用B','可用B'),('B02','停用B','不可用B');
+      9) 已存在引用码表 code_table_0274（CatalogA 下，引用 test_table_15911_c0274_source_01，编码取值 code、编码名称 name、编码说明 description）
       10) 创建方式：
           a. 进入【数据标准 → 标准基础 → 码表管理】，在目录树新增 CatalogA
-          b. 点击【新建代码】，配置码表名称 code_table_0274、编码 CODE_0274、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_14280_c0274_source_01、编码取值 code、编码名称 name、编码说明 description，点击【确定】
+          b. 点击【新建代码】，配置码表名称 code_table_0274、编码 CODE_0274、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_15911_c0274_source_01、编码取值 code、编码名称 name、编码说明 description，点击【确定】
     steps:
       - action: 进入【数据标准 → 标准基础 → 码表管理】页面
         expected: 进入成功
-      - action: 打开 code_table_0274 的编辑弹窗，确认已选择 ${DataSourceA}、${SchemaA}、test_table_14280_c0274_source_01 和 code/name/description 映射
+      - action: 打开 code_table_0274 的编辑弹窗，确认已选择 ${DataSourceA}、${SchemaA}、test_table_15911_c0274_source_01 和 code/name/description 映射
         expected: 编辑弹窗完整回显原配置
       - action: 将数据源切换为 ${DataSourceB}
         expected: 数据库、数据表、编码取值、编码名称、编码说明选择被清空，不保留 ${DataSourceA} 的下游值
@@ -2289,7 +2296,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【引用数据表】修改数据库或表后取消编辑，原配置保持不变且未保存清理不落库
     priority: P1
     precondition: |-
@@ -2297,30 +2304,30 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0275_source_01;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0275_source_01 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0275_source_01 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0275_source_02;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0275_source_02 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0275_source_02 VALUES ('B01','启用B','可用B'),('B02','停用B','不可用B');
-      5) 已存在引用码表 code_table_0275（CatalogA 下，引用 test_table_14280_c0275_source_01，编码取值 code、编码名称 name）
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0275_source_01;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0275_source_01 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0275_source_01 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0275_source_02;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0275_source_02 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0275_source_02 VALUES ('B01','启用B','可用B'),('B02','停用B','不可用B');
+      5) 已存在引用码表 code_table_0275（CatalogA 下，引用 test_table_15911_c0275_source_01，编码取值 code、编码名称 name）
       6) 创建方式：
          a. 进入【数据标准 → 标准基础 → 码表管理】，在目录树新增 CatalogA
-         b. 点击【新建代码】，配置码表名称 code_table_0275、编码 CODE_0275、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_14280_c0275_source_01、编码取值 code、编码名称 name，点击【确定】
+         b. 点击【新建代码】，配置码表名称 code_table_0275、编码 CODE_0275、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_15911_c0275_source_01、编码取值 code、编码名称 name，点击【确定】
     steps:
       - action: 进入【数据标准 → 标准基础 → 码表管理】页面
         expected: 进入成功
-      - action: 打开 code_table_0275 的编辑弹窗，将数据表由 test_table_14280_c0275_source_01 改为 test_table_14280_c0275_source_02
+      - action: 打开 code_table_0275 的编辑弹窗，将数据表由 test_table_15911_c0275_source_01 改为 test_table_15911_c0275_source_02
         expected: 编码取值、编码名称等下游字段映射被清空并要求重新选择
       - action: 点击【取消】
-        expected: 弹窗关闭，原配置保持引用 test_table_14280_c0275_source_01 和 code/name 映射，未保存的清理不落库
+        expected: 弹窗关闭，原配置保持引用 test_table_15911_c0275_source_01 和 code/name 映射，未保存的清理不落库
     source_ref: TP-084
     case_id: C0275
     tags:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【引用数据表】打开码表详情核对数据预览，预览最多展示源表前1000条且值与源表一致(行数 ≤ 1000)
     priority: P1
     precondition: |-
@@ -2328,18 +2335,18 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0276;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0276 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0276 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
-      5) 已存在引用码表 code_table_0276（CatalogA 下，引用 test_table_14280_c0276，编码取值 code、编码名称 name、编码说明 description）
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0276;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0276 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0276 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
+      5) 已存在引用码表 code_table_0276（CatalogA 下，引用 test_table_15911_c0276，编码取值 code、编码名称 name、编码说明 description）
       6) 创建方式：
          a. 进入【数据标准 → 标准基础 → 码表管理】，在目录树新增 CatalogA
-         b. 点击【新建代码】，配置码表名称 code_table_0276、编码 CODE_0276、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_14280_c0276、编码取值 code、编码名称 name、编码说明 description，点击【确定】
+         b. 点击【新建代码】，配置码表名称 code_table_0276、编码 CODE_0276、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_15911_c0276、编码取值 code、编码名称 name、编码说明 description，点击【确定】
     steps:
       - action: 进入【数据标准 → 标准基础 → 码表管理】页面
         expected: 进入成功
       - action: 打开 code_table_0276 的详情
-        expected: 详情展示来源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_14280_c0276、code/name/description 映射和引用数据表配置方式
+        expected: 详情展示来源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_15911_c0276、code/name/description 映射和引用数据表配置方式
       - action: 核对数据预览
         expected: 数据预览最多展示源表前 1000 条，字段值与当前源表读取一致
     source_ref: TP-085
@@ -2348,7 +2355,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【引用数据表】打开超过1000条源表的码表详情，页面稳定展示1000条且不出现空白重复(行数 > 1000)
     priority: P1
     precondition: |-
@@ -2356,29 +2363,29 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入 1001 行数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0277;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0277 (code STRING, name STRING, description STRING);
-         INSERT INTO ${SchemaA}.test_table_14280_c0277
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0277;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0277 (code STRING, name STRING, description STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0277
          SELECT CONCAT('A', LPAD(CAST(id AS STRING), 4, '0')), CONCAT('名称_', CAST(id AS STRING)), NULL
          FROM range(1, 1002);
-      5) 已存在引用码表 code_table_0277（CatalogA 下，引用 test_table_14280_c0277，编码取值 code、编码名称 name）
+      5) 已存在引用码表 code_table_0277（CatalogA 下，引用 test_table_15911_c0277，编码取值 code、编码名称 name）
       6) 创建方式：
          a. 进入【数据标准 → 标准基础 → 码表管理】，在目录树新增 CatalogA
-         b. 点击【新建代码】，配置码表名称 code_table_0277、编码 CODE_0277、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_14280_c0277、编码取值 code、编码名称 name，点击【确定】
+         b. 点击【新建代码】，配置码表名称 code_table_0277、编码 CODE_0277、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_15911_c0277、编码取值 code、编码名称 name，点击【确定】
     steps:
       - action: 进入【数据标准 → 标准基础 → 码表管理】页面
         expected: 进入成功
       - action: 打开 code_table_0277 的详情
         expected: 页面稳定展示 1000 条数据，不出现空白或重复
       - action: 核对总量提示和首尾抽样
-        expected: 展示范围不超过 1000 条，首条为 A0001/名称_1，抽样值来自 test_table_14280_c0277
+        expected: 展示范围不超过 1000 条，首条为 A0001/名称_1，抽样值来自 test_table_15911_c0277
     source_ref: TP-085
     case_id: C0277
     tags:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【引用数据表】配置数据源并保存，页面返回明确连接或权限错误(数据源 = 不可连接/权限不足)
     priority: P0
     precondition: |-
@@ -2386,9 +2393,9 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0278;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0278 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0278 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0278;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0278 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0278 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
       5) 已登记数据源 ${DataSourceB}，类型 Hive2.x，未授予码表读取权限或连接不可用
       6) 码表目录 CatalogA 已存在
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，在目录树点击新增，目录名称 CatalogA，保存
@@ -2406,7 +2413,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【引用数据表】源表删除或重命名映射字段后读取码表，读取失败指出缺失字段且修复后恢复
     priority: P0
     precondition: |-
@@ -2414,19 +2421,19 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0279;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0279 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0279 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
-      5) 已存在引用码表 code_table_0279（CatalogA 下，引用 test_table_14280_c0279，编码取值 code、编码名称 name）
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0279;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0279 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0279 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
+      5) 已存在引用码表 code_table_0279（CatalogA 下，引用 test_table_15911_c0279，编码取值 code、编码名称 name）
       6) 创建方式：
          a. 进入【数据标准 → 标准基础 → 码表管理】，在目录树新增 CatalogA
-         b. 点击【新建代码】，配置码表名称 code_table_0279、编码 CODE_0279、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_14280_c0279、编码取值 code、编码名称 name，点击【确定】
+         b. 点击【新建代码】，配置码表名称 code_table_0279、编码 CODE_0279、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_15911_c0279、编码取值 code、编码名称 name，点击【确定】
     steps:
       - action: 进入【数据标准 → 标准基础 → 码表管理】页面
         expected: 进入成功
-      - action: 在底层执行 ALTER TABLE ${SchemaA}.test_table_14280_c0279 DROP COLUMN code，然后打开 code_table_0279 详情读取数据
+      - action: 在底层执行 ALTER TABLE ${SchemaA}.test_table_15911_c0279 DROP COLUMN code，然后打开 code_table_0279 详情读取数据
         expected: 读取失败并明确指出缺失字段 code
-      - action: 在底层执行 ALTER TABLE ${SchemaA}.test_table_14280_c0279 ADD COLUMN code STRING，并 INSERT VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL)，再次读取 code_table_0279
+      - action: 在底层执行 ALTER TABLE ${SchemaA}.test_table_15911_c0279 ADD COLUMN code STRING，并 INSERT VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL)，再次读取 code_table_0279
         expected: 恢复成功，数据预览按 code/name 映射展示 3 行
     source_ref: TP-086
     case_id: C0279
@@ -2434,7 +2441,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【引用数据表】读取源表，页面明确提示非法空值或重复(代码值/名称 = 空值或重复)
     priority: P0
     precondition: |-
@@ -2442,14 +2449,14 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0280;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0280 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0280 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL),('A01','启用_重复','重复编码'),(NULL,'空编码','代码值为空');
-        INSERT INTO ${SchemaA}.test_table_14280_c0280 VALUES ('A05',NULL,'代码名称为空');
-      5) 已存在引用码表 code_table_0280（CatalogA 下，引用 test_table_14280_c0280，编码取值 code、编码名称 name）
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0280;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0280 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0280 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL),('A01','启用_重复','重复编码'),(NULL,'空编码','代码值为空');
+        INSERT INTO ${SchemaA}.test_table_15911_c0280 VALUES ('A05',NULL,'代码名称为空');
+      5) 已存在引用码表 code_table_0280（CatalogA 下，引用 test_table_15911_c0280，编码取值 code、编码名称 name）
       6) 创建方式：
          a. 进入【数据标准 → 标准基础 → 码表管理】，在目录树新增 CatalogA
-         b. 点击【新建代码】，配置码表名称 code_table_0280、编码 CODE_0280、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_14280_c0280、编码取值 code、编码名称 name，点击【确定】
+         b. 点击【新建代码】，配置码表名称 code_table_0280、编码 CODE_0280、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_15911_c0280、编码取值 code、编码名称 name，点击【确定】
     steps:
       - action: 进入【数据标准 → 标准基础 → 码表管理】页面
         expected: 进入成功
@@ -2463,7 +2470,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【引用数据表】使源表不可用后再次打开详情，返回明确错误且不降级为旧数据(源表状态 = 不可用)
     priority: P1
     precondition: |-
@@ -2471,17 +2478,17 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0281;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0281 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0281 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
-      5) 已存在引用码表 code_table_0281（CatalogA 下，引用 test_table_14280_c0281，编码取值 code、编码名称 name）
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0281;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0281 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0281 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
+      5) 已存在引用码表 code_table_0281（CatalogA 下，引用 test_table_15911_c0281，编码取值 code、编码名称 name）
       6) 创建方式：
          a. 进入【数据标准 → 标准基础 → 码表管理】，在目录树新增 CatalogA
-         b. 点击【新建代码】，配置码表名称 code_table_0281、编码 CODE_0281、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_14280_c0281、编码取值 code、编码名称 name，点击【确定】
+         b. 点击【新建代码】，配置码表名称 code_table_0281、编码 CODE_0281、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_15911_c0281、编码取值 code、编码名称 name，点击【确定】
     steps:
       - action: 进入【数据标准 → 标准基础 → 码表管理】页面
         expected: 进入成功
-      - action: 在底层执行 ALTER TABLE ${SchemaA}.test_table_14280_c0281 DROP COLUMN code，然后打开 code_table_0281 详情
+      - action: 在底层执行 ALTER TABLE ${SchemaA}.test_table_15911_c0281 DROP COLUMN code，然后打开 code_table_0281 详情
         expected: 页面返回明确读取错误并指出缺失字段 code
       - action: 核对详情内容
         expected: 不回退到旧手工数据或旧快照，不将失败显示为成功
@@ -2491,7 +2498,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【引用数据表】对引用码表发起手工导入，导入入口隐藏或提交被阻断且源表数据不被覆盖
     priority: P0
     precondition: |-
@@ -2499,27 +2506,27 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0282;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0282 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0282 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
-      5) 已存在引用码表 code_table_0282（CatalogA 下，引用 test_table_14280_c0282，编码取值 code、编码名称 name）
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0282;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0282 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0282 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
+      5) 已存在引用码表 code_table_0282（CatalogA 下，引用 test_table_15911_c0282，编码取值 code、编码名称 name）
       6) 创建方式：
          a. 进入【数据标准 → 标准基础 → 码表管理】，在目录树新增 CatalogA
-         b. 点击【新建代码】，配置码表名称 code_table_0282、编码 CODE_0282、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_14280_c0282、编码取值 code、编码名称 name，点击【确定】
+         b. 点击【新建代码】，配置码表名称 code_table_0282、编码 CODE_0282、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_15911_c0282、编码取值 code、编码名称 name，点击【确定】
     steps:
       - action: 进入【数据标准 → 标准基础 → 码表管理】页面
         expected: 进入成功
       - action: 打开 code_table_0282 的详情或编辑页，查找手工导入入口并发起手工导入
         expected: 手工导入入口隐藏、禁用或提交时被阻断
       - action: 核对源表和码表内容
-        expected: test_table_14280_c0282 仍为 A01/A02/A03 三行，未被手工文件覆盖
+        expected: test_table_15911_c0282 仍为 A01/A02/A03 三行，未被手工文件覆盖
     source_ref: TP-087
     case_id: C0282
     tags:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【编辑】修改来源、映射或可选字段后取消或保存，取消保持原配置且保存按新配置读取
     priority: P1
     precondition: |-
@@ -2527,13 +2534,13 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0283;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0283 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0283 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0283;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0283 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0283 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
       5) 码表目录 CatalogA 已存在
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，在目录树点击新增，目录名称 CatalogA，保存
-      6) 已存在引用码表 code_table_0283（CatalogA 下，引用 test_table_14280_c0283，编码取值 code、编码名称 name）
-         a. 创建方式：点击【新建代码】，配置码表名称 code_table_0283、编码 CODE_0283、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_14280_c0283、编码取值 code、编码名称 name，点击【确定】
+      6) 已存在引用码表 code_table_0283（CatalogA 下，引用 test_table_15911_c0283，编码取值 code、编码名称 name）
+         a. 创建方式：点击【新建代码】，配置码表名称 code_table_0283、编码 CODE_0283、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_15911_c0283、编码取值 code、编码名称 name，点击【确定】
     steps:
       - action: 进入【数据标准 → 标准基础 → 码表管理】页面
         expected: 进入成功
@@ -2549,7 +2556,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【模式切换】手工模式填写内容后切换为引用数据表，手工内容清空失效且切回不恢复
     priority: P1
     precondition: |-
@@ -2557,9 +2564,9 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0284;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0284 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0284 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0284;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0284 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0284 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
       5) 码表目录 CatalogA 已存在
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，在目录树点击新增，目录名称 CatalogA，保存
     steps:
@@ -2575,7 +2582,7 @@ cases:
       - 数据标准
       - 标准基础
       - 码表管理
-  - requirement_id: '14280'
+  - requirement_id: '15911'
     title: 验证【码表管理】-【版本】手工模式修改代码内容保存后生成新版本，版本记录新增且版本比对展示差异
     priority: P1
     precondition: |-
@@ -2600,7 +2607,7 @@ cases:
       - 标准基础
       - 码表管理
   - case_id: C0332
-    requirement_id: '13925'
+    requirement_id: '15911'
     title: 验证【L4导出】导出801行数据按800拆批，文件801行完整且记录耗时与180秒目标比较(行数 = 801)
     priority: P2
     source_ref: TP-069
@@ -2614,7 +2621,7 @@ cases:
       set -euo pipefail
       output_file="prepare_13925_c0332.sql"
       schema='${SchemaA}'
-      prefix='test_table_13925_c0332'
+      prefix='test_table_15911_c0332'
       : > "$output_file"
       for ((i = 1; i <= 801; i++)); do
         table="${schema}.${prefix}_$(printf '%04d' "$i")"
@@ -2624,11 +2631,11 @@ cases:
       BASH
       6) 复制 prepare_13925_c0332.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
       7) 进入【元数据 → 元数据同步】，选择数据源 ${DataSourceA}、数据库 ${SchemaA}，执行元数据同步，将以上表同步至数据地图
-      8) 表名前缀：test_table_13925_c0332_
+      8) 表名前缀：test_table_15911_c0332_
     steps:
       - action: 进入【元数据 → 数据地图】页面
         expected: 进入成功
-      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_13925_c0332_
+      - action: 查询结果类型选择「数据表」，数据源类型选择 SparkThrift2.x，数据表名称搜索 test_table_15911_c0332_
         expected: 列表展示 801 条 L4 数据表记录
       - action: 点击【导出】，导出维度选择 L4，导出数据源类型选择 SparkThrift2.x，点击【确定】
         expected: 导出任务创建成功；按 ≥800 拆批规则以 800 拆为 2 批（800+1），记录任务耗时并与 180 秒需求目标比较（环境指标，不作硬断言）
@@ -2638,7 +2645,7 @@ cases:
       - 元数据
       - 数据地图
   - case_id: C0333
-    requirement_id: '13183'
+    requirement_id: '15911'
     title: 验证【标准属性管理】-【新增属性】新建树形目录属性并校验错误文案，必填与重复节点阻断后保存成功(节点数 = 2)
     priority: P1
     source_ref: TP-031
@@ -2666,7 +2673,7 @@ cases:
       - 标准管理
       - 标准属性管理
   - case_id: C0334
-    requirement_id: '13184'
+    requirement_id: '15911'
     title: 验证【标准定义】-【导出标准】选择「全部」与一级目录全选导出，文件内容与所选范围一致(范围 = 全部)
     priority: P0
     source_ref: TP-034
@@ -2693,7 +2700,7 @@ cases:
       - 标准管理
       - 标准定义
   - case_id: C0335
-    requirement_id: '13185'
+    requirement_id: '15911'
     title: 验证【码表管理】-【列表查询】输入码表名称搜索，列表仅返回匹配码表且无匹配展示缺省页(匹配数 = 1)
     priority: P1
     source_ref: TP-040
@@ -2718,7 +2725,7 @@ cases:
       - 标准基础
       - 码表管理
   - case_id: C0336
-    requirement_id: '13185'
+    requirement_id: '15911'
     title: 验证【码表管理】-【新建代码】代码值、代码名称与代码说明置空保存，必填校验阻断且填写后保存成功(必填字段为空)
     priority: P1
     source_ref: TP-037
@@ -2741,7 +2748,7 @@ cases:
       - 标准基础
       - 码表管理
   - case_id: C0337
-    requirement_id: '14280'
+    requirement_id: '15911'
     title: 验证【引用数据表】修改源表数据后重新读取码表，不生成新版本(版本数 = 1)
     priority: P1
     source_ref: TP-088
@@ -2750,17 +2757,17 @@ cases:
       2) 数据源类型：SparkThrift2.x
       3) 存在数据库：${SchemaA}
       4) 创建数据表并插入数据：
-        DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0337;
-        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0337 (code STRING, name STRING, description STRING);
-        INSERT INTO ${SchemaA}.test_table_14280_c0337 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
+        DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0337;
+        CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0337 (code STRING, name STRING, description STRING);
+        INSERT INTO ${SchemaA}.test_table_15911_c0337 VALUES ('A01','启用','可用'),('A02','停用','不可用'),('A03','冻结',NULL);
       5) 码表目录 CatalogA 已存在
          a. 创建方式：进入【数据标准 → 标准基础 → 码表管理】，在目录树点击新增，目录名称 CatalogA，保存
     steps:
       - action: 进入【数据标准 → 标准基础 → 码表管理】页面
         expected: 进入成功
-      - action: 点击【新建代码】，配置码表名称 code_table_0337、编码 CODE_0337、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_14280_c0337、编码取值 code、编码名称 name，点击【确定】
+      - action: 点击【新建代码】，配置码表名称 code_table_0337、编码 CODE_0337、所属目录 CatalogA、码表内容引用数据表、数据源 ${DataSourceA}、数据库 ${SchemaA}、数据表 test_table_15911_c0337、编码取值 code、编码名称 name，点击【确定】
         expected: 码表创建成功，详情展示引用数据表来源与字段映射，版本记录 1 条
-      - action: 在 ${DataSourceA} 平台执行 INSERT INTO ${SchemaA}.test_table_14280_c0337 VALUES ('A04','解冻','恢复')
+      - action: 在 ${DataSourceA} 平台执行 INSERT INTO ${SchemaA}.test_table_15911_c0337 VALUES ('A04','解冻','恢复')
         expected: 执行成功，源表变为 4 行
       - action: 重新打开 code_table_0337 的详情并核对数据预览
         expected: 详情预览含 A04 记录，读取到源表最新数据
@@ -2771,7 +2778,7 @@ cases:
       - 标准基础
       - 码表管理
   - case_id: C0338
-    requirement_id: '13186'
+    requirement_id: '15911'
     title: 验证【级别管理】-【添加级别】新增与现有安全级别同名的级别并确定，保存被阻断且提示重名(名称 = 现有级别名称)
     priority: P1
     source_ref: TP-042
@@ -2793,8 +2800,8 @@ cases:
       - 数据分级分类
       - 级别管理
   - case_id: C0339
-    requirement_id: '13187'
-    title: 验证【自动分级】-【规则配置】新增字段名称包含规则并运行，命中名称含关键字的字段(条件 = 包含)
+    requirement_id: '15911'
+    title: 验证【自动分级】-【规则配置】新增字段名称包含规则并立即生效，命中名称含关键字的字段(条件 = 包含)
     priority: P1
     source_ref: TP-045
     precondition: |-
@@ -2802,12 +2809,12 @@ cases:
       2) 授权数据源：${DataSourceA}
       3) 数据源类型：SparkThrift2.x
       4) 存在数据库：${SchemaA}
-      5) 创建数据表 test_table_13187_c0339：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13187_c0339;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13187_c0339 (
+      5) 创建数据表 test_table_15911_c0339：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0339;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0339 (
            id BIGINT, amount DECIMAL(10,2), customer_name STRING, note STRING
          );
-         INSERT INTO ${SchemaA}.test_table_13187_c0339 VALUES
+         INSERT INTO ${SchemaA}.test_table_15911_c0339 VALUES
            (1, 100.00, '张三', '备注一'), (2, 200.00, '李四', '备注二');
     steps:
       - action: 进入【数据安全 → 数据分级分类 → 自动分级】页面
@@ -2821,7 +2828,7 @@ cases:
           点击【下一步】进入第二步
         expected: 进入自动分级规则配置第二步
       - action: |-
-          在第二步选择数据源类型 SparkThrift2.x、数据源 ${DataSourceA}、数据库 ${SchemaA} 和数据表 test_table_13187_c0339；
+          在第二步选择数据源类型 SparkThrift2.x、数据源 ${DataSourceA}、数据库 ${SchemaA} 和数据表 test_table_15911_c0339；
           勾选【元数据字段识别】，字段名称包含 amount，字段名称排除为空，识别模式选择【增量识别】
         expected: 规则页展示安全分级 L2、字段名称包含 amount 配置项，未配置字段名称排除
       - action: 点击【立即生效】
@@ -2833,8 +2840,8 @@ cases:
       - 数据分级分类
       - 自动分级
   - case_id: C0340
-    requirement_id: '13187'
-    title: 验证【自动分级】-【规则配置】新增字段名称排除规则并运行，名称含排除关键字的字段不命中(条件 = 排除)
+    requirement_id: '15911'
+    title: 验证【自动分级】-【规则配置】新增字段名称排除规则并立即生效，名称含排除关键字的字段不命中(条件 = 排除)
     priority: P1
     source_ref: TP-045
     precondition: |-
@@ -2842,12 +2849,12 @@ cases:
       2) 授权数据源：${DataSourceA}
       3) 数据源类型：SparkThrift2.x
       4) 存在数据库：${SchemaA}
-      5) 创建数据表 test_table_13187_c0340：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13187_c0340;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13187_c0340 (
+      5) 创建数据表 test_table_15911_c0340：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0340;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0340 (
            id BIGINT, amount DECIMAL(10,2), customer_name STRING, note STRING
          );
-         INSERT INTO ${SchemaA}.test_table_13187_c0340 VALUES
+         INSERT INTO ${SchemaA}.test_table_15911_c0340 VALUES
            (1, 100.00, '张三', '备注一'), (2, 200.00, '李四', '备注二');
     steps:
       - action: 进入【数据安全 → 数据分级分类 → 自动分级】页面
@@ -2861,7 +2868,7 @@ cases:
           点击【下一步】进入第二步
         expected: 进入自动分级规则配置第二步
       - action: |-
-          在第二步选择数据源类型 SparkThrift2.x、数据源 ${DataSourceA}、数据库 ${SchemaA} 和数据表 test_table_13187_c0340；
+          在第二步选择数据源类型 SparkThrift2.x、数据源 ${DataSourceA}、数据库 ${SchemaA} 和数据表 test_table_15911_c0340；
           勾选【元数据字段识别】，字段名称包含为空，在字段名称排除中添加 name，识别模式选择【增量识别】
         expected: 规则页展示隐私分级 P2、字段名称排除 name 配置项，字段名称包含为空
       - action: 点击【立即生效】
@@ -2873,7 +2880,7 @@ cases:
       - 数据分级分类
       - 自动分级
   - case_id: C0341
-    requirement_id: '13187'
+    requirement_id: '15911'
     title: 验证【分级数据】-【详情与手动修正】查看字段分级详情并手动修正等级，保存后列表与详情更新(修正后等级 ≠ 原等级)
     priority: P1
     source_ref: TP-046
@@ -2883,12 +2890,12 @@ cases:
       3) 数据源类型：SparkThrift2.x
       4) 存在数据库：${SchemaA}
       5) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13187_c0341;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13187_c0341 (amount DECIMAL(10,2), customer_name STRING, note STRING);
-         INSERT INTO ${SchemaA}.test_table_13187_c0341 VALUES (100.00,'张三','备注一'),(200.00,'李四','备注二');
-      6) test_table_13187_c0341 已同步至数据地图
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0341;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0341 (amount DECIMAL(10,2), customer_name STRING, note STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0341 VALUES (100.00,'张三','备注一'),(200.00,'李四','备注二');
+      6) test_table_15911_c0341 已同步至数据地图
       7) 自动分级数据创建步骤：
-         a. 进入【自动分级】点击【添加】；第一步填写规则名称 RuleA、所属分类及安全分级 L2、隐私分级 P1，点击【下一步】；第二步选择数据源/数据库/表 test_table_13187_c0341，勾选【元数据字段识别】并添加字段名称 amount，点击【立即生效】
+         a. 进入【自动分级】点击【添加】；第一步填写规则名称 RuleA、所属分类及安全分级 L2、隐私分级 P1，点击【下一步】；第二步选择数据源/数据库/表 test_table_15911_c0341，勾选【元数据字段识别】并添加字段名称 amount，点击【立即生效】
          b. 进入【分级数据】确认 amount 安全 L2/隐私 P1，其余字段安全 L1
     steps:
       - action: 进入【数据安全 → 数据分级分类 → 分级数据】页面
@@ -2906,7 +2913,7 @@ cases:
       - 数据分级分类
       - 分级数据
   - case_id: C0342
-    requirement_id: '13187'
+    requirement_id: '15911'
     title: 验证【分级数据】-【冲突优先级】自动分级结果与手工修正冲突时，以手工修正等级展示(优先级 = 手工修正)
     priority: P0
     source_ref: TP-046
@@ -2916,12 +2923,12 @@ cases:
       3) 数据源类型：SparkThrift2.x
       4) 存在数据库：${SchemaA}
       5) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13187_c0342;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13187_c0342 (amount DECIMAL(10,2), customer_name STRING);
-         INSERT INTO ${SchemaA}.test_table_13187_c0342 VALUES (100.00,'张三'),(200.00,'李四');
-      6) test_table_13187_c0342 已同步至数据地图
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0342;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0342 (amount DECIMAL(10,2), customer_name STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0342 VALUES (100.00,'张三'),(200.00,'李四');
+      6) test_table_15911_c0342 已同步至数据地图
       7) 自动分级数据创建步骤：
-         a. 进入【自动分级】点击【添加】；第一步填写规则名称 RuleA、所属分类及安全分级 L2，点击【下一步】；第二步选择数据源/数据库/表 test_table_13187_c0342，勾选【元数据字段识别】并添加字段名称 amount，点击【立即生效】
+         a. 进入【自动分级】点击【添加】；第一步填写规则名称 RuleA、所属分类及安全分级 L2，点击【下一步】；第二步选择数据源/数据库/表 test_table_15911_c0342，勾选【元数据字段识别】并添加字段名称 amount，点击【立即生效】
          b. 进入【分级数据】确认 amount 安全 L2 为自动分级结果
     steps:
       - action: 进入【数据安全 → 数据分级分类 → 分级数据】页面
@@ -2937,8 +2944,8 @@ cases:
       - 数据分级分类
       - 分级数据
   - case_id: C0350
-    requirement_id: '13187'
-    title: 验证【自动分级】-【添加规则】规则名称留空、重名或未配置识别内容时，保存被阻断并提示原文(识别内容数 = 0)
+    requirement_id: '15911'
+    title: 验证【自动分级】-【添加规则】规则名称留空、重名或未配置识别内容时，立即生效被阻断并提示原文(识别内容数 = 0)
     priority: P1
     source_ref: TP-045
     precondition: |-
@@ -2947,12 +2954,12 @@ cases:
       3) 数据源类型：SparkThrift2.x
       4) 存在数据库：${SchemaA}
       5) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13187_c0350;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13187_c0350 (amount DECIMAL(10,2), customer_name STRING);
-         INSERT INTO ${SchemaA}.test_table_13187_c0350 VALUES (100.00,'张三'),(200.00,'李四');
-      6) test_table_13187_c0350 已同步至数据地图
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0350;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0350 (amount DECIMAL(10,2), customer_name STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0350 VALUES (100.00,'张三'),(200.00,'李四');
+      6) test_table_15911_c0350 已同步至数据地图
       7) 已存在自动分级规则 RuleA（创建明细如下）：
-         a. 进入【自动分级】点击【添加】；第一步填写规则名称 RuleA、所属分类及至少一个等级后点击【下一步】；第二步选择数据源/数据库/表 test_table_13187_c0350，勾选【元数据字段识别】并添加字段名称 amount，点击【立即生效】
+         a. 进入【自动分级】点击【添加】；第一步填写规则名称 RuleA、所属分类及至少一个等级后点击【下一步】；第二步选择数据源/数据库/表 test_table_15911_c0350，勾选【元数据字段识别】并添加字段名称 amount，点击【立即生效】
     steps:
       - action: 进入【数据安全 → 数据分级分类 → 自动分级】页面
         expected: 进入成功
@@ -2967,7 +2974,7 @@ cases:
       - 数据分级分类
       - 自动分级
   - case_id: C0352
-    requirement_id: '13186'
+    requirement_id: '15911'
     title: 验证【级别管理】-【拖动排序】置顶级别与非置顶级别相互拖动时被阻断，提示原文(置顶 = 边界)
     priority: P1
     source_ref: TP-042
@@ -2987,7 +2994,7 @@ cases:
       - 数据分级分类
       - 级别管理
   - case_id: C0353
-    requirement_id: '13185'
+    requirement_id: '15911'
     title: 验证【码表管理】-【导出】导出目录下无码表时被阻断，提示重新选择目录(码表数 = 0)
     priority: P1
     source_ref: TP-040
@@ -3010,7 +3017,7 @@ cases:
       - 标准基础
       - 码表管理
   - case_id: C0354
-    requirement_id: '13184'
+    requirement_id: '15911'
     title: 验证【标准定义】-【导出标准】导出目录下无标准时被阻断，提示重新选择目录(标准数 = 0)
     priority: P1
     source_ref: TP-034
@@ -3028,7 +3035,7 @@ cases:
       - 数据标准
       - 标准管理
       - 标准定义
-  - requirement_id: '13186'
+  - requirement_id: '15911'
     title: 验证【级别管理】-【开放用户等级】新增安全/隐私级别并绑定字段，开放用户等级保存为L5(开放等级 = L5)
     priority: P1
     source_ref: TP-121
@@ -3039,10 +3046,10 @@ cases:
       3) 数据源类型：SparkThrift2.x
       4) 存在数据库：${SchemaA}
       5) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13186_c0358;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13186_c0358 (id BIGINT, amount DECIMAL(10,2), customer_name STRING, note STRING);
-         INSERT INTO ${SchemaA}.test_table_13186_c0358 VALUES (1,100.00,'张三','备注一'),(2,200.00,'李四','备注二');
-      6) test_table_13186_c0358 已同步至数据地图
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0358;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0358 (id BIGINT, amount DECIMAL(10,2), customer_name STRING, note STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0358 VALUES (1,100.00,'张三','备注一'),(2,200.00,'李四','备注二');
+      6) test_table_15911_c0358 已同步至数据地图
       7) 安全级别「绝密A」、隐私级别「隐私A」在当前租户不存在
     steps:
       - action: 进入【数据安全 → 数据分级分类 → 级别管理】页面
@@ -3063,21 +3070,21 @@ cases:
         expected: 提示「新增成功！」，级别列表展示「隐私A」且开放用户等级为 L5
       - action: 进入【数据安全 → 数据分级分类 → 分级数据】页面
         expected: 进入成功
-      - action: 切换等级目录为「安全等级」，检索 test_table_13186_c0358
-        expected: 检索结果展示 test_table_13186_c0358
+      - action: 切换等级目录为「安全等级」，检索 test_table_15911_c0358
+        expected: 检索结果展示 test_table_15911_c0358
       - action: 对 amount 执行手动分级，选择「绝密A」并保存
         expected: 保存成功，amount 安全等级展示为「绝密A」
-      - action: 切换等级目录为「隐私等级」，检索 test_table_13186_c0358
-        expected: 检索结果展示 test_table_13186_c0358
+      - action: 切换等级目录为「隐私等级」，检索 test_table_15911_c0358
+        expected: 检索结果展示 test_table_15911_c0358
       - action: 对 customer_name 执行手动分级，选择「隐私A」并保存
         expected: 保存成功，customer_name 隐私等级展示为「隐私A」
-      - action: 进入【元数据 → 数据地图】，打开 test_table_13186_c0358 表详情的字段列表
+      - action: 进入【元数据 → 数据地图】，打开 test_table_15911_c0358 表详情的字段列表
         expected: amount 展示安全等级标签「绝密A」，customer_name 展示隐私等级标签「隐私A」，note 不展示等级标签
     tags:
       - 数据安全
       - 数据分级分类
       - 级别管理
-  - requirement_id: '13186'
+  - requirement_id: '15911'
     title: 验证【开放用户等级】使用L5账号查看绑定字段，数据预览展示真实值(账号等级 = L5)
     priority: P0
     source_ref: TP-122
@@ -3089,21 +3096,21 @@ cases:
       4) 数据源类型：SparkThrift2.x
       5) 存在数据库：${SchemaA}
       6) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13186_c0359;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13186_c0359 (id BIGINT, amount DECIMAL(10,2), customer_name STRING, note STRING);
-         INSERT INTO ${SchemaA}.test_table_13186_c0359 VALUES (1,100.00,'张三','备注一'),(2,200.00,'李四','备注二');
-      7) test_table_13186_c0359 已同步至数据地图
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0359;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0359 (id BIGINT, amount DECIMAL(10,2), customer_name STRING, note STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0359 VALUES (1,100.00,'张三','备注一'),(2,200.00,'李四','备注二');
+      7) test_table_15911_c0359 已同步至数据地图
       8) amount 已绑定安全级别「绝密A」，customer_name 已绑定隐私级别「隐私A」，note 未绑定
       9) 级别与字段绑定创建方式（若不存在）：
          a. 进入【数据安全 → 数据分级分类 → 级别管理】，在「安全级别」新增「绝密A」并设置开放用户等级 L5，在「隐私级别」新增「隐私A」并设置开放用户等级 L5
-         b. 进入【分级数据】，安全等级目录下检索 test_table_13186_c0359，对 amount 手动分级为「绝密A」并保存
+         b. 进入【分级数据】，安全等级目录下检索 test_table_15911_c0359，对 amount 手动分级为「绝密A」并保存
          c. 切换隐私等级目录，对 customer_name 手动分级为「隐私A」并保存，note 不绑定
     steps:
       - action: 进入【元数据 → 数据地图】页面
         expected: 进入成功
-      - action: 打开 test_table_13186_c0359 表详情
+      - action: 打开 test_table_15911_c0359 表详情
         expected: 字段列表 amount 展示安全等级「绝密A」，customer_name 展示隐私等级「隐私A」，note 无等级标签
-      - action: 打开 test_table_13186_c0359 的数据预览
+      - action: 打开 test_table_15911_c0359 的数据预览
         expected: |-
           1) amount 展示真实值 100.00、200.00
           2) customer_name 展示「张三」「李四」
@@ -3111,7 +3118,7 @@ cases:
     tags:
       - 元数据
       - 数据地图
-  - requirement_id: '13186'
+  - requirement_id: '15911'
     title: 验证【开放用户等级】使用L4/L1账号查看绑定字段，数据预览展示无权限(账号等级 < L5)
     priority: P0
     source_ref: TP-123
@@ -3124,30 +3131,30 @@ cases:
       5) 数据源类型：SparkThrift2.x
       6) 存在数据库：${SchemaA}
       7) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13186_c0360;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13186_c0360 (id BIGINT, amount DECIMAL(10,2), customer_name STRING, note STRING);
-         INSERT INTO ${SchemaA}.test_table_13186_c0360 VALUES (1,100.00,'张三','备注一'),(2,200.00,'李四','备注二');
-      8) test_table_13186_c0360 已同步至数据地图
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0360;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0360 (id BIGINT, amount DECIMAL(10,2), customer_name STRING, note STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0360 VALUES (1,100.00,'张三','备注一'),(2,200.00,'李四','备注二');
+      8) test_table_15911_c0360 已同步至数据地图
       9) amount 已绑定安全级别「绝密A」，customer_name 已绑定隐私级别「隐私A」，note 未绑定
       10) 级别与字段绑定创建方式（若不存在）：
           a. 进入【数据安全 → 数据分级分类 → 级别管理】，在「安全级别」新增「绝密A」并设置开放用户等级 L5，在「隐私级别」新增「隐私A」并设置开放用户等级 L5
-          b. 进入【分级数据】，安全等级目录下检索 test_table_13186_c0360，对 amount 手动分级为「绝密A」并保存
+          b. 进入【分级数据】，安全等级目录下检索 test_table_15911_c0360，对 amount 手动分级为「绝密A」并保存
           c. 切换隐私等级目录，对 customer_name 手动分级为「隐私A」并保存，note 不绑定
     steps:
       - action: 进入【元数据 → 数据地图】页面
         expected: 进入成功
-      - action: 使用 UserB 打开 test_table_13186_c0360 的数据预览
+      - action: 使用 UserB 打开 test_table_15911_c0360 的数据预览
         expected: amount、customer_name 单元格展示锁图标与「无权限」，note 仍展示真实值
-      - action: 使用 UserB 打开 test_table_13186_c0360 表详情的字段列表
+      - action: 使用 UserB 打开 test_table_15911_c0360 表详情的字段列表
         expected: amount、customer_name 仍展示绑定等级标签，note 无等级标签
-      - action: 使用 UserC 打开 test_table_13186_c0360 的数据预览
+      - action: 使用 UserC 打开 test_table_15911_c0360 的数据预览
         expected: amount、customer_name 单元格展示锁图标与「无权限」，note 仍展示真实值
-      - action: 使用 UserC 打开 test_table_13186_c0360 表详情的字段列表
+      - action: 使用 UserC 打开 test_table_15911_c0360 表详情的字段列表
         expected: amount、customer_name 仍展示绑定等级标签，note 无等级标签
     tags:
       - 元数据
       - 数据地图
-  - requirement_id: '13186'
+  - requirement_id: '15911'
     title: 验证【开放用户等级】L4账号申请并审批通过后，绑定字段由无权限变为可见(账号等级 = L4)
     priority: P1
     source_ref: TP-124
@@ -3161,14 +3168,14 @@ cases:
       6) 数据源类型：SparkThrift2.x
       7) 存在数据库：${SchemaA}
       8) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13186_c0361;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13186_c0361 (id BIGINT, amount DECIMAL(10,2), customer_name STRING, note STRING);
-         INSERT INTO ${SchemaA}.test_table_13186_c0361 VALUES (1,100.00,'张三','备注一'),(2,200.00,'李四','备注二');
-      9) test_table_13186_c0361 已同步至数据地图
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0361;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0361 (id BIGINT, amount DECIMAL(10,2), customer_name STRING, note STRING);
+         INSERT INTO ${SchemaA}.test_table_15911_c0361 VALUES (1,100.00,'张三','备注一'),(2,200.00,'李四','备注二');
+      9) test_table_15911_c0361 已同步至数据地图
       10) amount 已绑定安全级别「绝密A」，customer_name 已绑定隐私级别「隐私A」，note 未绑定
       11) 级别与字段绑定创建方式（若不存在）：
           a. 进入【数据安全 → 数据分级分类 → 级别管理】，在「安全级别」新增「绝密A」并设置开放用户等级 L5，在「隐私级别」新增「隐私A」并设置开放用户等级 L5
-          b. 进入【分级数据】，安全等级目录下检索 test_table_13186_c0361，对 amount 手动分级为「绝密A」并保存
+          b. 进入【分级数据】，安全等级目录下检索 test_table_15911_c0361，对 amount 手动分级为「绝密A」并保存
           c. 切换隐私等级目录，对 customer_name 手动分级为「隐私A」并保存，note 不绑定
     steps:
       - action: 进入【数据安全 → 数据分级分类 → 级别管理】页面
@@ -3181,13 +3188,13 @@ cases:
         expected: 进入成功
       - action: 审批通过 UserB 的「绝密A」「隐私A」数据级别权限申请
         expected: 两条申请均审批通过
-      - action: 使用 UserB 重新打开 test_table_13186_c0361 的数据预览
+      - action: 使用 UserB 重新打开 test_table_15911_c0361 的数据预览
         expected: amount 展示 100.00、200.00，customer_name 展示「张三」「李四」，note 展示「备注一」「备注二」
     tags:
       - 数据安全
       - 数据分级分类
       - 级别管理
-  - requirement_id: '13188'
+  - requirement_id: '15911'
     title: 验证【分级数据】-【表级别】修改字段等级后重新查询表级别分级结果，表级安全/隐私等级重新计算(字段等级 ≠ 原等级)
     priority: P0
     source_ref: TP-125
@@ -3200,31 +3207,31 @@ cases:
       5) 数据源类型：SparkThrift2.x
       6) 存在数据库：${SchemaA}
       7) 创建数据表并插入数据：
-         DROP TABLE IF EXISTS ${SchemaA}.test_table_13188_c0362;
-         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13188_c0362 (code STRING, amount DECIMAL(10,2));
-         INSERT INTO ${SchemaA}.test_table_13188_c0362 VALUES ('C001',100.00),('C002',200.00);
-      8) test_table_13188_c0362 已同步至数据地图
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15911_c0362;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15911_c0362 (code STRING, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_15911_c0362 VALUES ('C001',100.00),('C002',200.00);
+      8) test_table_15911_c0362 已同步至数据地图
       9) 字段等级：code 安全 L2/隐私 P1，amount 安全 L3/隐私 P2
-      10) 表级别分级结果已生成：test_table_13188_c0362 安全等级 L3、隐私等级 P2
+      10) 表级别分级结果已生成：test_table_15911_c0362 安全等级 L3、隐私等级 P2
       11) 分级结果创建步骤（保证第 9、10 条成立）：
           a. 在【级别管理】确认安全级别 L2/L3、隐私级别 P1/P2 已存在
           b. 进入【分级数据】，安全等级目录下将 code 手动分级为 L2、amount 手动分级为 L3
           c. 隐私等级目录下将 code 手动分级为 P1、amount 手动分级为 P2
-          d. 按「表」检索 test_table_13188_c0362，确认表级安全 L3、隐私 P2
+          d. 选择【找表】检索 test_table_15911_c0362，在【安全等级】与【隐私等级】目录分别确认表级【级别】为 L3、P2
     steps:
       - action: 进入【数据安全 → 数据分级分类 → 分级数据】页面
         expected: 进入成功
-      - action: 将检索对象切换为【找表】（底层选项 TABLE），在【安全等级】目录搜索 test_table_13188_c0362
-        expected: 表级别结果展示 test_table_13188_c0362，当前【级别】为安全等级 L3
-      - action: 切换【隐私等级】目录并重新搜索 test_table_13188_c0362
+      - action: 将检索对象切换为【找表】（底层选项 TABLE），在【安全等级】目录搜索 test_table_15911_c0362
+        expected: 表级别结果展示 test_table_15911_c0362，当前【级别】为安全等级 L3
+      - action: 切换【隐私等级】目录并重新搜索 test_table_15911_c0362
         expected: 当前【级别】为隐私等级 P2
       - action: 切换等级目录为「安全等级」，检索字段 amount，将安全等级由 L3 修改为 L2 并保存
         expected: 保存成功，amount 安全等级展示为 L2
       - action: 切换等级目录为「隐私等级」，检索字段 amount，将隐私等级由 P2 修改为 P1 并保存
         expected: 保存成功，amount 隐私等级展示为 P1
-      - action: 将检索对象切换为【找表】（底层选项 TABLE），在【安全等级】目录重新搜索 test_table_13188_c0362
+      - action: 将检索对象切换为【找表】（底层选项 TABLE），在【安全等级】目录重新搜索 test_table_15911_c0362
         expected: 当前【级别】更新为安全等级 L2
-      - action: 切换【隐私等级】目录并重新搜索 test_table_13188_c0362
+      - action: 切换【隐私等级】目录并重新搜索 test_table_15911_c0362
         expected: 当前【级别】更新为隐私等级 P1
       - action: 刷新页面后再次按【找表】分别查询两个等级目录
         expected: 安全等级 L2、隐私等级 P1 均保持，与字段等级一致
