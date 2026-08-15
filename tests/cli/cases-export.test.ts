@@ -48,7 +48,8 @@ describe("kata cases build metadata exports", () => {
     expect(existsSync(join(out, "需求名.xmind"))).toBe(false);
     expect(existsSync(join(out, "历史导出.xmind"))).toBe(false);
     expect(readFileSync(join(out, "交付用例.csv"), "utf8")).toContain("所属模块");
-    expect(readFileSync(join(out, "交付用例.csv"), "utf8")).toContain("需求名(#10812)");
+    expect(readFileSync(join(out, "交付用例.csv"), "utf8")).toContain("相关需求");
+    expect(readFileSync(join(out, "交付用例.csv"), "utf8")).toContain("(#10812)");
   });
 
   it("does not expose the old one-format export command", () => {

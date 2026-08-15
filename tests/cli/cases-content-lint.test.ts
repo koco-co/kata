@@ -242,6 +242,30 @@ describe("cases content lint", () => {
     }
   });
 
+  it("allows exact pass status in an observable expected field but rejects generic wording", () => {
+    const observable = testCase({
+      steps: [
+        { action: "进入【数据质量 → 数据质量报告】页面", expected: "进入成功" },
+        { action: "查看规则校验明细", expected: "质检结果：「校验通过」" },
+        { action: "核对规则详情", expected: "排序字段显示 month" },
+      ],
+    });
+    expect(lintCaseContent(doc(observable), config).map((item) => item.rule)).not.toContain(
+      "case_forbidden_term",
+    );
+
+    const generic = testCase({
+      steps: [
+        { action: "进入【数据质量 → 数据质量报告】页面", expected: "进入成功" },
+        { action: "查看规则校验明细", expected: "校验通过" },
+        { action: "核对规则详情", expected: "排序字段显示 month" },
+      ],
+    });
+    expect(lintCaseContent(doc(generic), config).map((item) => item.rule)).toContain(
+      "case_forbidden_term",
+    );
+  });
+
   it("allows the source template label header containing 多个标签", () => {
     const item = testCase({
       precondition: `1) 创建导入文件 field_import.xlsx：
@@ -1096,6 +1120,66 @@ output_file="test_table_16178_c0001.sql"
     ).toContain("case_partition_fixture");
   });
 
+  it("does not treat explicit non-partition selections as partition scenarios", () => {
+    const monitorTask = testCase({
+      precondition: validSparkPrecondition,
+      steps: [
+        { action: "进入【数据质量 → 规则任务管理】页面", expected: "进入成功" },
+        {
+          action: `新建监控任务：
+* 规则名称：RuleA
+* 选择数据源：\${DataSourceA}
+* 选择数据库：\${SchemaA}
+* 选择数据表：test_table_16178_c0001
+选择分区：不设置分区
+抽样检查设置：关闭
+点击「下一步」`,
+          expected: "进入「监控规则」步骤",
+        },
+        { action: "查看监控对象", expected: "数据表展示为 test_table_16178_c0001" },
+      ],
+    });
+    expect(
+      lintCaseContent(doc(monitorTask), config, "ltqc").map((item) => item.rule),
+    ).not.toContain("case_partition_fixture");
+
+    const standardCheck = testCase({
+      precondition: validSparkPrecondition,
+      steps: [
+        { action: "进入【数据标准 → 落标检查】页面", expected: "进入成功" },
+        {
+          action: `配置检查内容：
+* 数据源：\${DataSourceA}
+* 数据库：\${SchemaA}
+* 数据表：test_table_16178_c0001
+是否设置分区：不设置分区
+* 标准目录：\${CatalogA}
+车型关联字段：不绑定`,
+          expected: "检查对象展示 test_table_16178_c0001",
+        },
+        { action: "查看检查内容", expected: "分区设置展示为“不设置分区”" },
+      ],
+    });
+    expect(lintCaseContent(doc(standardCheck), config).map((item) => item.rule)).not.toContain(
+      "case_partition_fixture",
+    );
+
+    const emptyComparePartition = testCase({
+      precondition: validSparkPrecondition,
+      steps: [
+        { action: "进入【数据质量 → 规则集管理】页面", expected: "进入成功" },
+        {
+          action: "配置多表比对规则：校验表分区：空\n对比表分区：空",
+          expected: "两张表的分区条件均为空",
+        },
+        { action: "查看规则配置", expected: "规则未设置分区条件" },
+      ],
+    });
+    expect(
+      lintCaseContent(doc(emptyComparePartition), config).map((item) => item.rule),
+    ).not.toContain("case_partition_fixture");
+  });
+
   it("requires explicit partition selection and one-pass-one-fail partition data split", () => {
     const base = `1) 授权数据源：\${DataSourceA}
 2) 数据源类型：SparkThrift2.x
@@ -1641,6 +1725,42 @@ BASH
     });
     expect(lintCaseContent(doc(clean), config).map((entry) => entry.rule)).not.toContain(
       "case_precondition_dependency_note",
+    );
+  });
+
+  it("blocks opaque Template identifiers used instead of executable case setup", () => {
+    const placeholder = testCase({
+      precondition: "1) 存在可复用的落标检查回归模板 StandardCheckTemplate",
+      steps: [
+        { action: "进入【数据标准 → 落标检查】页面", expected: "进入成功" },
+        {
+          action: "复用 StandardCheckTemplate 创建落标检查任务",
+          expected: "落标检查任务创建成功",
+        },
+        { action: "执行落标检查任务", expected: "任务状态为「检查完成」" },
+      ],
+    });
+    const violation = lintCaseContent(doc(placeholder), config).find(
+      (entry) => entry.rule === "case_template_placeholder",
+    );
+    expect(violation?.message).toContain("StandardCheckTemplate");
+
+    const explicit = testCase({
+      precondition: `1) 存在标准目录：\${CatalogA}`,
+      steps: [
+        { action: "进入【数据标准 → 标准定义】页面", expected: "进入成功" },
+        {
+          action: `新建并上线标准，中文名称填写「车辆识别码标准」，英文名称填写 vin，标准目录选择 \${CatalogA}`,
+          expected: "标准状态为「已上线」",
+        },
+        {
+          action: "进入【数据标准 → 标准映射】页面，为该标准绑定字段 vin",
+          expected: "标准映射列表展示字段 vin",
+        },
+      ],
+    });
+    expect(lintCaseContent(doc(explicit), config).map((entry) => entry.rule)).not.toContain(
+      "case_template_placeholder",
     );
   });
 

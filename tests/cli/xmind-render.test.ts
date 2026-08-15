@@ -115,28 +115,35 @@ describe("shouldUseStepsAsNotes", () => {
 });
 
 describe("requirements layout L1 labels", () => {
-  const file = (parentRequirementId?: string): CasesFile => ({
+  const file = (requirementId = "13183", moduleId?: string): CasesFile => ({
     meta: {
       title: "T",
       feature_id: "f",
       project_id: "data-assets",
       case_module_id: "10826",
       layout: "requirements",
-      ...(parentRequirementId ? { requirement_id: parentRequirementId } : {}),
+      requirement_id: "15911",
     },
-    requirements: [{ requirement_id: "13183", title: "R1", source: "x" }],
+    requirements: [
+      {
+        requirement_id: requirementId,
+        title: "R1",
+        source: "x",
+        ...(moduleId ? { module_id: moduleId } : {}),
+      },
+    ],
     cases: [
       {
         id: "C0001",
         title: "c1",
         priority: "P1",
-        requirement_id: "13183",
+        requirement_id: requirementId,
         steps: [{ action: "a", expected: "e" }],
       },
     ],
   });
 
-  async function l1Labels(source: CasesFile): Promise<Array<{ title: string; labels: string[] }>> {
+  async function l1Topics(source: CasesFile): Promise<Array<{ title: string; labels: string[] }>> {
     const buffer = await renderXmindBuffer(source, "dataAssets", {
       version: "v7.0.0",
       featureKey: "f",
@@ -153,11 +160,13 @@ describe("requirements layout L1 labels", () => {
     );
   }
 
-  it("tags L1 requirement topics with the parent requirement id when present", async () => {
-    expect(await l1Labels(file("15911"))).toEqual([{ title: "R1", labels: ["(#15911)"] }]);
+  it("appends the ZenTao module id to the L1 title and tags the requirement id", async () => {
+    expect(await l1Topics(file("15911", "10834"))).toEqual([
+      { title: "R1 (#10834)", labels: ["(#15911)"] },
+    ]);
   });
 
-  it("falls back to the sub-requirement id without a parent id", async () => {
-    expect(await l1Labels(file())).toEqual([{ title: "R1", labels: ["(#13183)"] }]);
+  it("tags the sub-requirement id when it differs from the parent id", async () => {
+    expect(await l1Topics(file("13183"))).toEqual([{ title: "R1", labels: ["(#13183)"] }]);
   });
 });

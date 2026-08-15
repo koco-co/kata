@@ -178,9 +178,7 @@ cases:
     expect(r.status).toBe(0);
     expect(existsSync(join(d, "cases", "exports", "需求名.xmind"))).toBe(true);
     expect(existsSync(join(d, "cases", "exports", "需求名.csv"))).toBe(true);
-    expect(readFileSync(join(d, "cases", "exports", "需求名.csv"), "utf8")).toContain(
-      "需求名(#12345)",
-    );
+    expect(readFileSync(join(d, "cases", "exports", "需求名.csv"), "utf8")).toContain("(#12345)");
     expect(readFileSync(join(d, "cases", "需求名.yaml"), "utf8")).toMatch(
       /case_module_id:\s*["']?12345["']?/,
     );
@@ -229,9 +227,58 @@ cases:
     });
     expect(report.created).toHaveLength(2);
     expect(readFileSync(yamlPath, "utf8")).toMatch(/case_module_id:\s*["']?10826["']?/);
-    expect(readFileSync(join(d, "cases", "exports", "需求名.csv"), "utf8")).toContain(
-      "需求名(#10826)",
+    expect(readFileSync(join(d, "cases", "exports", "需求名.csv"), "utf8")).toContain("(#10826)");
+  });
+  it("persists per-requirement module ids into requirements entries", async () => {
+    const d = feature();
+    const yamlPath = join(d, "cases", "需求名.yaml");
+    writeFileSync(
+      yamlPath,
+      `meta:
+  title: 需求名
+  feature_id: fixture-feature
+  project_id: data-assets
+  requirement_id: "15911"
+  case_module_id: "10826"
+  layout: requirements
+  exports: [交付用例.csv]
+requirements:
+  - requirement_id: "13184"
+    title: 需求甲
+    source: prd
+  - requirement_id: "13185"
+    title: 需求乙
+    source: prd
+cases:
+  - case_id: C0001
+    title: 验证【数据质量】-【规则库配置】进入页面，展示规则列表
+    priority: P0
+    precondition: 无
+    requirement_id: "13184"
+    steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 进入成功
+      - action: 查看规则列表
+        expected: 规则列表展示 1 条记录
+      - action: 确认规则状态
+        expected: 状态显示为「启用」
+`,
     );
+    const report = await runCasesBuild(d, {
+      formats: ["csv"],
+      requirementModuleIds: [
+        { requirementId: "13184", moduleId: "20001" },
+        { requirementId: "13185", moduleId: "20002" },
+      ],
+    });
+    expect(report.created).toHaveLength(1);
+    const yaml = readFileSync(yamlPath, "utf8");
+    expect(yaml).toContain('requirement_id: "13184"');
+    expect(yaml).toContain('module_id: "20001"');
+    expect(yaml).toContain('module_id: "20002"');
+    const csv = readFileSync(join(d, "cases", "exports", "需求名.csv"), "utf8");
+    expect(csv).toContain("(#20001)");
+    expect(csv).not.toContain("(#10826)");
   });
   it("overwrites existing derived artifacts even when content is unchanged", async () => {
     const d = feature();

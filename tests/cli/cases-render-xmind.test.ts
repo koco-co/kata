@@ -20,7 +20,7 @@ function file(cases: CasesFile["cases"]): CasesFile {
 }
 
 describe("renderXmind", () => {
-  it("renders the requirement module id as an L1 label and keeps preconditions on case notes", async () => {
+  it("tags L1 requirement topics with the requirement id and keeps preconditions on case notes", async () => {
     const dir = mkdtempSync(join(tmpdir(), "kata-rx-aggregate-"));
     const out = join(dir, "需求名.xmind");
     const aggregate: CasesFile = {

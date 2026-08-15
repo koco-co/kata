@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import {
   computePrdDigest,
   finalizePrd,
@@ -257,6 +257,19 @@ evidence_digest: "sha256:deadbeef"
 });
 
 describe("PRD checklist verdicts", () => {
+  it("keeps the boundary checklist prompt synchronized with the stable seed", () => {
+    const checklist = readFileSync(
+      resolve(import.meta.dir, "../../.claude/skills/test-case/checklists/clarify.md"),
+      "utf8",
+    );
+    const boundaryItem = PRD_CHECKLIST_SEED.find((item) => item.id === "CL-002");
+
+    expect(boundaryItem?.title).toBe("边界值、枚举与下游覆盖");
+    expect(checklist).toContain("| CL-002 | **边界值、枚举与下游覆盖**");
+    expect(checklist).toContain("合法边界值参与后续业务执行时");
+    expect(checklist).toContain("通过、不通过等结果分支");
+  });
+
   it("blocks finalize when round-2 omission scan lacks checklist_verdicts", () => {
     const state = session();
     state.preparation.omission_scans[1].checklist_verdicts = undefined;
